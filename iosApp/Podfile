@@ -1,0 +1,7 @@
+use_frameworks!
+
+platform :ios, '9.0'
+
+target 'iosApp' do
+    pod 'app', :path => '../app'
+end

@@ -1,0 +1,35 @@
+{
+  "name": "lib",
+  "version": "0.1",
+  "homepage": "https://github.com/touchlab/KotlinMultiplatformStarter",
+  "source": {
+    "git": "Not Published",
+    "tag": "Cocoapods/lib/0.1"
+  },
+  "authors": "",
+  "license": "",
+  "summary": "Basic Sample App",
+  "static_framework": true,
+  "vendored_frameworks": "build/cocoapods/framework/lib.framework",
+  "libraries": "c++",
+  "module_name": "lib_umbrella",
+  "pod_target_xcconfig": {
+    "KOTLIN_TARGET[sdk=iphonesimulator*]": "ios_x64",
+    "KOTLIN_TARGET[sdk=iphoneos*]": "ios_arm",
+    "KOTLIN_TARGET[sdk=macosx*]": "macos_x64"
+  },
+  "script_phases": [
+    {
+      "name": "Build app",
+      "execution_position": "before_compile",
+      "shell_path": "/bin/sh",
+      "script": "                set -ev\n                REPO_ROOT=\"$PODS_TARGET_SRCROOT\"\n                \"$REPO_ROOT/../gradlew\" -p \"$REPO_ROOT\" :lib:syncFramework                     -Pkotlin.native.cocoapods.target=$KOTLIN_TARGET                     -Pkotlin.native.cocoapods.configuration=$CONFIGURATION                     -Pkotlin.native.cocoapods.cflags=\"$OTHER_CFLAGS\"                     -Pkotlin.native.cocoapods.paths.headers=\"$HEADER_SEARCH_PATHS\"                     -Pkotlin.native.cocoapods.paths.frameworks=\"$FRAMEWORK_SEARCH_PATHS\"\n"
+    }
+  ],
+  "platforms": {
+    "osx": null,
+    "ios": null,
+    "tvos": null,
+    "watchos": null
+  }
+}
