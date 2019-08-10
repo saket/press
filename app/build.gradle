@@ -6,7 +6,7 @@ apply plugin: 'org.jetbrains.kotlin.native.cocoapods'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId 'org.jetbrains.kotlin.mpp_app_android'
+        applicationId 'me.saket.compose.android'
         minSdkVersion 15
         targetSdkVersion 28
         versionCode 1
@@ -66,7 +66,7 @@ kotlin {
 
     cocoapods {
         // Configure fields required by CocoaPods.
-        summary = "KMP Starter Project"
-        homepage = "https://github.com/touchlab/KotlinMultiplatformStarter"
+        summary = "Compose"
+        homepage = "https://github.com/saket/compose"
     }
 }

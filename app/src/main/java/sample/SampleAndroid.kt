@@ -1,7 +1,7 @@
 package sample
 
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 import android.widget.TextView
 
 class MainActivity : AppCompatActivity() {
@@ -11,6 +11,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val textView = findViewById<TextView>(R.id.main_text)
-        textView.text = "Hello, Android world!"
+        textView.text = Greeting().hello()
     }
 }

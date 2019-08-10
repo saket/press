@@ -1,3 +1,3 @@
-rootProject.name = 'mobilesample'
+rootProject.name = 'Compose'
 
 include ':app'
