@@ -4,64 +4,54 @@ apply plugin: 'org.jetbrains.kotlin.multiplatform'
 apply plugin: 'org.jetbrains.kotlin.native.cocoapods'
 
 android {
-    compileSdkVersion 28
-//    defaultConfig {
-//        applicationId 'me.saket.compose.android'
-//        minSdkVersion 15
-//        targetSdkVersion 28
-//        versionCode 1
-//        versionName '1.0'
-//        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
-//    }
-//    buildTypes {
-//        release {
-//            minifyEnabled false
-//        }
-//    }
+  compileSdkVersion versions.compileSdk
+  defaultConfig {
+    minSdkVersion versions.minSdk
+  }
 }
 
 // Not sure, but probably used by CocoaPods.
 version = 0.1
 
 kotlin {
-    android("android")
-    // This is for iPhone emulator
-    // Switch here to iosArm64 (or iosArm32) to build library for iPhone device
-    iosX64("ios")
+  android("android")
+  // This is for iPhone emulator
+  // Switch here to iosArm64 (or iosArm32) to build library for iPhone device
+  iosX64("ios")
 
-    sourceSets {
-        commonMain {
-            dependencies {
-                implementation kotlin('stdlib-common')
-            }
-        }
-        commonTest {
-            dependencies {
-        		implementation kotlin('test-common')
-        		implementation kotlin('test-annotations-common')
-            }
-        }
-        androidMain {
-            dependencies {
-                implementation kotlin('stdlib')
-                implementation deps.androidx.appCompat
-            }
-        }
-        androidTest {
-            dependencies {
-                implementation kotlin('test')
-                implementation kotlin('test-junit')
-            }
-        }
-        iosMain {}
-        iosTest {}
+  sourceSets {
+    commonMain {
+      dependencies {
+        implementation kotlin('stdlib-common')
+      }
     }
+    commonTest {
+      dependencies {
+        implementation kotlin('test-common')
+        implementation kotlin('test-annotations-common')
+      }
+    }
+    androidMain {
+      dependencies {
+        implementation kotlin('stdlib')
+        implementation deps.androidx.appCompat
+      }
+    }
+    androidTest {
+      dependencies {
+        implementation kotlin('test')
+        implementation kotlin('test-junit')
+      }
+    }
+    iosMain {}
+    iosTest {}
+  }
 
-    cocoapods {
-        // Configure fields required by CocoaPods.
-        summary = "Compose"
-        homepage = "https://github.com/saket/compose"
-    }
+  cocoapods {
+    // Configure fields required by CocoaPods.
+    summary = "Wysiwyg"
+    homepage = "https://github.com/saket/compose"
+  }
 }
 
 dependencies {}
