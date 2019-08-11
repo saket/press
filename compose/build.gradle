@@ -20,6 +20,8 @@ android {
 }
 
 dependencies {
+  implementation project(':wysiwyg')
+
   implementation deps.kotlin.stdlib.jdk8
   implementation deps.androidx.appCompat
   implementation deps.androidx.ktx

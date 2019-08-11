@@ -1,16 +1,16 @@
-package sample
+package home
 
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import me.saket.wysiwyg.Greeting
 
-class MainActivity : AppCompatActivity() {
+class HomeActivity : AppCompatActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    setContentView(R.layout.activity_main)
-
-    val textView = findViewById<TextView>(R.id.main_text)
-    textView.text = Greeting().hello()
+    setContentView(TextView(this).apply {
+      text = Greeting().hello()
+    })
   }
 }
