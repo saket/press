@@ -1,4 +1,4 @@
-package util
+package compose.util
 
 import android.os.Build.VERSION.SDK_INT
 import android.view.View
@@ -6,7 +6,7 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.annotation.AttrRes
 import androidx.annotation.StringRes
-import widgets.Attr
+import compose.widgets.Attr
 
 fun View.string(@StringRes stringRes: Int) = resources.getString(stringRes)
 

@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package home
+package compose.home
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -18,16 +18,16 @@ import android.widget.ScrollView
 import android.widget.TextView
 import com.squareup.contour.ContourLayout
 import me.saket.compose.R
-import theme.AppTheme
-import util.attr
-import util.fromOreo
-import util.heightOf
-import util.hintRes
-import util.padding
-import util.string
-import util.textAppearance
-import util.textColor
-import util.x
+import compose.theme.AppTheme
+import compose.util.attr
+import compose.util.fromOreo
+import compose.util.heightOf
+import compose.util.hintRes
+import compose.util.padding
+import compose.util.string
+import compose.util.textAppearance
+import compose.util.textColor
+import compose.util.x
 
 @SuppressLint("ViewConstructor")
 class EditorView(

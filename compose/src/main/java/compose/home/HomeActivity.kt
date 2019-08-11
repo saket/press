@@ -1,8 +1,8 @@
-package home
+package compose.home
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import theme.DarculaTheme
+import compose.theme.DarculaTheme
 
 class HomeActivity : AppCompatActivity() {
 

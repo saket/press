@@ -1,4 +1,4 @@
-package theme
+package compose.theme
 
 object Palette {
   val COLOR_SHARK = color("#363846")

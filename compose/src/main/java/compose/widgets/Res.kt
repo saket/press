@@ -1,4 +1,4 @@
-package widgets
+package compose.widgets
 
 import android.content.Context
 import android.util.TypedValue

@@ -1,10 +1,10 @@
-package util
+package compose.util
 
 import com.squareup.contour.HeightOfAllowedContext
 import com.squareup.contour.XInt
 import com.squareup.contour.YInt
 import com.squareup.contour.YResolver
-import widgets.Attr
+import compose.widgets.Attr
 
 val Int.x: XInt
   get() = XInt(this)
