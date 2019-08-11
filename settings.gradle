@@ -1,3 +1,3 @@
 rootProject.name = 'Compose'
 
-include ':app'
+include ':wysiwyg'
