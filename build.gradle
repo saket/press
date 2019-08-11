@@ -16,3 +16,5 @@ allprojects {
         mavenCentral()
     }
 }
+
+apply from: 'gradle/dependencies.gradle'
