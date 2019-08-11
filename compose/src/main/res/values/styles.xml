@@ -1,11 +1,13 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-    </style>
+  <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+    <item name="colorPrimary">@color/shark</item>
+    <item name="colorPrimaryDark">@color/shark</item>
+    <item name="colorAccent">@color/screamin_green</item>
+  </style>
 
+  <color name="cannon_pink">#8E3A6D</color>
+  <color name="shark">#232530</color>
+  <color name="screamin_green">#4EFA7B</color>
+  <color name="tuna">#343846</color>
 </resources>

@@ -4,9 +4,9 @@ apply plugin: 'org.jetbrains.kotlin.multiplatform'
 apply plugin: 'org.jetbrains.kotlin.native.cocoapods'
 
 android {
-  compileSdkVersion versions.compileSdk
+  compileSdkVersion projectVersions.compileSdk
   defaultConfig {
-    minSdkVersion versions.minSdk
+    minSdkVersion projectVersions.minSdk
   }
 }
 

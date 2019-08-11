@@ -1,8 +1,5 @@
 buildscript {
   ext.versions = [
-      minSdk: 21,
-      compileSdk: 28,
-
       dagger: '2.24',
       butterKnife: '8.8.1',
       timber: '4.7.1',

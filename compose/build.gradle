@@ -3,11 +3,11 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-  compileSdkVersion versions.compileSdk
+  compileSdkVersion projectVersions.compileSdk
   defaultConfig {
     applicationId "me.saket.compose"
-    minSdkVersion versions.minSdk
-    targetSdkVersion versions.compileSdk
+    minSdkVersion projectVersions.minSdk
+    targetSdkVersion projectVersions.compileSdk
     versionCode 1
     versionName "1.0"
   }
@@ -16,6 +16,10 @@ android {
     release {
       minifyEnabled false
     }
+  }
+
+  kotlinOptions {
+    jvmTarget = "1.8"
   }
 }
 
