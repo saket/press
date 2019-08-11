@@ -1,22 +1,37 @@
-buildscript { 
-    ext.kotlin_version = '1.3.41'
-
-    repositories {
-        google()
-        jcenter()
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.41"
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version" }
-}
-allprojects {
-    repositories {
-        google()
-        jcenter()
-        mavenCentral()
-    }
-}
-
 apply from: 'gradle/dependencies.gradle'
+
+buildscript {
+  // These unfortunately cannot be moved to dependencies.gradle.
+  ext.versions = [kotlin: '1.3.41']
+  ext.squareMavenRepoUrl = "https://maven.global.square"
+
+  repositories {
+    google()
+    jcenter()
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath 'com.android.tools.build:gradle:3.4.2'
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
+  }
+}
+
+allprojects {
+  repositories {
+    google()
+    jcenter()
+    mavenCentral()
+  }
+}
+
+subprojects { project ->
+  repositories {
+    maven {
+      url squareMavenRepoUrl + '/artifactory/android-public'
+      metadataSources {
+        mavenPom()
+      }
+    }
+  }
+}

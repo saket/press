@@ -84,5 +84,6 @@ buildscript {
               'common': "org.jetbrains.kotlin:kotlin-stdlib-common:${versions.kotlin}",
           ],
       ],
+      'contour': 'app.cash:contour:0.1.2',
   ]
 }
