@@ -8,7 +8,9 @@ buildscript {
       sqldelight: '1.1.4',
       persistence: '2.0.0',
       okhttp: '4.0.1',
-      squareInject: '0.4.0'
+      squareInject: '0.4.0',
+      coroutines: '1.1.1',
+      flexmark: '0.50.26',
   ]
 
   ext.deps = [
@@ -82,5 +84,9 @@ buildscript {
           ],
       ],
       'contour': 'app.cash:contour:0.1.2',
+      'flexmark': [
+          'core': "com.vladsch.flexmark:flexmark-java:$versions.flexmark",
+          'strikethrough': "com.vladsch.flexmark:flexmark-ext-gfm-strikethrough:$versions.flexmark"
+      ]
   ]
 }

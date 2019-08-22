@@ -17,17 +17,12 @@ import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.TextView
 import com.squareup.contour.ContourLayout
-import me.saket.compose.R
 import compose.theme.AppTheme
-import compose.util.attr
-import compose.util.fromOreo
-import compose.util.heightOf
-import compose.util.hintRes
-import compose.util.padding
-import compose.util.string
-import compose.util.textAppearance
-import compose.util.textColor
-import compose.util.x
+import compose.util.*
+import me.saket.compose.R
+import me.saket.wysiwyg.Wysiwyg
+import me.saket.wysiwyg.WysiwygTheme
+import me.saket.wysiwyg.widgets.addTextChangedListener
 
 @SuppressLint("ViewConstructor")
 class EditorView(
@@ -35,7 +30,7 @@ class EditorView(
   theme: AppTheme
 ) : ContourLayout(context) {
 
-  private val toolbar = TextView(context).apply {
+  private val toolbarView = TextView(context).apply {
     text = string(R.string.app_name)
     typeface = Typeface.create("monospace", NORMAL)
     textAppearance = R.style.TextAppearance_AppCompat_Title
@@ -51,11 +46,11 @@ class EditorView(
     isFillViewport = true
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
-        y = topTo { toolbar.bottom() }.bottomTo { parent.bottom() }
+        y = topTo { toolbarView.bottom() }.bottomTo { parent.bottom() }
     )
   }
 
-  private val editor = EditText(context).apply {
+  private val editorView = EditText(context).apply {
     background = null
     breakStrategy = BREAK_STRATEGY_HIGH_QUALITY
     gravity = TOP
@@ -68,6 +63,13 @@ class EditorView(
   }
 
   init {
-    scrollView.addView(editor, MATCH_PARENT, WRAP_CONTENT)
+    scrollView.addView(editorView, MATCH_PARENT, WRAP_CONTENT)
+  }
+
+  override fun onFinishInflate() {
+    super.onFinishInflate()
+
+    val wysiwyg = Wysiwyg(editorView, WysiwygTheme(context))
+    editorView.addTextChangedListener(wysiwyg.syntaxHighlighter())
   }
 }

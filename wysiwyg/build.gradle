@@ -35,6 +35,8 @@ kotlin {
       dependencies {
         implementation kotlin('stdlib')
         implementation deps.androidx.appCompat
+        implementation deps.flexmark.core
+        implementation deps.flexmark.strikethrough
       }
     }
     androidTest {
@@ -45,6 +47,12 @@ kotlin {
     }
     iosMain {}
     iosTest {}
+
+    all {
+      languageSettings {
+        enableLanguageFeature('InlineClasses')
+      }
+    }
   }
 
   cocoapods {
