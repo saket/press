@@ -9,3 +9,8 @@ actual fun SpanPool.italics(): WysiwygSpan =
   get { StyleSpan(recycler) }.apply {
     style = StyleSpan.Style.ITALIC
   }
+
+actual fun SpanPool.bold(): WysiwygSpan =
+  get { StyleSpan(recycler) }.apply {
+    style = StyleSpan.Style.BOLD
+  }

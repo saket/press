@@ -2,6 +2,7 @@ package me.saket.wysiwyg.parser.highlighters
 
 import me.saket.wysiwyg.parser.node.Emphasis
 import me.saket.wysiwyg.parser.node.Node
+import me.saket.wysiwyg.parser.node.StrongEmphasis
 import kotlin.reflect.KClass
 
 class SyntaxHighlighters {
@@ -10,7 +11,7 @@ class SyntaxHighlighters {
 
   init {
     add(Emphasis::class, EmphasisVisitor())
-    //add(StrongEmphasis::class.java, StrongEmphasisVisitor())
+    add(StrongEmphasis::class, StrongEmphasisVisitor())
     //add(Link::class.java, LinkVisitor())
     //add(Strikethrough::class.java, StrikethroughVisitor())
     //add(Code::class.java, InlineCodeVisitor())
@@ -49,14 +50,10 @@ class SyntaxHighlighters {
   fun <T : Node> add(
     nodeType: KClass<T>,
     visitor: NodeVisitor<T>
-  ) {
-    add(
-        nodeType = nodeType,
-        highlighter = object : SyntaxHighlighter<T> {
-          override fun visitor(node: T) = visitor
-        }
-    )
-  }
+  ) =
+    add(nodeType, object : SyntaxHighlighter<T> {
+      override fun visitor(node: T) = visitor
+    })
 
   fun <T : Node> add(
     nodeType: KClass<T>,

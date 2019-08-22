@@ -15,3 +15,7 @@ expect abstract class DelimitedNodeImpl : Node, DelimitedNode
 expect class Emphasis : DelimitedNodeImpl
 expect val Emphasis.startOffset: Int
 expect val Emphasis.endOffset: Int
+
+expect class StrongEmphasis : DelimitedNodeImpl
+expect val StrongEmphasis.startOffset: Int
+expect val StrongEmphasis.endOffset: Int

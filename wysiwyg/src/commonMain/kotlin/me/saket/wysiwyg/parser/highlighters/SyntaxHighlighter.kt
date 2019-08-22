@@ -23,6 +23,8 @@ interface NodeVisitor<in T : Node> {
         pool: SpanPool,
         writer: SpanWriter
       ) = Unit
+
+      override fun toString() = "Empty node visitor"
     }
   }
 }

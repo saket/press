@@ -10,7 +10,7 @@ actual data class WysiwygTheme(
 
   /** Color used for highlighting '**', '~~' and other syntax characters. */
   @ColorInt
-  actual val syntaxColor: Int = color("#78909C")
+  actual val syntaxColor: Int = color("#CCAEF9")
 )
 
 @Suppress("SameParameterValue")

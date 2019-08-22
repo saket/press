@@ -15,3 +15,7 @@ actual abstract class DelimitedNodeImpl : Node(), DelimitedNode
 actual class Emphasis : DelimitedNodeImpl()
 actual val Emphasis.startOffset: Int get() = TODO()
 actual val Emphasis.endOffset: Int get() = TODO()
+
+actual class StrongEmphasis : DelimitedNodeImpl()
+actual val StrongEmphasis.startOffset: Int get() = TODO()
+actual val StrongEmphasis.endOffset: Int get() = TODO()
