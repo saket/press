@@ -34,7 +34,9 @@ dependencies {
   implementation deps.kotlin.stdlib.jdk8
   implementation deps.androidx.appCompat
   implementation deps.androidx.ktx
+
   implementation deps.contour
+  implementation deps.timber
 
   testImplementation deps.junit
 }

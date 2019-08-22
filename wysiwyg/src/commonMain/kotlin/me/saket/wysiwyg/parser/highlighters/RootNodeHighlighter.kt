@@ -20,12 +20,12 @@ object RootNodeHighlighter : NodeVisitor<Node> {
     while (child != null) {
       // A subclass of this visitor might modify the node, resulting in getNext returning a
       // different node or no node after visiting it. So get the next node before visiting.
-      val next: Node = child.nextNode
+      val next: Node? = child.nextNode
 
       val visitor = highlighters.nodeVisitor(child)
       visitor.visit(child, pool, writer)
 
-      visit(next, pool, writer)
+      visit(child, pool, writer)
       child = next
     }
   }

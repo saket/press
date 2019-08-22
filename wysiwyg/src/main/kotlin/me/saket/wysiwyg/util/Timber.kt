@@ -1,8 +1,16 @@
 package me.saket.wysiwyg.util
 
-import timber.log.Timber as AndroidTimber
+import android.annotation.SuppressLint
+import android.util.Log
 
+@SuppressLint("LogNotTimber")
 actual object Timber {
-  actual fun i(message: String) = AndroidTimber.i(message)
-  actual fun d(message: String) = AndroidTimber.d(message)
+
+  actual fun i(message: String) {
+    Log.i("Compose", message)
+  }
+
+  actual fun d(message: String) {
+    Log.d("Compose", message)
+  }
 }

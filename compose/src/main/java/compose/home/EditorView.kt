@@ -64,10 +64,6 @@ class EditorView(
 
   init {
     scrollView.addView(editorView, MATCH_PARENT, WRAP_CONTENT)
-  }
-
-  override fun onFinishInflate() {
-    super.onFinishInflate()
 
     val wysiwyg = Wysiwyg(editorView, WysiwygTheme(context))
     editorView.addTextChangedListener(wysiwyg.syntaxHighlighter())

@@ -2,7 +2,7 @@ package me.saket.wysiwyg.parser.node
 
 actual abstract class Node
 actual val Node.firstChild: Node? get() = TODO()
-actual val Node.nextNode: Node get() = TODO()
+actual val Node.nextNode: Node? get() = TODO()
 actual val Node.startOffset: Int get() = TODO()
 actual val Node.endOffset: Int get() = TODO()
 
