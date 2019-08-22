@@ -18,13 +18,21 @@ import android.widget.ScrollView
 import android.widget.TextView
 import com.squareup.contour.ContourLayout
 import compose.theme.AppTheme
-import compose.util.*
+import compose.util.attr
+import compose.util.fromOreo
+import compose.util.heightOf
+import compose.util.hintRes
+import compose.util.padding
+import compose.util.string
+import compose.util.textAppearance
+import compose.util.textColor
+import compose.util.x
 import me.saket.compose.R
 import me.saket.wysiwyg.Wysiwyg
 import me.saket.wysiwyg.WysiwygTheme
 import me.saket.wysiwyg.widgets.addTextChangedListener
 
-@SuppressLint("ViewConstructor")
+@SuppressLint("ViewConstructor, SetTextI18n")
 class EditorView(
   context: Context,
   theme: AppTheme
@@ -64,6 +72,9 @@ class EditorView(
 
   init {
     scrollView.addView(editorView, MATCH_PARENT, WRAP_CONTENT)
+
+    editorView.setText("is a **multiplatform** markdown editor")
+    editorView.setSelection(editorView.text.length - 1)
 
     val wysiwyg = Wysiwyg(editorView, WysiwygTheme(context))
     editorView.addTextChangedListener(wysiwyg.syntaxHighlighter())
