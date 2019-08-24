@@ -2,7 +2,7 @@ package compose.home
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import compose.theme.DarculaTheme
+import compose.theme.DraculaTheme
 
 class HomeActivity : AppCompatActivity() {
 
@@ -12,5 +12,5 @@ class HomeActivity : AppCompatActivity() {
     setContentView(EditorView(this, theme()))
   }
 
-  private fun theme() = DarculaTheme
+  private fun theme() = DraculaTheme
 }

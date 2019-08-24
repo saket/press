@@ -5,7 +5,7 @@ object Palette {
   val COLOR_SCREAMING_GREEN = color("#50FA7B")
 }
 
-object DarculaTheme : AppTheme(
+object DraculaTheme : AppTheme(
     primaryColor = Palette.COLOR_SHARK,
     primaryColorDark = Palette.COLOR_SHARK,
     accentColor = Palette.COLOR_SCREAMING_GREEN,
