@@ -9,6 +9,8 @@ actual data class WysiwygTheme(
   actual val listBlockIndentationMargin: Int,
   actual val linkUrlColor: Int,
   actual val linkTextColor: Int,
+  actual val thematicBreakColor: Int,
+  actual val thematicBreakThickness: Float,
   actual val codeBackgroundColor: Int,
   actual val codeBlockMargin: Int
 )

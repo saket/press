@@ -38,6 +38,13 @@ actual data class WysiwygTheme(
   @ColorInt
   actual val linkTextColor: Int = color("#8DF0FF"),
 
+  /** Thematic break a.k.a. horizontal rule. */
+  @ColorInt
+  actual val thematicBreakColor: Int = color("#616161"),
+
+  @Px
+  actual val thematicBreakThickness: Float = dip(context, 4),
+
   @ColorInt
   actual val codeBackgroundColor: Int = color("#1F202A"),
 

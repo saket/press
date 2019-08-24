@@ -48,3 +48,6 @@ expect class BulletList : ListBlock
 expect abstract class ListItem : Block
 expect class OrderedListItem : ListItem
 expect class BulletListItem : ListItem
+
+expect class ThematicBreak : Block
+expect val ThematicBreak.chars: CharSequence

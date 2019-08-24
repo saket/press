@@ -20,6 +20,7 @@ import com.vladsch.flexmark.ast.ListItem as FlexmarkListItem
 import com.vladsch.flexmark.ast.OrderedList as FlexmarkOrderedList
 import com.vladsch.flexmark.ast.OrderedListItem as FlexmarkOrderedListItem
 import com.vladsch.flexmark.ast.StrongEmphasis as FlexmarkStrongEmphasis
+import com.vladsch.flexmark.ast.ThematicBreak as FlexmarkThematicBreak
 import com.vladsch.flexmark.ext.gfm.strikethrough.Strikethrough as FlexmarkStrikethrough
 import com.vladsch.flexmark.util.ast.Block as FlexmarkBlock
 import com.vladsch.flexmark.util.ast.ContentNode as FlexmarkContentNode
@@ -70,3 +71,6 @@ actual typealias BulletList = FlexmarkBulletList
 actual typealias ListItem = FlexmarkListItem
 actual typealias OrderedListItem = FlexmarkOrderedListItem
 actual typealias BulletListItem = FlexmarkBulletListItem
+
+actual typealias ThematicBreak = FlexmarkThematicBreak
+actual val ThematicBreak.chars: CharSequence get() = chars

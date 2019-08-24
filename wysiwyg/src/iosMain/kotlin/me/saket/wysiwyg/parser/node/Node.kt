@@ -45,3 +45,6 @@ actual class BulletList : ListBlock()
 actual abstract class ListItem : Block()
 actual class OrderedListItem : ListItem()
 actual class BulletListItem : ListItem()
+
+actual class ThematicBreak : Block()
+actual val ThematicBreak.chars: CharSequence get() = TODO()

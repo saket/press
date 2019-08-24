@@ -13,6 +13,7 @@ import me.saket.wysiwyg.parser.node.OrderedList
 import me.saket.wysiwyg.parser.node.OrderedListItem
 import me.saket.wysiwyg.parser.node.Strikethrough
 import me.saket.wysiwyg.parser.node.StrongEmphasis
+import me.saket.wysiwyg.parser.node.ThematicBreak
 import kotlin.reflect.KClass
 
 class SyntaxHighlighters {
@@ -38,7 +39,7 @@ class SyntaxHighlighters {
     add(BulletList::class, BulletListVisitor())
     add(OrderedListItem::class, OrderedListItemVisitor())
     add(BulletListItem::class, BulletListItemVisitor())
-    //add(ThematicBreak::class, ThematicBreakVisitor())
+    add(ThematicBreak::class, ThematicBreakVisitor())
     //add(Heading::class, HeadingVisitor())
   }
 

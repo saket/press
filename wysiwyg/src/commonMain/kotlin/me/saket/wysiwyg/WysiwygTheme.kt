@@ -9,6 +9,8 @@ expect class WysiwygTheme {
   val listBlockIndentationMargin: Int
   val linkUrlColor: Int
   val linkTextColor: Int
+  val thematicBreakColor: Int
+  val thematicBreakThickness: Float
   val codeBackgroundColor: Int
   val codeBlockMargin: Int
 }

@@ -101,8 +101,12 @@ class EditorView(
       |Unordered list block
       |- Item A
       |- Item B
+      |
+      |---
+      |***
+      |___
     """.trimMargin())
-    editorEditText.setSelection(editorEditText.text.length - 1)
+    editorEditText.setSelection(editorEditText.text.length)
 
     val wysiwyg = Wysiwyg(editorEditText, WysiwygTheme(context))
     editorEditText.addTextChangedListener(wysiwyg.syntaxHighlighter())
