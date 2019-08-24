@@ -4,19 +4,25 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.text.style.LineBackgroundSpan
 import me.saket.wysiwyg.WysiwygTheme
-import me.saket.wysiwyg.parser.highlighters.ThematicBreakSyntaxType
-import me.saket.wysiwyg.parser.highlighters.ThematicBreakSyntaxType.ASTERISKS
-import me.saket.wysiwyg.parser.highlighters.ThematicBreakSyntaxType.HYPHENS
-import me.saket.wysiwyg.parser.highlighters.ThematicBreakSyntaxType.UNDERSCORES
 
+/**
+ * @param syntax Used for calculating the left offset to avoid drawing under the text.
+ */
 actual class ThematicBreakSpan actual constructor(
   private val theme: WysiwygTheme,
   private val recycler: Recycler,
-  actual val syntax: CharSequence,
-  actual val syntaxType: ThematicBreakSyntaxType
+  actual val syntax: CharSequence
 ) : LineBackgroundSpan, WysiwygSpan {
 
   private var offsetForSyntax = -1f
+
+  /** Used for centering the rule with the text. */
+  private val topOffsetFactor: Float = when (syntax[0]) {
+    '*' -> -0.11f
+    '-' -> 0.07f
+    '_' -> 0.42f
+    else -> throw UnsupportedOperationException("Unknown thematic break mode: $syntax")
+  }
 
   override fun drawBackground(
     canvas: Canvas,
@@ -39,7 +45,7 @@ actual class ThematicBreakSpan actual constructor(
       offsetForSyntax = paint.measureText(syntax.toString())
     }
 
-    val lineCenter = ((top + bottom) / 2 + paint.textSize * syntaxType.topOffsetFactor()).toInt()
+    val lineCenter = ((top + bottom) / 2 + paint.textSize * topOffsetFactor).toInt()
     canvas.drawLine(
         left + offsetForSyntax,
         lineCenter.toFloat(),
@@ -54,12 +60,4 @@ actual class ThematicBreakSpan actual constructor(
   override fun recycle() {
     recycler(this)
   }
-
-  /** Used for centering the rule with the text. */
-  private fun ThematicBreakSyntaxType.topOffsetFactor(): Float =
-    when (this) {
-      HYPHENS -> 0.07f
-      ASTERISKS -> -0.11f
-      UNDERSCORES -> 0.42f
-    }
 }

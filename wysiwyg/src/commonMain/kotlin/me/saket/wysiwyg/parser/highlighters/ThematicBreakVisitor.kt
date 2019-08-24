@@ -2,9 +2,6 @@ package me.saket.wysiwyg.parser.highlighters
 
 import me.saket.wysiwyg.WysiwygTheme
 import me.saket.wysiwyg.parser.SpanWriter
-import me.saket.wysiwyg.parser.highlighters.ThematicBreakSyntaxType.ASTERISKS
-import me.saket.wysiwyg.parser.highlighters.ThematicBreakSyntaxType.HYPHENS
-import me.saket.wysiwyg.parser.highlighters.ThematicBreakSyntaxType.UNDERSCORES
 import me.saket.wysiwyg.parser.node.ThematicBreak
 import me.saket.wysiwyg.parser.node.chars
 import me.saket.wysiwyg.parser.node.endOffset
@@ -35,22 +32,12 @@ class ThematicBreakVisitor : NodeVisitor<ThematicBreak> {
       return
     }
 
-    val syntaxType = when (thematicBreakSyntax[0]) {
-      '*' -> ASTERISKS
-      '-' -> HYPHENS
-      '_' -> UNDERSCORES
-      else -> throw UnsupportedOperationException(
-          "Unknown thematic break mode: $thematicBreakSyntax"
-      )
-    }
-
-    // Caching mutable BasedSequence isn't a good idea.
-    val immutableThematicBreakChars = thematicBreakSyntax.toString()
+    // Flexmark (Android) maintains a mutable String, which isn't a good idea to cache.
+    val immutableSyntax = thematicBreakSyntax.toString()
 
     val hrSpan = thematicBreakSpansPool.get(
         theme = pool.theme,
-        syntax = immutableThematicBreakChars,
-        syntaxType = syntaxType
+        syntax = immutableSyntax
     )
     writer.add(hrSpan, node.startOffset, node.endOffset)
   }
@@ -73,19 +60,15 @@ internal class ThematicSpanPool {
    */
   internal fun get(
     theme: WysiwygTheme,
-    syntax: CharSequence,
-    syntaxType: ThematicBreakSyntaxType
+    syntax: CharSequence
   ): ThematicBreakSpan {
-    val key = recyclingKey(syntax, syntaxType)
-    return pool.remove(key) ?: ThematicBreakSpan(theme, recycler, syntax, syntaxType)
+    val key = recyclingKey(syntax)
+    return pool.remove(key) ?: ThematicBreakSpan(theme, recycler, syntax)
   }
 
   private fun recyclingKey(span: ThematicBreakSpan) =
-    recyclingKey(span.syntax, span.syntaxType)
+    recyclingKey(span.syntax)
 
-  private fun recyclingKey(
-    syntax: CharSequence,
-    syntaxType: ThematicBreakSyntaxType
-  ) =
-    "${syntax}_$syntaxType"
+  private fun recyclingKey(syntax: CharSequence) =
+    "$syntax"
 }
