@@ -14,12 +14,8 @@ expect val DelimitedNode.closingMarker: CharSequence
 expect abstract class DelimitedNodeImpl : Node, DelimitedNode
 
 expect class Emphasis : DelimitedNodeImpl
-expect val Emphasis.startOffset: Int
-expect val Emphasis.endOffset: Int
 
 expect class StrongEmphasis : DelimitedNodeImpl
-expect val StrongEmphasis.startOffset: Int
-expect val StrongEmphasis.endOffset: Int
 
 // https://youtrack.jetbrains.net/issue/KT-20641
 expect abstract class LinkNodeBase : Node
@@ -28,5 +24,5 @@ expect abstract class InlineLinkNode : LinkNode
 
 expect class Link : InlineLinkNode
 expect val Link.text: CharSequence
-expect val Link.startOffset: Int
-expect val Link.endOffset: Int
+
+expect class Strikethrough : Node, DelimitedNode

@@ -14,3 +14,6 @@ actual fun SpanPool.bold(): WysiwygSpan =
   get { StyleSpan(recycler) }.apply {
     style = StyleSpan.Style.BOLD
   }
+
+actual fun SpanPool.strikethrough(): WysiwygSpan =
+  get { StrikethroughSpan(recycler) }

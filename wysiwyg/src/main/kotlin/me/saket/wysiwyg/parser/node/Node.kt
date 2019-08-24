@@ -10,17 +10,16 @@ import com.vladsch.flexmark.ast.Link as FlexmarkLink
 import com.vladsch.flexmark.ast.LinkNode as FlexmarkLinkNode
 import com.vladsch.flexmark.ast.LinkNodeBase as FlexmarkLinkNodeBase
 import com.vladsch.flexmark.ast.StrongEmphasis as FlexmarkStrongEmphasis
+import com.vladsch.flexmark.ext.gfm.strikethrough.Strikethrough as FlexmarkStrikethrough
 import com.vladsch.flexmark.util.ast.Node as FlexmarkNode
 
 actual typealias Node = FlexmarkNode
-
 actual val Node.firstChild: Node? get() = firstChild
 actual val Node.nextNode: Node? get() = next
 actual val Node.startOffset: Int get() = startOffset
 actual val Node.endOffset: Int get() = endOffset
 
 actual typealias DelimitedNode = FlexmarkDelimitedNode
-
 actual val DelimitedNode.openingMarker: CharSequence get() = openingMarker
 actual val DelimitedNode.closingMarker: CharSequence get() = closingMarker
 
@@ -28,20 +27,13 @@ actual typealias DelimitedNodeImpl = FlexmarkDelimitedNodeImpl
 
 actual typealias Emphasis = FlexmarkEmphasis
 
-actual val Emphasis.startOffset: Int get() = startOffset
-actual val Emphasis.endOffset: Int get() = endOffset
-
 actual typealias StrongEmphasis = FlexmarkStrongEmphasis
-
-actual val StrongEmphasis.startOffset: Int get() = startOffset
-actual val StrongEmphasis.endOffset: Int get() = endOffset
 
 actual typealias LinkNodeBase = FlexmarkLinkNodeBase
 actual typealias LinkNode = FlexmarkLinkNode
 actual typealias InlineLinkNode = FlexmarkInlineLinkNode
 
 actual typealias Link = FlexmarkLink
-
 actual val Link.text: CharSequence get() = text
-actual val Link.startOffset: Int get() = startOffset
-actual val Link.endOffset: Int get() = endOffset
+
+actual typealias Strikethrough = FlexmarkStrikethrough

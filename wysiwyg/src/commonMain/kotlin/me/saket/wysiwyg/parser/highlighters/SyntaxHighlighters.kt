@@ -3,6 +3,7 @@ package me.saket.wysiwyg.parser.highlighters
 import me.saket.wysiwyg.parser.node.Emphasis
 import me.saket.wysiwyg.parser.node.Link
 import me.saket.wysiwyg.parser.node.Node
+import me.saket.wysiwyg.parser.node.Strikethrough
 import me.saket.wysiwyg.parser.node.StrongEmphasis
 import me.saket.wysiwyg.util.Timber
 import kotlin.reflect.KClass
@@ -21,7 +22,7 @@ class SyntaxHighlighters {
     add(Emphasis::class, EmphasisVisitor())
     add(StrongEmphasis::class, StrongEmphasisVisitor())
     add(Link::class, LinkVisitor())
-    //add(Strikethrough::class, StrikethroughVisitor())
+    add(Strikethrough::class, StrikethroughVisitor())
     //add(Code::class, InlineCodeVisitor())
     //add(IndentedCodeBlock::class, IndentedCodeBlockVisitor())
     //add(BlockQuote::class, BlockQuoteVisitor())
