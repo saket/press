@@ -84,6 +84,7 @@ class EditorView(
       *Italic text*
       [Link](https://url.com)
       ~~Strikethrough~~
+      `Inline code`
     """.trimIndent())
     editorEditText.setSelection(editorEditText.text.length - 1)
 

@@ -28,3 +28,4 @@ actual class Link : InlineLinkNode()
 actual val Link.text: CharSequence get() = TODO()
 
 actual class Strikethrough : Node(), DelimitedNode
+actual class Code : DelimitedNodeImpl()

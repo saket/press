@@ -2,6 +2,7 @@
 
 package me.saket.wysiwyg.parser.node
 
+import com.vladsch.flexmark.ast.Code as FlexmarkCode
 import com.vladsch.flexmark.ast.DelimitedNode as FlexmarkDelimitedNode
 import com.vladsch.flexmark.ast.DelimitedNodeImpl as FlexmarkDelimitedNodeImpl
 import com.vladsch.flexmark.ast.Emphasis as FlexmarkEmphasis
@@ -37,3 +38,5 @@ actual typealias Link = FlexmarkLink
 actual val Link.text: CharSequence get() = text
 
 actual typealias Strikethrough = FlexmarkStrikethrough
+
+actual typealias Code = FlexmarkCode

@@ -17,3 +17,9 @@ actual fun SpanPool.bold(): WysiwygSpan =
 
 actual fun SpanPool.strikethrough(): WysiwygSpan =
   get { StrikethroughSpan(recycler) }
+
+actual fun SpanPool.inlineCode(): WysiwygSpan =
+  get { InlineCodeSpan(theme, recycler) }
+
+actual fun SpanPool.monospaceTypeface(): WysiwygSpan =
+  get { MonospaceTypefaceSpan(recycler) }

@@ -16,7 +16,10 @@ actual data class WysiwygTheme(
   actual val linkUrlColor: Int = color("#9E9E9E"),
 
   @ColorInt
-  actual val linkTextColor: Int = color("#1DE9B6")
+  actual val linkTextColor: Int = color("#1DE9B6"),
+
+  @ColorInt
+  actual val codeBackgroundColor: Int = color("#424242")
 )
 
 @Suppress("SameParameterValue")

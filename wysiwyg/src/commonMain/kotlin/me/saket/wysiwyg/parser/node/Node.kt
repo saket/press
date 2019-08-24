@@ -26,3 +26,5 @@ expect class Link : InlineLinkNode
 expect val Link.text: CharSequence
 
 expect class Strikethrough : Node, DelimitedNode
+
+expect class Code : DelimitedNodeImpl
