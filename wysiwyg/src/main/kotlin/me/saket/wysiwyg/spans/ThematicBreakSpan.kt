@@ -20,7 +20,7 @@ actual class ThematicBreakSpan actual constructor(
   private val topOffsetFactor: Float = when (syntax[0]) {
     '*' -> -0.11f
     '-' -> 0.07f
-    '_' -> 0.42f
+    '_' -> 0.40f
     else -> throw UnsupportedOperationException("Unknown thematic break mode: $syntax")
   }
 
