@@ -34,7 +34,7 @@ actual data class WysiwygTheme(
   actual val listBlockIndentationMargin: Int = dip(context, 24).toInt(),
 
   @ColorInt
-  actual val linkUrlColor: Int = color("#7DFFFFFF"),  // 50% white.
+  actual val linkUrlColor: Int = color("#8A93B4"),  // 50% white.
 
   @ColorInt
   actual val linkTextColor: Int = color("#8DF0FF"),
