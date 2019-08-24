@@ -41,7 +41,7 @@ actual data class WysiwygTheme(
 
   /** Thematic break a.k.a. horizontal rule. */
   @ColorInt
-  actual val thematicBreakColor: Int = color("#616161"),
+  actual val thematicBreakColor: Int = color("#62677C"),
 
   @Px
   actual val thematicBreakThickness: Float = dip(context, 4),
