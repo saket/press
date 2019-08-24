@@ -13,10 +13,10 @@ actual data class WysiwygTheme(
   actual val syntaxColor: Int = color("#CCAEF9"),
 
   @ColorInt
-  actual val linkUrlColor: Int = color("#9E9E9E"),
+  actual val linkUrlColor: Int = color("#7DFFFFFF"),
 
   @ColorInt
-  actual val linkTextColor: Int = color("#1DE9B6"),
+  actual val linkTextColor: Int = color("#8DF0FF"),
 
   @ColorInt
   actual val codeBackgroundColor: Int = color("#424242")
