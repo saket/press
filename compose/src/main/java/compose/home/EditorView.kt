@@ -93,6 +93,14 @@ class EditorView(
       |```
       |
       |> Block quote
+      |
+      |Ordered list block
+      |1. Item A
+      |2. Item B
+      |
+      |Unordered list block
+      |- Item A
+      |- Item B
     """.trimMargin())
     editorEditText.setSelection(editorEditText.text.length - 1)
 

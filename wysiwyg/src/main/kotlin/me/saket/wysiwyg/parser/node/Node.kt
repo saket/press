@@ -3,6 +3,8 @@
 package me.saket.wysiwyg.parser.node
 
 import com.vladsch.flexmark.ast.BlockQuote as FlexmarkBlockQuote
+import com.vladsch.flexmark.ast.BulletList as FlexmarkBulletList
+import com.vladsch.flexmark.ast.BulletListItem as FlexmarkBulletListItem
 import com.vladsch.flexmark.ast.Code as FlexmarkCode
 import com.vladsch.flexmark.ast.DelimitedNode as FlexmarkDelimitedNode
 import com.vladsch.flexmark.ast.DelimitedNodeImpl as FlexmarkDelimitedNodeImpl
@@ -13,6 +15,10 @@ import com.vladsch.flexmark.ast.InlineLinkNode as FlexmarkInlineLinkNode
 import com.vladsch.flexmark.ast.Link as FlexmarkLink
 import com.vladsch.flexmark.ast.LinkNode as FlexmarkLinkNode
 import com.vladsch.flexmark.ast.LinkNodeBase as FlexmarkLinkNodeBase
+import com.vladsch.flexmark.ast.ListBlock as FlexmarkListBlock
+import com.vladsch.flexmark.ast.ListItem as FlexmarkListItem
+import com.vladsch.flexmark.ast.OrderedList as FlexmarkOrderedList
+import com.vladsch.flexmark.ast.OrderedListItem as FlexmarkOrderedListItem
 import com.vladsch.flexmark.ast.StrongEmphasis as FlexmarkStrongEmphasis
 import com.vladsch.flexmark.ext.gfm.strikethrough.Strikethrough as FlexmarkStrikethrough
 import com.vladsch.flexmark.util.ast.Block as FlexmarkBlock
@@ -56,3 +62,11 @@ actual val FencedCodeBlock.closingMarker: CharSequence get() = closingMarker
 
 actual typealias BlockQuote = FlexmarkBlockQuote
 actual val BlockQuote.parent: Node? get() = parent
+
+actual typealias ListBlock = FlexmarkListBlock
+actual typealias OrderedList = FlexmarkOrderedList
+actual typealias BulletList = FlexmarkBulletList
+
+actual typealias ListItem = FlexmarkListItem
+actual typealias OrderedListItem = FlexmarkOrderedListItem
+actual typealias BulletListItem = FlexmarkBulletListItem

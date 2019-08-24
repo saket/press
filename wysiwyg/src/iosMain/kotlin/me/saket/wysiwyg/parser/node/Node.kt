@@ -37,3 +37,11 @@ actual val FencedCodeBlock.closingMarker: CharSequence get() = TODO()
 
 actual class BlockQuote : Block()
 actual val BlockQuote.parent: Node? get() = TODO()
+
+actual abstract class ListBlock : Block()
+actual class OrderedList : ListBlock()
+actual class BulletList : ListBlock()
+
+actual abstract class ListItem : Block()
+actual class OrderedListItem : ListItem()
+actual class BulletListItem : ListItem()

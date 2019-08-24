@@ -40,3 +40,11 @@ expect val FencedCodeBlock.closingMarker: CharSequence
 
 expect class BlockQuote : Block
 expect val BlockQuote.parent: Node?
+
+expect abstract class ListBlock : Block
+expect class OrderedList : ListBlock
+expect class BulletList : ListBlock
+
+expect abstract class ListItem : Block
+expect class OrderedListItem : ListItem
+expect class BulletListItem : ListItem

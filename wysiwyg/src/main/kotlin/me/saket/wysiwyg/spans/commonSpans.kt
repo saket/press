@@ -29,3 +29,8 @@ actual fun SpanPool.indentedCodeBlock(): WysiwygSpan =
 
 actual fun SpanPool.quote(): WysiwygSpan =
   get { BlockQuoteSpan(theme, recycler) }
+
+actual fun SpanPool.leadingMargin(margin: Int): WysiwygSpan =
+  get { ParagraphLeadingMarginSpan(recycler) }.apply {
+    this.margin = margin
+  }
