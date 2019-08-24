@@ -19,7 +19,7 @@ actual data class WysiwygTheme(
   actual val blockQuoteVerticalRuleColor: Int = color("#CCAEF9"),
 
   @ColorInt
-  actual val blockQuoteTextColor: Int = color("#BFFFFFFF"), // 75% white.
+  actual val blockQuoteTextColor: Int = color("#CED2F8"),
 
   /** Width of a block-quote's vertical line/stripe/rule. */
   @Px
