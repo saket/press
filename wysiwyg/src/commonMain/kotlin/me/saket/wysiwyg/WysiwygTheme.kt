@@ -5,4 +5,5 @@ expect class WysiwygTheme {
   val linkUrlColor: Int
   val linkTextColor: Int
   val codeBackgroundColor: Int
+  val codeBlockMargin: Int
 }

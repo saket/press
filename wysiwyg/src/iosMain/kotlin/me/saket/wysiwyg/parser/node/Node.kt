@@ -13,12 +13,8 @@ actual val DelimitedNode.closingMarker: CharSequence get() = TODO()
 actual abstract class DelimitedNodeImpl : Node(), DelimitedNode
 
 actual class Emphasis : DelimitedNodeImpl()
-actual val Emphasis.startOffset: Int get() = TODO()
-actual val Emphasis.endOffset: Int get() = TODO()
 
 actual class StrongEmphasis : DelimitedNodeImpl()
-actual val StrongEmphasis.startOffset: Int get() = TODO()
-actual val StrongEmphasis.endOffset: Int get() = TODO()
 
 actual abstract class LinkNodeBase : Node()
 actual abstract class LinkNode : LinkNodeBase()
@@ -28,4 +24,12 @@ actual class Link : InlineLinkNode()
 actual val Link.text: CharSequence get() = TODO()
 
 actual class Strikethrough : Node(), DelimitedNode
+
 actual class Code : DelimitedNodeImpl()
+
+actual abstract class ContentNode : Node()
+actual abstract class Block : ContentNode()
+actual class IndentedCodeBlock : Block()
+
+actual class FencedCodeBlock : Block()
+actual val FencedCodeBlock.openingMarker: CharSequence get() = TODO()

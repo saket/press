@@ -2,6 +2,8 @@ package me.saket.wysiwyg.parser.highlighters
 
 import me.saket.wysiwyg.parser.node.Code
 import me.saket.wysiwyg.parser.node.Emphasis
+import me.saket.wysiwyg.parser.node.FencedCodeBlock
+import me.saket.wysiwyg.parser.node.IndentedCodeBlock
 import me.saket.wysiwyg.parser.node.Link
 import me.saket.wysiwyg.parser.node.Node
 import me.saket.wysiwyg.parser.node.Strikethrough
@@ -25,13 +27,13 @@ class SyntaxHighlighters {
     add(Link::class, LinkVisitor())
     add(Strikethrough::class, StrikethroughVisitor())
     add(Code::class, InlineCodeVisitor())
-    //add(IndentedCodeBlock::class, IndentedCodeBlockVisitor())
+    add(IndentedCodeBlock::class, IndentedCodeBlockVisitor())
+    add(FencedCodeBlock::class, FencedCodeBlockVisitor())
     //add(BlockQuote::class, BlockQuoteVisitor())
     //add(ListBlock::class, ListBlockVisitor())
     //add(ListItem::class, ListItemVisitor())
     //add(ThematicBreak::class, ThematicBreakVisitor())
     //add(Heading::class, HeadingVisitor())
-    //add(FencedCodeBlock::class, FencedCodeBlockVisitor())
   }
 
   /**
@@ -42,6 +44,8 @@ class SyntaxHighlighters {
   @Suppress("UNCHECKED_CAST")
   fun nodeVisitor(node: Node): NodeVisitor<Node> {
     val nodeHighlighters = highlighters[node::class] as List<SyntaxHighlighter<Node>>?
+
+    Timber.i("checking ${node::class}")
 
     if (nodeHighlighters != null) {
       // Intentionally using for-i loop instead of for-each or

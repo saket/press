@@ -80,12 +80,18 @@ class EditorView(
     scrollView.addView(editorEditText, MATCH_PARENT, WRAP_CONTENT)
 
     editorEditText.setText("""
-      **Bold text**
-      *Italic text*
-      [Link](https://url.com)
-      ~~Strikethrough~~
-      `Inline code`
-    """.trimIndent())
+      |**Bold text**
+      |*Italic text*
+      |[Link](https://url.com)
+      |~~Strikethrough~~
+      |`Inline code`
+      |
+      |    Indented code block
+      |    
+      |```
+      |Fenced code block
+      |```
+    """.trimMargin())
     editorEditText.setSelection(editorEditText.text.length - 1)
 
     val wysiwyg = Wysiwyg(editorEditText, WysiwygTheme(context))

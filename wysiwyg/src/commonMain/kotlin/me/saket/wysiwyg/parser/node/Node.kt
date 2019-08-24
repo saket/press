@@ -28,3 +28,11 @@ expect val Link.text: CharSequence
 expect class Strikethrough : Node, DelimitedNode
 
 expect class Code : DelimitedNodeImpl
+
+// https://youtrack.jetbrains.net/issue/KT-20641
+expect abstract class ContentNode : Node
+expect abstract class Block : ContentNode
+expect class IndentedCodeBlock : Block
+
+expect class FencedCodeBlock : Block
+expect val FencedCodeBlock.openingMarker: CharSequence

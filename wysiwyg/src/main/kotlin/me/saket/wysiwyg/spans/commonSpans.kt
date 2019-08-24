@@ -23,3 +23,6 @@ actual fun SpanPool.inlineCode(): WysiwygSpan =
 
 actual fun SpanPool.monospaceTypeface(): WysiwygSpan =
   get { MonospaceTypefaceSpan(recycler) }
+
+actual fun SpanPool.indentedCodeBlock(): WysiwygSpan =
+  get { IndentedCodeBlockSpan(theme, recycler) }

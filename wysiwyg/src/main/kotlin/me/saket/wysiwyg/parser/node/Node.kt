@@ -6,12 +6,16 @@ import com.vladsch.flexmark.ast.Code as FlexmarkCode
 import com.vladsch.flexmark.ast.DelimitedNode as FlexmarkDelimitedNode
 import com.vladsch.flexmark.ast.DelimitedNodeImpl as FlexmarkDelimitedNodeImpl
 import com.vladsch.flexmark.ast.Emphasis as FlexmarkEmphasis
+import com.vladsch.flexmark.ast.FencedCodeBlock as FlexmarkFencedCodeBlock
+import com.vladsch.flexmark.ast.IndentedCodeBlock as FlexmarkIndentedCodeBlock
 import com.vladsch.flexmark.ast.InlineLinkNode as FlexmarkInlineLinkNode
 import com.vladsch.flexmark.ast.Link as FlexmarkLink
 import com.vladsch.flexmark.ast.LinkNode as FlexmarkLinkNode
 import com.vladsch.flexmark.ast.LinkNodeBase as FlexmarkLinkNodeBase
 import com.vladsch.flexmark.ast.StrongEmphasis as FlexmarkStrongEmphasis
 import com.vladsch.flexmark.ext.gfm.strikethrough.Strikethrough as FlexmarkStrikethrough
+import com.vladsch.flexmark.util.ast.Block as FlexmarkBlock
+import com.vladsch.flexmark.util.ast.ContentNode as FlexmarkContentNode
 import com.vladsch.flexmark.util.ast.Node as FlexmarkNode
 
 actual typealias Node = FlexmarkNode
@@ -40,3 +44,10 @@ actual val Link.text: CharSequence get() = text
 actual typealias Strikethrough = FlexmarkStrikethrough
 
 actual typealias Code = FlexmarkCode
+
+actual typealias ContentNode = FlexmarkContentNode
+actual typealias Block = FlexmarkBlock
+actual typealias IndentedCodeBlock = FlexmarkIndentedCodeBlock
+
+actual typealias FencedCodeBlock = FlexmarkFencedCodeBlock
+actual val FencedCodeBlock.openingMarker: CharSequence get() = openingMarker
