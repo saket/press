@@ -6,8 +6,10 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Typeface
 import android.graphics.Typeface.NORMAL
+import android.text.InputType.TYPE_CLASS_TEXT
 import android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
 import android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
+import android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
 import android.text.Layout.BREAK_STRATEGY_HIGH_QUALITY
 import android.view.Gravity.CENTER_VERTICAL
 import android.view.Gravity.TOP
@@ -58,12 +60,16 @@ class EditorView(
     )
   }
 
-  private val editorView = EditText(context).apply {
+  private val editorEditText = EditText(context).apply {
     background = null
     breakStrategy = BREAK_STRATEGY_HIGH_QUALITY
     gravity = TOP
     hintRes = R.string.editor_hint
-    inputType = TYPE_TEXT_FLAG_CAP_SENTENCES or TYPE_TEXT_FLAG_MULTI_LINE
+    inputType = TYPE_CLASS_TEXT or  // Multiline doesn't work without this.
+        TYPE_TEXT_FLAG_CAP_SENTENCES or
+        TYPE_TEXT_FLAG_MULTI_LINE or
+        TYPE_TEXT_FLAG_NO_SUGGESTIONS
+    //setSingleLine(false)
     padding = 16.dip
     fromOreo {
       importantForAutofill = IMPORTANT_FOR_AUTOFILL_NO
@@ -71,12 +77,16 @@ class EditorView(
   }
 
   init {
-    scrollView.addView(editorView, MATCH_PARENT, WRAP_CONTENT)
+    scrollView.addView(editorEditText, MATCH_PARENT, WRAP_CONTENT)
 
-    editorView.setText("is a **multiplatform** markdown editor")
-    editorView.setSelection(editorView.text.length - 1)
+    editorEditText.setText("""
+      **Bold text**
+      *Italic text*
+      [Link](https://url.com)
+    """.trimIndent())
+    editorEditText.setSelection(editorEditText.text.length - 1)
 
-    val wysiwyg = Wysiwyg(editorView, WysiwygTheme(context))
-    editorView.addTextChangedListener(wysiwyg.syntaxHighlighter())
+    val wysiwyg = Wysiwyg(editorEditText, WysiwygTheme(context))
+    editorEditText.addTextChangedListener(wysiwyg.syntaxHighlighter())
   }
 }

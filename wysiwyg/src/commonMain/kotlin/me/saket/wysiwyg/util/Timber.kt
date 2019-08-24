@@ -1,6 +1,7 @@
 package me.saket.wysiwyg.util
 
 expect object Timber {
-  fun i(message: String)
-  fun d(message: String)
+  inline fun i(message: String)
+  inline fun d(message: String)
+  inline fun w(message: String)
 }

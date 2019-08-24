@@ -1,16 +1,21 @@
 package me.saket.wysiwyg.util
 
 import android.annotation.SuppressLint
-import android.util.Log
+import timber.log.Timber as JwTimber
 
+@Suppress("NOTHING_TO_INLINE")
 @SuppressLint("LogNotTimber")
 actual object Timber {
 
-  actual fun i(message: String) {
-    Log.i("Compose", message)
+  actual inline fun i(message: String) {
+    JwTimber.i(message)
   }
 
-  actual fun d(message: String) {
-    Log.d("Compose", message)
+  actual inline fun d(message: String) {
+    JwTimber.d(message)
+  }
+
+  actual inline fun w(message: String) {
+    JwTimber.w(message)
   }
 }

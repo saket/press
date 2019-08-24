@@ -1,6 +1,8 @@
 package me.saket.wysiwyg.util
 
+@Suppress("NOTHING_TO_INLINE")
 actual object Timber {
-  actual fun i(message: String): Unit = TODO()
-  actual fun d(message: String): Unit = TODO()
+  actual inline fun i(message: String): Unit = TODO()
+  actual inline fun d(message: String): Unit = TODO()
+  actual inline fun w(message: String): Unit = TODO()
 }

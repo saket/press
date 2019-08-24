@@ -1,27 +1,35 @@
 package me.saket.wysiwyg.parser.highlighters
 
 import me.saket.wysiwyg.parser.node.Emphasis
+import me.saket.wysiwyg.parser.node.Link
 import me.saket.wysiwyg.parser.node.Node
 import me.saket.wysiwyg.parser.node.StrongEmphasis
+import me.saket.wysiwyg.util.Timber
 import kotlin.reflect.KClass
 
 class SyntaxHighlighters {
 
   private val highlighters = mutableMapOf<KClass<out Node>, MutableList<SyntaxHighlighter<*>>>()
 
+  private val ignoredNodeNames = arrayOf(
+      "com.vladsch.flexmark.ast.Paragraph",
+      "com.vladsch.flexmark.ast.Text",
+      "com.vladsch.flexmark.ast.SoftLineBreak"
+  )
+
   init {
     add(Emphasis::class, EmphasisVisitor())
     add(StrongEmphasis::class, StrongEmphasisVisitor())
-    //add(Link::class.java, LinkVisitor())
-    //add(Strikethrough::class.java, StrikethroughVisitor())
-    //add(Code::class.java, InlineCodeVisitor())
-    //add(IndentedCodeBlock::class.java, IndentedCodeBlockVisitor())
-    //add(BlockQuote::class.java, BlockQuoteVisitor())
-    //add(ListBlock::class.java, ListBlockVisitor())
-    //add(ListItem::class.java, ListItemVisitor())
-    //add(ThematicBreak::class.java, ThematicBreakVisitor())
-    //add(Heading::class.java, HeadingVisitor())
-    //add(FencedCodeBlock::class.java, FencedCodeBlockVisitor())
+    add(Link::class, LinkVisitor())
+    //add(Strikethrough::class, StrikethroughVisitor())
+    //add(Code::class, InlineCodeVisitor())
+    //add(IndentedCodeBlock::class, IndentedCodeBlockVisitor())
+    //add(BlockQuote::class, BlockQuoteVisitor())
+    //add(ListBlock::class, ListBlockVisitor())
+    //add(ListItem::class, ListItemVisitor())
+    //add(ThematicBreak::class, ThematicBreakVisitor())
+    //add(Heading::class, HeadingVisitor())
+    //add(FencedCodeBlock::class, FencedCodeBlockVisitor())
   }
 
   /**
@@ -42,6 +50,11 @@ class SyntaxHighlighters {
           return nodeVisitor
         }
       }
+    }
+
+    val isIgnoredNode = ignoredNodeNames.any { node::class.toString().contains(it) }
+    if (isIgnoredNode.not()) {
+      Timber.w("No visitor for node: ${node::class}")
     }
 
     return NodeVisitor.EMPTY
