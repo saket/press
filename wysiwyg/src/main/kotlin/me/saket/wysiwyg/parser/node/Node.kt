@@ -2,6 +2,7 @@
 
 package me.saket.wysiwyg.parser.node
 
+import com.vladsch.flexmark.ast.BlockQuote as FlexmarkBlockQuote
 import com.vladsch.flexmark.ast.Code as FlexmarkCode
 import com.vladsch.flexmark.ast.DelimitedNode as FlexmarkDelimitedNode
 import com.vladsch.flexmark.ast.DelimitedNodeImpl as FlexmarkDelimitedNodeImpl
@@ -51,3 +52,6 @@ actual typealias IndentedCodeBlock = FlexmarkIndentedCodeBlock
 
 actual typealias FencedCodeBlock = FlexmarkFencedCodeBlock
 actual val FencedCodeBlock.openingMarker: CharSequence get() = openingMarker
+
+actual typealias BlockQuote = FlexmarkBlockQuote
+actual val BlockQuote.parent: Node? get() = parent

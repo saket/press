@@ -15,7 +15,25 @@ actual data class WysiwygTheme(
   actual val syntaxColor: Int = color("#CCAEF9"),
 
   @ColorInt
-  actual val linkUrlColor: Int = color("#7DFFFFFF"),
+  actual val blockQuoteVerticalRuleColor: Int = color("#CCAEF9"),
+
+  @ColorInt
+  actual val blockQuoteTextColor: Int = color("#BFFFFFFF"), // 75% white.
+
+  /** Width of a block-quote's vertical line/stripe/rule. */
+  @Px
+  actual val blockQuoteVerticalRuleStrokeWidth: Int = dip(context, 4).toInt(),
+
+  /** Gap before a block-quote. */
+  @Px
+  actual val blockQuoteIndentationMargin: Int = dip(context, 24).toInt(),
+
+  /** Gap before a block of ordered/unordered list. */
+  @Px
+  actual val listBlockIndentationMargin: Int = dip(context, 24).toInt(),
+
+  @ColorInt
+  actual val linkUrlColor: Int = color("#7DFFFFFF"),  // 50% white.
 
   @ColorInt
   actual val linkTextColor: Int = color("#8DF0FF"),

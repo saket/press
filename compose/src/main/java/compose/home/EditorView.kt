@@ -91,6 +91,8 @@ class EditorView(
       |```
       |Fenced code block
       |```
+      |
+      |> Block quote
     """.trimMargin())
     editorEditText.setSelection(editorEditText.text.length - 1)
 

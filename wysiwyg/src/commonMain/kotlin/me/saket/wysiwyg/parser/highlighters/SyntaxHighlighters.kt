@@ -1,5 +1,6 @@
 package me.saket.wysiwyg.parser.highlighters
 
+import me.saket.wysiwyg.parser.node.BlockQuote
 import me.saket.wysiwyg.parser.node.Code
 import me.saket.wysiwyg.parser.node.Emphasis
 import me.saket.wysiwyg.parser.node.FencedCodeBlock
@@ -29,7 +30,7 @@ class SyntaxHighlighters {
     add(Code::class, InlineCodeVisitor())
     add(IndentedCodeBlock::class, IndentedCodeBlockVisitor())
     add(FencedCodeBlock::class, FencedCodeBlockVisitor())
-    //add(BlockQuote::class, BlockQuoteVisitor())
+    add(BlockQuote::class, BlockQuoteVisitor())
     //add(ListBlock::class, ListBlockVisitor())
     //add(ListItem::class, ListItemVisitor())
     //add(ThematicBreak::class, ThematicBreakVisitor())

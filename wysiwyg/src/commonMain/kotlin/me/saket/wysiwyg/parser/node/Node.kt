@@ -36,3 +36,6 @@ expect class IndentedCodeBlock : Block
 
 expect class FencedCodeBlock : Block
 expect val FencedCodeBlock.openingMarker: CharSequence
+
+expect class BlockQuote : Block
+expect val BlockQuote.parent: Node?

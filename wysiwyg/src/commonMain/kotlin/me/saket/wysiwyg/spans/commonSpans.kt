@@ -7,3 +7,4 @@ expect fun SpanPool.strikethrough(): WysiwygSpan
 expect fun SpanPool.inlineCode(): WysiwygSpan
 expect fun SpanPool.monospaceTypeface(): WysiwygSpan
 expect fun SpanPool.indentedCodeBlock(): WysiwygSpan
+expect fun SpanPool.quote(): WysiwygSpan
