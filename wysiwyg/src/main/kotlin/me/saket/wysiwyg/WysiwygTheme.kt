@@ -7,6 +7,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.Px
 
 actual data class WysiwygTheme(
+
   /** Used for resolving default colors and dimensions. */
   val context: Context,
 
@@ -49,7 +50,10 @@ actual data class WysiwygTheme(
   actual val codeBackgroundColor: Int = color("#1F202A"),
 
   @Px
-  actual val codeBlockMargin: Int = dip(context, 8).toInt()
+  actual val codeBlockMargin: Int = dip(context, 8).toInt(),
+
+  @ColorInt
+  actual val headingTextColor: Int = color("#50FA7B")
 )
 
 @Suppress("SameParameterValue")

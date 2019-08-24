@@ -40,6 +40,11 @@ class HeadingVisitor : SyntaxHighlighter<Heading> {
           node.startOffset,
           node.startOffset + node.openingMarker.length
       )
+      writer.add(
+          pool.foregroundColor(pool.theme.headingTextColor),
+          node.startOffset + node.openingMarker.length,
+          node.endOffset
+      )
     }
   }
 }

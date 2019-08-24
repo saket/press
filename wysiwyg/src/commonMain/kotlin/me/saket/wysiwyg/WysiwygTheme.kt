@@ -13,4 +13,5 @@ expect class WysiwygTheme {
   val thematicBreakThickness: Float
   val codeBackgroundColor: Int
   val codeBlockMargin: Int
+  val headingTextColor: Int
 }

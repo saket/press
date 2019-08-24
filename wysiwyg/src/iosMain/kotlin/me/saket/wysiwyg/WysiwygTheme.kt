@@ -12,5 +12,6 @@ actual data class WysiwygTheme(
   actual val thematicBreakColor: Int,
   actual val thematicBreakThickness: Float,
   actual val codeBackgroundColor: Int,
-  actual val codeBlockMargin: Int
+  actual val codeBlockMargin: Int,
+  actual val headingTextColor: Int
 )
