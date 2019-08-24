@@ -51,3 +51,18 @@ expect class BulletListItem : ListItem
 
 expect class ThematicBreak : Block
 expect val ThematicBreak.chars: CharSequence
+
+expect class Heading : Block
+/**
+ * Setext-style headers are "underlined" using "=" for H1
+ * and "-" for H2. For example:
+ *
+ * This is an H1
+ * =============
+ *
+ * This is an H2
+ * -------------
+ */
+expect val Heading.isAtxHeading: Boolean
+expect val Heading.headingLevel: HeadingLevel
+expect val Heading.openingMarker: CharSequence

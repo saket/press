@@ -2,6 +2,12 @@
 
 package me.saket.wysiwyg.parser.node
 
+import me.saket.wysiwyg.parser.node.HeadingLevel.H1
+import me.saket.wysiwyg.parser.node.HeadingLevel.H2
+import me.saket.wysiwyg.parser.node.HeadingLevel.H3
+import me.saket.wysiwyg.parser.node.HeadingLevel.H4
+import me.saket.wysiwyg.parser.node.HeadingLevel.H5
+import me.saket.wysiwyg.parser.node.HeadingLevel.H6
 import com.vladsch.flexmark.ast.BlockQuote as FlexmarkBlockQuote
 import com.vladsch.flexmark.ast.BulletList as FlexmarkBulletList
 import com.vladsch.flexmark.ast.BulletListItem as FlexmarkBulletListItem
@@ -10,6 +16,7 @@ import com.vladsch.flexmark.ast.DelimitedNode as FlexmarkDelimitedNode
 import com.vladsch.flexmark.ast.DelimitedNodeImpl as FlexmarkDelimitedNodeImpl
 import com.vladsch.flexmark.ast.Emphasis as FlexmarkEmphasis
 import com.vladsch.flexmark.ast.FencedCodeBlock as FlexmarkFencedCodeBlock
+import com.vladsch.flexmark.ast.Heading as FlexmarkHeading
 import com.vladsch.flexmark.ast.IndentedCodeBlock as FlexmarkIndentedCodeBlock
 import com.vladsch.flexmark.ast.InlineLinkNode as FlexmarkInlineLinkNode
 import com.vladsch.flexmark.ast.Link as FlexmarkLink
@@ -27,6 +34,7 @@ import com.vladsch.flexmark.util.ast.ContentNode as FlexmarkContentNode
 import com.vladsch.flexmark.util.ast.Node as FlexmarkNode
 
 actual typealias Node = FlexmarkNode
+
 actual val Node.firstChild: Node? get() = firstChild
 actual val Node.nextNode: Node? get() = next
 actual val Node.startOffset: Int get() = startOffset
@@ -74,3 +82,17 @@ actual typealias BulletListItem = FlexmarkBulletListItem
 
 actual typealias ThematicBreak = FlexmarkThematicBreak
 actual val ThematicBreak.chars: CharSequence get() = chars
+
+actual typealias Heading = FlexmarkHeading
+actual val Heading.headingLevel: HeadingLevel
+  get() = when (level) {
+    1 -> H1
+    2 -> H2
+    3 -> H3
+    4 -> H4
+    5 -> H5
+    6 -> H6
+    else -> throw AssertionError("Unknown headingLevel: $level")
+  }
+actual val Heading.isAtxHeading: Boolean get() = isAtxHeading
+actual val Heading.openingMarker: CharSequence get() = openingMarker

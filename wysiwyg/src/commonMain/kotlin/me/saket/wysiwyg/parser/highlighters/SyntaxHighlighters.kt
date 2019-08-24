@@ -6,6 +6,7 @@ import me.saket.wysiwyg.parser.node.BulletListItem
 import me.saket.wysiwyg.parser.node.Code
 import me.saket.wysiwyg.parser.node.Emphasis
 import me.saket.wysiwyg.parser.node.FencedCodeBlock
+import me.saket.wysiwyg.parser.node.Heading
 import me.saket.wysiwyg.parser.node.IndentedCodeBlock
 import me.saket.wysiwyg.parser.node.Link
 import me.saket.wysiwyg.parser.node.Node
@@ -40,7 +41,7 @@ class SyntaxHighlighters {
     add(OrderedListItem::class, OrderedListItemVisitor())
     add(BulletListItem::class, BulletListItemVisitor())
     add(ThematicBreak::class, ThematicBreakVisitor())
-    //add(Heading::class, HeadingVisitor())
+    add(Heading::class, HeadingVisitor())
   }
 
   /**

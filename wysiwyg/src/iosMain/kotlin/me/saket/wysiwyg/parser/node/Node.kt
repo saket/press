@@ -48,3 +48,8 @@ actual class BulletListItem : ListItem()
 
 actual class ThematicBreak : Block()
 actual val ThematicBreak.chars: CharSequence get() = TODO()
+
+actual class Heading : Block()
+actual val Heading.isAtxHeading: Boolean get() = TODO()
+actual val Heading.headingLevel: HeadingLevel get() = TODO()
+actual val Heading.openingMarker: CharSequence get() = TODO()

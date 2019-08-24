@@ -1,5 +1,7 @@
 package me.saket.wysiwyg.spans
 
+import me.saket.wysiwyg.parser.node.HeadingLevel
+
 actual fun SpanPool.foregroundColor(color: Int): WysiwygSpan =
   get { ForegroundColorSpan(recycler) }.apply {
     this.color = color
@@ -33,4 +35,9 @@ actual fun SpanPool.quote(): WysiwygSpan =
 actual fun SpanPool.leadingMargin(margin: Int): WysiwygSpan =
   get { ParagraphLeadingMarginSpan(recycler) }.apply {
     this.margin = margin
+  }
+
+actual fun SpanPool.heading(level: HeadingLevel): WysiwygSpan =
+  get { HeadingSpan(theme, recycler) }.apply {
+    this.level = level
   }
