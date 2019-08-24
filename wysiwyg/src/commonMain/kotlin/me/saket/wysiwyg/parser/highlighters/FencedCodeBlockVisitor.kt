@@ -1,7 +1,10 @@
 package me.saket.wysiwyg.parser.highlighters
 
 import me.saket.wysiwyg.parser.SpanWriter
+import me.saket.wysiwyg.parser.highlighters.DelimitedNodeVisitor.Companion.highlightClosingSyntax
+import me.saket.wysiwyg.parser.highlighters.DelimitedNodeVisitor.Companion.highlightOpeningSyntax
 import me.saket.wysiwyg.parser.node.FencedCodeBlock
+import me.saket.wysiwyg.parser.node.closingMarker
 import me.saket.wysiwyg.parser.node.endOffset
 import me.saket.wysiwyg.parser.node.openingMarker
 import me.saket.wysiwyg.parser.node.startOffset
@@ -28,6 +31,9 @@ class FencedCodeBlockVisitor : SyntaxHighlighter<FencedCodeBlock> {
       ) {
         writer.add(pool.indentedCodeBlock(), node.startOffset, node.endOffset)
         writer.add(pool.monospaceTypeface(), node.startOffset, node.endOffset)
+
+        highlightOpeningSyntax(node.openingMarker, node.startOffset, writer, pool)
+        highlightClosingSyntax(node.closingMarker, node.endOffset, writer, pool)
       }
     }
 }

@@ -52,6 +52,7 @@ actual typealias IndentedCodeBlock = FlexmarkIndentedCodeBlock
 
 actual typealias FencedCodeBlock = FlexmarkFencedCodeBlock
 actual val FencedCodeBlock.openingMarker: CharSequence get() = openingMarker
+actual val FencedCodeBlock.closingMarker: CharSequence get() = closingMarker
 
 actual typealias BlockQuote = FlexmarkBlockQuote
 actual val BlockQuote.parent: Node? get() = parent

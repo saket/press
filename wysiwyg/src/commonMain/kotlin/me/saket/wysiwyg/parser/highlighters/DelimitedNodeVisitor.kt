@@ -18,20 +18,40 @@ abstract class DelimitedNodeVisitor<T>
     pool: SpanPool,
     writer: SpanWriter
   ) {
-    if (node.openingMarker.isNotEmpty()) {
-      writer.add(
-          pool.foregroundColor(pool.theme.syntaxColor),
-          node.startOffset,
-          node.startOffset + node.openingMarker.length
-      )
+    highlightOpeningSyntax(node.openingMarker, node.startOffset, writer, pool)
+    highlightClosingSyntax(node.closingMarker, node.endOffset, writer, pool)
+  }
+
+  companion object {
+
+    fun highlightOpeningSyntax(
+      openingMarker: CharSequence,
+      startOffset: Int,
+      writer: SpanWriter,
+      pool: SpanPool
+    ) {
+      if (openingMarker.isNotEmpty()) {
+        writer.add(
+            pool.foregroundColor(pool.theme.syntaxColor),
+            startOffset,
+            startOffset + openingMarker.length
+        )
+      }
     }
 
-    if (node.closingMarker.isNotEmpty()) {
-      writer.add(
-          pool.foregroundColor(pool.theme.syntaxColor),
-          node.endOffset - node.closingMarker.length,
-          node.endOffset
-      )
+    fun highlightClosingSyntax(
+      closingMarker: CharSequence,
+      endOffset: Int,
+      writer: SpanWriter,
+      pool: SpanPool
+    ) {
+      if (closingMarker.isNotEmpty()) {
+        writer.add(
+            pool.foregroundColor(pool.theme.syntaxColor),
+            endOffset - closingMarker.length,
+            endOffset
+        )
+      }
     }
   }
 }

@@ -33,6 +33,7 @@ actual class IndentedCodeBlock : Block()
 
 actual class FencedCodeBlock : Block()
 actual val FencedCodeBlock.openingMarker: CharSequence get() = TODO()
+actual val FencedCodeBlock.closingMarker: CharSequence get() = TODO()
 
 actual class BlockQuote : Block()
 actual val BlockQuote.parent: Node? get() = TODO()
