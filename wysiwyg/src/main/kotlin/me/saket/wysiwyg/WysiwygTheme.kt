@@ -47,7 +47,7 @@ actual data class WysiwygTheme(
   actual val thematicBreakThickness: Float = dip(context, 4),
 
   @ColorInt
-  actual val codeBackgroundColor: Int = color("#1F202A"),
+  actual val codeBackgroundColor: Int = color("#242632"),
 
   @Px
   actual val codeBlockMargin: Int = dip(context, 8).toInt(),
