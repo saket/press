@@ -2,6 +2,7 @@ package compose.home
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import compose.editor.EditorView
 import compose.theme.DraculaTheme
 
 class HomeActivity : AppCompatActivity() {

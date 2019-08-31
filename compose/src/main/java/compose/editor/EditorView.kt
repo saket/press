@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package compose.home
+package compose.editor
 
 import android.annotation.SuppressLint
 import android.content.Context
