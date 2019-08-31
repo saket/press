@@ -4,6 +4,7 @@ import me.saket.wysiwyg.parser.MarkdownParser
 import me.saket.wysiwyg.parser.SpanWriter
 import me.saket.wysiwyg.parser.highlighters.RootNodeHighlighter
 import me.saket.wysiwyg.spans.SpanPool
+import me.saket.wysiwyg.theme.WysiwygTheme
 import me.saket.wysiwyg.widgets.AfterTextChange
 import me.saket.wysiwyg.widgets.NativeTextField
 import me.saket.wysiwyg.widgets.text

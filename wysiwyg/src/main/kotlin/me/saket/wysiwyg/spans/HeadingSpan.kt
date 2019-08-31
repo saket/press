@@ -2,7 +2,7 @@ package me.saket.wysiwyg.spans
 
 import android.text.TextPaint
 import android.text.style.MetricAffectingSpan
-import me.saket.wysiwyg.WysiwygTheme
+import me.saket.wysiwyg.theme.WysiwygTheme
 import me.saket.wysiwyg.parser.node.HeadingLevel
 
 /**

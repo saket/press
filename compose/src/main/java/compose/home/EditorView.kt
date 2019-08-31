@@ -31,7 +31,8 @@ import compose.util.textColor
 import compose.util.x
 import me.saket.compose.R
 import me.saket.wysiwyg.Wysiwyg
-import me.saket.wysiwyg.WysiwygTheme
+import me.saket.wysiwyg.theme.DisplayUnits
+import me.saket.wysiwyg.theme.WysiwygTheme
 import me.saket.wysiwyg.widgets.addTextChangedListener
 
 @SuppressLint("ViewConstructor, SetTextI18n")
@@ -115,7 +116,7 @@ class EditorView(
     """.trimMargin())
     editorEditText.setSelection(editorEditText.text.length)
 
-    val wysiwyg = Wysiwyg(editorEditText, WysiwygTheme(context))
+    val wysiwyg = Wysiwyg(editorEditText, WysiwygTheme(DisplayUnits(context)))
     editorEditText.addTextChangedListener(wysiwyg.syntaxHighlighter())
   }
 }

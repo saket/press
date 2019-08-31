@@ -8,7 +8,7 @@ import android.text.Layout
 import android.text.TextPaint
 import android.text.style.LeadingMarginSpan
 import android.text.style.MetricAffectingSpan
-import me.saket.wysiwyg.WysiwygTheme
+import me.saket.wysiwyg.theme.WysiwygTheme
 
 /**
  * Copied from https://github.com/noties/Markwon.

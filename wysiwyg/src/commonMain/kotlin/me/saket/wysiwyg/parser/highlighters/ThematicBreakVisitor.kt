@@ -1,6 +1,6 @@
 package me.saket.wysiwyg.parser.highlighters
 
-import me.saket.wysiwyg.WysiwygTheme
+import me.saket.wysiwyg.theme.WysiwygTheme
 import me.saket.wysiwyg.parser.SpanWriter
 import me.saket.wysiwyg.parser.node.ThematicBreak
 import me.saket.wysiwyg.parser.node.chars

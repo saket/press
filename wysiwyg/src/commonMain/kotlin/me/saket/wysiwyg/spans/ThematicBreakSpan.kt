@@ -1,6 +1,6 @@
 package me.saket.wysiwyg.spans
 
-import me.saket.wysiwyg.WysiwygTheme
+import me.saket.wysiwyg.theme.WysiwygTheme
 
 expect class ThematicBreakSpan(
   theme: WysiwygTheme,

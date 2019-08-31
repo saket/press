@@ -3,7 +3,7 @@ package me.saket.wysiwyg.spans
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.text.style.LineBackgroundSpan
-import me.saket.wysiwyg.WysiwygTheme
+import me.saket.wysiwyg.theme.WysiwygTheme
 
 /**
  * @param syntax Used for calculating the left offset to avoid drawing under the text.

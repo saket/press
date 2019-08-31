@@ -5,7 +5,7 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.text.Layout
 import android.text.style.LeadingMarginSpan
-import me.saket.wysiwyg.WysiwygTheme
+import me.saket.wysiwyg.theme.WysiwygTheme
 import kotlin.math.max
 import kotlin.math.min
 

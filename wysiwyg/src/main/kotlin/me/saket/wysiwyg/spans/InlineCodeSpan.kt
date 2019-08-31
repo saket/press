@@ -3,7 +3,7 @@ package me.saket.wysiwyg.spans
 import android.graphics.Typeface
 import android.text.TextPaint
 import android.text.style.MetricAffectingSpan
-import me.saket.wysiwyg.WysiwygTheme
+import me.saket.wysiwyg.theme.WysiwygTheme
 
 /**
  * Copied from https://github.com/noties/Markwon.

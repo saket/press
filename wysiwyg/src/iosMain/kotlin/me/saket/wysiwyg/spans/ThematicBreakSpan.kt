@@ -1,6 +1,6 @@
 package me.saket.wysiwyg.spans
 
-import me.saket.wysiwyg.WysiwygTheme
+import me.saket.wysiwyg.theme.WysiwygTheme
 
 actual data class ThematicBreakSpan actual constructor(
   val theme: WysiwygTheme,
