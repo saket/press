@@ -24,6 +24,11 @@ kotlin {
       dependencies {
         implementation kotlin('stdlib-common')
         implementation deps.reaktive.core.common
+
+        // Bug workaround: IntelliJ seems to have issues with auto-complete
+        // when multiple local multiplatform modules are present. Adding
+        // multiple modules to androidApp/build.gradle
+        implementation project(':wysiwyg')
       }
     }
     commonTest {
