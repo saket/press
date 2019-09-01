@@ -36,9 +36,6 @@ kotlin {
     androidMain {
       dependencies {
         implementation kotlin('stdlib')
-        implementation deps.androidx.appCompat
-        implementation deps.flexmark.core
-        implementation deps.flexmark.strikethrough
         implementation deps.timber
       }
     }
@@ -60,7 +57,7 @@ kotlin {
 
   cocoapods {
     // Configure fields required by CocoaPods.
-    summary = "Wysiwyg"
+    summary = "Compose"
     homepage = "https://github.com/saket/compose"
   }
 }

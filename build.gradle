@@ -3,7 +3,7 @@ apply from: 'gradle/dependencies.gradle'
 buildscript {
   // These unfortunately cannot be moved to dependencies.gradle.
   ext.projectVersions = [
-      kotlin: '1.3.41',
+      kotlin: '1.3.50',
       minSdk: 23,
       compileSdk: 28
   ]

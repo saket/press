@@ -1,3 +1,5 @@
 rootProject.name = 'Compose'
 
-include ':wysiwyg', ':androidApp', ':shared'
+include ':shared'
+include ':wysiwyg'
+include ':androidApp'
