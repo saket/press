@@ -1,0 +1,66 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'org.jetbrains.kotlin.multiplatform'
+apply plugin: 'org.jetbrains.kotlin.native.cocoapods'
+
+android {
+  compileSdkVersion projectVersions.compileSdk
+  defaultConfig {
+    minSdkVersion projectVersions.minSdk
+  }
+}
+
+// Not sure, but probably used by CocoaPods.
+version = 0.1
+
+kotlin {
+  android("android")
+  // This is for iPhone emulator
+  // Switch here to iosArm64 (or iosArm32) to build library for iPhone device
+  iosX64("ios")
+
+  sourceSets {
+    commonMain {
+      dependencies {
+        implementation kotlin('stdlib-common')
+      }
+    }
+    commonTest {
+      dependencies {
+        implementation kotlin('test-common')
+        implementation kotlin('test-annotations-common')
+      }
+    }
+    androidMain {
+      dependencies {
+        implementation kotlin('stdlib')
+        implementation deps.androidx.appCompat
+        implementation deps.flexmark.core
+        implementation deps.flexmark.strikethrough
+        implementation deps.timber
+      }
+    }
+    androidTest {
+      dependencies {
+        implementation kotlin('test')
+        implementation kotlin('test-junit')
+      }
+    }
+    iosMain {}
+    iosTest {}
+
+    all {
+      languageSettings {
+        enableLanguageFeature('InlineClasses')
+      }
+    }
+  }
+
+  cocoapods {
+    // Configure fields required by CocoaPods.
+    summary = "Wysiwyg"
+    homepage = "https://github.com/saket/compose"
+  }
+}
+
+dependencies {}
