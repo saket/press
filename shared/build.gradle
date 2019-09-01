@@ -23,12 +23,14 @@ kotlin {
     commonMain {
       dependencies {
         implementation kotlin('stdlib-common')
+        implementation deps.reaktive.core.common
       }
     }
     commonTest {
       dependencies {
         implementation kotlin('test-common')
         implementation kotlin('test-annotations-common')
+        implementation deps.reaktive.testing.common
       }
     }
     androidMain {

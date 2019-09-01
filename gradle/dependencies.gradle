@@ -10,6 +10,7 @@ buildscript {
       squareInject: '0.4.0',
       coroutines: '1.1.1',
       flexmark: '0.50.26',
+      reaktive: '1.0.0-rc1',
   ]
 
   ext.deps = [
@@ -86,6 +87,21 @@ buildscript {
       'flexmark': [
           'core': "com.vladsch.flexmark:flexmark-java:$versions.flexmark",
           'strikethrough': "com.vladsch.flexmark:flexmark-ext-gfm-strikethrough:$versions.flexmark"
+      ],
+      'reaktive': [
+          'core': [
+              'common': "com.badoo.reaktive:reaktive:$versions.reaktive",
+              'android': "com.badoo.reaktive:reaktive-android:$versions.reaktive",
+              'iOSSimulator': "com.badoo.reaktive:reaktive-sim:$versions.reaktive",
+              'iOS32': "com.badoo.reaktive:reaktive-ios32:$versions.reaktive",
+              'iOS64': "com.badoo.reaktive:reaktive-ios64:$versions.reaktive"
+          ],
+          'testing': [
+              'common': "com.badoo.reaktive:reaktive-test:$versions.reaktive"
+          ],
+          'interop': [
+              'android': "com.badoo.reaktive:rxjava2-interop:$versions.reaktive"
+          ]
       ]
   ]
 }
