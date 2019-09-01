@@ -33,6 +33,7 @@ dependencies {
 
   implementation deps.kotlin.stdlib.jdk8
   implementation deps.androidx.appCompat
+  implementation deps.androidx.recyclerView
   implementation deps.androidx.ktx
 
   implementation deps.contour
