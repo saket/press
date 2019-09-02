@@ -39,5 +39,9 @@ dependencies {
   implementation deps.contour
   implementation deps.timber
 
+  implementation deps.rx2.core
+  implementation deps.rx2.android
+  implementation deps.rx2.binding
+
   testImplementation deps.junit
 }

@@ -28,7 +28,7 @@ kotlin {
         // Bug workaround: IntelliJ seems to have issues with auto-complete
         // when multiple local multiplatform modules are present. Adding
         // multiple modules to androidApp/build.gradle
-        implementation project(':wysiwyg')
+        api project(':wysiwyg')
       }
     }
     commonTest {
@@ -42,6 +42,8 @@ kotlin {
       dependencies {
         implementation kotlin('stdlib')
         implementation deps.timber
+        implementation deps.rx2.core
+        implementation deps.reaktive.interop.android
       }
     }
     androidTest {
