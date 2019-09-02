@@ -7,6 +7,7 @@ import android.text.TextUtils.TruncateAt.END
 import android.view.View
 import android.widget.TextView
 import com.squareup.contour.ContourLayout
+import compose.util.y
 import me.saket.compose.shared.note.Note
 
 class NoteRowView(context: Context) : ContourLayout(context) {
@@ -35,7 +36,7 @@ class NoteRowView(context: Context) : ContourLayout(context) {
     background = ColorDrawable(Color.parseColor("#62677C"))
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
-        y = topTo { bodyView.bottom() + 16.dip }.heightOf { 1.dip.toYInt() }
+        y = topTo { bodyView.bottom() + 16.dip }.heightOf { 1.dip.y }
     )
   }
 
