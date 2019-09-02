@@ -1,25 +1,21 @@
 package compose.theme
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS
-import androidx.annotation.ColorInt
+import androidx.appcompat.app.AppCompatActivity
+import compose.util.onDestroys
+import io.reactivex.Observable
 
-abstract class AppTheme(
-  @ColorInt val primaryColor: Int,
-  @ColorInt val primaryColorDark: Int,
-  @ColorInt val accentColor: Int,
-  private val window: WindowTheme
-) {
-
-  data class WindowTheme(@ColorInt val backgroundColor: Int)
+class AppTheme(val palette: ThemePalette) {
 
   fun apply(activity: Activity) {
     activity.window.apply {
-      setBackgroundDrawable(ColorDrawable(window.backgroundColor))
+      setBackgroundDrawable(ColorDrawable(palette.window.backgroundColor))
       addFlags(FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-      statusBarColor = primaryColorDark
+      statusBarColor = palette.primaryColorDark
     }
   }
 }

@@ -20,6 +20,9 @@ class HomeView(context: Context) : ContourLayout(context) {
   @field:Inject
   lateinit var presenter: HomePresenter
 
+  @field:Inject
+  lateinit var noteAdapter: NoteAdapter
+
   private val notesList = RecyclerView(context).apply {
     layoutManager = LinearLayoutManager(context)
     isVerticalScrollBarEnabled = true
@@ -29,8 +32,6 @@ class HomeView(context: Context) : ContourLayout(context) {
         y = topTo { parent.top() }.bottomTo { parent.bottom() }
     )
   }
-
-  private val noteAdapter = NoteAdapter()
 
   init {
     ComposeApp.component.inject(this)

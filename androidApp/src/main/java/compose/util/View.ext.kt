@@ -26,13 +26,6 @@ var EditText.padding: Int
     setPadding(padding, padding, padding, padding)
   }
 
-@get:Deprecated(message = "Impossible", level = DeprecationLevel.ERROR)
-var TextView.textAppearance: Int
-  get() = throw UnsupportedOperationException()
-  set(resId) {
-    setTextAppearance(resId)
-  }
-
 var TextView.textColor: Int
   get() = currentTextColor
   set(color) {

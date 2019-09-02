@@ -4,8 +4,6 @@ package compose.editor
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Typeface
-import android.graphics.Typeface.NORMAL
 import android.text.InputType.TYPE_CLASS_TEXT
 import android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
 import android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
@@ -19,16 +17,15 @@ import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.TextView
 import com.squareup.contour.ContourLayout
-import compose.theme.AppTheme
+import compose.theme.autoApply
 import compose.util.attr
 import compose.util.fromOreo
 import compose.util.heightOf
 import compose.util.hintRes
 import compose.util.padding
 import compose.util.string
-import compose.util.textAppearance
-import compose.util.textColor
 import compose.util.x
+import io.reactivex.Observable
 import me.saket.compose.R
 import me.saket.wysiwyg.Wysiwyg
 import me.saket.wysiwyg.theme.DisplayUnits
@@ -38,15 +35,13 @@ import me.saket.wysiwyg.widgets.addTextChangedListener
 @SuppressLint("ViewConstructor, SetTextI18n")
 class EditorView(
   context: Context,
-  theme: AppTheme
+  style: Observable<EditorStyle>
 ) : ContourLayout(context) {
 
   private val toolbarView = TextView(context).apply {
     text = string(R.string.app_name)
-    typeface = Typeface.create("monospace", NORMAL)
-    textAppearance = R.style.TextAppearance_AppCompat_Title
-    textColor = theme.accentColor
     gravity = CENTER_VERTICAL
+    style.map { it.toolbar }.autoApply(this)
     applyLayout(
         x = leftTo { parent.left() + 16.dip.x }.rightTo { parent.right() - 16.dip.x },
         y = topTo { parent.top() }.heightOf(attr(android.R.attr.actionBarSize))
@@ -70,11 +65,11 @@ class EditorView(
         TYPE_TEXT_FLAG_CAP_SENTENCES or
         TYPE_TEXT_FLAG_MULTI_LINE or
         TYPE_TEXT_FLAG_NO_SUGGESTIONS
-    //setSingleLine(false)
     padding = 16.dip
     fromOreo {
       importantForAutofill = IMPORTANT_FOR_AUTOFILL_NO
     }
+    style.map { it.editor }.autoApply(this)
   }
 
   init {

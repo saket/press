@@ -4,15 +4,19 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import io.reactivex.Observable
 import me.saket.compose.shared.note.Note
+import javax.inject.Inject
 
-class NoteAdapter : ListAdapter<Note, NoteVH>(NoteDiffer()) {
+class NoteAdapter @Inject constructor(
+  private val style: Observable<HomeStyle>
+) : ListAdapter<Note, NoteVH>(NoteDiffer()) {
 
   override fun getItemId(position: Int) =
     getItem(position).id
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-    NoteVH(NoteRowView(parent.context))
+    NoteVH(NoteRowView(parent.context, style))
 
   override fun onBindViewHolder(holder: NoteVH, position: Int) {
     holder.view.render(getItem(position))
