@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
   compileSdkVersion projectVersions.compileSdk
@@ -38,10 +39,11 @@ dependencies {
 
   implementation deps.contour
   implementation deps.timber
-
   implementation deps.rx2.core
   implementation deps.rx2.android
   implementation deps.rx2.binding
+  implementation deps.dagger.runtime
+  kapt deps.dagger.compiler
 
   testImplementation deps.junit
 }

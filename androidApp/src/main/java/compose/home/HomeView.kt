@@ -5,16 +5,20 @@ import android.content.Context
 import android.widget.TextView
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
+import compose.ComposeApp
 import io.reactivex.Observable
 import me.saket.compose.shared.contentModels
 import me.saket.compose.shared.home.HomeEvent
 import me.saket.compose.shared.home.HomePresenter
 import me.saket.compose.shared.home.HomeUiModel
+import javax.inject.Inject
 
 @SuppressLint("CheckResult")
 class HomeView(context: Context) : ContourLayout(context) {
 
-  private val presenter = HomePresenter()
+  // TODO: Move to AssistedInject.
+  @field:Inject
+  lateinit var presenter: HomePresenter
 
 //  private val notesList = RecyclerView(context).apply {
 //    applyLayout(
@@ -30,6 +34,10 @@ class HomeView(context: Context) : ContourLayout(context) {
         x = centerHorizontallyTo { parent.centerX() },
         y = centerVerticallyTo { parent.centerY() }
     )
+  }
+
+  init {
+    ComposeApp.component.inject(this)
   }
 
   override fun onAttachedToWindow() {

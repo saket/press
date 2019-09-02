@@ -11,6 +11,7 @@ buildscript {
       coroutines: '1.1.1',
       flexmark: '0.50.26',
       reaktive: '1.0.0-rc1',
+      koin: '2.1.6-mp'
   ]
 
   ext.deps = [
@@ -101,6 +102,14 @@ buildscript {
           ],
           'interop': [
               'android': "com.badoo.reaktive:rxjava2-interop:$versions.reaktive"
+          ]
+      ],
+      'koin': [
+          'core': [
+              'common': "co.touchlab:koin-core:$versions.koin",
+              'jvm': "co.touchlab:koin-core-jvm:$versions.koin",
+              'ios64': "co.touchlab:koin-core-iosarm64:$versions.koin",
+              'ios32': "co.touchlab:koin-core-iosarm32:$versions.koin"
           ]
       ]
   ]

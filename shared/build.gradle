@@ -24,6 +24,7 @@ kotlin {
       dependencies {
         implementation kotlin('stdlib-common')
         implementation deps.reaktive.core.common
+        implementation deps.koin.core.common
 
         // Bug workaround: IntelliJ seems to have issues with auto-complete
         // when multiple local multiplatform modules are present. Adding
@@ -58,6 +59,7 @@ kotlin {
     all {
       languageSettings {
         enableLanguageFeature('InlineClasses')
+        useExperimentalAnnotation('kotlin.Experimental')
       }
     }
   }
