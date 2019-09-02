@@ -30,6 +30,7 @@ android {
 }
 
 dependencies {
+  implementation project(':wysiwyg')
   implementation project(':shared')
 
   implementation deps.kotlin.stdlib.jdk8
