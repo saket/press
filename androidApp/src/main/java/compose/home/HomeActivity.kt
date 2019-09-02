@@ -13,11 +13,14 @@ class HomeActivity : AppCompatActivity() {
   @field:Inject
   lateinit var theme: Observable<AppTheme>
 
+  @field:Inject
+  lateinit var homeView: HomeView.Factory
+
   override fun onCreate(savedInstanceState: Bundle?) {
     ComposeApp.component.inject(this)
     theme.autoApply(this)
     super.onCreate(savedInstanceState)
-    setContentView(HomeView(this))
+    setContentView(homeView.withContext(this))
   }
 }
 

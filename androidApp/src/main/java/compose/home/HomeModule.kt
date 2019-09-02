@@ -1,5 +1,6 @@
 package compose.home
 
+import com.squareup.inject.assisted.dagger2.AssistedModule
 import compose.theme.AppTheme
 import dagger.Module
 import dagger.Provides
@@ -7,7 +8,8 @@ import io.reactivex.Observable
 import me.saket.compose.shared.home.HomeKoinModule
 import me.saket.compose.shared.home.HomePresenter
 
-@Module
+@AssistedModule
+@Module(includes = [AssistedInject_HomeModule::class])
 object HomeModule {
 
   @Provides

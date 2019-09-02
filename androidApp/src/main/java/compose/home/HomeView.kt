@@ -1,26 +1,24 @@
 package compose.home
 
-import android.annotation.SuppressLint
 import android.content.Context
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
+import com.squareup.inject.assisted.Assisted
+import com.squareup.inject.assisted.AssistedInject
 import compose.ComposeApp
 import io.reactivex.Observable
 import me.saket.compose.shared.contentModels
 import me.saket.compose.shared.home.HomeEvent
 import me.saket.compose.shared.home.HomePresenter
 import me.saket.compose.shared.home.HomeUiModel
-import javax.inject.Inject
 
-class HomeView(context: Context) : ContourLayout(context) {
-
-  @field:Inject
-  lateinit var presenter: HomePresenter
-
-  @field:Inject
-  lateinit var noteAdapter: NoteAdapter
+class HomeView @AssistedInject constructor(
+  @Assisted context: Context,
+  private val presenter: HomePresenter,
+  private val noteAdapter: NoteAdapter
+) : ContourLayout(context) {
 
   private val notesList = RecyclerView(context).apply {
     layoutManager = LinearLayoutManager(context)
@@ -48,5 +46,10 @@ class HomeView(context: Context) : ContourLayout(context) {
 
   private fun render(model: HomeUiModel) {
     noteAdapter.submitList(model.notes)
+  }
+
+  @AssistedInject.Factory
+  interface Factory {
+    fun withContext(context: Context): HomeView
   }
 }
