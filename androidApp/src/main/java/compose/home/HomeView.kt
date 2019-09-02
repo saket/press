@@ -14,7 +14,6 @@ import me.saket.compose.shared.home.HomePresenter
 import me.saket.compose.shared.home.HomeUiModel
 import javax.inject.Inject
 
-@SuppressLint("CheckResult")
 class HomeView(context: Context) : ContourLayout(context) {
 
   @field:Inject

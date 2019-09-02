@@ -13,6 +13,10 @@ android {
     versionName "1.0"
   }
 
+  lintOptions {
+    disable 'ViewConstructor','CheckResult'
+  }
+
   buildTypes {
     release {
       minifyEnabled false

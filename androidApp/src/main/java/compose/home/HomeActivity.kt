@@ -1,8 +1,5 @@
-@file:SuppressLint("CheckResult")
-
 package compose.home
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import compose.ComposeApp
@@ -24,7 +21,6 @@ class HomeActivity : AppCompatActivity() {
   }
 }
 
-@SuppressLint("CheckResult")
 private fun Observable<AppTheme>.autoApply(activity: AppCompatActivity) {
   takeUntil(activity.onDestroys()).subscribe { it.apply(activity) }
 }

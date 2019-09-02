@@ -1,6 +1,5 @@
 package compose.home
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.drawable.ColorDrawable
 import android.text.TextUtils.TruncateAt.END
@@ -13,7 +12,6 @@ import compose.util.y
 import io.reactivex.Observable
 import me.saket.compose.shared.note.Note
 
-@SuppressLint("ViewConstructor")
 class NoteRowView(
   context: Context,
   style: Observable<HomeStyle>

@@ -32,7 +32,7 @@ import me.saket.wysiwyg.theme.DisplayUnits
 import me.saket.wysiwyg.theme.WysiwygTheme
 import me.saket.wysiwyg.widgets.addTextChangedListener
 
-@SuppressLint("ViewConstructor, SetTextI18n")
+@SuppressLint("SetTextI18n")
 class EditorView(
   context: Context,
   style: Observable<EditorStyle>

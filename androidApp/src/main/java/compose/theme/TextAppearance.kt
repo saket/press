@@ -28,7 +28,6 @@ data class TextAppearance(
   }
 }
 
-@SuppressLint("CheckResult")
 fun Observable<TextAppearance>.autoApply(view: TextView) {
   view.attaches()
       .switchMap { this }
