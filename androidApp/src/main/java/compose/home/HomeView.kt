@@ -16,7 +16,6 @@ import javax.inject.Inject
 @SuppressLint("CheckResult")
 class HomeView(context: Context) : ContourLayout(context) {
 
-  // TODO: Move to AssistedInject.
   @field:Inject
   lateinit var presenter: HomePresenter
 

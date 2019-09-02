@@ -1,16 +1,13 @@
 package me.saket.compose.shared.home
 
-import me.saket.compose.shared.di.BaseModule
-import org.koin.core.context.loadKoinModules
+import me.saket.compose.shared.di.koin
 import org.koin.dsl.module
 
-object HomeKoinModule : BaseModule() {
+object HomeKoinModule {
 
-  init {
-    loadKoinModules(module {
-      factory { HomePresenter() }
-    })
+  val homeModule = module {
+    factory { HomePresenter(get()) }
   }
 
-  fun presenter(): HomePresenter = get()
+  fun presenter(): HomePresenter = koin()
 }
