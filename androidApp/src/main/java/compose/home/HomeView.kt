@@ -2,7 +2,8 @@ package compose.home
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.widget.TextView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import compose.ComposeApp
@@ -19,24 +20,21 @@ class HomeView(context: Context) : ContourLayout(context) {
   @field:Inject
   lateinit var presenter: HomePresenter
 
-//  private val notesList = RecyclerView(context).apply {
-//    applyLayout(
-//        x = leftTo { parent.left() }.rightTo { parent.right() },
-//        y = topTo { parent.top() }.bottomTo { parent.bottom() }
-//    )
-//  }
-
-  private val placeholderView = TextView(context).apply {
-    text = "Loading…"
-    textSize = 16f
+  private val notesList = RecyclerView(context).apply {
+    layoutManager = LinearLayoutManager(context)
+    isVerticalScrollBarEnabled = true
+    scrollBarStyle = SCROLLBARS_INSIDE_OVERLAY
     applyLayout(
-        x = centerHorizontallyTo { parent.centerX() },
-        y = centerVerticallyTo { parent.centerY() }
+        x = leftTo { parent.left() }.rightTo { parent.right() },
+        y = topTo { parent.top() }.bottomTo { parent.bottom() }
     )
   }
 
+  private val noteAdapter = NoteAdapter()
+
   init {
     ComposeApp.component.inject(this)
+    notesList.adapter = noteAdapter
   }
 
   override fun onAttachedToWindow() {
@@ -49,6 +47,6 @@ class HomeView(context: Context) : ContourLayout(context) {
   }
 
   private fun render(model: HomeUiModel) {
-    placeholderView.text = model.placeholder
+    noteAdapter.submitList(model.notes)
   }
 }

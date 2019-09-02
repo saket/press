@@ -1,3 +1,7 @@
 package me.saket.compose.shared.note
 
-class Note
+data class Note(
+  val id: Long,
+  val title: String,
+  val body: String
+)
