@@ -1,17 +1,17 @@
 package compose.home
 
 import compose.theme.AppStyle
-import compose.theme.AppTheme
 import compose.theme.TextAppearance
+import compose.theme.ThemePalette
 
 class HomeStyle(
-  theme: AppTheme,
-  val noteRow: NoteRow = NoteRow(theme)
-) : AppStyle(theme) {
+  palette: ThemePalette,
+  val noteRow: NoteRow = NoteRow(palette)
+) : AppStyle(palette) {
 
   class NoteRow(
-    theme: AppTheme,
-    val title: TextAppearance = TextAppearance(color = theme.headingColor),
-    val body: TextAppearance = TextAppearance(color = theme.textColorSecondary)
+    palette: ThemePalette,
+    val title: TextAppearance = TextAppearance(color = palette.headingColor),
+    val body: TextAppearance = TextAppearance(color = palette.textColorSecondary)
   )
 }

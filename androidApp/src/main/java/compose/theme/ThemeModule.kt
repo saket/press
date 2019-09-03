@@ -9,6 +9,6 @@ object ThemeModule {
 
   @Provides
   @JvmStatic
-  fun theme(): Observable<AppTheme> =
-    Observable.just(DraculaTheme)
+  fun palette(): Observable<ThemePalette> =
+    Observable.just(DraculaThemePalette)
 }

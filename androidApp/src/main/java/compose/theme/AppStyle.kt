@@ -8,17 +8,17 @@ import me.saket.compose.R
 import androidx.appcompat.widget.Toolbar as ToolbarView
 
 abstract class AppStyle(
-  theme: AppTheme,
-  val toolbar: ToolbarStyle = ToolbarStyle(theme)
+  palette: ThemePalette,
+  val toolbar: ToolbarStyle = ToolbarStyle(palette)
 )
 
 class ToolbarStyle(
-  theme: AppTheme,
+  palette: ThemePalette,
   val title: TextAppearance = TextAppearance(
       parentRes = R.style.TextAppearance_AppCompat_Title,
-      color = theme.accentColor
+      color = palette.accentColor
   ),
-  private val backgroundColor: Int = theme.primaryColor,
+  private val backgroundColor: Int = palette.primaryColor,
   private val elevation: Dp = 4.dp
 ): Styleable<ToolbarView> {
 

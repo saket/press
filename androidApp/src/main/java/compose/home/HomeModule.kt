@@ -1,7 +1,7 @@
 package compose.home
 
 import com.squareup.inject.assisted.dagger2.AssistedModule
-import compose.theme.AppTheme
+import compose.theme.ThemePalette
 import dagger.Module
 import dagger.Provides
 import io.reactivex.Observable
@@ -19,6 +19,6 @@ object HomeModule {
 
   @Provides
   @JvmStatic
-  fun style(theme: Observable<AppTheme>): Observable<HomeStyle> =
+  fun style(theme: Observable<ThemePalette>): Observable<HomeStyle> =
     theme.map { HomeStyle(it) }
 }

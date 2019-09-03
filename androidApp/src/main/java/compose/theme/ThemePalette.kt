@@ -2,7 +2,7 @@ package compose.theme
 
 import android.graphics.Color
 
-abstract class AppTheme(
+abstract class ThemePalette(
   val primaryColor: Int,
   val primaryColorDark: Int,
   val accentColor: Int,
