@@ -51,6 +51,7 @@ class HomeView @AssistedInject constructor(
   }
 
   private val newNoteFab = FloatingActionButton(context).apply {
+    setImageResource(R.drawable.ic_note_add_24dp)
     style.map { it.newNoteFab }.autoApply(this)
     applyLayout(
         x = rightTo { parent.right() - 24.dip },
