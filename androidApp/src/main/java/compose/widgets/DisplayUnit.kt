@@ -3,7 +3,7 @@ package compose.widgets
 import android.content.Context
 import android.util.TypedValue
 import android.util.TypedValue.COMPLEX_UNIT_DIP
-import compose.widgets.DisplayUnit.Dip
+import compose.widgets.DisplayUnit.Dp
 
 sealed class DisplayUnit(
   private val value: Float,
@@ -15,11 +15,11 @@ sealed class DisplayUnit(
     return TypedValue.applyDimension(unit, value, metrics)
   }
 
-  data class Dip(private val value: Float) : DisplayUnit(value, COMPLEX_UNIT_DIP)
+  data class Dp(private val value: Float) : DisplayUnit(value, COMPLEX_UNIT_DIP)
 }
 
-val Int.dip: Dip
-  get() = Dip(toFloat())
+val Int.dp: Dp
+  get() = Dp(toFloat())
 
-val Float.dip: Dip
-  get() = Dip(this)
+val Float.dp: Dp
+  get() = Dp(this)

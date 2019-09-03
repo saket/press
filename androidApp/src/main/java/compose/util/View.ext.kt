@@ -6,6 +6,8 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.annotation.AttrRes
 import androidx.annotation.StringRes
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.children
 import compose.widgets.Attr
 
 fun View.string(@StringRes stringRes: Int) = resources.getString(stringRes)
@@ -37,3 +39,11 @@ inline fun fromOreo(block: () -> Unit) {
     block()
   }
 }
+
+val Toolbar.titleView: TextView
+  get() {
+    if (subtitle != null && subtitle.isNotBlank()) {
+      throw UnsupportedOperationException("TODO")
+    }
+    return children.find { it is TextView } as TextView
+  }

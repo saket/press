@@ -41,7 +41,7 @@ class EditorView(
   private val toolbarView = TextView(context).apply {
     text = string(R.string.app_name)
     gravity = CENTER_VERTICAL
-    style.map { it.toolbar }.autoApply(this)
+    style.map { it.toolbar.title }.autoApply(this)
     applyLayout(
         x = leftTo { parent.left() + 16.dip.x }.rightTo { parent.right() - 16.dip.x },
         y = topTo { parent.top() }.heightOf(attr(android.R.attr.actionBarSize))

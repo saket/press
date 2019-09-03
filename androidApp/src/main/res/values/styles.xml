@@ -1,13 +1,8 @@
 <resources>
 
   <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
-    <item name="colorPrimary">@color/shark</item>
-    <item name="colorPrimaryDark">@color/shark</item>
-    <item name="colorAccent">@color/screamin_green</item>
+    <item name="colorPrimary">#f00</item>
+    <item name="colorPrimaryDark">#f00</item>
+    <item name="colorAccent">#f00</item>
   </style>
-
-  <color name="cannon_pink">#8E3A6D</color>
-  <color name="shark">#232530</color>
-  <color name="screamin_green">#4EFA7B</color>
-  <color name="tuna">#343846</color>
 </resources>

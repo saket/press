@@ -7,7 +7,7 @@ import compose.theme.TextAppearance
 class HomeStyle(
   theme: AppTheme,
   val noteRow: NoteRow = NoteRow(theme)
-) : AppStyle {
+) : AppStyle(theme) {
 
   class NoteRow(
     theme: AppTheme,
