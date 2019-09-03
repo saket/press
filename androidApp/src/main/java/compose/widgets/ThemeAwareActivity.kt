@@ -17,17 +17,19 @@ abstract class ThemeAwareActivity : AppCompatActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     ComposeApp.component.inject(this)
-    palette.autoApply(this)
+    applyPaletteTheme()
     super.onCreate(savedInstanceState)
   }
 
-  private fun Observable<ThemePalette>.autoApply(activity: AppCompatActivity) {
-    takeUntil(activity.onDestroys()).subscribe { theme ->
-      activity.window.apply {
-        setBackgroundDrawable(ColorDrawable(theme.windowTheme.backgroundColor))
-        addFlags(LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-        statusBarColor = theme.primaryColorDark
-      }
-    }
+  private fun applyPaletteTheme() {
+    palette
+        .takeUntil(onDestroys())
+        .subscribe { theme ->
+          window.apply {
+            setBackgroundDrawable(ColorDrawable(theme.windowTheme.backgroundColor))
+            addFlags(LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            statusBarColor = theme.primaryColorDark
+          }
+        }
   }
 }
