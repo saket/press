@@ -11,7 +11,7 @@ class HomeStyle(
 
   class NoteRow(
     theme: AppTheme,
-    val title: TextAppearance = TextAppearance(textColor = theme.palette.headingColor),
-    val body: TextAppearance = TextAppearance(textColor = theme.palette.textColorSecondary)
+    val title: TextAppearance = TextAppearance(color = theme.headingColor),
+    val body: TextAppearance = TextAppearance(color = theme.textColorSecondary)
   )
 }

@@ -3,16 +3,24 @@ package compose.theme
 import android.app.Activity
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS
+import android.view.WindowManager.LayoutParams
 
-class AppTheme(val palette: ThemePalette) {
+abstract class AppTheme(
+  val primaryColor: Int,
+  val primaryColorDark: Int,
+  val accentColor: Int,
+  val windowTheme: WindowTheme,
+  val headingColor: Int,
+  val textColorSecondary: Int
+) {
+  data class WindowTheme(val backgroundColor: Int)
+}
 
-  fun apply(activity: Activity) {
-    activity.window.apply {
-      setBackgroundDrawable(ColorDrawable(palette.window.backgroundColor))
-      addFlags(FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-      statusBarColor = palette.primaryColorDark
-    }
+fun AppTheme.apply(activity: Activity) {
+  activity.window.apply {
+    setBackgroundDrawable(ColorDrawable(windowTheme.backgroundColor))
+    addFlags(LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+    statusBarColor = primaryColorDark
   }
 }
 

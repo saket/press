@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import compose.ComposeApp
 import compose.theme.AppTheme
+import compose.theme.apply
 import compose.util.onDestroys
 import io.reactivex.Observable
 import javax.inject.Inject

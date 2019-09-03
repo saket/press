@@ -9,23 +9,23 @@ import androidx.appcompat.widget.Toolbar as ToolbarView
 
 abstract class AppStyle(
   theme: AppTheme,
-  val toolbar: Toolbar = Toolbar(theme)
-) {
+  val toolbar: ToolbarStyle = ToolbarStyle(theme)
+)
 
-  class Toolbar(
-    theme: AppTheme,
-    val title: TextAppearance = TextAppearance(
-        parentRes = R.style.TextAppearance_AppCompat_Title,
-        textColor = theme.palette.accentColor
-    ),
-    private val backgroundColor: Int = theme.palette.primaryColor,
-    private val elevation: Dp = 4.dp
-  ) : Styleable<ToolbarView> {
+class ToolbarStyle(
+  theme: AppTheme,
+  val title: TextAppearance = TextAppearance(
+      parentRes = R.style.TextAppearance_AppCompat_Title,
+      color = theme.accentColor
+  ),
+  private val backgroundColor: Int = theme.primaryColor,
+  private val elevation: Dp = 4.dp
+): Styleable<ToolbarView> {
 
-    override fun style(view: ToolbarView) {
-      title.style(view.titleView)
-      view.background = ColorDrawable(backgroundColor)
-      view.elevation = elevation.px(view.context)
-    }
+  override fun style(view: ToolbarView) {
+    title.style(view.titleView)
+    view.background = ColorDrawable(backgroundColor)
+    view.elevation = elevation.px(view.context)
   }
 }
+

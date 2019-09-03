@@ -5,11 +5,11 @@ val COLOR_TUNA = color("#353846")
 val COLOR_SCREAMING_GREEN = color("#50FA7B")
 val GHOST = color("#c2c3c7")
 
-object DraculaThemePalette : ThemePalette(
+object DraculaTheme : AppTheme(
     primaryColor = COLOR_BLACK_ROCK,
     primaryColorDark = COLOR_BLACK_ROCK,
     accentColor = COLOR_SCREAMING_GREEN,
-    window = Window(backgroundColor = COLOR_TUNA),
+    windowTheme = WindowTheme(backgroundColor = COLOR_TUNA),
     headingColor = COLOR_SCREAMING_GREEN,
     textColorSecondary = GHOST
 )
