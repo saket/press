@@ -7,20 +7,18 @@ import compose.util.textColor
 
 data class TextAppearance(
   @StyleRes val parentRes: Int? = null,
-  val textSizeSp: Float = 15f,
-  val letterSpacing: Float = 0f,
+  val textSizeSp: Float? = null,
+  val letterSpacing: Float? = null,
   val textColor: Int,
-  val typeface: Typeface = Typeface.DEFAULT
+  val typeface: Typeface? = null
 ) : Styleable<TextView> {
 
   override fun style(view: TextView) {
-    if (parentRes != null) {
-      view.setTextAppearance(parentRes)
-    }
+    parentRes?.let(view::setTextAppearance)
+    textSizeSp?.let(view::setTextSize)
+    letterSpacing?.let(view::setLetterSpacing)
+    typeface?.let(view::setTypeface)
 
-    view.textSize = textSizeSp
-    view.letterSpacing = letterSpacing
     view.textColor = textColor
-    view.typeface = typeface
   }
 }
