@@ -18,6 +18,7 @@ class NoteRowView(
 ) : ContourLayout(context) {
 
   private val titleView = TextView(context).apply {
+    textSize = 16f
     maxLines = 1
     ellipsize = END
     style.map { it.noteRow.title }.autoApply(this)
@@ -28,6 +29,7 @@ class NoteRowView(
   }
 
   private val bodyView = TextView(context).apply {
+    textSize = 16f
     maxLines = 2
     ellipsize = END
     style.map { it.noteRow.body }.autoApply(this)
