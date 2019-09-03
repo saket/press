@@ -1,13 +1,15 @@
 package me.saket.compose.shared.home
 
 import me.saket.compose.shared.di.koin
+import me.saket.compose.shared.navigation.Navigator
+import org.koin.core.parameter.parametersOf
 import org.koin.dsl.module
 
 object HomeKoinModule {
 
   val homeModule = module {
-    factory { HomePresenter(get()) }
+    factory { (navigator: Navigator) -> HomePresenter(get(), navigator) }
   }
 
-  fun presenter(): HomePresenter = koin()
+  fun presenter(navigator: Navigator): HomePresenter = koin { parametersOf(navigator) }
 }

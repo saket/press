@@ -41,6 +41,7 @@ dependencies {
   implementation deps.androidx.appCompat
   implementation deps.androidx.recyclerView
   implementation deps.androidx.ktx
+  implementation deps.material.core
 
   implementation deps.contour
   implementation deps.timber

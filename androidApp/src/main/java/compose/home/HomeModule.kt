@@ -7,6 +7,7 @@ import dagger.Provides
 import io.reactivex.Observable
 import me.saket.compose.shared.home.HomeKoinModule
 import me.saket.compose.shared.home.HomePresenter
+import me.saket.compose.shared.navigation.Navigator
 
 @AssistedModule
 @Module(includes = [AssistedInject_HomeModule::class])
@@ -14,8 +15,13 @@ object HomeModule {
 
   @Provides
   @JvmStatic
-  fun presenter(): HomePresenter =
-    HomeKoinModule.presenter()
+  fun presenter(): HomePresenter.Factory {
+    return object : HomePresenter.Factory {
+      override fun create(navigator: Navigator): HomePresenter {
+        return HomeKoinModule.presenter(navigator)
+      }
+    }
+  }
 
   @Provides
   @JvmStatic

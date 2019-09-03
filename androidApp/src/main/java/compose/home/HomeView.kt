@@ -1,9 +1,12 @@
 package compose.home
 
 import android.content.Context
+import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
@@ -16,12 +19,15 @@ import io.reactivex.Observable
 import me.saket.compose.R
 import me.saket.compose.shared.contentModels
 import me.saket.compose.shared.home.HomeEvent
+import me.saket.compose.shared.home.HomeEvent.NewNoteClicked
 import me.saket.compose.shared.home.HomePresenter
 import me.saket.compose.shared.home.HomeUiModel
+import me.saket.compose.shared.navigation.RealNavigator
+import me.saket.compose.shared.navigation.ScreenKey.NewNote
 
 class HomeView @AssistedInject constructor(
   @Assisted context: Context,
-  private val presenter: HomePresenter,
+  private val presenter: HomePresenter.Factory,
   private val noteAdapter: NoteAdapter,
   private val style: Observable<HomeStyle>
 ) : ContourLayout(context) {
@@ -45,6 +51,14 @@ class HomeView @AssistedInject constructor(
     )
   }
 
+  private val newNoteFab = FloatingActionButton(context).apply {
+    style.map { it.newNoteFab }.autoApply(this)
+    applyLayout(
+        x = rightTo { parent.right() - 24.dip },
+        y = bottomTo { parent.bottom() - 24.dip }
+    )
+  }
+
   init {
     ComposeApp.component.inject(this)
     notesList.adapter = noteAdapter
@@ -53,14 +67,28 @@ class HomeView @AssistedInject constructor(
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
 
-    Observable.empty<HomeEvent>()
-        .contentModels(presenter)
+    val newNoteClicks = newNoteFab
+        .clicks()
+        .map<HomeEvent> { NewNoteClicked }
+
+    val navigator = RealNavigator {
+      if (it is NewNote) {
+        openNewNoteScreen()
+      }
+    }
+
+    newNoteClicks
+        .contentModels(presenter.create(navigator))
         .takeUntil(detaches())
         .subscribe(::render)
   }
 
   private fun render(model: HomeUiModel) {
     noteAdapter.submitList(model.notes)
+  }
+
+  private fun openNewNoteScreen() {
+    Toast.makeText(context, "Foo", Toast.LENGTH_SHORT).show()
   }
 
   @AssistedInject.Factory

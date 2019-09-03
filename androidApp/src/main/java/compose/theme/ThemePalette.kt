@@ -8,7 +8,8 @@ abstract class ThemePalette(
   val accentColor: Int,
   val windowTheme: WindowTheme,
   val headingColor: Int,
-  val textColorSecondary: Int
+  val textColorSecondary: Int,
+  val fabColor: Int
 ) {
   data class WindowTheme(val backgroundColor: Int)
 }
