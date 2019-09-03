@@ -5,7 +5,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import compose.theme.AppStyle
 import compose.theme.Styleable
 import compose.theme.TextAppearance
-import compose.theme.ThemePalette
+import me.saket.compose.shared.theme.ThemePalette
 
 class HomeStyle(
   palette: ThemePalette,
@@ -21,7 +21,7 @@ class HomeStyle(
 
   class Fab(
     palette: ThemePalette,
-    val background: Int = palette.fabColor
+    private val background: Int = palette.fabColor
   ): Styleable<FloatingActionButton> {
 
     override fun style(view: FloatingActionButton) {

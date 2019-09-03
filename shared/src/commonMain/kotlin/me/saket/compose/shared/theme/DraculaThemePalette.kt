@@ -1,10 +1,10 @@
-package compose.theme
+package me.saket.compose.shared.theme
 
-val COLOR_BLACK_ROCK = color("#2F313F")
-val COLOR_TUNA = color("#353846")
-val COLOR_SCREAMING_GREEN = color("#50FA7B")
-val COLOR_GHOST = color("#c2c3c7")
-val COLOR_ANAKIWA = color("#8be8fd")
+val COLOR_BLACK_ROCK = "#2F313F".toColor()
+val COLOR_TUNA = "#353846".toColor()
+val COLOR_SCREAMING_GREEN = "#50FA7B".toColor()
+val COLOR_GHOST = "#c2c3c7".toColor()
+val COLOR_ANAKIWA = "#8be8fd".toColor()
 
 object DraculaThemePalette : ThemePalette(
     primaryColor = COLOR_BLACK_ROCK,

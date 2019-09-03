@@ -5,6 +5,7 @@ import compose.util.titleView
 import compose.widgets.DisplayUnit.Dp
 import compose.widgets.dp
 import me.saket.compose.R
+import me.saket.compose.shared.theme.ThemePalette
 import androidx.appcompat.widget.Toolbar as ToolbarView
 
 abstract class AppStyle(

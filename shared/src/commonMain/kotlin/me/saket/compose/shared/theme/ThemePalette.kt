@@ -1,6 +1,4 @@
-package compose.theme
-
-import android.graphics.Color
+package me.saket.compose.shared.theme
 
 abstract class ThemePalette(
   val primaryColor: Int,
@@ -13,5 +11,3 @@ abstract class ThemePalette(
 ) {
   data class WindowTheme(val backgroundColor: Int)
 }
-
-fun color(hex: String) = Color.parseColor(hex)

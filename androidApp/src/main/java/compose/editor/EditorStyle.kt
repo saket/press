@@ -1,7 +1,7 @@
 package compose.editor
 
 import compose.theme.AppStyle
-import compose.theme.ThemePalette
+import me.saket.compose.shared.theme.ThemePalette
 import compose.theme.TextAppearance
 
 class EditorStyle(

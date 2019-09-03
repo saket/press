@@ -3,6 +3,8 @@ package compose.theme
 import dagger.Module
 import dagger.Provides
 import io.reactivex.Observable
+import me.saket.compose.shared.theme.DraculaThemePalette
+import me.saket.compose.shared.theme.ThemePalette
 
 @Module
 object ThemeModule {

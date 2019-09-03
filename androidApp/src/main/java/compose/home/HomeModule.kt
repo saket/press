@@ -1,7 +1,7 @@
 package compose.home
 
 import com.squareup.inject.assisted.dagger2.AssistedModule
-import compose.theme.ThemePalette
+import me.saket.compose.shared.theme.ThemePalette
 import dagger.Module
 import dagger.Provides
 import io.reactivex.Observable

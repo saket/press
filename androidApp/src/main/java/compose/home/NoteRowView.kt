@@ -7,10 +7,10 @@ import android.view.View
 import android.widget.TextView
 import com.squareup.contour.ContourLayout
 import compose.theme.autoApply
-import compose.theme.color
 import compose.util.y
 import io.reactivex.Observable
 import me.saket.compose.shared.note.Note
+import me.saket.compose.shared.theme.toColor
 
 class NoteRowView(
   context: Context,
@@ -40,7 +40,7 @@ class NoteRowView(
   }
 
   private val separatorView = View(context).apply {
-    background = ColorDrawable(color("#62677C"))
+    background = ColorDrawable("#62677C".toColor()) // TODO: get color from theme.
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
         y = topTo { bodyView.bottom() + 16.dip }.heightOf { 1.dip.y }

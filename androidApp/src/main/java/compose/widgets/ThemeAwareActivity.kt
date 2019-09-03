@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.WindowManager.LayoutParams
 import androidx.appcompat.app.AppCompatActivity
 import compose.ComposeApp
-import compose.theme.ThemePalette
+import me.saket.compose.shared.theme.ThemePalette
 import compose.util.onDestroys
 import io.reactivex.Observable
 import javax.inject.Inject
