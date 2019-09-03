@@ -1,6 +1,9 @@
 package compose.theme
 
 import android.graphics.drawable.ColorDrawable
+import android.view.ViewGroup
+import android.widget.EdgeEffect
+import androidx.recyclerview.widget.RecyclerView
 import compose.util.titleView
 import compose.widgets.DisplayUnit.Dp
 import compose.widgets.dp
@@ -10,7 +13,8 @@ import androidx.appcompat.widget.Toolbar as ToolbarView
 
 abstract class AppStyle(
   palette: ThemePalette,
-  val toolbar: ToolbarStyle = ToolbarStyle(palette)
+  val toolbar: ToolbarStyle = ToolbarStyle(palette),
+  val recyclerView: RecyclerViewStyle = RecyclerViewStyle(palette)
 )
 
 class ToolbarStyle(
@@ -21,7 +25,7 @@ class ToolbarStyle(
   ),
   private val backgroundColor: Int = palette.primaryColor,
   private val elevation: Dp = 4.dp
-): Styleable<ToolbarView> {
+) : Styleable<ToolbarView> {
 
   override fun style(view: ToolbarView) {
     title.style(view.titleView)
@@ -30,3 +34,14 @@ class ToolbarStyle(
   }
 }
 
+class RecyclerViewStyle(private val palette: ThemePalette) : Styleable<RecyclerView> {
+  override fun style(view: RecyclerView) {
+    view.isVerticalScrollBarEnabled = true
+    view.scrollBarStyle = ViewGroup.SCROLLBARS_INSIDE_OVERLAY
+
+    view.edgeEffectFactory = object : RecyclerView.EdgeEffectFactory() {
+      override fun createEdgeEffect(view: RecyclerView, direction: Int) =
+        EdgeEffect(view.context).apply { color = palette.accentColor }
+    }
+  }
+}

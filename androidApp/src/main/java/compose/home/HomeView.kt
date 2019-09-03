@@ -43,8 +43,7 @@ class HomeView @AssistedInject constructor(
 
   private val notesList = RecyclerView(context).apply {
     layoutManager = LinearLayoutManager(context)
-    isVerticalScrollBarEnabled = true
-    scrollBarStyle = SCROLLBARS_INSIDE_OVERLAY
+    style.map { it.recyclerView }.autoApply(this)
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
         y = topTo { toolbar.bottom() }.bottomTo { parent.bottom() }
