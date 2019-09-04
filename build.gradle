@@ -1,25 +1,19 @@
 apply from: 'gradle/dependencies.gradle'
 
 buildscript {
-  // These unfortunately cannot be moved to dependencies.gradle.
+  // Not sure how to move these to dependencies.gradle.
+  // Someone with better Gradle skills, please help?
   ext.projectVersions = [
       kotlin: '1.3.50',
       minSdk: 23,
       compileSdk: 28
   ]
-  ext.squareMavenRepoUrl = "https://maven.global.square"
 
   repositories {
     google()
-    jcenter()
     mavenCentral()
+    jcenter()
     maven { url  "https://dl.bintray.com/badoo/maven" }
-    maven {
-      url squareMavenRepoUrl + '/artifactory/android-public'
-      metadataSources {
-        mavenPom()
-      }
-    }
   }
 
   dependencies {
@@ -31,20 +25,9 @@ buildscript {
 allprojects {
   repositories {
     google()
-    jcenter()
     mavenCentral()
+    jcenter()
     maven { url  "https://dl.bintray.com/badoo/maven" }
-  }
-}
-
-// For Contour library.
-subprojects { project ->
-  repositories {
-    maven {
-      url squareMavenRepoUrl + '/artifactory/android-public'
-      metadataSources {
-        mavenPom()
-      }
-    }
+    maven { url 'https://jitpack.io' }
   }
 }

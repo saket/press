@@ -48,7 +48,7 @@ class NoteRowView(
   }
 
   init {
-    heightOf { separatorView.bottom() }
+    contourHeightOf { separatorView.bottom() }
   }
 
   fun render(note: Note) {

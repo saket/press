@@ -4,7 +4,7 @@ buildscript {
       butterKnife: '8.8.1',
       kotlin: '1.3.41',
       moshi: '1.8.0',
-      sqldelight: '1.1.4',
+      sqldelight: '1.2.0',
       persistence: '2.0.0',
       okhttp: '4.0.1',
       squareInject: '0.4.0',
@@ -84,7 +84,7 @@ buildscript {
               'common': "org.jetbrains.kotlin:kotlin-stdlib-common:${versions.kotlin}",
           ],
       ],
-      'contour': 'app.cash:contour:0.1.2',
+      'contour': 'com.github.cashapp:contour:3b067858ff',
       'flexmark': [
           'core': "com.vladsch.flexmark:flexmark-java:$versions.flexmark",
           'strikethrough': "com.vladsch.flexmark:flexmark-ext-gfm-strikethrough:$versions.flexmark"

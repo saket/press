@@ -1,9 +1,9 @@
 package compose.util
 
-import com.squareup.contour.HeightOfAllowedContext
+import com.squareup.contour.HasYPositionWithoutHeight
 import com.squareup.contour.XInt
 import com.squareup.contour.YInt
-import com.squareup.contour.YResolver
+import com.squareup.contour.solvers.YAxisSolver
 import compose.widgets.Attr
 
 val Int.x: XInt
@@ -12,8 +12,8 @@ val Int.x: XInt
 val Int.y: YInt
   get() = YInt(this)
 
-fun HeightOfAllowedContext.heightOf(
+fun HasYPositionWithoutHeight.heightOf(
   attr: Attr
-): YResolver {
+): YAxisSolver {
   return heightOf { attr.asDimension().y }
 }
