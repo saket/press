@@ -9,7 +9,7 @@ import com.squareup.contour.ContourLayout
 import compose.theme.autoApply
 import compose.util.y
 import io.reactivex.Observable
-import me.saket.compose.shared.note.Note
+import me.saket.compose.shared.home.HomeUiModel
 import me.saket.compose.shared.theme.toColor
 
 class NoteRowView(
@@ -51,7 +51,7 @@ class NoteRowView(
     contourHeightOf { separatorView.bottom() }
   }
 
-  fun render(note: Note) {
+  fun render(note: HomeUiModel.Note) {
     titleView.text = note.title
     bodyView.text = note.body
   }

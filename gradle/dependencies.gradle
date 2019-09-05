@@ -113,6 +113,10 @@ buildscript {
               'ios32': "co.touchlab:koin-core-iosarm32:$versions.koin"
           ]
       ],
-      'kNativeUuid': "com.benasher44:uuid:0.0.5"
+      'kNativeUuid': "com.benasher44:uuid:0.0.5",
+      'klock': [
+          'common': "com.soywiz.korlibs.klock:klock:1.6.0",
+          'jvm': "com.soywiz.korlibs.klock:klock-jvm:1.6.0",
+      ]
   ]
 }

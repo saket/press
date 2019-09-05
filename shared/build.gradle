@@ -34,6 +34,7 @@ kotlin {
         implementation deps.reaktive.core.common
         implementation deps.koin.core.common
         implementation deps.kNativeUuid
+        implementation deps.klock.common
       }
     }
     commonTest {

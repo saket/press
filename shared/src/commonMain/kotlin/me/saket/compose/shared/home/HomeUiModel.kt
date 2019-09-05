@@ -1,5 +1,10 @@
 package me.saket.compose.shared.home
 
-import me.saket.compose.shared.note.Note
+data class HomeUiModel(val notes: List<Note>) {
 
-data class HomeUiModel(val notes: List<Note>)
+  data class Note(
+    val adapterId: Long,
+    val title: String,
+    val body: String
+  )
+}

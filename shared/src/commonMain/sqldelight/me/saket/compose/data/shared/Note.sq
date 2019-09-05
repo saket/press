@@ -1,12 +1,13 @@
 import com.benasher44.uuid.Uuid;
+import com.soywiz.klock.DateTime;
 
 CREATE TABLE note (
   id TEXT AS Uuid NOT NULL PRIMARY KEY,
   title TEXT NOT NULL,
   body TEXT NOT NULL,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
-  deleted_at TEXT NOT NULL
+  createdAt TEXT AS DateTime NOT NULL,
+  updatedAt TEXT AS DateTime NOT NULL,
+  deletedAt TEXT AS DateTime
 );
 
 CREATE INDEX note_title ON note(title);
@@ -15,4 +16,4 @@ CREATE INDEX note_body ON note(body);
 selectAll:
 SELECT *
 FROM note
-ORDER BY created_at DESC;
+ORDER BY createdAt DESC;

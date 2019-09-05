@@ -27,7 +27,15 @@ class HomePresenter(
         }
 
   private fun populateNotes(): Observable<HomeUiModel> =
-    repository.notes().map { HomeUiModel(it) }
+    repository.notes().map {
+      HomeUiModel(it.map { note ->
+        HomeUiModel.Note(
+            adapterId = 0L,
+            title = note.title,
+            body = note.body
+        )
+      })
+    }
 
   interface Factory {
     fun create(navigator: Navigator): HomePresenter
