@@ -1,7 +1,7 @@
 package me.saket.compose.shared.di
 
-import me.saket.compose.shared.home.HomeKoinModule
-import me.saket.compose.shared.note.NoteKoinModule
+import me.saket.compose.shared.home.SharedHomeModule
+import me.saket.compose.shared.note.SharedNoteModule
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import org.koin.core.parameter.ParametersDefinition
@@ -22,8 +22,8 @@ internal object Initializer {
 
     startKoin {
       modules(listOf(
-          HomeKoinModule.homeModule,
-          NoteKoinModule.module
+          SharedHomeModule.homeModule,
+          SharedNoteModule.module
       ))
     }
   }

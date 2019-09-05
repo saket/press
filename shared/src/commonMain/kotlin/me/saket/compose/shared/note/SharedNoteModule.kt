@@ -2,7 +2,7 @@ package me.saket.compose.shared.note
 
 import org.koin.dsl.module
 
-object NoteKoinModule {
+object SharedNoteModule {
 
   val module = module {
     factory<NoteRepository> { RealNotesRepository() }

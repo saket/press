@@ -1,13 +1,13 @@
 package compose.home
 
 import com.squareup.inject.assisted.dagger2.AssistedModule
-import me.saket.compose.shared.theme.ThemePalette
 import dagger.Module
 import dagger.Provides
 import io.reactivex.Observable
-import me.saket.compose.shared.home.HomeKoinModule
 import me.saket.compose.shared.home.HomePresenter
+import me.saket.compose.shared.home.SharedHomeModule
 import me.saket.compose.shared.navigation.Navigator
+import me.saket.compose.shared.theme.ThemePalette
 
 @AssistedModule
 @Module(includes = [AssistedInject_HomeModule::class])
@@ -18,7 +18,7 @@ object HomeModule {
   fun presenter(): HomePresenter.Factory {
     return object : HomePresenter.Factory {
       override fun create(navigator: Navigator): HomePresenter {
-        return HomeKoinModule.presenter(navigator)
+        return SharedHomeModule.presenter(navigator)
       }
     }
   }

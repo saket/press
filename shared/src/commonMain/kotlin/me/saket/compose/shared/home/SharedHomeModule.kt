@@ -5,7 +5,7 @@ import me.saket.compose.shared.navigation.Navigator
 import org.koin.core.parameter.parametersOf
 import org.koin.dsl.module
 
-object HomeKoinModule {
+object SharedHomeModule {
 
   val homeModule = module {
     factory { (navigator: Navigator) -> HomePresenter(get(), navigator) }
