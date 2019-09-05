@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'org.jetbrains.kotlin.multiplatform'
 apply plugin: 'org.jetbrains.kotlin.native.cocoapods'
+apply plugin: 'kotlin-android-extensions'
 
 android {
   compileSdkVersion projectVersions.compileSdk
