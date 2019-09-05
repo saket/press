@@ -1,0 +1,18 @@
+import com.benasher44.uuid.Uuid;
+
+CREATE TABLE note (
+  id TEXT AS Uuid NOT NULL PRIMARY KEY,
+  title TEXT NOT NULL,
+  body TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  deleted_at TEXT NOT NULL
+);
+
+CREATE INDEX note_title ON note(title);
+CREATE INDEX note_body ON note(body);
+
+selectAll:
+SELECT *
+FROM note
+ORDER BY created_at DESC;

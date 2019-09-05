@@ -12,9 +12,8 @@ android {
 }
 
 sqldelight {
-  CmomposeDatabase {
+  ComposeDatabase {
     packageName = "me.saket.compose"
-    sourceFolders = ["db"]
     schemaOutputDirectory = file("src/commonMain/db/databases")
   }
 }
@@ -34,6 +33,7 @@ kotlin {
         implementation kotlin('stdlib-common')
         implementation deps.reaktive.core.common
         implementation deps.koin.core.common
+        implementation deps.kNativeUuid
       }
     }
     commonTest {
@@ -41,6 +41,7 @@ kotlin {
         implementation kotlin('test-common')
         implementation kotlin('test-annotations-common')
         implementation deps.reaktive.testing.common
+        implementation deps.sqlDelight.driver.jdbcSqlite
       }
     }
     androidMain {
@@ -49,6 +50,7 @@ kotlin {
         implementation deps.timber
         implementation deps.rx2.core
         implementation deps.reaktive.interop.android
+        implementation deps.sqlDelight.driver.android
       }
     }
     androidTest {
