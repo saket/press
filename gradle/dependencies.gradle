@@ -4,7 +4,7 @@ buildscript {
       butterKnife: '8.8.1',
       kotlin: '1.3.41',
       moshi: '1.8.0',
-      sqldelight: '1.2.0',
+      sqlDelight: '1.2.0',
       persistence: '2.0.0',
       okhttp: '4.0.1',
       squareInject: '0.4.0',
@@ -46,15 +46,15 @@ buildscript {
       ],
       'sqldelight': [
           'runtime': [
-              'common': "com.squareup.sqldelight:runtime:${versions.sqldelight}",
-              'jdk': "com.squareup.sqldelight:runtime-jvm:${versions.sqldelight}",
+              'common': "com.squareup.sqldelight:runtime:${versions.sqlDelight}",
+              'jdk': "com.squareup.sqldelight:runtime-jvm:${versions.sqlDelight}",
           ],
           'driver': [
-              'sqlite': "com.squareup.sqldelight:sqlite-driver:${versions.sqldelight}",
-              'android': "com.squareup.sqldelight:android-driver:${versions.sqldelight}",
+              'sqlite': "com.squareup.sqldelight:sqlite-driver:${versions.sqlDelight}",
+              'android': "com.squareup.sqldelight:android-driver:${versions.sqlDelight}",
           ],
-          'rx2': "com.squareup.sqldelight:rxjava2-extensions:${versions.sqldelight}",
-          'paging': "com.squareup.sqldelight:android-paging-extensions:${versions.sqldelight}",
+          'rx2': "com.squareup.sqldelight:rxjava2-extensions:${versions.sqlDelight}",
+          'paging': "com.squareup.sqldelight:android-paging-extensions:${versions.sqlDelight}",
       ],
       'dagger': [
           'runtime': "com.google.dagger:dagger:${versions.dagger}",

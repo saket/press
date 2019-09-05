@@ -2,11 +2,20 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'org.jetbrains.kotlin.multiplatform'
 apply plugin: 'org.jetbrains.kotlin.native.cocoapods'
+apply plugin: "com.squareup.sqldelight"
 
 android {
   compileSdkVersion projectVersions.compileSdk
   defaultConfig {
     minSdkVersion projectVersions.minSdk
+  }
+}
+
+sqldelight {
+  CmomposeDatabase {
+    packageName = "me.saket.compose"
+    sourceFolders = ["db"]
+    schemaOutputDirectory = file("src/commonMain/db/databases")
   }
 }
 
