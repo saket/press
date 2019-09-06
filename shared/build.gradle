@@ -36,6 +36,7 @@ kotlin {
         implementation deps.kNativeUuid
         implementation deps.klock.common
         implementation deps.sqlDelight.runtime.common
+        implementation deps.stately
       }
     }
     commonTest {
