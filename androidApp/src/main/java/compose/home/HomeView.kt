@@ -16,6 +16,7 @@ import compose.theme.autoApply
 import compose.util.attr
 import compose.util.heightOf
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.compose.R
 import me.saket.compose.shared.contentModels
 import me.saket.compose.shared.home.HomeEvent
@@ -80,6 +81,7 @@ class HomeView @AssistedInject constructor(
     newNoteClicks
         .contentModels(presenter.create(navigator))
         .takeUntil(detaches())
+        .observeOn(mainThread())
         .subscribe(::render)
   }
 
