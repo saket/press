@@ -1,25 +1,21 @@
 package me.saket.compose.shared.note
 
 import com.badoo.reaktive.observable.Observable
-import com.badoo.reaktive.observable.observableOf
-import com.benasher44.uuid.uuid4
-import com.soywiz.klock.DateTimeTz
-import me.saket.compose.ComposeDatabase
+import com.badoo.reaktive.scheduler.Scheduler
 import me.saket.compose.data.shared.Note
+import me.saket.compose.data.shared.NoteQueries
+import me.saket.compose.shared.db.asObservable
+import me.saket.compose.shared.db.mapToList
 
-class RealNotesRepository(db: ComposeDatabase) : NoteRepository {
+internal class RealNotesRepository(
+  private val noteQueries: NoteQueries,
+  private val ioScheduler: Scheduler
+) : NoteRepository {
 
   override fun notes(): Observable<List<Note>> {
-    val notes = (0..10).map {
-      Note.Impl(
-          id = uuid4(),
-          title = "Nicolas Cage",
-          body = "Our national treasure",
-          createdAt = DateTimeTz.nowLocal(),
-          updatedAt = DateTimeTz.nowLocal(),
-          deletedAt = null
-      )
-    }
-    return observableOf(notes)
+    return noteQueries
+        .selectAll()
+        .asObservable(ioScheduler)
+        .mapToList()
   }
 }
