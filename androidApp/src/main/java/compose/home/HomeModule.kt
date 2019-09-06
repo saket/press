@@ -5,7 +5,7 @@ import dagger.Module
 import dagger.Provides
 import io.reactivex.Observable
 import me.saket.compose.shared.home.HomePresenter
-import me.saket.compose.shared.home.SharedHomeModule
+import me.saket.compose.shared.home.SharedHomeComponent
 import me.saket.compose.shared.navigation.Navigator
 import me.saket.compose.shared.theme.ThemePalette
 
@@ -18,7 +18,7 @@ object HomeModule {
   fun presenter(): HomePresenter.Factory {
     return object : HomePresenter.Factory {
       override fun create(navigator: Navigator): HomePresenter {
-        return SharedHomeModule.presenter(navigator)
+        return SharedHomeComponent.presenter(navigator)
       }
     }
   }

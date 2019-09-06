@@ -1,0 +1,24 @@
+package me.saket.compose.shared.di
+
+import me.saket.compose.shared.db.SharedDatabaseComponent
+import me.saket.compose.shared.home.SharedHomeComponent
+import me.saket.compose.shared.note.SharedNoteComponent
+import org.koin.core.context.startKoin
+import org.koin.core.module.Module
+
+expect object SharedAppComponent : BaseSharedAppComponent
+
+abstract class BaseSharedAppComponent {
+
+  fun setupGraph(platformDependencies: Module) {
+    startKoin {
+      modules(
+          listOf(
+              SharedHomeComponent.module,
+              SharedNoteComponent.module,
+              SharedDatabaseComponent.module
+          ) + platformDependencies
+      )
+    }
+  }
+}

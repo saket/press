@@ -35,6 +35,7 @@ kotlin {
         implementation deps.koin.core.common
         implementation deps.kNativeUuid
         implementation deps.klock.common
+        implementation deps.sqlDelight.runtime.common
       }
     }
     commonTest {
@@ -60,7 +61,11 @@ kotlin {
         implementation kotlin('test-junit')
       }
     }
-    iosMain {}
+    iosMain {
+      dependencies {
+        implementation deps.sqlDelight.driver.iOS
+      }
+    }
     iosTest {}
 
     all {
