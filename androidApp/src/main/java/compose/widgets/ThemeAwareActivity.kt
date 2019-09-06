@@ -4,10 +4,9 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.WindowManager.LayoutParams
 import androidx.appcompat.app.AppCompatActivity
-import compose.ComposeApp
-import me.saket.compose.shared.theme.ThemePalette
 import compose.util.onDestroys
 import io.reactivex.Observable
+import me.saket.compose.shared.theme.ThemePalette
 import javax.inject.Inject
 
 abstract class ThemeAwareActivity : AppCompatActivity() {
@@ -16,7 +15,7 @@ abstract class ThemeAwareActivity : AppCompatActivity() {
   lateinit var palette: Observable<ThemePalette>
 
   override fun onCreate(savedInstanceState: Bundle?) {
-    ComposeApp.component.inject(this)
+    //ComposeApp.component.inject(this)
     applyPaletteTheme()
     super.onCreate(savedInstanceState)
   }

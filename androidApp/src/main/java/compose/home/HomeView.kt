@@ -1,7 +1,6 @@
 package compose.home
 
 import android.content.Context
-import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -11,7 +10,7 @@ import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
-import compose.ComposeApp
+import compose.editor.EditorActivity
 import compose.theme.autoApply
 import compose.util.attr
 import compose.util.heightOf
@@ -44,6 +43,7 @@ class HomeView @AssistedInject constructor(
 
   private val notesList = RecyclerView(context).apply {
     layoutManager = LinearLayoutManager(context)
+    adapter = noteAdapter
     style.map { it.recyclerView }.autoApply(this)
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
@@ -58,11 +58,6 @@ class HomeView @AssistedInject constructor(
         x = rightTo { parent.right() - 24.dip },
         y = bottomTo { parent.bottom() - 24.dip }
     )
-  }
-
-  init {
-    ComposeApp.component.inject(this)
-    notesList.adapter = noteAdapter
   }
 
   override fun onAttachedToWindow() {
@@ -90,7 +85,7 @@ class HomeView @AssistedInject constructor(
   }
 
   private fun openNewNoteScreen() {
-    Toast.makeText(context, "Foo", Toast.LENGTH_SHORT).show()
+    context.startActivity(EditorActivity.intent(context))
   }
 
   @AssistedInject.Factory
