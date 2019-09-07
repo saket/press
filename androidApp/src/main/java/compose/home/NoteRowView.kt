@@ -6,33 +6,35 @@ import android.text.TextUtils.TruncateAt.END
 import android.view.View
 import android.widget.TextView
 import com.squareup.contour.ContourLayout
-import compose.theme.autoApply
+import compose.theme.themeAware
+import compose.theme.themed
+import compose.util.textColor
 import compose.util.y
-import io.reactivex.Observable
 import me.saket.compose.shared.home.HomeUiModel
 import me.saket.compose.shared.theme.toColor
 
-class NoteRowView(
-  context: Context,
-  style: Observable<HomeStyle>
-) : ContourLayout(context) {
+class NoteRowView(context: Context) : ContourLayout(context) {
 
-  private val titleView = TextView(context).apply {
+  private val titleView = themed(TextView(context)).apply {
     textSize = 16f
     maxLines = 1
     ellipsize = END
-    style.map { it.noteRow.title }.autoApply(this)
+    themeAware {
+      textColor = it.textColorHeading
+    }
     applyLayout(
         x = leftTo { parent.left() + 16.dip }.rightTo { parent.right() - 16.dip },
         y = topTo { parent.top() + 16.dip }
     )
   }
 
-  private val bodyView = TextView(context).apply {
+  private val bodyView = themed(TextView(context)).apply {
     textSize = 16f
     maxLines = 2
     ellipsize = END
-    style.map { it.noteRow.body }.autoApply(this)
+    themeAware {
+      textColor = it.textColorSecondary
+    }
     applyLayout(
         x = leftTo { titleView.left() }.rightTo { titleView.right() },
         y = topTo { titleView.bottom() + 8.dip }

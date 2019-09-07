@@ -8,15 +8,13 @@ import io.reactivex.Observable
 import me.saket.compose.shared.home.HomeUiModel
 import javax.inject.Inject
 
-class NoteAdapter @Inject constructor(
-  private val style: Observable<HomeStyle>
-) : ListAdapter<HomeUiModel.Note, NoteVH>(NoteDiffer()) {
+class NoteAdapter @Inject constructor() : ListAdapter<HomeUiModel.Note, NoteVH>(NoteDiffer()) {
 
   override fun getItemId(position: Int) =
     getItem(position).adapterId
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-    NoteVH(NoteRowView(parent.context, style))
+    NoteVH(NoteRowView(parent.context))
 
   override fun onBindViewHolder(holder: NoteVH, position: Int) {
     holder.view.render(getItem(position))

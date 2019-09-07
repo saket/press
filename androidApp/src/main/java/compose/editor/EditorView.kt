@@ -17,11 +17,12 @@ import android.widget.ScrollView
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
-import compose.theme.autoApply
+import compose.theme.themeAware
+import compose.theme.themed
 import compose.util.fromOreo
 import compose.util.hintRes
 import compose.util.padding
-import io.reactivex.Observable
+import compose.util.textColor
 import me.saket.compose.R
 import me.saket.wysiwyg.Wysiwyg
 import me.saket.wysiwyg.theme.DisplayUnits
@@ -30,20 +31,18 @@ import me.saket.wysiwyg.widgets.addTextChangedListener
 
 @SuppressLint("SetTextI18n")
 class EditorView @AssistedInject constructor(
-  @Assisted context: Context,
-  style: Observable<EditorStyle>
+  @Assisted context: Context
 ) : ContourLayout(context) {
 
-  private val scrollView = ScrollView(context).apply {
+  private val scrollView = themed(ScrollView(context)).apply {
     isFillViewport = true
-    style.map { it.scrollView }.autoApply(this)
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
         y = topTo { parent.top() }.bottomTo { parent.bottom() }
     )
   }
 
-  private val editorEditText = EditText(context).apply {
+  private val editorEditText = themed(EditText(context)).apply {
     background = null
     breakStrategy = BREAK_STRATEGY_HIGH_QUALITY
     gravity = TOP
@@ -56,7 +55,9 @@ class EditorView @AssistedInject constructor(
     fromOreo {
       importantForAutofill = IMPORTANT_FOR_AUTOFILL_NO
     }
-    style.map { it.editor }.autoApply(this)
+    themeAware {
+      textColor = it.textColorSecondary
+    }
   }
 
   init {

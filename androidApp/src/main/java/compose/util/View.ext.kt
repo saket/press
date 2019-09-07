@@ -9,6 +9,7 @@ import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
 import compose.widgets.Attr
+import compose.widgets.DisplayUnit
 
 fun View.string(@StringRes stringRes: Int) = resources.getString(stringRes)
 
@@ -34,16 +35,19 @@ var TextView.textColor: Int
     setTextColor(color)
   }
 
+fun View.setElevation(value: DisplayUnit) {
+  elevation = value.px(context)
+}
+
 inline fun fromOreo(block: () -> Unit) {
   if (SDK_INT >= 26) {
     block()
   }
 }
 
-val Toolbar.titleView: TextView
-  get() {
-    if (subtitle != null && subtitle.isNotBlank()) {
-      throw UnsupportedOperationException("TODO")
-    }
-    return children.find { it is TextView } as TextView
+fun Toolbar.findTitleView(): TextView {
+  if (subtitle != null && subtitle.isNotBlank()) {
+    throw UnsupportedOperationException("TODO")
   }
+  return children.find { it is TextView } as TextView
+}

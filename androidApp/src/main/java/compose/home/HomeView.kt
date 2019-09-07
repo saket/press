@@ -11,10 +11,10 @@ import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import compose.editor.EditorActivity
-import compose.theme.autoApply
+import compose.theme.themeAware
+import compose.theme.themed
 import compose.util.attr
 import compose.util.heightOf
-import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.compose.R
 import me.saket.compose.shared.contentModels
@@ -28,12 +28,10 @@ import me.saket.compose.shared.navigation.ScreenKey.NewNote
 class HomeView @AssistedInject constructor(
   @Assisted context: Context,
   private val presenter: HomePresenter.Factory,
-  private val noteAdapter: NoteAdapter,
-  private val style: Observable<HomeStyle>
+  private val noteAdapter: NoteAdapter
 ) : ContourLayout(context) {
 
-  private val toolbar = Toolbar(context).apply {
-    style.map { it.toolbar }.autoApply(this)
+  private val toolbar = themed(Toolbar(context)).apply {
     setTitle(R.string.app_name)
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
@@ -41,19 +39,21 @@ class HomeView @AssistedInject constructor(
     )
   }
 
-  private val notesList = RecyclerView(context).apply {
+  private val notesList = themed(RecyclerView(context)).apply {
     layoutManager = LinearLayoutManager(context)
     adapter = noteAdapter
-    style.map { it.recyclerView }.autoApply(this)
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
         y = topTo { toolbar.bottom() }.bottomTo { parent.bottom() }
     )
   }
 
-  private val newNoteFab = FloatingActionButton(context).apply {
+  private val newNoteFab = themed(FloatingActionButton(context)).apply {
     setImageResource(R.drawable.ic_note_add_24dp)
-    style.map { it.newNoteFab }.autoApply(this)
+    themeAware {
+//      view.backgroundTintList = ColorStateList.valueOf(background)
+//      view.setColorFilter(ColorUtils.blendARGB(background, Color.BLACK, 0.65f))
+    }
     applyLayout(
         x = rightTo { parent.right() - 24.dip },
         y = bottomTo { parent.bottom() - 24.dip }

@@ -11,7 +11,7 @@ object DraculaThemePalette : ThemePalette(
     primaryColorDark = COLOR_BLACK_ROCK,
     accentColor = COLOR_SCREAMING_GREEN,
     windowTheme = WindowTheme(backgroundColor = COLOR_TUNA),
-    headingColor = COLOR_SCREAMING_GREEN,
+    textColorHeading = COLOR_SCREAMING_GREEN,
     textColorSecondary = COLOR_GHOST,
     fabColor = COLOR_ANAKIWA
 )

@@ -15,7 +15,6 @@ abstract class ThemeAwareActivity : AppCompatActivity() {
   lateinit var palette: Observable<ThemePalette>
 
   override fun onCreate(savedInstanceState: Bundle?) {
-    //ComposeApp.component.inject(this)
     applyPaletteTheme()
     super.onCreate(savedInstanceState)
   }
