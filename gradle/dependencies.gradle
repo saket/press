@@ -19,6 +19,7 @@ buildscript {
           'appCompat': 'androidx.appcompat:appcompat:1.0.2',
           'recyclerView': 'androidx.recyclerview:recyclerview:1.0.0',
           'ktx': "androidx.core:core-ktx:1.0.1",
+          'annotations': 'androidx.annotation:annotation:1.1.0'
       ],
       'material': [
           'core': 'com.google.android.material:material:1.0.0'
