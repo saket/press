@@ -1,5 +1,6 @@
-package compose.util
+package compose.widgets
 
+import android.graphics.drawable.Drawable
 import android.os.Build.VERSION.SDK_INT
 import android.view.View
 import android.widget.EditText
@@ -8,7 +9,6 @@ import androidx.annotation.AttrRes
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
-import compose.widgets.Attr
 
 fun View.string(@StringRes stringRes: Int) = resources.getString(stringRes)
 
@@ -38,6 +38,10 @@ inline fun fromOreo(block: () -> Unit) {
   if (SDK_INT >= 26) {
     block()
   }
+}
+
+fun Drawable.mutateAndTint(color: Int): Drawable {
+  return mutate().apply { setTint(color) }
 }
 
 fun Toolbar.findTitleView(): TextView {

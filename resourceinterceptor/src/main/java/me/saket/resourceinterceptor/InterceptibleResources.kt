@@ -19,7 +19,7 @@ internal class InterceptibleResources(private val base: Resources) : ResourcesWr
     if (interceptor != null) {
       avoidInfiniteLoop(resId) {
         val systemDrawable: () -> Drawable? = { baseDrawable(resId, theme) }
-        intercepted = interceptor.intercept(systemDrawable)
+        intercepted = interceptor(systemDrawable)
       }
     }
 

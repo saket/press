@@ -9,6 +9,7 @@ import compose.util.onDestroys
 import io.reactivex.Observable
 import me.saket.compose.R
 import me.saket.compose.shared.theme.ThemePalette
+import me.saket.resourceinterceptor.DrawableInterceptor
 import me.saket.resourceinterceptor.ResourceInterceptibleContext
 import javax.inject.Inject
 
@@ -40,7 +41,9 @@ abstract class ThemeAwareActivity : AppCompatActivity() {
           }
           context.setInterceptor(
               R.drawable.tinted_cursor_drawable,
-              TintedCursorDrawable(palette.accentColor)
+              DrawableInterceptor { systemDrawable ->
+                systemDrawable()!!.mutateAndTint(palette.accentColor)
+              }
           )
         }
   }

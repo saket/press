@@ -19,10 +19,10 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import compose.theme.themeAware
 import compose.theme.themed
-import compose.util.fromOreo
-import compose.util.hintRes
-import compose.util.padding
-import compose.util.textColor
+import compose.widgets.fromOreo
+import compose.widgets.hintRes
+import compose.widgets.padding
+import compose.widgets.textColor
 import me.saket.compose.R
 import me.saket.wysiwyg.Wysiwyg
 import me.saket.wysiwyg.theme.DisplayUnits

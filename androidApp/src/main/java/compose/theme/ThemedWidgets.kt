@@ -14,10 +14,10 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import compose.ComposeApp
-import compose.util.findTitleView
 import compose.util.reflect
-import compose.util.textColor
 import compose.widgets.dp
+import compose.widgets.findTitleView
+import compose.widgets.textColor
 import me.saket.compose.R
 import me.saket.compose.shared.theme.ThemePalette
 

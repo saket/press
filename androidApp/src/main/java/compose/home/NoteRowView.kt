@@ -8,7 +8,7 @@ import android.widget.TextView
 import com.squareup.contour.ContourLayout
 import compose.theme.themeAware
 import compose.theme.themed
-import compose.util.textColor
+import compose.widgets.textColor
 import compose.util.y
 import me.saket.compose.shared.home.HomeUiModel
 import me.saket.compose.shared.theme.toColor

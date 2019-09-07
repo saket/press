@@ -13,8 +13,8 @@ import com.squareup.inject.assisted.AssistedInject
 import compose.editor.EditorActivity
 import compose.theme.themeAware
 import compose.theme.themed
-import compose.util.attr
 import compose.util.heightOf
+import compose.widgets.attr
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.compose.R
 import me.saket.compose.shared.contentModels
