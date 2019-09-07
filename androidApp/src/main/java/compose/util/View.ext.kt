@@ -9,7 +9,6 @@ import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
 import compose.widgets.Attr
-import compose.widgets.DisplayUnit
 
 fun View.string(@StringRes stringRes: Int) = resources.getString(stringRes)
 
@@ -34,10 +33,6 @@ var TextView.textColor: Int
   set(color) {
     setTextColor(color)
   }
-
-fun View.setElevation(value: DisplayUnit) {
-  elevation = value.px(context)
-}
 
 inline fun fromOreo(block: () -> Unit) {
   if (SDK_INT >= 26) {

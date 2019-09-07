@@ -15,9 +15,10 @@ import androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import compose.ComposeApp
 import compose.util.findTitleView
-import compose.util.setElevation
+import compose.util.reflect
 import compose.util.textColor
 import compose.widgets.dp
+import me.saket.compose.R
 import me.saket.compose.shared.theme.ThemePalette
 
 fun themePalette() = ComposeApp.component.themePalette()
@@ -28,7 +29,12 @@ fun View.themeAware(onThemeChange: (ThemePalette) -> Unit) {
 
 fun themed(view: TextView): TextView = view
 
-fun themed(view: EditText) = view
+fun themed(view: EditText) = view.apply {
+  themeAware {
+    val cursorDrawableRes = reflect(TextView::class, "mCursorDrawableRes")
+    cursorDrawableRes.set(view, R.drawable.tinted_cursor_drawable)
+  }
+}
 
 fun themed(view: ScrollView) = view.apply {
   themeAware {
@@ -48,8 +54,8 @@ fun themed(view: RecyclerView) = view.apply {
 fun themed(toolbar: Toolbar) = toolbar.apply {
   themeAware {
     background = ColorDrawable(it.primaryColor)
+    elevation = dp(4f)
     findTitleView().textColor = it.accentColor
-    setElevation(4.dp)
   }
 }
 
