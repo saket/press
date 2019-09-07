@@ -39,7 +39,7 @@ import org.xmlpull.v1.XmlPullParserException;
  * This extends Resources but delegates the calls to another Resources object. This enables
  * any customization done by some subclass of Resources to be also picked up.
  */
-class ResourcesWrapper extends Resources {
+public class ResourcesWrapper extends Resources {
 
     private final Resources mResources;
 

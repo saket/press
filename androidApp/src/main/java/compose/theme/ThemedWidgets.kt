@@ -17,9 +17,12 @@ import compose.ComposeApp
 import compose.util.reflect
 import compose.widgets.dp
 import compose.widgets.findTitleView
+import compose.widgets.mutateAndTint
 import compose.widgets.textColor
 import me.saket.compose.R
 import me.saket.compose.shared.theme.ThemePalette
+import me.saket.resourceinterceptor.DrawableInterceptor
+import me.saket.resourceinterceptor.InterceptibleResources
 
 fun themePalette() = ComposeApp.component.themePalette()
 
@@ -30,9 +33,16 @@ fun View.themeAware(onThemeChange: (ThemePalette) -> Unit) {
 fun themed(view: TextView): TextView = view
 
 fun themed(view: EditText) = view.apply {
-  themeAware {
+  themeAware { palette ->
     val cursorDrawableRes = reflect(TextView::class, "mCursorDrawableRes")
     cursorDrawableRes.set(view, R.drawable.tinted_cursor_drawable)
+
+    (resources as InterceptibleResources).setInterceptor(
+        R.drawable.tinted_cursor_drawable,
+        DrawableInterceptor { systemDrawable ->
+          systemDrawable()!!.mutateAndTint(palette.accentColor)
+        }
+    )
   }
 }
 

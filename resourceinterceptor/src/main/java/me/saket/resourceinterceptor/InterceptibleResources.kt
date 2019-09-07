@@ -5,9 +5,17 @@ import android.graphics.drawable.Drawable
 import androidx.annotation.DrawableRes
 import java.util.Stack
 
-internal class InterceptibleResources(private val base: Resources) : ResourcesWrapper(base) {
+class InterceptibleResources(private val base: Resources) : ResourcesWrapper(base) {
   private val idsBeingIntercepted = Stack<Int>()
-  internal val interceptors = mutableMapOf<Int, DrawableInterceptor>()
+  private val interceptors = mutableMapOf<Int, DrawableInterceptor>()
+
+  fun setInterceptor(@DrawableRes resId: Int, interceptor: DrawableInterceptor) {
+    interceptors[resId] = interceptor
+  }
+
+  fun removeInterceptor(@DrawableRes resId: Int) {
+    interceptors.remove(resId)
+  }
 
   override fun getDrawable(id: Int, theme: Theme) = interceptOrGetDrawable(id, theme)
   override fun getDrawable(id: Int) = interceptOrGetDrawable(id, theme = null)
