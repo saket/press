@@ -32,7 +32,7 @@ class HomePresenter(
         val (heading, body) = SplitHeadingAndBody.split(note.content)
 
         HomeUiModel.Note(
-            adapterId = 0L,     // TODO: use rowId from sql.
+            adapterId = note.localId,
             title = heading,
             body = body
         )

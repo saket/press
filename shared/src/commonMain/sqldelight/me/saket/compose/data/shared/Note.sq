@@ -2,7 +2,8 @@ import com.benasher44.uuid.Uuid;
 import com.soywiz.klock.DateTimeTz;
 
 CREATE TABLE note (
-  id TEXT AS Uuid NOT NULL PRIMARY KEY,
+  localId INTEGER PRIMARY KEY AUTOINCREMENT,
+  uuid TEXT AS Uuid NOT NULL,
   content TEXT NOT NULL,
   createdAt TEXT AS DateTimeTz NOT NULL,
   updatedAt TEXT AS DateTimeTz NOT NULL,

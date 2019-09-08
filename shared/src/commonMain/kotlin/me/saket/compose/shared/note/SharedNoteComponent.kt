@@ -11,7 +11,7 @@ internal object SharedNoteComponent {
     factory<NoteRepository> { RealNotesRepository(get(), get(named("io"))) }
     single {
       Note.Adapter(
-          idAdapter = UuidAdapter(),
+          uuidAdapter = UuidAdapter(),
           createdAtAdapter = DateTimeTzAdapter(),
           updatedAtAdapter = DateTimeTzAdapter(),
           deletedAtAdapter = DateTimeTzAdapter()
