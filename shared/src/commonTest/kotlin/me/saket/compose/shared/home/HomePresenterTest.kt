@@ -3,7 +3,7 @@ package me.saket.compose.shared.home
 import com.badoo.reaktive.subject.publish.publishSubject
 import com.badoo.reaktive.test.observable.test
 import com.benasher44.uuid.uuid4
-import com.soywiz.klock.DateTime
+import com.soywiz.klock.DateTimeTz
 import me.saket.compose.data.shared.Note
 import me.saket.compose.shared.home.HomeEvent.NewNoteClicked
 import me.saket.compose.shared.navigation.FakeNavigator
@@ -26,18 +26,16 @@ class HomePresenterTest {
 
     val notes = listOf(Note.Impl(
         id = uuid4(),
-        title = "Nicolas Cage",
-        body = "Our national treasure",
-        createdAt = DateTime.EPOCH,
-        updatedAt = DateTime.EPOCH,
+        content = "Nicolas Cage",
+        createdAt = DateTimeTz.nowLocal(),
+        updatedAt = DateTimeTz.nowLocal(),
         deletedAt = null
     ))
     noteRepository.noteSubject.onNext(notes)
 
     val noteUiModels = listOf(HomeUiModel.Note(
         adapterId = 0L,
-        title = "Nicolas Cage",
-        body = "Our national treasure"
+        content = "Nicolas Cage"
     ))
 
     val uiModel = testObserver.values[0]

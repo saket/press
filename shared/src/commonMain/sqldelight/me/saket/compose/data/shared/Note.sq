@@ -3,15 +3,13 @@ import com.soywiz.klock.DateTimeTz;
 
 CREATE TABLE note (
   id TEXT AS Uuid NOT NULL PRIMARY KEY,
-  title TEXT NOT NULL,
-  body TEXT NOT NULL,
+  content TEXT NOT NULL,
   createdAt TEXT AS DateTimeTz NOT NULL,
   updatedAt TEXT AS DateTimeTz NOT NULL,
   deletedAt TEXT AS DateTimeTz
 );
 
-CREATE INDEX note_title ON note(title);
-CREATE INDEX note_body ON note(body);
+CREATE INDEX note_content ON note(content);
 
 selectAll:
 SELECT *

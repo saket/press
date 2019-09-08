@@ -4,7 +4,6 @@ data class HomeUiModel(val notes: List<Note>) {
 
   data class Note(
     val adapterId: Long,
-    val title: String,
-    val body: String
+    val content: String
   )
 }

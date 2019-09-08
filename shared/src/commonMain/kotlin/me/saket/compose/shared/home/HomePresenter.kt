@@ -31,8 +31,7 @@ class HomePresenter(
       HomeUiModel(it.map { note ->
         HomeUiModel.Note(
             adapterId = 0L,
-            title = note.title,
-            body = note.body
+            content = note.content
         )
       })
     }

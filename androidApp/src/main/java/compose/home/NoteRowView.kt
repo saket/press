@@ -55,6 +55,6 @@ class NoteRowView(context: Context) : ContourLayout(context) {
 
   fun render(note: HomeUiModel.Note) {
     titleView.text = note.title
-    bodyView.text = note.body
+    bodyView.text = note.content
   }
 }
