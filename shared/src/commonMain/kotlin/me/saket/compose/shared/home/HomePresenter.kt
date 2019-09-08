@@ -29,9 +29,12 @@ class HomePresenter(
   private fun populateNotes(): Observable<HomeUiModel> =
     repository.notes().map {
       HomeUiModel(it.map { note ->
+        val (heading, body) = SplitHeadingAndBody.split(note.content)
+
         HomeUiModel.Note(
-            adapterId = 0L,
-            content = note.content
+            adapterId = 0L,     // TODO: use rowId from sql.
+            title = heading,
+            body = body
         )
       })
     }

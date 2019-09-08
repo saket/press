@@ -26,7 +26,7 @@ class HomePresenterTest {
 
     val notes = listOf(Note.Impl(
         id = uuid4(),
-        content = "Nicolas Cage",
+        content = "# Nicolas Cage\nOur national treasure",
         createdAt = DateTimeTz.nowLocal(),
         updatedAt = DateTimeTz.nowLocal(),
         deletedAt = null
@@ -35,7 +35,8 @@ class HomePresenterTest {
 
     val noteUiModels = listOf(HomeUiModel.Note(
         adapterId = 0L,
-        content = "Nicolas Cage"
+        title = "Nicolas Cage",
+        body = "Our national treasure"
     ))
 
     val uiModel = testObserver.values[0]
