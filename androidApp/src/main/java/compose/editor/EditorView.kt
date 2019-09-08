@@ -14,6 +14,7 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.EditText
 import android.widget.ScrollView
+import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
@@ -23,7 +24,13 @@ import compose.widgets.fromOreo
 import compose.widgets.hintRes
 import compose.widgets.padding
 import compose.widgets.textColor
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.compose.R
+import me.saket.compose.shared.contentModels
+import me.saket.compose.shared.editor.EditorEvent
+import me.saket.compose.shared.editor.EditorPresenter
+import me.saket.compose.shared.editor.EditorUiModel
 import me.saket.wysiwyg.Wysiwyg
 import me.saket.wysiwyg.theme.DisplayUnits
 import me.saket.wysiwyg.theme.WysiwygTheme
@@ -31,7 +38,8 @@ import me.saket.wysiwyg.widgets.addTextChangedListener
 
 @SuppressLint("SetTextI18n")
 class EditorView @AssistedInject constructor(
-  @Assisted context: Context
+  @Assisted context: Context,
+  val presenter: EditorPresenter.Factory
 ) : ContourLayout(context) {
 
   private val scrollView = themed(ScrollView(context)).apply {
@@ -65,6 +73,20 @@ class EditorView @AssistedInject constructor(
 
     val wysiwyg = Wysiwyg(editorEditText, WysiwygTheme(DisplayUnits(context)))
     editorEditText.addTextChangedListener(wysiwyg.syntaxHighlighter())
+  }
+
+  override fun onAttachedToWindow() {
+    super.onAttachedToWindow()
+
+    Observable.empty<EditorEvent>()
+        .contentModels(presenter.create())
+        .takeUntil(detaches())
+        .observeOn(mainThread())
+        .subscribe(::render)
+  }
+
+  private fun render(model: EditorUiModel) {
+
   }
 
   @AssistedInject.Factory

@@ -1,6 +1,7 @@
 package me.saket.compose.shared.di
 
 import me.saket.compose.shared.db.SharedDatabaseComponent
+import me.saket.compose.shared.editor.SharedEditorComponent
 import me.saket.compose.shared.home.SharedHomeComponent
 import me.saket.compose.shared.note.SharedNoteComponent
 import org.koin.core.context.startKoin
@@ -15,6 +16,7 @@ abstract class BaseSharedAppComponent {
       modules(
           listOf(
               SharedHomeComponent.module,
+              SharedEditorComponent.module,
               SharedNoteComponent.module,
               SharedDatabaseComponent.module
           ) + platformDependencies

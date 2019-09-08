@@ -13,9 +13,7 @@ object HomeModule {
   @JvmStatic
   fun presenter(): HomePresenter.Factory {
     return object : HomePresenter.Factory {
-      override fun create(navigator: Navigator): HomePresenter {
-        return SharedHomeComponent.presenter(navigator)
-      }
+      override fun create(navigator: Navigator) = SharedHomeComponent.presenter(navigator)
     }
   }
 }
