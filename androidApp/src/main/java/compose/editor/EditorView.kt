@@ -14,6 +14,7 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.EditText
 import android.widget.ScrollView
+import com.benasher44.uuid.uuid4
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
@@ -39,7 +40,7 @@ import me.saket.wysiwyg.widgets.addTextChangedListener
 @SuppressLint("SetTextI18n")
 class EditorView @AssistedInject constructor(
   @Assisted context: Context,
-  val presenter: EditorPresenter.Factory
+  presenterFactory: EditorPresenter.Factory
 ) : ContourLayout(context) {
 
   private val scrollView = themed(ScrollView(context)).apply {
@@ -68,6 +69,10 @@ class EditorView @AssistedInject constructor(
     }
   }
 
+  private val presenter = presenterFactory.create(
+      noteUuid = uuid4()
+  )
+
   init {
     scrollView.addView(editorEditText, MATCH_PARENT, WRAP_CONTENT)
 
@@ -79,10 +84,15 @@ class EditorView @AssistedInject constructor(
     super.onAttachedToWindow()
 
     Observable.empty<EditorEvent>()
-        .contentModels(presenter.create())
+        .contentModels(presenter)
         .takeUntil(detaches())
         .observeOn(mainThread())
         .subscribe(::render)
+  }
+
+  override fun onDetachedFromWindow() {
+    super.onDetachedFromWindow()
+    presenter.saveEditorContentOnExit(editorEditText.text)
   }
 
   private fun render(model: EditorUiModel) {

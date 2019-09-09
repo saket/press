@@ -53,6 +53,7 @@ dependencies {
   implementation deps.assistedInject.annotations
   kapt deps.dagger.compiler
   kapt deps.assistedInject.processor
+  implementation deps.kNativeUuid
 
   testImplementation deps.junit
 }

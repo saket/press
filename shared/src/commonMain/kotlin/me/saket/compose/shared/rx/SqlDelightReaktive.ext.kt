@@ -15,6 +15,8 @@ import com.badoo.reaktive.observable.subscribe
 import com.badoo.reaktive.scheduler.Scheduler
 import com.badoo.reaktive.scheduler.mainScheduler
 import com.squareup.sqldelight.Query
+import me.saket.compose.shared.util.Optional
+import me.saket.compose.shared.util.toOptional
 
 // Copied from
 // https://github.com/touchlab/DroidconKotlin/blob/kpg/reaktive/sessionize/lib/src/commonMain/kotlin/co/touchlab/sessionize/reaktive/ReaktiveExtensions.kt
@@ -50,6 +52,10 @@ fun <T : Any> Observable<Query<T>>.mapToOne(): Observable<T> {
 
 fun <T : Any> Observable<Query<T>>.mapToOneOrDefault(defaultValue: T): Observable<T> {
   return map { it.executeAsOneOrNull() ?: defaultValue }
+}
+
+fun <T : Any> Observable<Query<T>>.mapToOneOrOptional(): Observable<Optional<T>> {
+  return map { it.executeAsOneOrNull().toOptional() }
 }
 
 fun <T : Any> Observable<Query<T>>.mapToList(): Observable<List<T>> {
