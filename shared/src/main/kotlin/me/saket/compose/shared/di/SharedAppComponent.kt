@@ -13,7 +13,7 @@ actual object SharedAppComponent : BaseSharedAppComponent() {
     val platformDependencies = module {
       single<Context> { appContext }
       single<SqlDriver> {
-        AndroidSqliteDriver(ComposeDatabase.Schema, appContext)
+        AndroidSqliteDriver(ComposeDatabase.Schema, appContext, "compose.db")
       }
     }
     setupGraph(platformDependencies)
