@@ -15,7 +15,7 @@ CREATE INDEX note_content ON note(content);
 selectAllNonDeleted:
 SELECT *
 FROM note
-WHERE deletedAt IS NOT NULL
+WHERE deletedAt IS NULL
 ORDER BY createdAt DESC;
 
 selectNote:
