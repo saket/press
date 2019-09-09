@@ -11,7 +11,8 @@ buildscript {
       coroutines: '1.1.1',
       flexmark: '0.50.26',
       reaktive: '1.0.0-rc1',
-      koin: '2.1.6-mp'
+      koin: '2.1.6-mp',
+      flipper: '0.23.5'
   ]
 
   ext.deps = [
@@ -119,6 +120,15 @@ buildscript {
           'common': "com.soywiz.korlibs.klock:klock:1.6.0",
           'jvm': "com.soywiz.korlibs.klock:klock-jvm:1.6.0",
       ],
-      'stately': "co.touchlab:stately:0.9.2"
+      'stately': "co.touchlab:stately:0.9.2",
+      'flipper': [
+          'debug': [
+              'core': "com.facebook.flipper:flipper:$versions.flipper",
+              'soLoader': "com.facebook.soloader:soloader:0.5.1"
+          ],
+          'release': [
+              'core': "com.facebook.flipper:flipper-noop:$versions.flipper"
+          ]
+      ]
   ]
 }
