@@ -1,6 +1,7 @@
 package me.saket.compose.shared.editor
 
 import com.badoo.reaktive.completable.Completable
+import com.badoo.reaktive.completable.completableOfEmpty
 import com.badoo.reaktive.completable.subscribe
 import com.badoo.reaktive.completable.subscribeOn
 import com.badoo.reaktive.observable.Observable
@@ -33,17 +34,17 @@ class EditorPresenter(
         .firstOrError()
         .flatMapCompletable { (existingNote) ->
           val hasExistingNote = existingNote != null
-          val shouldDelete = hasExistingNote && content.isBlank()
+          val nonBlankContent = content.isNotBlank()
 
-          if (shouldDelete) {
-            noteRepository.markAsDeleted(noteUuid)
-          } else {
-            if (hasExistingNote) {
-              noteRepository.update(noteUuid, content.toString())
-            }
-            else {
-              noteRepository.create(noteUuid, content.toString())
-            }
+          val shouldCreate = hasExistingNote.not() && nonBlankContent
+          val shouldUpdate = hasExistingNote && nonBlankContent
+          val shouldDelete = hasExistingNote && nonBlankContent.not()
+
+          when {
+            shouldCreate -> noteRepository.create(noteUuid, content.toString())
+            shouldUpdate -> noteRepository.update(noteUuid, content.toString())
+            shouldDelete -> noteRepository.markAsDeleted(noteUuid)
+            else -> completableOfEmpty()
           }
         }
   }

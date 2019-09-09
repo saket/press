@@ -19,6 +19,14 @@ class EditorPresenterTest {
       ioScheduler = trampolineScheduler
   )
 
+  @Test fun `blank note shouldn't be saved`() {
+    presenter.saveEditorContentOnExit("  \n ")
+    presenter.saveEditorContentOnExit("  ")
+    presenter.saveEditorContentOnExit("")
+
+    assertTrue(repository.savedNotes.isEmpty())
+  }
+
   @Test fun `creating a new note`() {
     presenter.saveEditorContentOnExit("New note")
 
@@ -45,6 +53,8 @@ class EditorPresenterTest {
     )
 
     presenter.saveEditorContentOnExit("  \n ")
+    presenter.saveEditorContentOnExit("  ")
+    presenter.saveEditorContentOnExit("")
 
     assertTrue(repository.savedNotes.isEmpty())
   }
