@@ -37,6 +37,9 @@ fun themed(view: EditText) = view.apply {
     val cursorDrawableRes = reflect(TextView::class, "mCursorDrawableRes")
     cursorDrawableRes.set(view, R.drawable.tinted_cursor_drawable)
 
+    // TODO: This doesn't get updated as the drawable is only read once.
+    //  Moving the listener to inside the Drawable might work, but taking
+    //  care of leaks can be tricky.
     (resources as InterceptibleResources).setInterceptor(
         R.drawable.tinted_cursor_drawable,
         DrawableInterceptor { systemDrawable ->
