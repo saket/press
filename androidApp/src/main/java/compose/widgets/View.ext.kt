@@ -48,5 +48,9 @@ fun Toolbar.findTitleView(): TextView {
   if (subtitle != null && subtitle.isNotBlank()) {
     throw UnsupportedOperationException("TODO")
   }
+  if (title == null) {
+    // Toolbar lazy creates the title TextView.
+    title = " "
+  }
   return children.find { it is TextView } as TextView
 }

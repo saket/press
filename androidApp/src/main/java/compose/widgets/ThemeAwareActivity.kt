@@ -5,17 +5,16 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.WindowManager.LayoutParams
 import androidx.appcompat.app.AppCompatActivity
+import compose.ComposeApp
 import compose.util.onDestroys
 import io.reactivex.Observable
 import me.saket.compose.shared.theme.ThemePalette
 import me.saket.resourceinterceptor.ContextResourceWrapper
 import me.saket.resourceinterceptor.InterceptibleResources
-import javax.inject.Inject
 
 abstract class ThemeAwareActivity : AppCompatActivity() {
 
-  @field:Inject
-  lateinit var palette: Observable<ThemePalette>
+  val palette: Observable<ThemePalette> = ComposeApp.component.themePalette()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     applyPaletteTheme()

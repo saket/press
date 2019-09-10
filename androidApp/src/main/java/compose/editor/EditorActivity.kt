@@ -5,6 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import compose.ComposeApp
 import compose.widgets.ThemeAwareActivity
+import me.saket.compose.shared.navigation.RealNavigator
+import me.saket.compose.shared.navigation.ScreenKey.Back
 import javax.inject.Inject
 
 class EditorActivity : ThemeAwareActivity() {
@@ -15,7 +17,14 @@ class EditorActivity : ThemeAwareActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     ComposeApp.component.inject(this)
     super.onCreate(savedInstanceState)
-    setContentView(editorView.withContext(this))
+
+    val navigator = RealNavigator { screenKey ->
+      when (screenKey) {
+        Back -> finish()
+        else -> error("Unhandled $screenKey")
+      }
+    }
+    setContentView(editorView.create(this, navigator))
   }
 
   companion object {

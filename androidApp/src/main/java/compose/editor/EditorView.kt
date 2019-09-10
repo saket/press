@@ -14,6 +14,8 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.EditText
 import android.widget.ScrollView
+import androidx.appcompat.content.res.AppCompatResources.getDrawable
+import androidx.appcompat.widget.Toolbar
 import com.benasher44.uuid.uuid4
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
@@ -28,10 +30,13 @@ import compose.widgets.textColor
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.compose.R
+import me.saket.compose.R.drawable
 import me.saket.compose.shared.contentModels
 import me.saket.compose.shared.editor.EditorEvent
 import me.saket.compose.shared.editor.EditorPresenter
 import me.saket.compose.shared.editor.EditorUiModel
+import me.saket.compose.shared.navigation.Navigator
+import me.saket.compose.shared.navigation.ScreenKey.Back
 import me.saket.wysiwyg.Wysiwyg
 import me.saket.wysiwyg.theme.DisplayUnits
 import me.saket.wysiwyg.theme.WysiwygTheme
@@ -40,14 +45,23 @@ import me.saket.wysiwyg.widgets.addTextChangedListener
 @SuppressLint("SetTextI18n")
 class EditorView @AssistedInject constructor(
   @Assisted context: Context,
+  @Assisted private val navigator: Navigator,
   presenterFactory: EditorPresenter.Factory
 ) : ContourLayout(context) {
+
+  private val toolbar = themed(Toolbar(context)).apply {
+    navigationIcon = getDrawable(context, drawable.ic_close_24dp)
+    applyLayout(
+        x = leftTo { parent.left() }.rightTo { parent.right() },
+        y = topTo { parent.top() }
+    )
+  }
 
   private val scrollView = themed(ScrollView(context)).apply {
     isFillViewport = true
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
-        y = topTo { parent.top() }.bottomTo { parent.bottom() }
+        y = topTo { toolbar.bottom() }.bottomTo { parent.bottom() }
     )
   }
 
@@ -69,15 +83,17 @@ class EditorView @AssistedInject constructor(
     }
   }
 
-  private val presenter = presenterFactory.create(
-      noteUuid = uuid4()
-  )
+  private val presenter = presenterFactory.create(noteUuid = uuid4())
 
   init {
     scrollView.addView(editorEditText, MATCH_PARENT, WRAP_CONTENT)
 
     val wysiwyg = Wysiwyg(editorEditText, WysiwygTheme(DisplayUnits(context)))
     editorEditText.addTextChangedListener(wysiwyg.syntaxHighlighter())
+
+    toolbar.setNavigationOnClickListener {
+      navigator.goTo(Back)
+    }
   }
 
   override fun onAttachedToWindow() {
@@ -101,6 +117,9 @@ class EditorView @AssistedInject constructor(
 
   @AssistedInject.Factory
   interface Factory {
-    fun withContext(context: Context): EditorView
+    fun create(
+      context: Context,
+      navigator: Navigator
+    ): EditorView
   }
 }
