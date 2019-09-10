@@ -24,7 +24,8 @@ class SyntaxHighlighters {
   private val ignoredNodeNames = arrayOf(
       "com.vladsch.flexmark.ast.Paragraph",
       "com.vladsch.flexmark.ast.Text",
-      "com.vladsch.flexmark.ast.SoftLineBreak"
+      "com.vladsch.flexmark.ast.SoftLineBreak",
+      "com.vladsch.flexmark.ast.HardLineBreak"
   )
 
   init {
