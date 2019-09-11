@@ -1,3 +1,3 @@
 package me.saket.compose.shared.editor
 
-class EditorUiModel
+data class EditorUiModel(val hintText: String?)

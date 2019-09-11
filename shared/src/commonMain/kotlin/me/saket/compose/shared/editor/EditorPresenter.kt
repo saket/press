@@ -11,12 +11,14 @@ import com.badoo.reaktive.scheduler.Scheduler
 import com.badoo.reaktive.single.flatMapCompletable
 import com.benasher44.uuid.Uuid
 import me.saket.compose.shared.Presenter
+import me.saket.compose.shared.Strings
 import me.saket.compose.shared.note.NoteRepository
 
 class EditorPresenter(
   private val noteUuid: Uuid,
   private val noteRepository: NoteRepository,
-  private val ioScheduler: Scheduler
+  private val ioScheduler: Scheduler,
+  private val strings: Strings.Editor
 ) : Presenter<EditorEvent, EditorUiModel> {
 
   override fun contentModels(events: Observable<EditorEvent>): Observable<EditorUiModel> {
@@ -49,7 +51,18 @@ class EditorPresenter(
         }
   }
 
+//  private fun Observable<EditorEvent>.toggleHintText(): Observable<Optional<String>> {
+//    val textChanges = ofType<NoteTextChanged>().map { it.text }
+//
+//    val textIsPlaceholder = textChanges.filter { it == NEW_NOTE_PLACEHOLDER }
+//    val textIsNotPlaceholder = textChanges.filter { it != NEW_NOTE_PLACEHOLDER }
+//  }
+
   interface Factory {
     fun create(noteUuid: Uuid): EditorPresenter
+  }
+
+  companion object {
+    const val NEW_NOTE_PLACEHOLDER = "# "
   }
 }

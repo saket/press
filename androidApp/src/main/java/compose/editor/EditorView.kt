@@ -18,6 +18,7 @@ import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.appcompat.widget.Toolbar
 import com.benasher44.uuid.uuid4
 import com.jakewharton.rxbinding3.view.detaches
+import com.jakewharton.rxbinding3.widget.textChanges
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
@@ -26,6 +27,7 @@ import compose.theme.themed
 import compose.widgets.fromOreo
 import compose.widgets.hintRes
 import compose.widgets.padding
+import compose.widgets.setTextAndCursor
 import compose.widgets.textColor
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
@@ -33,7 +35,9 @@ import me.saket.compose.R
 import me.saket.compose.R.drawable
 import me.saket.compose.shared.contentModels
 import me.saket.compose.shared.editor.EditorEvent
+import me.saket.compose.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.compose.shared.editor.EditorPresenter
+import me.saket.compose.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
 import me.saket.compose.shared.editor.EditorUiModel
 import me.saket.compose.shared.navigation.Navigator
 import me.saket.compose.shared.navigation.ScreenKey.Back
@@ -90,6 +94,7 @@ class EditorView @AssistedInject constructor(
 
     val wysiwyg = Wysiwyg(editorEditText, WysiwygTheme(DisplayUnits(context)))
     editorEditText.addTextChangedListener(wysiwyg.syntaxHighlighter())
+    editorEditText.setTextAndCursor(NEW_NOTE_PLACEHOLDER)
 
     toolbar.setNavigationOnClickListener {
       navigator.goTo(Back)
@@ -99,7 +104,11 @@ class EditorView @AssistedInject constructor(
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
 
-    Observable.empty<EditorEvent>()
+    val noteTextChanges: Observable<EditorEvent> = editorEditText
+        .textChanges()
+        .map(::NoteTextChanged)
+
+    Observable.mergeArray(noteTextChanges)
         .contentModels(presenter)
         .takeUntil(detaches())
         .observeOn(mainThread())

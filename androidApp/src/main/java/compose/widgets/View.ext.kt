@@ -54,3 +54,8 @@ fun Toolbar.findTitleView(): TextView {
   }
   return children.find { it is TextView } as TextView
 }
+
+fun EditText.setTextAndCursor(text: CharSequence) {
+  setText(text)
+  setSelection(this.text.length)
+}

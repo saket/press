@@ -3,6 +3,7 @@ package me.saket.compose.shared.di
 import me.saket.compose.shared.db.SharedDatabaseComponent
 import me.saket.compose.shared.editor.SharedEditorComponent
 import me.saket.compose.shared.home.SharedHomeComponent
+import me.saket.compose.shared.localization.SharedLocalizationComponent
 import me.saket.compose.shared.note.SharedNoteComponent
 import me.saket.compose.shared.time.SharedTimeModule
 import org.koin.core.context.startKoin
@@ -20,7 +21,8 @@ abstract class BaseSharedAppComponent {
               SharedEditorComponent.module,
               SharedNoteComponent.module,
               SharedDatabaseComponent.module,
-              SharedTimeModule.module
+              SharedTimeModule.module,
+              SharedLocalizationComponent.module
           ) + platformDependencies
       )
     }

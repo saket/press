@@ -1,7 +1,9 @@
 package me.saket.compose.shared.editor
 
 import com.badoo.reaktive.scheduler.trampolineScheduler
+import com.badoo.reaktive.subject.publish.publishSubject
 import com.benasher44.uuid.uuid4
+import me.saket.compose.shared.ENGLISH_STRINGS
 import me.saket.compose.shared.fakedata.fakeNote
 import me.saket.compose.shared.note.FakeNoteRepository
 import kotlin.test.Test
@@ -13,10 +15,12 @@ class EditorPresenterTest {
   private val noteUuid = uuid4()
   private val repository = FakeNoteRepository()
 
+  private val events = publishSubject<EditorEvent>()
   private val presenter = EditorPresenter(
       noteUuid = noteUuid,
       noteRepository = repository,
-      ioScheduler = trampolineScheduler
+      ioScheduler = trampolineScheduler,
+      strings = ENGLISH_STRINGS.editor
   )
 
   @Test fun `blank note shouldn't be saved`() {
@@ -58,4 +62,16 @@ class EditorPresenterTest {
 
     assertTrue(repository.savedNotes.isEmpty())
   }
+
+//  @Test fun `show hint text until the text is changed`() {
+//    val contentModels = presenter.contentModels(events).test()
+//
+//    events.onNext(NoteTextChanged(NEW_NOTE_PLACEHOLDER))
+//    events.onNext(NoteTextChanged(""))
+//    events.onNext(NoteTextChanged(NEW_NOTE_PLACEHOLDER))
+//
+//    assertEquals(ENGLISH_STRINGS.editor.newNoteHint, contentModels.values[0].hintText)
+//    assertEquals(null, contentModels.values[1].hintText)
+//    assertEquals(null, contentModels.values[2].hintText)
+//  }
 }

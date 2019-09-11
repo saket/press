@@ -1,6 +1,7 @@
 package me.saket.compose.shared.editor
 
 import com.benasher44.uuid.Uuid
+import me.saket.compose.shared.Strings
 import me.saket.compose.shared.di.koin
 import org.koin.core.parameter.parametersOf
 import org.koin.core.qualifier.named
@@ -10,9 +11,10 @@ object SharedEditorComponent {
 
   val module = module {
     factory { (noteUuid: Uuid) -> EditorPresenter(
-        noteUuid,
-        get(),
-        ioScheduler = get(named("io"))
+        noteUuid = noteUuid,
+        noteRepository = get(),
+        ioScheduler = get(named("io")),
+        strings = get<Strings>().editor
     ) }
   }
 

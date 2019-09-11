@@ -1,3 +1,5 @@
 package me.saket.compose.shared.editor
 
-interface EditorEvent
+interface EditorEvent {
+  data class NoteTextChanged(val text: CharSequence) : EditorEvent
+}
