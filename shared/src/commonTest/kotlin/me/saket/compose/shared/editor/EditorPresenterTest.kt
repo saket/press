@@ -4,6 +4,7 @@ import com.badoo.reaktive.scheduler.trampolineScheduler
 import com.badoo.reaktive.subject.publish.publishSubject
 import com.benasher44.uuid.uuid4
 import me.saket.compose.shared.ENGLISH_STRINGS
+import me.saket.compose.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
 import me.saket.compose.shared.fakedata.fakeNote
 import me.saket.compose.shared.note.FakeNoteRepository
 import kotlin.test.Test
@@ -27,6 +28,8 @@ class EditorPresenterTest {
     presenter.saveEditorContentOnExit("  \n ")
     presenter.saveEditorContentOnExit("  ")
     presenter.saveEditorContentOnExit("")
+    presenter.saveEditorContentOnExit(NEW_NOTE_PLACEHOLDER)
+    presenter.saveEditorContentOnExit("  $NEW_NOTE_PLACEHOLDER ")
 
     assertTrue(repository.savedNotes.isEmpty())
   }

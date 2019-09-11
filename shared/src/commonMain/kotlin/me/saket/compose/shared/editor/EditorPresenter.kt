@@ -26,25 +26,25 @@ class EditorPresenter(
   }
 
   fun saveEditorContentOnExit(content: CharSequence) {
-    createUpdateOrDeleteNote(content)
+    createUpdateOrDeleteNote(content.toString())
         .subscribeOn(ioScheduler)
         .subscribe()
   }
 
-  private fun createUpdateOrDeleteNote(content: CharSequence): Completable {
+  private fun createUpdateOrDeleteNote(content: String): Completable {
     return noteRepository.note(noteUuid)
         .firstOrError()
         .flatMapCompletable { (existingNote) ->
           val hasExistingNote = existingNote != null
-          val nonBlankContent = content.isNotBlank()
+          val nonBlankContent = content.isNotBlank() && content.trim() != NEW_NOTE_PLACEHOLDER.trim()
 
           val shouldCreate = hasExistingNote.not() && nonBlankContent
           val shouldUpdate = hasExistingNote && nonBlankContent
           val shouldDelete = hasExistingNote && nonBlankContent.not()
 
           when {
-            shouldCreate -> noteRepository.create(noteUuid, content.toString())
-            shouldUpdate -> noteRepository.update(noteUuid, content.toString())
+            shouldCreate -> noteRepository.create(noteUuid, content)
+            shouldUpdate -> noteRepository.update(noteUuid, content)
             shouldDelete -> noteRepository.markAsDeleted(noteUuid)
             else -> completableOfEmpty()
           }
