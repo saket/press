@@ -2,6 +2,7 @@ package me.saket.compose.shared.home
 
 import com.badoo.reaktive.subject.publish.publishSubject
 import com.badoo.reaktive.test.observable.test
+import com.benasher44.uuid.uuid4
 import me.saket.compose.shared.fakedata.fakeNote
 import me.saket.compose.shared.home.HomeEvent.NewNoteClicked
 import me.saket.compose.shared.navigation.FakeNavigator
@@ -20,7 +21,9 @@ class HomePresenterTest {
   private val events = publishSubject<HomeEvent>()
 
   @Test fun `populate notes on creation`() {
+    val noteUuid = uuid4()
     noteRepository.savedNotes += listOf(fakeNote(
+        uuid = noteUuid,
         localId = -1L,
         content = "# Nicolas Cage\nOur national treasure"
     ))
@@ -28,6 +31,7 @@ class HomePresenterTest {
     val testObserver = presenter.contentModels(events).test()
 
     val noteUiModels = listOf(HomeUiModel.Note(
+        noteUuid = noteUuid,
         adapterId = -1L,
         title = "Nicolas Cage",
         body = "Our national treasure"

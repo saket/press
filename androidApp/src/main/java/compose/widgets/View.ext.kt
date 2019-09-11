@@ -59,3 +59,7 @@ fun EditText.setTextAndCursor(text: CharSequence) {
   setText(text)
   setSelection(this.text.length)
 }
+
+fun View.setBackground(attr: Attr) {
+  background = attr.asDrawable()
+}

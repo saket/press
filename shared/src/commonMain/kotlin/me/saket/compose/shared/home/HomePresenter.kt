@@ -32,6 +32,7 @@ class HomePresenter(
         val (heading, body) = SplitHeadingAndBody.split(note.content)
 
         HomeUiModel.Note(
+            noteUuid = note.uuid,
             adapterId = note.localId,
             title = heading,
             body = body

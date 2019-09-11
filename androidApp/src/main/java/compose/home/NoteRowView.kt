@@ -9,6 +9,8 @@ import com.squareup.contour.ContourLayout
 import compose.theme.themeAware
 import compose.theme.themed
 import compose.util.y
+import compose.widgets.attr
+import compose.widgets.setBackground
 import compose.widgets.textColor
 import me.saket.compose.shared.home.HomeUiModel
 import me.saket.compose.shared.theme.toColor
@@ -49,12 +51,16 @@ class NoteRowView(context: Context) : ContourLayout(context) {
     )
   }
 
+  lateinit var noteModel: HomeUiModel.Note
+
   init {
     contourHeightOf { separatorView.bottom() }
+    setBackground(attr(android.R.attr.selectableItemBackground))
   }
 
-  fun render(note: HomeUiModel.Note) {
-    titleView.text = note.title
-    bodyView.text = note.body
+  fun render(noteModel: HomeUiModel.Note) {
+    this.noteModel = noteModel
+    titleView.text = noteModel.title
+    bodyView.text = noteModel.body
   }
 }

@@ -55,7 +55,7 @@ fun themed(view: ScrollView) = view.apply {
   }
 }
 
-fun themed(view: RecyclerView) = view.apply {
+fun <T : RecyclerView> themed(view: T) = view.apply {
   themeAware {
     edgeEffectFactory = object : EdgeEffectFactory() {
       override fun createEdgeEffect(view: RecyclerView, direction: Int) =
