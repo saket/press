@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import compose.ComposeApp
 import compose.util.reflect
+import compose.util.setOpacity
 import compose.widgets.dp
 import compose.widgets.findTitleView
 import compose.widgets.mutateAndTint
@@ -34,6 +35,8 @@ fun themed(view: TextView): TextView = view
 
 fun themed(view: EditText) = view.apply {
   themeAware { palette ->
+    highlightColor = palette.accentColor.setOpacity(0.3f)
+
     val cursorDrawableRes = reflect(TextView::class, "mCursorDrawableRes")
     cursorDrawableRes.set(view, R.drawable.tinted_cursor_drawable)
 
