@@ -5,6 +5,8 @@ import dagger.Module
 import dagger.Provides
 import me.saket.compose.shared.editor.EditorPresenter
 import me.saket.compose.shared.editor.SharedEditorComponent
+import me.saket.compose.shared.localization.SharedLocalizationComponent
+import me.saket.compose.shared.localization.Strings
 
 @Module
 object EditorModule {
@@ -16,4 +18,8 @@ object EditorModule {
       override fun create(noteUuid: Uuid) = SharedEditorComponent.presenter(noteUuid)
     }
   }
+
+  @Provides
+  @JvmStatic
+  fun strings(): Strings.Editor = SharedLocalizationComponent.strings().editor
 }

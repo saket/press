@@ -2,6 +2,7 @@ package compose.widgets
 
 import android.graphics.drawable.Drawable
 import android.os.Build.VERSION.SDK_INT
+import android.util.TypedValue.COMPLEX_UNIT_PX
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
@@ -10,8 +11,6 @@ import androidx.annotation.AttrRes
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
-
-
 
 fun View.string(@StringRes stringRes: Int) = resources.getString(stringRes)
 
@@ -25,7 +24,7 @@ var EditText.hintRes: Int
   }
 
 @get:Deprecated(message = "Impossible", level = DeprecationLevel.ERROR)
-var EditText.padding: Int
+var View.padding: Int
   get() = throw UnsupportedOperationException()
   set(padding) {
     setPadding(padding, padding, padding, padding)
@@ -35,6 +34,12 @@ var TextView.textColor: Int
   get() = currentTextColor
   set(color) {
     setTextColor(color)
+  }
+
+var TextView.textSizePx: Float
+  get() = textSize
+  set(size) {
+    setTextSize(COMPLEX_UNIT_PX, size)
   }
 
 inline fun fromOreo(block: () -> Unit) {

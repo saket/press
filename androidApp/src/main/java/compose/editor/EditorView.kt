@@ -4,18 +4,22 @@ package compose.editor
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
 import android.text.InputType.TYPE_CLASS_TEXT
 import android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
 import android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
 import android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
 import android.text.Layout.BREAK_STRATEGY_HIGH_QUALITY
+import android.text.style.ForegroundColorSpan
 import android.view.Gravity.TOP
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.EditText
 import android.widget.ScrollView
+import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.appcompat.widget.Toolbar
+import androidx.core.graphics.ColorUtils
 import com.benasher44.uuid.uuid4
 import com.jakewharton.rxbinding3.view.detaches
 import com.jakewharton.rxbinding3.widget.textChanges
@@ -24,14 +28,14 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import compose.theme.themeAware
 import compose.theme.themed
+import compose.widgets.Truss
 import compose.widgets.fromOreo
-import compose.widgets.hintRes
 import compose.widgets.padding
 import compose.widgets.setTextAndCursor
 import compose.widgets.textColor
+import compose.widgets.textSizePx
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
-import me.saket.compose.R
 import me.saket.compose.R.drawable
 import me.saket.compose.shared.contentModels
 import me.saket.compose.shared.editor.EditorEvent
@@ -39,9 +43,11 @@ import me.saket.compose.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.compose.shared.editor.EditorPresenter
 import me.saket.compose.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
 import me.saket.compose.shared.editor.EditorUiModel
+import me.saket.compose.shared.localization.Strings
 import me.saket.compose.shared.navigation.Navigator
 import me.saket.compose.shared.navigation.ScreenKey.Back
 import me.saket.wysiwyg.Wysiwyg
+import me.saket.wysiwyg.parser.node.HeadingLevel.H1
 import me.saket.wysiwyg.theme.DisplayUnits
 import me.saket.wysiwyg.theme.WysiwygTheme
 import me.saket.wysiwyg.widgets.addTextChangedListener
@@ -50,7 +56,8 @@ import me.saket.wysiwyg.widgets.addTextChangedListener
 class EditorView @AssistedInject constructor(
   @Assisted context: Context,
   @Assisted private val navigator: Navigator,
-  presenterFactory: EditorPresenter.Factory
+  presenterFactory: EditorPresenter.Factory,
+  strings: Strings.Editor
 ) : ContourLayout(context) {
 
   private val toolbar = themed(Toolbar(context)).apply {
@@ -73,7 +80,6 @@ class EditorView @AssistedInject constructor(
     background = null
     breakStrategy = BREAK_STRATEGY_HIGH_QUALITY
     gravity = TOP
-    hintRes = R.string.editor_hint
     inputType = TYPE_CLASS_TEXT or  // Multiline doesn't work without this.
         TYPE_TEXT_FLAG_CAP_SENTENCES or
         TYPE_TEXT_FLAG_MULTI_LINE or
@@ -87,10 +93,33 @@ class EditorView @AssistedInject constructor(
     }
   }
 
+  private val headingHintTextView = TextView(context).apply {
+    textSizePx = editorEditText.textSize
+    themeAware {
+      text = Truss()
+          .pushSpan(EditorHeadingHintSpan(H1))
+          .pushSpan(ForegroundColorSpan(it.windowTheme.backgroundColor))
+          // Using a space doesn't consume the same width as '#'.
+          // Probably because the font isn't monospaced.
+          .append("# ")
+          .popSpan()
+          .append(strings.newNoteHints.shuffled().first())
+          .popSpan()
+          .build()
+      textColor = ColorUtils.blendARGB(it.windowTheme.backgroundColor, Color.WHITE, 0.50f)
+    }
+    applyLayout(
+        x = leftTo { scrollView.left() + editorEditText.paddingStart }
+            .rightTo { scrollView.right() - editorEditText.paddingStart },
+        y = topTo { scrollView.top() + editorEditText.paddingTop }
+    )
+  }
+
   private val presenter = presenterFactory.create(noteUuid = uuid4())
 
   init {
     scrollView.addView(editorEditText, MATCH_PARENT, WRAP_CONTENT)
+    bringChildToFront(scrollView)
 
     val wysiwyg = Wysiwyg(editorEditText, WysiwygTheme(DisplayUnits(context)))
     editorEditText.addTextChangedListener(wysiwyg.syntaxHighlighter())
@@ -103,6 +132,8 @@ class EditorView @AssistedInject constructor(
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
+
+    editorEditText.requestFocus()
 
     val noteTextChanges: Observable<EditorEvent> = editorEditText
         .textChanges()

@@ -38,6 +38,6 @@ actual fun SpanPool.leadingMargin(margin: Int): WysiwygSpan =
   }
 
 actual fun SpanPool.heading(level: HeadingLevel): WysiwygSpan =
-  get { HeadingSpan(theme, recycler) }.apply {
+  get { HeadingSpan(recycler) }.apply {
     this.level = level
   }

@@ -1,7 +1,7 @@
 package compose.home
 
 import android.content.Context
-import android.view.animation.DecelerateInterpolator
+import android.view.animation.PathInterpolator
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.postDelayed
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,6 +16,9 @@ import compose.editor.EditorView
 import compose.theme.themeAware
 import compose.theme.themed
 import compose.util.heightOf
+import compose.widgets.BackpressInterceptResult
+import compose.widgets.BackpressInterceptResult.IGNORED
+import compose.widgets.BackpressInterceptResult.INTERCEPTED
 import compose.widgets.attr
 import compose.widgets.hideKeyboard
 import compose.widgets.showKeyboard
@@ -67,25 +70,14 @@ class HomeView @AssistedInject constructor(
     )
   }
 
-  private val editorView = editorViewFactory.run {
-    val editorNavigator = RealNavigator { screen ->
-      when (screen) {
-        is Back -> notesList.collapse()
-        else -> error("Unhandled $screen")
-      }
-    }
-    create(context, editorNavigator)
-  }
-
   private val noteEditorPage = ExpandablePageLayout(context).apply {
     notesList.expandablePage = this
     elevation = 20f.dip
-    animationInterpolator = DecelerateInterpolator()
+    animationInterpolator = PathInterpolator(0.5f, 0f, 0f, 1f)
     pushParentToolbarOnExpand(toolbar)
     themeAware {
       setBackgroundColor(it.windowTheme.backgroundColor)
     }
-    addView(editorView)
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
         y = topTo { parent.top() }.bottomTo { parent.bottom() }
@@ -94,6 +86,8 @@ class HomeView @AssistedInject constructor(
 
   init {
     setupNoteEditorPage()
+
+    noteEditorPage.addStateChangeCallbacks(ToggleFabOnPageStateChange(newNoteFab))
   }
 
   override fun onAttachedToWindow() {
@@ -117,21 +111,41 @@ class HomeView @AssistedInject constructor(
   }
 
   private fun setupNoteEditorPage() {
-    noteAdapter.onNoteClicked = { noteModel ->
-      notesList.expandItem(itemId = noteModel.adapterId)
-    }
-
-    noteEditorPage.addStateChangeCallbacks(object : SimplePageStateChangeCallbacks() {
-      override fun onPageAboutToExpand(expandAnimDuration: Long) {
-        postDelayed(expandAnimDuration / 2) {
-          editorView.editorEditText.showKeyboard()
+    val createEditorView = {
+      val editorNavigator = RealNavigator { screen ->
+        when (screen) {
+          is Back -> notesList.collapse()
+          else -> error("Unhandled $screen")
         }
       }
+      val editorView = editorViewFactory.create(context, editorNavigator)
 
-      override fun onPageAboutToCollapse(collapseAnimDuration: Long) {
-        editorView.hideKeyboard()
-      }
-    })
+      noteEditorPage.addStateChangeCallbacks(object : SimplePageStateChangeCallbacks() {
+        override fun onPageAboutToExpand(expandAnimDuration: Long) {
+          postDelayed(expandAnimDuration / 2) {
+            editorView.editorEditText.showKeyboard()
+          }
+        }
+
+        override fun onPageAboutToCollapse(collapseAnimDuration: Long) {
+          postDelayed(collapseAnimDuration / 2) {
+            editorView.hideKeyboard()
+          }
+        }
+
+        override fun onPageCollapsed() {
+          noteEditorPage.removeView(editorView)
+        }
+      })
+
+      editorView
+    }
+
+    noteAdapter.onNoteClicked = { noteModel ->
+      val editorView = createEditorView()
+      noteEditorPage.addView(editorView)
+      notesList.expandItem(itemId = noteModel.adapterId)
+    }
   }
 
   private fun render(model: HomeUiModel) {
@@ -140,6 +154,15 @@ class HomeView @AssistedInject constructor(
 
   private fun openNewNoteScreen() {
     context.startActivity(EditorActivity.intent(context))
+  }
+
+  fun offerBackPress(): BackpressInterceptResult {
+    return if (noteEditorPage.isExpandedOrExpanding) {
+      notesList.collapse()
+      INTERCEPTED
+    } else {
+      IGNORED
+    }
   }
 
   @AssistedInject.Factory

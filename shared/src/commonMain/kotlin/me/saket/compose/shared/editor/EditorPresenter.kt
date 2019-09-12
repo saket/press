@@ -11,7 +11,7 @@ import com.badoo.reaktive.scheduler.Scheduler
 import com.badoo.reaktive.single.flatMapCompletable
 import com.benasher44.uuid.Uuid
 import me.saket.compose.shared.Presenter
-import me.saket.compose.shared.Strings
+import me.saket.compose.shared.localization.Strings
 import me.saket.compose.shared.note.NoteRepository
 
 class EditorPresenter(

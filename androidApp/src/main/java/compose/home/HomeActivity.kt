@@ -2,17 +2,26 @@ package compose.home
 
 import android.os.Bundle
 import compose.ComposeApp
+import compose.widgets.BackpressInterceptResult.IGNORED
 import compose.widgets.ThemeAwareActivity
 import javax.inject.Inject
+import kotlin.LazyThreadSafetyMode.NONE
 
 class HomeActivity : ThemeAwareActivity() {
 
   @field:Inject
-  lateinit var homeView: HomeView.Factory
+  lateinit var homeViewFactory: HomeView.Factory
+  private val homeView by lazy(NONE) { homeViewFactory.withContext(this) }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     ComposeApp.component.inject(this)
     super.onCreate(savedInstanceState)
-    setContentView(homeView.withContext(this))
+    setContentView(homeView)
+  }
+
+  override fun onBackPressed() {
+    if (homeView.offerBackPress() == IGNORED) {
+      super.onBackPressed()
+    }
   }
 }
