@@ -144,7 +144,9 @@ class HomeView @AssistedInject constructor(
     noteAdapter.onNoteClicked = { noteModel ->
       val editorView = createEditorView()
       noteEditorPage.addView(editorView)
-      notesList.expandItem(itemId = noteModel.adapterId)
+      noteEditorPage.post {
+        notesList.expandItem(itemId = noteModel.adapterId)
+      }
     }
   }
 
