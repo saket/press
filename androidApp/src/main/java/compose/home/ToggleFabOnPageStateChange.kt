@@ -13,7 +13,9 @@ class ToggleFabOnPageStateChange(
   }
 
   override fun onPageAboutToCollapse(collapseAnimDuration: Long) {
-    fab.postDelayed(collapseAnimDuration / 2) {
+    // Delaying a bit ensures the FAB doesn't show up momentarily
+    // above the keyboard while the page is collapsing.
+    fab.postDelayed(collapseAnimDuration * 3/4) {
       fab.show()
     }
   }
