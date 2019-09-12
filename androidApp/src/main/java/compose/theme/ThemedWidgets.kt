@@ -2,6 +2,7 @@ package compose.theme
 
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.PorterDuff.Mode.SRC_IN
 import android.graphics.drawable.ColorDrawable
 import android.view.View
 import android.widget.EdgeEffect
@@ -34,9 +35,16 @@ fun View.themeAware(onThemeChange: (ThemePalette) -> Unit) {
 fun themed(view: TextView): TextView = view
 
 fun themed(view: EditText) = view.apply {
-  themeAware { palette ->
-    highlightColor = palette.accentColor.setOpacity(0.3f)
+  val selectionHandleDrawables = EditTextSelectionHandleReflection.find(this)
 
+  themeAware { palette ->
+    selectionHandleDrawables.forEach {
+      it.setColorFilter(palette.accentColor, SRC_IN)
+    }
+    highlightColor = palette.accentColor.setOpacity(0.3f)
+  }
+
+  themeAware { palette ->
     val cursorDrawableRes = reflect(TextView::class, "mCursorDrawableRes")
     cursorDrawableRes.set(view, R.drawable.tinted_cursor_drawable)
 
