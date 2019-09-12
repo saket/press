@@ -28,6 +28,7 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import compose.theme.themeAware
 import compose.theme.themed
+import compose.widgets.AfterTextChange
 import compose.widgets.Truss
 import compose.widgets.fromOreo
 import compose.widgets.padding
@@ -95,17 +96,17 @@ class EditorView @AssistedInject constructor(
 
   private val headingHintTextView = TextView(context).apply {
     textSizePx = editorEditText.textSize
+    text = Truss()
+        .pushSpan(EditorHeadingHintSpan(H1))
+        .pushSpan(ForegroundColorSpan(Color.TRANSPARENT))
+        // Using a space character doesn't consume the same width
+        // as '#'. Probably because the font isn't monospaced.
+        .append("# ")
+        .popSpan()
+        .append(strings.newNoteHints.shuffled().first())
+        .popSpan()
+        .build()
     themeAware {
-      text = Truss()
-          .pushSpan(EditorHeadingHintSpan(H1))
-          .pushSpan(ForegroundColorSpan(it.windowTheme.backgroundColor))
-          // Using a space doesn't consume the same width as '#'.
-          // Probably because the font isn't monospaced.
-          .append("# ")
-          .popSpan()
-          .append(strings.newNoteHints.shuffled().first())
-          .popSpan()
-          .build()
       textColor = ColorUtils.blendARGB(it.windowTheme.backgroundColor, Color.WHITE, 0.50f)
     }
     applyLayout(
@@ -128,6 +129,10 @@ class EditorView @AssistedInject constructor(
     toolbar.setNavigationOnClickListener {
       navigator.goTo(Back)
     }
+
+    editorEditText.addTextChangedListener(AfterTextChange {
+      headingHintTextView.visibility = GONE
+    })
   }
 
   override fun onAttachedToWindow() {
