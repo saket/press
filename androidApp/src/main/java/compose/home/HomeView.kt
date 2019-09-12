@@ -1,7 +1,9 @@
 package compose.home
 
 import android.content.Context
+import android.view.animation.DecelerateInterpolator
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.postDelayed
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.clicks
@@ -15,6 +17,8 @@ import compose.theme.themeAware
 import compose.theme.themed
 import compose.util.heightOf
 import compose.widgets.attr
+import compose.widgets.hideKeyboard
+import compose.widgets.showKeyboard
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.compose.R
 import me.saket.compose.shared.contentModels
@@ -28,6 +32,7 @@ import me.saket.compose.shared.navigation.ScreenKey.NewNote
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.dimming.TintPainter
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
+import me.saket.inboxrecyclerview.page.SimplePageStateChangeCallbacks
 
 class HomeView @AssistedInject constructor(
   @Assisted context: Context,
@@ -62,13 +67,25 @@ class HomeView @AssistedInject constructor(
     )
   }
 
+  private val editorView = editorViewFactory.run {
+    val editorNavigator = RealNavigator { screen ->
+      when (screen) {
+        is Back -> notesList.collapse()
+        else -> error("Unhandled $screen")
+      }
+    }
+    create(context, editorNavigator)
+  }
+
   private val noteEditorPage = ExpandablePageLayout(context).apply {
     notesList.expandablePage = this
     elevation = 20f.dip
+    animationInterpolator = DecelerateInterpolator()
     pushParentToolbarOnExpand(toolbar)
     themeAware {
       setBackgroundColor(it.windowTheme.backgroundColor)
     }
+    addView(editorView)
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
         y = topTo { parent.top() }.bottomTo { parent.bottom() }
@@ -76,18 +93,7 @@ class HomeView @AssistedInject constructor(
   }
 
   init {
-    val editorNavigator = RealNavigator { screen ->
-      when (screen) {
-        is Back -> notesList.collapse()
-        else -> error("Unhandled $screen")
-      }
-    }
-    val editorView = editorViewFactory.create(context, editorNavigator)
-    noteEditorPage.addView(editorView)
-
-    noteAdapter.onNoteClicked = { noteModel ->
-      notesList.expandItem(itemId = noteModel.adapterId)
-    }
+    setupNoteEditorPage()
   }
 
   override fun onAttachedToWindow() {
@@ -108,6 +114,24 @@ class HomeView @AssistedInject constructor(
         .takeUntil(detaches())
         .observeOn(mainThread())
         .subscribe(::render)
+  }
+
+  private fun setupNoteEditorPage() {
+    noteAdapter.onNoteClicked = { noteModel ->
+      notesList.expandItem(itemId = noteModel.adapterId)
+    }
+
+    noteEditorPage.addStateChangeCallbacks(object : SimplePageStateChangeCallbacks() {
+      override fun onPageAboutToExpand(expandAnimDuration: Long) {
+        postDelayed(expandAnimDuration / 2) {
+          editorView.editorEditText.showKeyboard()
+        }
+      }
+
+      override fun onPageAboutToCollapse(collapseAnimDuration: Long) {
+        editorView.hideKeyboard()
+      }
+    })
   }
 
   private fun render(model: HomeUiModel) {

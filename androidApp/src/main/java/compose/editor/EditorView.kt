@@ -69,7 +69,7 @@ class EditorView @AssistedInject constructor(
     )
   }
 
-  private val editorEditText = themed(EditText(context)).apply {
+  internal val editorEditText = themed(EditText(context)).apply {
     background = null
     breakStrategy = BREAK_STRATEGY_HIGH_QUALITY
     gravity = TOP

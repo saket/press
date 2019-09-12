@@ -3,12 +3,15 @@ package compose.widgets
 import android.graphics.drawable.Drawable
 import android.os.Build.VERSION.SDK_INT
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
 import androidx.annotation.AttrRes
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
+
+
 
 fun View.string(@StringRes stringRes: Int) = resources.getString(stringRes)
 
@@ -62,4 +65,15 @@ fun EditText.setTextAndCursor(text: CharSequence) {
 
 fun View.setBackground(attr: Attr) {
   background = attr.asDrawable()
+}
+
+fun EditText.showKeyboard(): Boolean {
+  requestFocus()
+  val inputManager = context.getSystemService(InputMethodManager::class.java)
+  return inputManager.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
+}
+
+fun View.hideKeyboard() {
+  val inputManager = context.getSystemService(InputMethodManager::class.java)
+  inputManager.hideSoftInputFromWindow(windowToken, 0)
 }
