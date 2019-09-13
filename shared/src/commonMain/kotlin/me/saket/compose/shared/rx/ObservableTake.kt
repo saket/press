@@ -6,6 +6,7 @@ import com.badoo.reaktive.observable.ObservableObserver
 import com.badoo.reaktive.observable.observable
 
 /**
+ * TODO: Remove this once its upstreamed to Reaktive.
  * Emit only the first [limit] items emitted by source.
  */
 fun <T> Observable<T>.take(limit: Int): Observable<T> {
