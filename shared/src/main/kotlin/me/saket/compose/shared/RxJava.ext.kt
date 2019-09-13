@@ -2,16 +2,16 @@ package me.saket.compose.shared
 
 import com.badoo.reaktive.rxjavainterop.toReaktive
 import com.badoo.reaktive.rxjavainterop.toRxJava2
-import com.badoo.reaktive.rxjavainterop.toRxJava2Source
-import me.saket.compose.shared.ui.UiModelWithTransientUpdates
+import me.saket.compose.shared.ui.Presenter
 import io.reactivex.Observable as RxJavaObservable
 
-fun <T, R> RxJavaObservable<T>.contentModels(presenter: Presenter<T, R>): RxJavaObservable<R> {
+fun <E, M> RxJavaObservable<E>.uiModels(presenter: Presenter<E, M, out Any>): RxJavaObservable<M> {
   val events = toReaktive()
-  val models = presenter.contentModels(events)
+  val models = presenter.uiModels(events)
   return compose { models.toRxJava2() }
 }
 
-fun <T: UiModelWithTransientUpdates<R>, R> RxJavaObservable<T>.transientUpdates(): RxJavaObservable<R> {
-  return concatMap<R> { it.transientUpdates.toRxJava2Source() }
+// TODO: Find a way to remove 2 from the name.
+fun <U> Presenter<out Any, out Any, U>.uiUpdates2(): RxJavaObservable<U> {
+  return uiUpdates().toRxJava2()
 }

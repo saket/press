@@ -5,6 +5,7 @@ package compose.editor
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import android.graphics.Color.WHITE
 import android.text.InputType.TYPE_CLASS_TEXT
 import android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
 import android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
@@ -19,7 +20,7 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.appcompat.widget.Toolbar
-import androidx.core.graphics.ColorUtils
+import androidx.core.graphics.ColorUtils.blendARGB
 import com.jakewharton.rxbinding3.view.detaches
 import com.jakewharton.rxbinding3.widget.textChanges
 import com.squareup.contour.ContourLayout
@@ -28,7 +29,6 @@ import com.squareup.inject.assisted.AssistedInject
 import compose.theme.themeAware
 import compose.theme.themed
 import compose.util.exhaustive
-import compose.widgets.AfterTextChange
 import compose.widgets.Truss
 import compose.widgets.fromOreo
 import compose.widgets.padding
@@ -38,19 +38,19 @@ import compose.widgets.textSizePx
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.compose.R.drawable
-import me.saket.compose.shared.contentModels
 import me.saket.compose.shared.editor.EditorEvent
 import me.saket.compose.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.compose.shared.editor.EditorOpenMode
 import me.saket.compose.shared.editor.EditorPresenter
-import me.saket.compose.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
 import me.saket.compose.shared.editor.EditorUiModel
-import me.saket.compose.shared.editor.EditorUiModel.TransientUpdate.CloseNote
-import me.saket.compose.shared.editor.EditorUiModel.TransientUpdate.PopulateContent
+import me.saket.compose.shared.editor.EditorUiUpdate
+import me.saket.compose.shared.editor.EditorUiUpdate.CloseNote
+import me.saket.compose.shared.editor.EditorUiUpdate.PopulateContent
 import me.saket.compose.shared.localization.Strings
 import me.saket.compose.shared.navigation.Navigator
 import me.saket.compose.shared.navigation.ScreenKey.Back
-import me.saket.compose.shared.transientUpdates
+import me.saket.compose.shared.uiModels
+import me.saket.compose.shared.uiUpdates2
 import me.saket.wysiwyg.Wysiwyg
 import me.saket.wysiwyg.parser.node.HeadingLevel.H1
 import me.saket.wysiwyg.theme.DisplayUnits
@@ -101,18 +101,8 @@ class EditorView @AssistedInject constructor(
 
   private val headingHintTextView = TextView(context).apply {
     textSizePx = editorEditText.textSize
-    text = Truss()
-        .pushSpan(EditorHeadingHintSpan(H1))
-        .pushSpan(ForegroundColorSpan(Color.TRANSPARENT))
-        // Using a space character doesn't consume the same width
-        // as '#'. Probably because the font isn't monospaced.
-        .append("# ")
-        .popSpan()
-        .append(strings.newNoteHints.shuffled().first())
-        .popSpan()
-        .build()
     themeAware {
-      textColor = ColorUtils.blendARGB(it.windowTheme.backgroundColor, Color.WHITE, 0.50f)
+      textColor = blendARGB(it.windowTheme.backgroundColor, WHITE, 0.50f)
     }
     applyLayout(
         x = leftTo { scrollView.left() + editorEditText.paddingStart }
@@ -129,15 +119,13 @@ class EditorView @AssistedInject constructor(
 
     val wysiwyg = Wysiwyg(editorEditText, WysiwygTheme(DisplayUnits(context)))
     editorEditText.addTextChangedListener(wysiwyg.syntaxHighlighter())
-    editorEditText.setTextAndCursor(NEW_NOTE_PLACEHOLDER)
 
     toolbar.setNavigationOnClickListener {
+      // TODO: detect if the keyboard is up and delay going back by
+      //  a bit so that the IRV behind is resized before this View
+      //  start collapsing.
       navigator.goTo(Back)
     }
-
-    editorEditText.addTextChangedListener(AfterTextChange {
-      headingHintTextView.visibility = GONE
-    })
   }
 
   override fun onAttachedToWindow() {
@@ -147,16 +135,16 @@ class EditorView @AssistedInject constructor(
 
     val noteTextChanges: Observable<EditorEvent> = editorEditText
         .textChanges()
-        .map(::NoteTextChanged)
+        .map { NoteTextChanged(it.toString()) }
 
-    val uiModels = Observable.mergeArray(noteTextChanges)
-        .contentModels(presenter)
+    Observable.mergeArray(noteTextChanges)
+        .uiModels(presenter)
         .takeUntil(detaches())
         .observeOn(mainThread())
+        .subscribe(::render)
 
-    uiModels.subscribe(::render)
-
-    uiModels.transientUpdates()
+    presenter.uiUpdates2()
+        .takeUntil(detaches())
         .observeOn(mainThread())
         .subscribe(::render)
   }
@@ -166,9 +154,21 @@ class EditorView @AssistedInject constructor(
     presenter.saveEditorContentOnExit(editorEditText.text)
   }
 
-  private fun render(model: EditorUiModel) {}
+  private fun render(model: EditorUiModel) {
+    headingHintTextView.text = Truss()
+        .pushSpan(EditorHeadingHintSpan(H1))
+        .pushSpan(ForegroundColorSpan(Color.TRANSPARENT))
+        // Using a space character doesn't consume the same width
+        // as '#'. Probably because the font isn't monospaced.
+        .append("# ")
+        .popSpan()
+        .append(model.hintText ?: "")
+        .popSpan()
+        .build()
+    headingHintTextView.visibility = if (model.hintText.isNullOrBlank()) GONE else VISIBLE
+  }
 
-  private fun render(uiUpdate: EditorUiModel.TransientUpdate) {
+  private fun render(uiUpdate: EditorUiUpdate) {
     when (uiUpdate) {
       is PopulateContent -> {
         editorEditText.setTextAndCursor(uiUpdate.content)

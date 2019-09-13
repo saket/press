@@ -5,38 +5,51 @@ import com.badoo.reaktive.completable.completableOfEmpty
 import com.badoo.reaktive.completable.subscribe
 import com.badoo.reaktive.completable.subscribeOn
 import com.badoo.reaktive.observable.Observable
+import com.badoo.reaktive.observable.distinctUntilChanged
 import com.badoo.reaktive.observable.firstOrError
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observableOf
 import com.badoo.reaktive.observable.observableOfEmpty
+import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.scheduler.Scheduler
 import com.badoo.reaktive.single.flatMapCompletable
-import me.saket.compose.shared.Presenter
+import me.saket.compose.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.compose.shared.editor.EditorOpenMode.ExistingNote
-import me.saket.compose.shared.editor.EditorUiModel.TransientUpdate
-import me.saket.compose.shared.editor.EditorUiModel.TransientUpdate.CloseNote
-import me.saket.compose.shared.editor.EditorUiModel.TransientUpdate.PopulateContent
+import me.saket.compose.shared.editor.EditorOpenMode.NewNote
+import me.saket.compose.shared.editor.EditorUiUpdate.CloseNote
+import me.saket.compose.shared.editor.EditorUiUpdate.PopulateContent
+import me.saket.compose.shared.localization.Strings.Editor
 import me.saket.compose.shared.note.NoteRepository
+import me.saket.compose.shared.rx.mapToOptional
 import me.saket.compose.shared.rx.take
+import me.saket.compose.shared.ui.Presenter
+import me.saket.compose.shared.util.Optional
 import me.saket.compose.shared.util.filterNone
 import me.saket.compose.shared.util.filterSome
 
 class EditorPresenter(
   private val openMode: EditorOpenMode,
   private val noteRepository: NoteRepository,
-  private val ioScheduler: Scheduler
-) : Presenter<EditorEvent, EditorUiModel> {
+  private val ioScheduler: Scheduler,
+  private val strings: Editor
+) : Presenter<EditorEvent, EditorUiModel, EditorUiUpdate> {
 
-  override fun contentModels(events: Observable<EditorEvent>): Observable<EditorUiModel> {
-    val transientUpdates = merge(
-        populateNoteOnStart(),
-        closeIfNoteGetsDeleted()
-    )
-    return observableOf(EditorUiModel(transientUpdates))
+  override fun uiModels(events: Observable<EditorEvent>): Observable<EditorUiModel> {
+    return events
+        .toggleHintText()
+        .map { (hint) -> EditorUiModel(hintText = hint) }
   }
 
-  private fun populateNoteOnStart(): Observable<TransientUpdate> {
+  override fun uiUpdates(): Observable<EditorUiUpdate> {
+    return merge(
+        populateExistingNoteOnStart(),
+        populateNewNotePlaceholderOnStart(),
+        closeIfNoteGetsDeleted()
+    )
+  }
+
+  private fun populateExistingNoteOnStart(): Observable<EditorUiUpdate> {
     return if (openMode is ExistingNote) {
       noteRepository.note(openMode.noteUuid)
           .filterSome()
@@ -47,10 +60,18 @@ class EditorPresenter(
     }
   }
 
+  private fun populateNewNotePlaceholderOnStart(): Observable<EditorUiUpdate> {
+    return if (openMode is NewNote) {
+      observableOf(PopulateContent(NEW_NOTE_PLACEHOLDER))
+    } else {
+      observableOfEmpty()
+    }
+  }
+
   /**
    * Can happen if the note was deleted outside of the app (e.g., on another device).
    */
-  private fun closeIfNoteGetsDeleted(): Observable<TransientUpdate> {
+  private fun closeIfNoteGetsDeleted(): Observable<EditorUiUpdate> {
     return if (openMode is ExistingNote) {
       noteRepository.note(openMode.noteUuid)
           .filterNone()
@@ -60,6 +81,19 @@ class EditorPresenter(
     } else {
       observableOfEmpty()
     }
+  }
+
+  private fun Observable<EditorEvent>.toggleHintText(): Observable<Optional<String>> {
+    val randomHint = strings.newNoteHints.shuffled().first()
+
+    return ofType<NoteTextChanged>()
+        .distinctUntilChanged()
+        .mapToOptional { (text) ->
+          when {
+            text.trimEnd() == NEW_NOTE_PLACEHOLDER.trim() -> randomHint
+            else -> null
+          }
+        }
   }
 
   fun saveEditorContentOnExit(content: CharSequence) {
@@ -90,18 +124,11 @@ class EditorPresenter(
         }
   }
 
-//  private fun Observable<EditorEvent>.toggleHintText(): Observable<Optional<String>> {
-//    val textChanges = ofType<NoteTextChanged>().map { it.text }
-//
-//    val textIsPlaceholder = textChanges.filter { it == NEW_NOTE_PLACEHOLDER }
-//    val textIsNotPlaceholder = textChanges.filter { it != NEW_NOTE_PLACEHOLDER }
-//  }
-
   interface Factory {
     fun create(openMode: EditorOpenMode): EditorPresenter
   }
 
   companion object {
-    const val NEW_NOTE_PLACEHOLDER = "# "
+    internal const val NEW_NOTE_PLACEHOLDER = "# "
   }
 }

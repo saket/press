@@ -4,19 +4,19 @@ import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.ofType
-import me.saket.compose.shared.Presenter
 import me.saket.compose.shared.home.HomeEvent.NewNoteClicked
 import me.saket.compose.shared.navigation.Navigator
 import me.saket.compose.shared.navigation.ScreenKey
 import me.saket.compose.shared.note.NoteRepository
-import me.saket.compose.shared.util.consumeOnNext
+import me.saket.compose.shared.rx.consumeOnNext
+import me.saket.compose.shared.ui.Presenter
 
 class HomePresenter(
   private val repository: NoteRepository,
   private val navigator: Navigator
-) : Presenter<HomeEvent, HomeUiModel> {
+) : Presenter<HomeEvent, HomeUiModel, Any> {
 
-  override fun contentModels(events: Observable<HomeEvent>): Observable<HomeUiModel> {
+  override fun uiModels(events: Observable<HomeEvent>): Observable<HomeUiModel> {
     return merge(populateNotes(), events.openNewNoteScreen())
   }
 

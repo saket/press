@@ -1,16 +1,17 @@
 package me.saket.compose.shared.editor
 
-import com.badoo.reaktive.observable.concatMap
 import com.badoo.reaktive.scheduler.trampolineScheduler
 import com.badoo.reaktive.subject.publish.publishSubject
 import com.badoo.reaktive.test.observable.assertValue
 import com.badoo.reaktive.test.observable.test
 import com.benasher44.uuid.uuid4
+import me.saket.compose.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.compose.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.compose.shared.editor.EditorOpenMode.NewNote
 import me.saket.compose.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
-import me.saket.compose.shared.editor.EditorUiModel.TransientUpdate.PopulateContent
+import me.saket.compose.shared.editor.EditorUiUpdate.PopulateContent
 import me.saket.compose.shared.fakedata.fakeNote
+import me.saket.compose.shared.localization.Strings
 import me.saket.compose.shared.note.FakeNoteRepository
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -20,13 +21,17 @@ class EditorPresenterTest {
 
   private val noteUuid = uuid4()
   private val repository = FakeNoteRepository()
+  private val strings = Strings.Editor(
+      newNoteHints = listOf("New note heading hint #1", "New note heading hint #2")
+  )
 
   private val events = publishSubject<EditorEvent>()
 
   private fun presenter(openMode: EditorOpenMode) = EditorPresenter(
       openMode = openMode,
       noteRepository = repository,
-      ioScheduler = trampolineScheduler
+      ioScheduler = trampolineScheduler,
+      strings = strings
   )
 
   @Test fun `blank note shouldn't be saved`() {
@@ -76,17 +81,33 @@ class EditorPresenterTest {
     assertTrue(repository.savedNotes.isEmpty())
   }
 
-//  @Test fun `show hint text until the text is changed`() {
-//    val contentModels = presenter.contentModels(events).test()
-//
-//    events.onNext(NoteTextChanged(NEW_NOTE_PLACEHOLDER))
-//    events.onNext(NoteTextChanged(""))
-//    events.onNext(NoteTextChanged(NEW_NOTE_PLACEHOLDER))
-//
-//    assertEquals(ENGLISH_STRINGS.editor.newNoteHint, contentModels.values[0].hintText)
-//    assertEquals(null, contentModels.values[1].hintText)
-//    assertEquals(null, contentModels.values[2].hintText)
-//  }
+  @Test fun `show new note placeholder on start`() {
+    val uiUpdates = presenter(NewNote(noteUuid))
+        .uiUpdates()
+        .test()
+
+    assertEquals(uiUpdates.values[0], PopulateContent(NEW_NOTE_PLACEHOLDER))
+  }
+
+  @Test fun `show hint text until the text is changed`() {
+    val uiModels = presenter(NewNote(noteUuid))
+        .uiModels(events)
+        .test()
+
+    events.onNext(NoteTextChanged(NEW_NOTE_PLACEHOLDER))
+    events.onNext(NoteTextChanged(""))
+    events.onNext(NoteTextChanged(NEW_NOTE_PLACEHOLDER))
+    events.onNext(NoteTextChanged("  $NEW_NOTE_PLACEHOLDER"))
+    events.onNext(NoteTextChanged("$NEW_NOTE_PLACEHOLDER  "))
+
+    val randomlySelectedHint = uiModels.values[0].hintText
+
+    assertTrue(randomlySelectedHint in strings.newNoteHints)
+    assertEquals(null, uiModels.values[1].hintText)
+    assertEquals(randomlySelectedHint, uiModels.values[2].hintText)
+    assertEquals(null, uiModels.values[3].hintText)
+    assertEquals(randomlySelectedHint, uiModels.values[4].hintText)
+  }
 
   @Test fun `populate note content on start`() {
     repository.savedNotes += fakeNote(
@@ -94,11 +115,7 @@ class EditorPresenterTest {
         content = "Nicolas Cage favorite dialogues"
     )
 
-    val uiUpdates = presenter(ExistingNote(noteUuid))
-        .contentModels(events)
-        .concatMap { it.transientUpdates }
-        .test()
-
+    val uiUpdates = presenter(ExistingNote(noteUuid)).uiUpdates().test()
     uiUpdates.assertValue(PopulateContent("Nicolas Cage favorite dialogues"))
   }
 }

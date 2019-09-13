@@ -22,7 +22,6 @@ import compose.widgets.BackpressInterceptResult.INTERCEPTED
 import compose.widgets.attr
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.compose.R
-import me.saket.compose.shared.contentModels
 import me.saket.compose.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.compose.shared.home.HomeEvent
 import me.saket.compose.shared.home.HomeEvent.NewNoteClicked
@@ -31,6 +30,7 @@ import me.saket.compose.shared.home.HomeUiModel
 import me.saket.compose.shared.navigation.RealNavigator
 import me.saket.compose.shared.navigation.ScreenKey.Back
 import me.saket.compose.shared.navigation.ScreenKey.ComposeNewNote
+import me.saket.compose.shared.uiModels
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.dimming.TintPainter
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
@@ -103,7 +103,7 @@ class HomeView @AssistedInject constructor(
     }
 
     newNoteClicks
-        .contentModels(presenter.create(navigator))
+        .uiModels(presenter.create(navigator))
         .takeUntil(detaches())
         .observeOn(mainThread())
         .subscribe(::render)

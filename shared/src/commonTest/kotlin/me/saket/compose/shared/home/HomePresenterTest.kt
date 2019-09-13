@@ -28,7 +28,7 @@ class HomePresenterTest {
         content = "# Nicolas Cage\nOur national treasure"
     ))
 
-    val testObserver = presenter.contentModels(events).test()
+    val testObserver = presenter.uiModels(events).test()
 
     val noteUiModels = listOf(HomeUiModel.Note(
         noteUuid = noteUuid,
@@ -42,7 +42,7 @@ class HomePresenterTest {
   }
 
   @Test fun `open new note screen when new note is clicked`() {
-    presenter.contentModels(events).test()
+    presenter.uiModels(events).test()
 
     events.onNext(NewNoteClicked)
 
