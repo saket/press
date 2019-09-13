@@ -23,7 +23,7 @@ class HomePresenter(
   private fun Observable<HomeEvent>.openNewNoteScreen(): Observable<HomeUiModel> =
     ofType<NewNoteClicked>()
         .consumeOnNext {
-          navigator.goTo(ScreenKey.NewNote)
+          navigator.goTo(ScreenKey.ComposeNewNote)
         }
 
   private fun populateNotes(): Observable<HomeUiModel> =

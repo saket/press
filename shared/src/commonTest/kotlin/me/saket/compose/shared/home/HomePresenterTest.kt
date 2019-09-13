@@ -46,6 +46,6 @@ class HomePresenterTest {
 
     events.onNext(NewNoteClicked)
 
-    assertSame(ScreenKey.NewNote, navigator.backstack.last())
+    assertSame(ScreenKey.ComposeNewNote, navigator.backstack.last())
   }
 }

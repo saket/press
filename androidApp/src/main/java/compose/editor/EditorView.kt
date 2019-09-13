@@ -20,7 +20,6 @@ import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.appcompat.widget.Toolbar
 import androidx.core.graphics.ColorUtils
-import com.benasher44.uuid.uuid4
 import com.jakewharton.rxbinding3.view.detaches
 import com.jakewharton.rxbinding3.widget.textChanges
 import com.squareup.contour.ContourLayout
@@ -28,6 +27,7 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import compose.theme.themeAware
 import compose.theme.themed
+import compose.util.exhaustive
 import compose.widgets.AfterTextChange
 import compose.widgets.Truss
 import compose.widgets.fromOreo
@@ -41,12 +41,16 @@ import me.saket.compose.R.drawable
 import me.saket.compose.shared.contentModels
 import me.saket.compose.shared.editor.EditorEvent
 import me.saket.compose.shared.editor.EditorEvent.NoteTextChanged
+import me.saket.compose.shared.editor.EditorOpenMode
 import me.saket.compose.shared.editor.EditorPresenter
 import me.saket.compose.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
 import me.saket.compose.shared.editor.EditorUiModel
+import me.saket.compose.shared.editor.EditorUiModel.TransientUpdate.CloseNote
+import me.saket.compose.shared.editor.EditorUiModel.TransientUpdate.PopulateContent
 import me.saket.compose.shared.localization.Strings
 import me.saket.compose.shared.navigation.Navigator
 import me.saket.compose.shared.navigation.ScreenKey.Back
+import me.saket.compose.shared.transientUpdates
 import me.saket.wysiwyg.Wysiwyg
 import me.saket.wysiwyg.parser.node.HeadingLevel.H1
 import me.saket.wysiwyg.theme.DisplayUnits
@@ -56,6 +60,7 @@ import me.saket.wysiwyg.widgets.addTextChangedListener
 @SuppressLint("SetTextI18n")
 class EditorView @AssistedInject constructor(
   @Assisted context: Context,
+  @Assisted openMode: EditorOpenMode,
   @Assisted private val navigator: Navigator,
   presenterFactory: EditorPresenter.Factory,
   strings: Strings.Editor
@@ -116,7 +121,7 @@ class EditorView @AssistedInject constructor(
     )
   }
 
-  private val presenter = presenterFactory.create(noteUuid = uuid4())
+  private val presenter = presenterFactory.create(openMode)
 
   init {
     scrollView.addView(editorEditText, MATCH_PARENT, WRAP_CONTENT)
@@ -144,9 +149,14 @@ class EditorView @AssistedInject constructor(
         .textChanges()
         .map(::NoteTextChanged)
 
-    Observable.mergeArray(noteTextChanges)
+    val uiModels = Observable.mergeArray(noteTextChanges)
         .contentModels(presenter)
         .takeUntil(detaches())
+        .observeOn(mainThread())
+
+    uiModels.subscribe(::render)
+
+    uiModels.transientUpdates()
         .observeOn(mainThread())
         .subscribe(::render)
   }
@@ -156,14 +166,24 @@ class EditorView @AssistedInject constructor(
     presenter.saveEditorContentOnExit(editorEditText.text)
   }
 
-  private fun render(model: EditorUiModel) {
+  private fun render(model: EditorUiModel) {}
 
+  private fun render(uiUpdate: EditorUiModel.TransientUpdate) {
+    when (uiUpdate) {
+      is PopulateContent -> {
+        editorEditText.setTextAndCursor(uiUpdate.content)
+      }
+      is CloseNote -> {
+        navigator.goTo(Back)
+      }
+    }.exhaustive
   }
 
   @AssistedInject.Factory
   interface Factory {
     fun create(
       context: Context,
+      openMode: EditorOpenMode,
       navigator: Navigator
     ): EditorView
   }

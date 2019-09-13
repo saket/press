@@ -3,8 +3,8 @@ package compose.home
 import android.content.Context
 import android.view.animation.PathInterpolator
 import androidx.appcompat.widget.Toolbar
-import androidx.core.view.postDelayed
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.benasher44.uuid.Uuid
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.detaches
@@ -20,18 +20,17 @@ import compose.widgets.BackpressInterceptResult
 import compose.widgets.BackpressInterceptResult.IGNORED
 import compose.widgets.BackpressInterceptResult.INTERCEPTED
 import compose.widgets.attr
-import compose.widgets.hideKeyboard
-import compose.widgets.showKeyboard
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.compose.R
 import me.saket.compose.shared.contentModels
+import me.saket.compose.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.compose.shared.home.HomeEvent
 import me.saket.compose.shared.home.HomeEvent.NewNoteClicked
 import me.saket.compose.shared.home.HomePresenter
 import me.saket.compose.shared.home.HomeUiModel
 import me.saket.compose.shared.navigation.RealNavigator
 import me.saket.compose.shared.navigation.ScreenKey.Back
-import me.saket.compose.shared.navigation.ScreenKey.NewNote
+import me.saket.compose.shared.navigation.ScreenKey.ComposeNewNote
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.dimming.TintPainter
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
@@ -98,7 +97,7 @@ class HomeView @AssistedInject constructor(
         .map<HomeEvent> { NewNoteClicked }
 
     val navigator = RealNavigator {
-      if (it is NewNote) {
+      if (it is ComposeNewNote) {
         openNewNoteScreen()
       }
     }
@@ -111,28 +110,23 @@ class HomeView @AssistedInject constructor(
   }
 
   private fun setupNoteEditorPage() {
-    val createEditorView = {
+    val createEditorView = { noteUuid: Uuid ->
       val editorNavigator = RealNavigator { screen ->
         when (screen) {
           is Back -> notesList.collapse()
           else -> error("Unhandled $screen")
         }
       }
-      val editorView = editorViewFactory.create(context, editorNavigator)
+      val editorView = editorViewFactory.create(
+          context = context,
+          openMode = ExistingNote(noteUuid),
+          navigator = editorNavigator
+      )
 
+      noteEditorPage.addStateChangeCallbacks(
+          ToggleKeyboardOnPageStateChange(editorView.editorEditText)
+      )
       noteEditorPage.addStateChangeCallbacks(object : SimplePageStateChangeCallbacks() {
-        override fun onPageAboutToExpand(expandAnimDuration: Long) {
-          postDelayed(expandAnimDuration / 2) {
-            editorView.editorEditText.showKeyboard()
-          }
-        }
-
-        override fun onPageAboutToCollapse(collapseAnimDuration: Long) {
-          postDelayed(collapseAnimDuration / 2) {
-            editorView.hideKeyboard()
-          }
-        }
-
         override fun onPageCollapsed() {
           noteEditorPage.removeView(editorView)
         }
@@ -142,7 +136,7 @@ class HomeView @AssistedInject constructor(
     }
 
     noteAdapter.onNoteClicked = { noteModel ->
-      val editorView = createEditorView()
+      val editorView = createEditorView(noteModel.noteUuid)
       noteEditorPage.addView(editorView)
       noteEditorPage.post {
         notesList.expandItem(itemId = noteModel.adapterId)

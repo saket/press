@@ -1,10 +1,15 @@
 package me.saket.compose.shared.editor
 
+import com.badoo.reaktive.observable.concatMap
 import com.badoo.reaktive.scheduler.trampolineScheduler
 import com.badoo.reaktive.subject.publish.publishSubject
+import com.badoo.reaktive.test.observable.assertValue
+import com.badoo.reaktive.test.observable.test
 import com.benasher44.uuid.uuid4
-import me.saket.compose.shared.ENGLISH_STRINGS
+import me.saket.compose.shared.editor.EditorOpenMode.ExistingNote
+import me.saket.compose.shared.editor.EditorOpenMode.NewNote
 import me.saket.compose.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
+import me.saket.compose.shared.editor.EditorUiModel.TransientUpdate.PopulateContent
 import me.saket.compose.shared.fakedata.fakeNote
 import me.saket.compose.shared.note.FakeNoteRepository
 import kotlin.test.Test
@@ -17,14 +22,16 @@ class EditorPresenterTest {
   private val repository = FakeNoteRepository()
 
   private val events = publishSubject<EditorEvent>()
-  private val presenter = EditorPresenter(
-      noteUuid = noteUuid,
+
+  private fun presenter(openMode: EditorOpenMode) = EditorPresenter(
+      openMode = openMode,
       noteRepository = repository,
-      ioScheduler = trampolineScheduler,
-      strings = ENGLISH_STRINGS.editor
+      ioScheduler = trampolineScheduler
   )
 
   @Test fun `blank note shouldn't be saved`() {
+    val presenter = presenter(NewNote(noteUuid))
+
     presenter.saveEditorContentOnExit("  \n ")
     presenter.saveEditorContentOnExit("  ")
     presenter.saveEditorContentOnExit("")
@@ -35,6 +42,7 @@ class EditorPresenterTest {
   }
 
   @Test fun `creating a new note`() {
+    val presenter = presenter(NewNote(noteUuid))
     presenter.saveEditorContentOnExit("New note")
 
     val savedNote = repository.savedNotes.last()
@@ -47,6 +55,7 @@ class EditorPresenterTest {
         content = "Existing note"
     )
 
+    val presenter = presenter(NewNote(noteUuid))
     presenter.saveEditorContentOnExit("Updated note")
 
     val savedNote = repository.savedNotes.last()
@@ -59,6 +68,7 @@ class EditorPresenterTest {
         content = "Existing note"
     )
 
+    val presenter = presenter(NewNote(noteUuid))
     presenter.saveEditorContentOnExit("  \n ")
     presenter.saveEditorContentOnExit("  ")
     presenter.saveEditorContentOnExit("")
@@ -77,4 +87,18 @@ class EditorPresenterTest {
 //    assertEquals(null, contentModels.values[1].hintText)
 //    assertEquals(null, contentModels.values[2].hintText)
 //  }
+
+  @Test fun `populate note content on start`() {
+    repository.savedNotes += fakeNote(
+        uuid = noteUuid,
+        content = "Nicolas Cage favorite dialogues"
+    )
+
+    val uiUpdates = presenter(ExistingNote(noteUuid))
+        .contentModels(events)
+        .concatMap { it.transientUpdates }
+        .test()
+
+    uiUpdates.assertValue(PopulateContent("Nicolas Cage favorite dialogues"))
+  }
 }

@@ -3,8 +3,10 @@ package compose.editor
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import com.benasher44.uuid.uuid4
 import compose.ComposeApp
 import compose.widgets.ThemeAwareActivity
+import me.saket.compose.shared.editor.EditorOpenMode.NewNote
 import me.saket.compose.shared.navigation.RealNavigator
 import me.saket.compose.shared.navigation.ScreenKey.Back
 import javax.inject.Inject
@@ -24,7 +26,11 @@ class EditorActivity : ThemeAwareActivity() {
         else -> error("Unhandled $screenKey")
       }
     }
-    setContentView(editorView.create(this, navigator))
+    setContentView(editorView.create(
+        this,
+        openMode = NewNote(uuid4()),
+        navigator = navigator
+    ))
   }
 
   companion object {

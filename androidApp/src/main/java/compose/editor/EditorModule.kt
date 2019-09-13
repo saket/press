@@ -1,8 +1,8 @@
 package compose.editor
 
-import com.benasher44.uuid.Uuid
 import dagger.Module
 import dagger.Provides
+import me.saket.compose.shared.editor.EditorOpenMode
 import me.saket.compose.shared.editor.EditorPresenter
 import me.saket.compose.shared.editor.SharedEditorComponent
 import me.saket.compose.shared.localization.SharedLocalizationComponent
@@ -15,7 +15,7 @@ object EditorModule {
   @JvmStatic
   fun presenter(): EditorPresenter.Factory {
     return object : EditorPresenter.Factory {
-      override fun create(noteUuid: Uuid) = SharedEditorComponent.presenter(noteUuid)
+      override fun create(openMode: EditorOpenMode) = SharedEditorComponent.presenter(openMode)
     }
   }
 
