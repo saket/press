@@ -11,9 +11,7 @@ class ToggleKeyboardOnPageStateChange(
 ) : SimplePageStateChangeCallbacks() {
 
   override fun onPageAboutToExpand(expandAnimDuration: Long) {
-    editText.postDelayed(expandAnimDuration / 2) {
-      editText.showKeyboard()
-    }
+    editText.showKeyboard()
   }
 
   override fun onPageAboutToCollapse(collapseAnimDuration: Long) {

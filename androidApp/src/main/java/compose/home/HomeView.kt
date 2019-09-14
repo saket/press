@@ -128,6 +128,7 @@ class HomeView @AssistedInject constructor(
       )
       noteEditorPage.addStateChangeCallbacks(object : SimplePageStateChangeCallbacks() {
         override fun onPageCollapsed() {
+          noteEditorPage.removeStateChangeCallbacks(this)
           noteEditorPage.removeView(editorView)
         }
       })
