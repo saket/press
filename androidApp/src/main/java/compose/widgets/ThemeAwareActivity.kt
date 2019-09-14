@@ -31,7 +31,7 @@ abstract class ThemeAwareActivity : AppCompatActivity() {
   private fun applyPaletteTheme() {
     themeAware { palette ->
       window.apply {
-        setBackgroundDrawable(ColorDrawable(palette.windowTheme.backgroundColor))
+        setBackgroundDrawable(ColorDrawable(palette.window.backgroundColor))
         addFlags(LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         statusBarColor = palette.primaryColorDark
       }

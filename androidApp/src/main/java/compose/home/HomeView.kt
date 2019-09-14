@@ -1,8 +1,10 @@
 package compose.home
 
+import android.app.Activity
 import android.content.Context
 import android.view.animation.PathInterpolator
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.benasher44.uuid.Uuid
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -75,7 +77,7 @@ class HomeView @AssistedInject constructor(
     animationInterpolator = PathInterpolator(0.5f, 0f, 0f, 1f)
     pushParentToolbarOnExpand(toolbar)
     themeAware {
-      setBackgroundColor(it.windowTheme.backgroundColor)
+      setBackgroundColor(it.window.backgroundColor)
     }
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
@@ -85,7 +87,6 @@ class HomeView @AssistedInject constructor(
 
   init {
     setupNoteEditorPage()
-
     noteEditorPage.addStateChangeCallbacks(ToggleFabOnPageStateChange(newNoteFab))
   }
 
@@ -150,7 +151,12 @@ class HomeView @AssistedInject constructor(
   }
 
   private fun openNewNoteScreen() {
-    context.startActivity(EditorActivity.intent(context))
+    val (intent, options) = EditorActivity.intentWithFabTransform(
+        activity = context as Activity,
+        fab = newNoteFab,
+        fabIconRes = R.drawable.ic_note_add_24dp
+    )
+    startActivity(context, intent, options.toBundle())
   }
 
   fun offerBackPress(): BackpressInterceptResult {

@@ -4,7 +4,12 @@
     <item name="colorPrimary">#f00</item>
     <item name="colorPrimaryDark">#f00</item>
     <item name="colorAccent">#f00</item>
-
     <item name="android:windowBackground">@color/default_window_background</item>
+  </style>
+
+  <style name="AppTheme.TransparentWindow">
+    <item name="android:windowIsTranslucent">true</item>
+    <item name="android:windowBackground">@android:color/transparent</item>
+    <item name="android:colorBackgroundCacheHint">@null</item>
   </style>
 </resources>

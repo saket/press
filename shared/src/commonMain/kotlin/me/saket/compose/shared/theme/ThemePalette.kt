@@ -4,7 +4,7 @@ abstract class ThemePalette(
   val primaryColor: Int,
   val primaryColorDark: Int,
   val accentColor: Int,
-  val windowTheme: WindowTheme,
+  val window: WindowTheme,
   val textColorHeading: Int,
   val textColorSecondary: Int,
   val fabColor: Int
