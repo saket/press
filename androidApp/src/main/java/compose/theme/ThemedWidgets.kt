@@ -9,12 +9,16 @@ import android.widget.EdgeEffect
 import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.graphics.ColorUtils
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.jakewharton.rxbinding3.view.attaches
+import com.jakewharton.rxbinding3.view.detaches
 import compose.ComposeApp
+import compose.util.onDestroys
 import compose.util.reflect
 import compose.util.setOpacity
 import compose.widgets.dp
@@ -29,7 +33,16 @@ import me.saket.resourceinterceptor.InterceptibleResources
 fun themePalette() = ComposeApp.component.themePalette()
 
 fun View.themeAware(onThemeChange: (ThemePalette) -> Unit) {
-  themePalette().listen(this, onThemeChange)
+  attaches()
+      .switchMap { themePalette() }
+      .takeUntil(detaches())
+      .subscribe { onThemeChange(it) }
+}
+
+fun AppCompatActivity.themeAware(onThemeChange: (ThemePalette) -> Unit) {
+  themePalette()
+      .takeUntil(onDestroys())
+      .subscribe { onThemeChange(it) }
 }
 
 fun themed(view: TextView): TextView = view
