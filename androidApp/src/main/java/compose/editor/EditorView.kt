@@ -126,6 +126,8 @@ class EditorView @AssistedInject constructor(
       //  start collapsing.
       navigator.goTo(Back)
     }
+
+    CapitalizeOnHeadingStart.capitalize(editorEditText)
   }
 
   override fun onAttachedToWindow() {
