@@ -130,6 +130,7 @@ buildscript {
           'release': [
               'core': "com.facebook.flipper:flipper-noop:$versions.flipper"
           ]
-      ]
+      ],
+      'itemAnimators': "com.mikepenz:itemanimators:1.1.0"
   ]
 }

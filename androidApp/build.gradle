@@ -60,6 +60,7 @@ dependencies {
   implementation deps.kNativeUuid
   implementation deps.inboxRecyclerView
   implementation deps.klock.android
+  implementation deps.itemAnimators
 
   debugImplementation deps.flipper.debug.core
   debugImplementation deps.flipper.debug.soLoader

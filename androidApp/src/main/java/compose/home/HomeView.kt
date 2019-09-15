@@ -11,6 +11,7 @@ import com.benasher44.uuid.Uuid
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.detaches
+import com.mikepenz.itemanimators.AlphaInAnimator
 import com.soywiz.klock.seconds
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
@@ -58,6 +59,7 @@ class HomeView @AssistedInject constructor(
     layoutManager = LinearLayoutManager(context)
     adapter = noteAdapter
     tintPainter = TintPainter.uncoveredArea()
+    itemAnimator = AlphaInAnimator()
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
         y = topTo { toolbar.bottom() }.bottomTo { parent.bottom() }
