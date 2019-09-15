@@ -4,7 +4,6 @@ import android.app.Activity
 import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
-import android.graphics.PorterDuffColorFilter
 import android.os.Bundle
 import androidx.annotation.DrawableRes
 import com.benasher44.uuid.uuid4
@@ -12,7 +11,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import compose.ComposeApp
 import compose.animation.FabTransform
 import compose.theme.themeAware
-import compose.util.reflect
+import compose.widgets.PorterDuffColorFilterWrapper
 import compose.widgets.ThemeAwareActivity
 import compose.widgets.hideKeyboard
 import compose.widgets.showKeyboard
@@ -90,7 +89,7 @@ class EditorActivity : ThemeAwareActivity() {
       val intent = intent(activity)
 
       val fabColor = fab.backgroundTintList!!.defaultColor
-      val fabIconTint = reflect(PorterDuffColorFilter::class, "mColor").getInt(fab.colorFilter)
+      val fabIconTint = (fab.colorFilter as PorterDuffColorFilterWrapper).color
 
       FabTransform.addExtras(intent, fabColor, fabIconRes, fabIconTint)
       val options = ActivityOptions.makeSceneTransitionAnimation(

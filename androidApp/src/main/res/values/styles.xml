@@ -5,6 +5,9 @@
     <item name="colorPrimaryDark">#f00</item>
     <item name="colorAccent">#f00</item>
 
+    <item name="android:editTextStyle">@style/DefaultEditTextStyle</item>
+    <item name="android:colorEdgeEffect">@color/overscroll</item>
+
     <item name="android:windowBackground">@color/default_window_background</item>
     <item name="android:statusBarColor">@color/default_window_background</item>
   </style>
@@ -13,5 +16,9 @@
     <item name="android:windowIsTranslucent">true</item>
     <item name="android:windowBackground">@android:color/transparent</item>
     <item name="android:colorBackgroundCacheHint">@null</item>
+  </style>
+
+  <style name="DefaultEditTextStyle" parent="Widget.AppCompat.EditText">
+    <item name="android:textCursorDrawable">@drawable/tinted_cursor_drawable</item>
   </style>
 </resources>

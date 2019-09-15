@@ -24,12 +24,9 @@ import compose.util.setOpacity
 import compose.widgets.PorterDuffColorFilterWrapper
 import compose.widgets.dp
 import compose.widgets.findTitleView
-import compose.widgets.mutateAndTint
 import compose.widgets.textColor
 import me.saket.compose.R
 import me.saket.compose.shared.theme.ThemePalette
-import me.saket.resourceinterceptor.DrawableInterceptor
-import me.saket.resourceinterceptor.InterceptibleResources
 
 fun themePalette() = ComposeApp.component.themePalette()
 
@@ -49,34 +46,23 @@ fun AppCompatActivity.themeAware(onThemeChange: (ThemePalette) -> Unit) {
 fun themed(view: TextView): TextView = view
 
 fun themed(view: EditText) = view.apply {
+  val cursorDrawableRes = reflect(TextView::class, "mCursorDrawableRes")
+  cursorDrawableRes.set(view, R.drawable.tinted_cursor_drawable)
   val selectionHandleDrawables = EditTextSelectionHandleReflection.find(this)
 
   themeAware { palette ->
-    selectionHandleDrawables.forEach {
-      it.setColorFilter(palette.accentColor, SRC_IN)
-    }
+    selectionHandleDrawables.forEach { it.setColorFilter(palette.accentColor, SRC_IN) }
     highlightColor = palette.accentColor.setOpacity(0.3f)
-  }
-
-  themeAware { palette ->
-    val cursorDrawableRes = reflect(TextView::class, "mCursorDrawableRes")
-    cursorDrawableRes.set(view, R.drawable.tinted_cursor_drawable)
-
-    // TODO: This doesn't get updated as the drawable is only read once.
-    //  Moving the listener to inside the Drawable might work, but taking
-    //  care of leaks can be tricky.
-    (resources as InterceptibleResources).setInterceptor(
-        R.drawable.tinted_cursor_drawable,
-        DrawableInterceptor { systemDrawable ->
-          systemDrawable()!!.mutateAndTint(palette.accentColor)
-        }
-    )
   }
 }
 
 fun themed(view: ScrollView) = view.apply {
+  val topEdge = reflect(ScrollView::class, "mEdgeGlowTop").get(view) as EdgeEffect
+  val bottomEdge = reflect(ScrollView::class, "mEdgeGlowBottom").get(view) as EdgeEffect
+
   themeAware {
-    // TODO: tint overscroll.
+    topEdge.color = it.accentColor
+    bottomEdge.color = it.accentColor
   }
 }
 
