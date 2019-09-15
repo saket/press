@@ -26,6 +26,7 @@ import compose.widgets.BackPressInterceptResult.BACK_PRESS_IGNORED
 import compose.widgets.BackPressInterceptResult.BACK_PRESS_INTERCEPTED
 import compose.widgets.addStateChangeCallbacks
 import compose.widgets.attr
+import compose.widgets.suspendWhileExpanded
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.compose.R
 import me.saket.compose.shared.editor.EditorOpenMode.ExistingNote
@@ -105,13 +106,12 @@ class HomeView @AssistedInject constructor(
         .map<HomeEvent> { NewNoteClicked }
 
     val navigator = RealNavigator {
-      if (it is ComposeNewNote) {
-        openNewNoteScreen()
-      }
+      require(it is ComposeNewNote)
+      openNewNoteScreen()
     }
 
-    newNoteClicks
-        .uiModels(presenter.create(navigator))
+    newNoteClicks.uiModels(presenter.create(navigator))
+        .suspendWhileExpanded(noteEditorPage)
         .takeUntil(detaches())
         .observeOn(mainThread())
         .subscribe(::render)
