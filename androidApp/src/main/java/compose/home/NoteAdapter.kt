@@ -11,7 +11,7 @@ import javax.inject.Inject
 class NoteAdapter @Inject constructor() : ListAdapter<HomeUiModel.Note, NoteVH>(NoteDiffer()) {
 
   private val _noteClicks = PublishSubject.create<HomeUiModel.Note>()
-  val noteClicks = _noteClicks.hide()
+  val noteClicks = _noteClicks.hide()!!
 
   init {
     setHasStableIds(true)

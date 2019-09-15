@@ -132,8 +132,6 @@ class EditorView @AssistedInject constructor(
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
 
-    editorEditText.requestFocus()
-
     val noteTextChanges: Observable<EditorEvent> = editorEditText
         .textChanges()
         .map { NoteTextChanged(it.toString()) }
