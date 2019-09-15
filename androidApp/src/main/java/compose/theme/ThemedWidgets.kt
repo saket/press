@@ -1,7 +1,7 @@
 package compose.theme
 
 import android.content.res.ColorStateList
-import android.graphics.Color
+import android.graphics.Color.BLACK
 import android.graphics.PorterDuff.Mode.SRC_IN
 import android.graphics.drawable.ColorDrawable
 import android.view.View
@@ -11,7 +11,7 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.graphics.ColorUtils
+import androidx.core.graphics.ColorUtils.blendARGB
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -21,6 +21,7 @@ import compose.ComposeApp
 import compose.util.onDestroys
 import compose.util.reflect
 import compose.util.setOpacity
+import compose.widgets.PorterDuffColorFilterWrapper
 import compose.widgets.dp
 import compose.widgets.findTitleView
 import compose.widgets.mutateAndTint
@@ -99,6 +100,6 @@ fun themed(toolbar: Toolbar) = toolbar.apply {
 fun themed(view: FloatingActionButton) = view.apply {
   themeAware {
     backgroundTintList = ColorStateList.valueOf(it.fabColor)
-    setColorFilter(ColorUtils.blendARGB(it.fabColor, Color.BLACK, 0.65f))
+    colorFilter = PorterDuffColorFilterWrapper(blendARGB(it.fabColor, BLACK, 0.65f))
   }
 }
