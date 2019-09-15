@@ -91,6 +91,7 @@ class EditorView @AssistedInject constructor(
         TYPE_TEXT_FLAG_MULTI_LINE or
         TYPE_TEXT_FLAG_NO_SUGGESTIONS
     padding = 16.dip
+    CapitalizeOnHeadingStart.capitalize(this)
     fromOreo {
       importantForAutofill = IMPORTANT_FOR_AUTOFILL_NO
     }
@@ -126,8 +127,6 @@ class EditorView @AssistedInject constructor(
       //  start collapsing.
       navigator.goTo(Back)
     }
-
-    CapitalizeOnHeadingStart.capitalize(editorEditText)
   }
 
   override fun onAttachedToWindow() {

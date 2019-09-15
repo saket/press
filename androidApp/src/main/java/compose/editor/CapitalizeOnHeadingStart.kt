@@ -1,7 +1,9 @@
 package compose.editor
 
-import android.text.InputType
+import android.text.InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
+import android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
 import android.text.Spannable
+import android.text.Spannable.SPAN_INCLUSIVE_INCLUSIVE
 import android.widget.EditText
 import androidx.core.text.getSpans
 import compose.widgets.OnSpanAdded
@@ -34,7 +36,9 @@ object CapitalizeOnHeadingStart {
       }
 
       val newInputType = when {
-        forceCapitalize -> originalInputType or InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
+        forceCapitalize -> originalInputType
+            .xor(TYPE_TEXT_FLAG_CAP_SENTENCES)
+            .or(TYPE_TEXT_FLAG_CAP_CHARACTERS)
         else -> originalInputType
       }
 
@@ -51,7 +55,7 @@ object CapitalizeOnHeadingStart {
       }
     }
     editText.addTextChangedListener(AfterTextChange { text ->
-      text.setSpan(spanWatcher, 0, text.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+      text.setSpan(spanWatcher, 0, text.length, SPAN_INCLUSIVE_INCLUSIVE)
     })
   }
 }
