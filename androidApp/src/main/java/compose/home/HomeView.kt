@@ -10,6 +10,7 @@ import com.benasher44.uuid.Uuid
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.detaches
+import com.soywiz.klock.seconds
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
@@ -18,9 +19,11 @@ import compose.editor.EditorView
 import compose.theme.themeAware
 import compose.theme.themed
 import compose.util.heightOf
+import compose.util.throttleFirst
 import compose.widgets.BackpressInterceptResult
 import compose.widgets.BackpressInterceptResult.IGNORED
 import compose.widgets.BackpressInterceptResult.INTERCEPTED
+import compose.widgets.addStateChangeCallbacks
 import compose.widgets.attr
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.compose.R
@@ -36,8 +39,6 @@ import me.saket.compose.shared.uiModels
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.dimming.TintPainter
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
-import me.saket.inboxrecyclerview.page.SimplePageStateChangeCallbacks
-import timber.log.Timber
 
 class HomeView @AssistedInject constructor(
   @Assisted context: Context,
@@ -128,29 +129,24 @@ class HomeView @AssistedInject constructor(
       editorView
     }
 
-    noteAdapter.onNoteClicked = { noteModel ->
-      Timber.i("Note clicked: $noteModel. Inflating EditorView.")
-      if (noteEditorPage.childCount != 0) error("Multiple EditorViews? :O")
-
-      val editorView = createEditorView(noteModel.noteUuid)
-      noteEditorPage.addView(editorView)
-      noteEditorPage.addStateChangeCallbacks(
-          ToggleKeyboardOnPageStateChange(editorView.editorEditText)
-      )
-      noteEditorPage.addStateChangeCallbacks(object : SimplePageStateChangeCallbacks() {
-        override fun onPageCollapsed() {
-          noteEditorPage.removeStateChangeCallbacks(this)
-          noteEditorPage.removeView(editorView)
+    noteAdapter.noteClicks
+        .throttleFirst(1.seconds, mainThread())
+        .takeUntil(detaches())
+        .subscribe { noteModel ->
+          with(createEditorView(noteModel.noteUuid)) {
+            noteEditorPage.addView(this)
+            noteEditorPage.addStateChangeCallbacks(ToggleKeyboardOnPageStateChange(editorEditText))
+          }
+          noteEditorPage.post {
+            notesList.expandItem(itemId = noteModel.adapterId)
+          }
         }
-      })
 
-      noteEditorPage.post {
-        notesList.expandItem(itemId = noteModel.adapterId)
-      }
-    }
-
-    noteEditorPage.addStateChangeCallbacks(ToggleFabOnPageStateChange(newNoteFab))
-    noteEditorPage.addStateChangeCallbacks(ToggleSoftInputModeOnPageStateChange(activity.window))
+    noteEditorPage.addStateChangeCallbacks(
+        ToggleFabOnPageStateChange(newNoteFab),
+        RemoveChildrenOnPageCollapse(noteEditorPage),
+        ToggleSoftInputModeOnPageStateChange(activity.window)
+    )
   }
 
   private fun render(model: HomeUiModel) {

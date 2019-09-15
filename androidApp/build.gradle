@@ -58,6 +58,7 @@ dependencies {
   kapt deps.assistedInject.processor
   implementation deps.kNativeUuid
   implementation deps.inboxRecyclerView
+  implementation deps.klock.android
 
   debugImplementation deps.flipper.debug.core
   debugImplementation deps.flipper.debug.soLoader
