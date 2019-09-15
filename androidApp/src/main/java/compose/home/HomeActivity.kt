@@ -2,7 +2,7 @@ package compose.home
 
 import android.os.Bundle
 import compose.ComposeApp
-import compose.widgets.BackpressInterceptResult.IGNORED
+import compose.widgets.BackPressInterceptResult.BACK_PRESS_IGNORED
 import compose.widgets.ThemeAwareActivity
 import javax.inject.Inject
 import kotlin.LazyThreadSafetyMode.NONE
@@ -20,7 +20,7 @@ class HomeActivity : ThemeAwareActivity() {
   }
 
   override fun onBackPressed() {
-    if (homeView.offerBackPress() == IGNORED) {
+    if (homeView.offerBackPress() == BACK_PRESS_IGNORED) {
       super.onBackPressed()
     }
   }

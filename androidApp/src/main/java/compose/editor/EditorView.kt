@@ -74,7 +74,7 @@ class EditorView @AssistedInject constructor(
     )
   }
 
-  private val scrollView = themed(ScrollView(context)).apply {
+  internal val scrollView = themed(ScrollView(context)).apply {
     isFillViewport = true
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },

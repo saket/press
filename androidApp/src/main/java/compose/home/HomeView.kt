@@ -2,6 +2,7 @@ package compose.home
 
 import android.app.Activity
 import android.content.Context
+import android.view.View
 import android.view.animation.PathInterpolator
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat.startActivity
@@ -20,9 +21,9 @@ import compose.theme.themeAware
 import compose.theme.themed
 import compose.util.heightOf
 import compose.util.throttleFirst
-import compose.widgets.BackpressInterceptResult
-import compose.widgets.BackpressInterceptResult.IGNORED
-import compose.widgets.BackpressInterceptResult.INTERCEPTED
+import compose.widgets.BackPressInterceptResult
+import compose.widgets.BackPressInterceptResult.BACK_PRESS_IGNORED
+import compose.widgets.BackPressInterceptResult.BACK_PRESS_INTERCEPTED
 import compose.widgets.addStateChangeCallbacks
 import compose.widgets.attr
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
@@ -39,6 +40,9 @@ import me.saket.compose.shared.uiModels
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.dimming.TintPainter
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
+import me.saket.inboxrecyclerview.page.InterceptResult.IGNORED
+import me.saket.inboxrecyclerview.page.InterceptResult.INTERCEPTED
+import me.saket.inboxrecyclerview.page.OnPullToCollapseInterceptor
 
 class HomeView @AssistedInject constructor(
   @Assisted context: Context,
@@ -136,6 +140,7 @@ class HomeView @AssistedInject constructor(
           with(createEditorView(noteModel.noteUuid)) {
             noteEditorPage.addView(this)
             noteEditorPage.addStateChangeCallbacks(ToggleKeyboardOnPageStateChange(editorEditText))
+            noteEditorPage.pullToCollapseInterceptor = interceptIfViewCanBeScrolled(scrollView)
           }
           noteEditorPage.post {
             notesList.expandItem(itemId = noteModel.adapterId)
@@ -147,6 +152,14 @@ class HomeView @AssistedInject constructor(
         RemoveChildrenOnPageCollapse(noteEditorPage),
         ToggleSoftInputModeOnPageStateChange(activity.window)
     )
+  }
+
+  private fun interceptIfViewCanBeScrolled(view: View): OnPullToCollapseInterceptor {
+    return { _, _, upwardPull ->
+      val directionInt = if (upwardPull) +1 else -1
+      val canScrollFurther = view.canScrollVertically(directionInt)
+      if (canScrollFurther) INTERCEPTED else IGNORED
+    }
   }
 
   private fun render(model: HomeUiModel) {
@@ -162,12 +175,12 @@ class HomeView @AssistedInject constructor(
     startActivity(context, intent, options.toBundle())
   }
 
-  fun offerBackPress(): BackpressInterceptResult {
+  fun offerBackPress(): BackPressInterceptResult {
     return if (noteEditorPage.isExpandedOrExpanding) {
       notesList.collapse()
-      INTERCEPTED
+      BACK_PRESS_INTERCEPTED
     } else {
-      IGNORED
+      BACK_PRESS_IGNORED
     }
   }
 
