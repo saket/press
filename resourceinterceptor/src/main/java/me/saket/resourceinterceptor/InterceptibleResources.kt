@@ -2,31 +2,42 @@ package me.saket.resourceinterceptor
 
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
+import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import java.util.Stack
 
+private typealias ResourceId = Int
+
 class InterceptibleResources(private val base: Resources) : ResourcesWrapper(base) {
-  private val idsBeingIntercepted = Stack<Int>()
-  private val interceptors = mutableMapOf<Int, DrawableInterceptor>()
+  private val idsBeingIntercepted = Stack<ResourceId>()
+  private val drawableInterceptors = mutableMapOf<ResourceId, DrawableInterceptor>()
+  private val colorInterceptors = mutableMapOf<ResourceId, ColorInterceptor>()
 
-  fun setInterceptor(@DrawableRes resId: Int, interceptor: DrawableInterceptor) {
-    interceptors[resId] = interceptor
+  fun setInterceptor(@DrawableRes resId: ResourceId, interceptor: DrawableInterceptor) {
+    drawableInterceptors[resId] = interceptor
   }
 
-  fun removeInterceptor(@DrawableRes resId: Int) {
-    interceptors.remove(resId)
+  fun setInterceptor(@ColorRes resId: ResourceId, interceptor: ColorInterceptor) {
+    colorInterceptors[resId] = interceptor
   }
 
-  override fun getDrawable(id: Int, theme: Theme) = interceptOrGetDrawable(id, theme)
-  override fun getDrawable(id: Int) = interceptOrGetDrawable(id, theme = null)
+  fun removeInterceptor(resId: ResourceId) {
+    drawableInterceptors.remove(resId)
+  }
 
-  private fun interceptOrGetDrawable(@DrawableRes resId: Int, theme: Theme?): Drawable? {
-    val interceptor = interceptors[resId]
+  override fun getDrawable(id: ResourceId, theme: Theme) = interceptOrGetDrawable(id, theme)
+  override fun getDrawable(id: ResourceId) = interceptOrGetDrawable(id, theme = null)
+
+  override fun getColor(id: ResourceId, theme: Theme?) = interceptOrGetColor(id, theme)
+  override fun getColor(id: ResourceId) = interceptOrGetColor(id, theme = null)
+
+  private fun interceptOrGetDrawable(@DrawableRes resId: ResourceId, theme: Theme?): Drawable? {
+    val interceptor = drawableInterceptors[resId]
     var intercepted: Drawable? = null
 
     if (interceptor != null) {
       avoidInfiniteLoop(resId) {
-        val systemDrawable: () -> Drawable? = { baseDrawable(resId, theme) }
+        val systemDrawable: () -> Drawable = { baseDrawable(resId, theme)!! }
         intercepted = interceptor(systemDrawable)
       }
     }
@@ -34,13 +45,34 @@ class InterceptibleResources(private val base: Resources) : ResourcesWrapper(bas
     return intercepted ?: baseDrawable(resId, theme)
   }
 
-  private fun baseDrawable(@DrawableRes resId: Int, theme: Theme?): Drawable? =
+  private fun baseDrawable(@DrawableRes resId: ResourceId, theme: Theme?): Drawable? =
     when (theme) {
       null -> base.getDrawable(resId)
       else -> base.getDrawable(resId, theme)
     }
 
-  private inline fun avoidInfiniteLoop(resId: Int, block: () -> Unit) {
+  private fun interceptOrGetColor(@ColorRes resId: ResourceId, theme: Theme?): Int {
+    val interceptor = colorInterceptors[resId]
+    var intercepted: Int? = null
+
+    if (interceptor != null) {
+      avoidInfiniteLoop(resId) {
+        val systemInt: () -> Int = { baseColor(resId, theme) }
+        intercepted = interceptor(systemInt)
+      }
+    }
+
+    return intercepted ?: baseColor(resId, theme)
+  }
+
+  private fun baseColor(@ColorRes resId: ResourceId, theme: Theme?): Int {
+    return when (theme) {
+      null -> base.getColor(resId)
+      else -> base.getColor(resId, theme)
+    }
+  }
+
+  private inline fun avoidInfiniteLoop(resId: ResourceId, block: () -> Unit) {
     if (resId in idsBeingIntercepted) {
       return
     }
