@@ -37,6 +37,7 @@ import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.dimming.TintPainter
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.SimplePageStateChangeCallbacks
+import timber.log.Timber
 
 class HomeView @AssistedInject constructor(
   @Assisted context: Context,
@@ -44,6 +45,8 @@ class HomeView @AssistedInject constructor(
   private val presenter: HomePresenter.Factory,
   private val editorViewFactory: EditorView.Factory
 ) : ContourLayout(context) {
+
+  private val activity = context as Activity
 
   private val notesList = themed(InboxRecyclerView(context)).apply {
     layoutManager = LinearLayoutManager(context)
@@ -87,7 +90,6 @@ class HomeView @AssistedInject constructor(
 
   init {
     setupNoteEditorPage()
-    noteEditorPage.addStateChangeCallbacks(ToggleFabOnPageStateChange(newNoteFab))
   }
 
   override fun onAttachedToWindow() {
@@ -123,7 +125,15 @@ class HomeView @AssistedInject constructor(
           openMode = ExistingNote(noteUuid),
           navigator = editorNavigator
       )
+      editorView
+    }
 
+    noteAdapter.onNoteClicked = { noteModel ->
+      Timber.i("Note clicked: $noteModel. Inflating EditorView.")
+      if (noteEditorPage.childCount != 0) error("Multiple EditorViews? :O")
+
+      val editorView = createEditorView(noteModel.noteUuid)
+      noteEditorPage.addView(editorView)
       noteEditorPage.addStateChangeCallbacks(
           ToggleKeyboardOnPageStateChange(editorView.editorEditText)
       )
@@ -134,16 +144,13 @@ class HomeView @AssistedInject constructor(
         }
       })
 
-      editorView
-    }
-
-    noteAdapter.onNoteClicked = { noteModel ->
-      val editorView = createEditorView(noteModel.noteUuid)
-      noteEditorPage.addView(editorView)
       noteEditorPage.post {
         notesList.expandItem(itemId = noteModel.adapterId)
       }
     }
+
+    noteEditorPage.addStateChangeCallbacks(ToggleFabOnPageStateChange(newNoteFab))
+    noteEditorPage.addStateChangeCallbacks(ToggleSoftInputModeOnPageStateChange(activity.window))
   }
 
   private fun render(model: HomeUiModel) {
@@ -152,7 +159,7 @@ class HomeView @AssistedInject constructor(
 
   private fun openNewNoteScreen() {
     val (intent, options) = EditorActivity.intentWithFabTransform(
-        activity = context as Activity,
+        activity = activity,
         fab = newNoteFab,
         fabIconRes = R.drawable.ic_note_add_24dp
     )
