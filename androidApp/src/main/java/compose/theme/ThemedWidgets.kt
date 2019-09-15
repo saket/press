@@ -25,7 +25,6 @@ import compose.widgets.PorterDuffColorFilterWrapper
 import compose.widgets.dp
 import compose.widgets.findTitleView
 import compose.widgets.textColor
-import me.saket.compose.R
 import me.saket.compose.shared.theme.ThemePalette
 
 fun themePalette() = ComposeApp.component.themePalette()
@@ -46,8 +45,6 @@ fun AppCompatActivity.themeAware(onThemeChange: (ThemePalette) -> Unit) {
 fun themed(view: TextView): TextView = view
 
 fun themed(view: EditText) = view.apply {
-  val cursorDrawableRes = reflect(TextView::class, "mCursorDrawableRes")
-  cursorDrawableRes.set(view, R.drawable.tinted_cursor_drawable)
   val selectionHandleDrawables = EditTextSelectionHandleReflection.find(this)
 
   themeAware { palette ->
