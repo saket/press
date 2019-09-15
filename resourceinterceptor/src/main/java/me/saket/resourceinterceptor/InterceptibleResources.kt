@@ -37,8 +37,8 @@ class InterceptibleResources(private val base: Resources) : ResourcesWrapper(bas
 
     if (interceptor != null) {
       avoidInfiniteLoop(resId) {
-        val systemDrawable: () -> Drawable = { baseDrawable(resId, theme)!! }
-        intercepted = interceptor(systemDrawable)
+        val systemDrawable = { baseDrawable(resId, theme)!! }
+        intercepted = interceptor.intercept(systemDrawable)
       }
     }
 
@@ -57,8 +57,8 @@ class InterceptibleResources(private val base: Resources) : ResourcesWrapper(bas
 
     if (interceptor != null) {
       avoidInfiniteLoop(resId) {
-        val systemInt: () -> Int = { baseColor(resId, theme) }
-        intercepted = interceptor(systemInt)
+        val systemColor = { baseColor(resId, theme) }
+        intercepted = interceptor.intercept(systemColor)
       }
     }
 

@@ -4,6 +4,12 @@ import android.graphics.drawable.Drawable
 
 typealias SystemDrawable = () -> Drawable
 
-class DrawableInterceptor(val interceptor: (SystemDrawable) -> Drawable?) {
-  operator fun invoke(systemDrawable: SystemDrawable) = interceptor(systemDrawable)
+interface DrawableInterceptor {
+  fun intercept(systemDrawable: SystemDrawable): Drawable?
+}
+
+fun DrawableInterceptor(interceptor: (SystemDrawable) -> Drawable?): DrawableInterceptor {
+  return object : DrawableInterceptor {
+    override fun intercept(systemDrawable: SystemDrawable) = interceptor(systemDrawable)
+  }
 }

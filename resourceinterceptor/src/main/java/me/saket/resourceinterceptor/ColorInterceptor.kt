@@ -1,7 +1,13 @@
 package me.saket.resourceinterceptor
 
-typealias SystemColor = () -> Int?
+typealias SystemColor = () -> Int
 
-class ColorInterceptor(val interceptor: (SystemColor) -> Int) {
-  operator fun invoke(systemColor: SystemColor) = interceptor(systemColor)
+interface ColorInterceptor {
+  fun intercept(systemColor: SystemColor): Int
+}
+
+fun ColorInterceptor(interceptor: (SystemColor) -> Int): ColorInterceptor {
+  return object : ColorInterceptor {
+    override fun intercept(systemColor: SystemColor) = interceptor(systemColor)
+  }
 }
