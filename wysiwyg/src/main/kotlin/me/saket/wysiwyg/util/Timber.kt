@@ -5,7 +5,7 @@ import timber.log.Timber as JwTimber
 
 @Suppress("NOTHING_TO_INLINE")
 @SuppressLint("LogNotTimber")
-actual object Timber {
+internal actual object Timber {
 
   actual inline fun i(message: String) {
     JwTimber.i(message)
