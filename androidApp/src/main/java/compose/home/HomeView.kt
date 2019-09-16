@@ -27,6 +27,7 @@ import compose.widgets.BackPressInterceptResult.BACK_PRESS_IGNORED
 import compose.widgets.BackPressInterceptResult.BACK_PRESS_INTERCEPTED
 import compose.widgets.addStateChangeCallbacks
 import compose.widgets.attr
+import compose.widgets.locationOnScreen
 import compose.widgets.suspendWhileExpanded
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.compose.R
@@ -157,10 +158,16 @@ class HomeView @AssistedInject constructor(
   }
 
   private fun interceptIfViewCanBeScrolled(view: View): OnPullToCollapseInterceptor {
-    return { _, _, upwardPull ->
-      val directionInt = if (upwardPull) +1 else -1
-      val canScrollFurther = view.canScrollVertically(directionInt)
-      if (canScrollFurther) INTERCEPTED else IGNORED
+    return { downX, downY, upwardPull ->
+      val touchLiesOnView = view.locationOnScreen().contains(downX.toInt(), downY.toInt())
+
+      if (touchLiesOnView) {
+        val directionInt = if (upwardPull) +1 else -1
+        val canScrollFurther = view.canScrollVertically(directionInt)
+        if (canScrollFurther) INTERCEPTED else IGNORED
+      } else {
+        IGNORED
+      }
     }
   }
 

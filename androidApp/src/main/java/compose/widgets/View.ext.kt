@@ -1,5 +1,6 @@
 package compose.widgets
 
+import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.os.Build.VERSION.SDK_INT
 import android.util.TypedValue.COMPLEX_UNIT_PX
@@ -81,4 +82,10 @@ fun EditText.showKeyboard(): Boolean {
 fun View.hideKeyboard() {
   val inputManager = context.getSystemService(InputMethodManager::class.java)
   inputManager.hideSoftInputFromWindow(windowToken, 0)
+}
+
+fun View.locationOnScreen(): Rect {
+  val loc = IntArray(2)
+  getLocationOnScreen(loc)
+  return Rect(loc[0], loc[1], loc[0] + width, loc[1] + height)
 }
