@@ -46,7 +46,6 @@ import me.saket.compose.shared.editor.EditorUiModel
 import me.saket.compose.shared.editor.EditorUiUpdate
 import me.saket.compose.shared.editor.EditorUiUpdate.CloseNote
 import me.saket.compose.shared.editor.EditorUiUpdate.PopulateContent
-import me.saket.compose.shared.localization.Strings
 import me.saket.compose.shared.navigation.Navigator
 import me.saket.compose.shared.navigation.ScreenKey.Back
 import me.saket.compose.shared.uiModels
@@ -62,8 +61,7 @@ class EditorView @AssistedInject constructor(
   @Assisted context: Context,
   @Assisted openMode: EditorOpenMode,
   @Assisted private val navigator: Navigator,
-  presenterFactory: EditorPresenter.Factory,
-  strings: Strings.Editor
+  presenterFactory: EditorPresenter.Factory
 ) : ContourLayout(context) {
 
   private val toolbar = themed(Toolbar(context)).apply {

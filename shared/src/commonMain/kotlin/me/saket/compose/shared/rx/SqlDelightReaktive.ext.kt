@@ -1,4 +1,4 @@
-package me.saket.compose.shared.db
+package me.saket.compose.shared.rx
 
 import co.touchlab.stately.concurrency.AtomicBoolean
 import co.touchlab.stately.concurrency.AtomicReference

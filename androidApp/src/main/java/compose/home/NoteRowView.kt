@@ -1,17 +1,14 @@
 package compose.home
 
+import android.animation.AnimatorInflater.loadStateListAnimator
 import android.content.Context
-import android.graphics.drawable.ColorDrawable
 import android.text.TextUtils.TruncateAt.END
-import android.view.View
 import android.widget.TextView
 import com.squareup.contour.ContourLayout
 import compose.theme.themeAware
 import compose.theme.themed
-import compose.util.y
-import compose.widgets.attr
-import compose.widgets.setBackground
 import compose.widgets.textColor
+import me.saket.compose.R.animator
 import me.saket.compose.shared.home.HomeUiModel
 import me.saket.compose.shared.theme.toColor
 
@@ -43,19 +40,13 @@ class NoteRowView(context: Context) : ContourLayout(context) {
     )
   }
 
-  private val separatorView = View(context).apply {
-    background = ColorDrawable("#62677C".toColor()) // TODO: get color from theme.
-    applyLayout(
-        x = leftTo { parent.left() }.rightTo { parent.right() },
-        y = topTo { bodyView.bottom() + 16.dip }.heightOf { 1.dip.y }
-    )
-  }
-
   lateinit var noteModel: HomeUiModel.Note
 
   init {
-    contourHeightOf { separatorView.bottom() }
-    setBackground(attr(android.R.attr.selectableItemBackground))
+    contourHeightOf { bodyView.bottom() + 16.dip }
+
+    stateListAnimator = loadStateListAnimator(context, animator.thread_elevation_stateanimator)
+    themeAware { setBackgroundColor("#393c4b".toColor()) }  // White with 2% opacity. 
   }
 
   fun render(noteModel: HomeUiModel.Note) {

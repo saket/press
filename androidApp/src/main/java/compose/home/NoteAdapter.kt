@@ -21,9 +21,9 @@ class NoteAdapter @Inject constructor() : ListAdapter<HomeUiModel.Note, NoteVH>(
     getItem(position).adapterId
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-    NoteVH(NoteRowView(parent.context)).apply {
-      view.setOnClickListener { _noteClicks.onNext(view.noteModel) }
-    }
+    NoteVH(NoteRowView(parent.context).apply {
+      setOnClickListener { _noteClicks.onNext(noteModel) }
+    })
 
   override fun onBindViewHolder(holder: NoteVH, position: Int) {
     holder.view.render(getItem(position))

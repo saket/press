@@ -7,9 +7,9 @@ import com.badoo.reaktive.scheduler.Scheduler
 import com.benasher44.uuid.Uuid
 import me.saket.compose.data.shared.Note
 import me.saket.compose.data.shared.NoteQueries
-import me.saket.compose.shared.db.asObservable
-import me.saket.compose.shared.db.mapToList
-import me.saket.compose.shared.db.mapToOneOrOptional
+import me.saket.compose.shared.rx.asObservable
+import me.saket.compose.shared.rx.mapToList
+import me.saket.compose.shared.rx.mapToOneOrOptional
 import me.saket.compose.shared.time.Clock
 import me.saket.compose.shared.util.Optional
 

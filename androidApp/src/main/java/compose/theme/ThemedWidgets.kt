@@ -20,7 +20,7 @@ import com.jakewharton.rxbinding3.view.detaches
 import compose.ComposeApp
 import compose.util.onDestroys
 import compose.util.reflect
-import compose.util.setOpacity
+import compose.util.withOpacity
 import compose.widgets.PorterDuffColorFilterWrapper
 import compose.widgets.dp
 import compose.widgets.findTitleView
@@ -49,7 +49,7 @@ fun themed(view: EditText) = view.apply {
 
   themeAware { palette ->
     selectionHandleDrawables.forEach { it.setColorFilter(palette.accentColor, SRC_IN) }
-    highlightColor = palette.accentColor.setOpacity(0.3f)
+    highlightColor = palette.accentColor.withOpacity(0.3f)
   }
 }
 

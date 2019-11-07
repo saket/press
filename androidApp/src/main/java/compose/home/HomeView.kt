@@ -25,6 +25,7 @@ import compose.util.throttleFirst
 import compose.widgets.BackPressInterceptResult
 import compose.widgets.BackPressInterceptResult.BACK_PRESS_IGNORED
 import compose.widgets.BackPressInterceptResult.BACK_PRESS_INTERCEPTED
+import compose.widgets.SpacingBetweenItemsDecoration
 import compose.widgets.addStateChangeCallbacks
 import compose.widgets.attr
 import compose.widgets.locationOnScreen
@@ -61,6 +62,7 @@ class HomeView @AssistedInject constructor(
     adapter = noteAdapter
     tintPainter = TintPainter.uncoveredArea()
     itemAnimator = AlphaInAnimator()
+    addItemDecoration(SpacingBetweenItemsDecoration(2.dip))
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
         y = topTo { toolbar.bottom() }.bottomTo { parent.bottom() }
