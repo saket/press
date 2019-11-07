@@ -1,12 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:tools="http://schemas.android.com/tools"
-  package="me.saket.compose">
+  package="me.saket.press">
 
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
   <application
-    android:name="compose.ReleaseComposeApp"
+    android:name="press.ReleaseApp"
     android:allowBackup="true"
     android:icon="@mipmap/ic_launcher"
     android:label="@string/app_name"
@@ -15,7 +15,7 @@
     android:theme="@style/AppTheme"
     tools:ignore="AllowBackup,GoogleAppIndexingWarning">
 
-    <activity android:name="compose.home.HomeActivity">
+    <activity android:name="press.home.HomeActivity">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
@@ -23,7 +23,7 @@
     </activity>
 
     <activity
-      android:name="compose.editor.EditorActivity"
+      android:name="press.editor.EditorActivity"
       android:theme="@style/AppTheme.TransparentWindow"
       android:windowSoftInputMode="adjustResize" />
   </application>

@@ -59,7 +59,7 @@ kotlin {
   cocoapods {
     // Configure fields required by CocoaPods.
     summary = "Wysiwyg"
-    homepage = "https://github.com/saket/compose"
+    homepage = "https://github.com/saket/press"
   }
 }
 

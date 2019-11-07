@@ -6,7 +6,7 @@ apply plugin: 'kotlin-kapt'
 android {
   compileSdkVersion projectVersions.compileSdk
   defaultConfig {
-    applicationId "me.saket.compose"
+    applicationId "me.saket.press"
     minSdkVersion projectVersions.minSdk
     targetSdkVersion projectVersions.compileSdk
     versionCode 1

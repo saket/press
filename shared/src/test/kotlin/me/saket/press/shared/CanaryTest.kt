@@ -1,0 +1,11 @@
+package me.saket.press.shared
+
+import org.junit.Test
+import kotlin.test.assertEquals
+
+class CanaryTest {
+
+  @Test fun foo() {
+    assertEquals(Platform.name, "Android")
+  }
+}

@@ -2,7 +2,7 @@ package time
 
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.TimezoneOffset
-import me.saket.compose.shared.time.Clock
+import me.saket.press.shared.time.Clock
 
 class FakeClock(
   private val utc: DateTime = DateTime.EPOCH,
