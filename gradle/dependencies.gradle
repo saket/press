@@ -87,7 +87,7 @@ buildscript {
               'common': "org.jetbrains.kotlin:kotlin-stdlib-common:${versions.kotlin}",
           ],
       ],
-      'contour': 'com.github.cashapp:contour:3b067858ff',
+      'contour': 'app.cash.contour:contour:0.1.5-SNAPSHOT',
       'flexmark': [
           'core': "com.vladsch.flexmark:flexmark-java:$versions.flexmark",
           'strikethrough': "com.vladsch.flexmark:flexmark-ext-gfm-strikethrough:$versions.flexmark"
