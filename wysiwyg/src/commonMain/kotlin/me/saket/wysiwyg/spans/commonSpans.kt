@@ -12,3 +12,4 @@ expect fun SpanPool.indentedCodeBlock(): WysiwygSpan
 expect fun SpanPool.quote(): WysiwygSpan
 expect fun SpanPool.leadingMargin(margin: Int): WysiwygSpan
 expect fun SpanPool.heading(level: HeadingLevel): WysiwygSpan
+expect fun SpanPool.paragraphBreak(): WysiwygSpan

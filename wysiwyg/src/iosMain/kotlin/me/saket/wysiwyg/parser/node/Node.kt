@@ -53,3 +53,5 @@ actual class Heading : Block()
 actual val Heading.isAtxHeading: Boolean get() = TODO()
 actual val Heading.headingLevel: HeadingLevel get() = TODO()
 actual val Heading.openingMarker: CharSequence get() = TODO()
+
+actual class Paragraph : Block()

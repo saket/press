@@ -12,6 +12,7 @@ import me.saket.wysiwyg.parser.node.Link
 import me.saket.wysiwyg.parser.node.Node
 import me.saket.wysiwyg.parser.node.OrderedList
 import me.saket.wysiwyg.parser.node.OrderedListItem
+import me.saket.wysiwyg.parser.node.Paragraph
 import me.saket.wysiwyg.parser.node.Strikethrough
 import me.saket.wysiwyg.parser.node.StrongEmphasis
 import me.saket.wysiwyg.parser.node.ThematicBreak
@@ -43,6 +44,7 @@ class SyntaxHighlighters {
     add(BulletListItem::class, BulletListItemVisitor())
     add(ThematicBreak::class, ThematicBreakVisitor())
     add(Heading::class, HeadingVisitor())
+    add(Paragraph::class, ParagraphVisitor())
   }
 
   /**
@@ -50,13 +52,14 @@ class SyntaxHighlighters {
    * [SyntaxHighlighter] are allowed to have a missing visitor, this tries finds
    * the first NodeVisitor that can read [node].
    */
-  @Suppress("UNCHECKED_CAST")
   fun nodeVisitor(node: Node): NodeVisitor<Node> {
+    @Suppress("UNCHECKED_CAST")
     val nodeHighlighters = highlighters[node::class] as List<SyntaxHighlighter<Node>>?
 
     if (nodeHighlighters != null) {
       // Intentionally using for-i loop instead of for-each or
       // anything else that creates a new Iterator under the hood.
+      @Suppress("ReplaceManualRangeWithIndicesCalls")
       for (i in 0 until nodeHighlighters.size) {
         val nodeVisitor = nodeHighlighters[i].visitor(node)
         if (nodeVisitor != null) {
