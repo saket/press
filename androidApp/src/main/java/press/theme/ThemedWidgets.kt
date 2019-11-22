@@ -11,6 +11,7 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.ColorUtils.blendARGB
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory
@@ -26,6 +27,7 @@ import press.widgets.dp
 import press.widgets.findTitleView
 import press.widgets.textColor
 import me.saket.press.shared.theme.ThemePalette
+import me.saket.press.R
 
 fun themePalette() = App.component.themePalette()
 
@@ -42,9 +44,12 @@ fun AppCompatActivity.themeAware(onThemeChange: (ThemePalette) -> Unit) {
       .subscribe { onThemeChange(it) }
 }
 
-fun themed(view: TextView): TextView = view
+fun themed(view: TextView): TextView = view.apply {
+  typeface = ResourcesCompat.getFont(context, R.font.work_sans_regular)
+}
 
 fun themed(view: EditText) = view.apply {
+  typeface = ResourcesCompat.getFont(context, R.font.work_sans_regular)
   val selectionHandleDrawables = EditTextSelectionHandleReflection.find(this)
 
   themeAware { palette ->
@@ -73,10 +78,13 @@ fun <T : RecyclerView> themed(view: T) = view.apply {
 }
 
 fun themed(toolbar: Toolbar) = toolbar.apply {
+  val titleView = findTitleView()
+  titleView.typeface = ResourcesCompat.getFont(context, R.font.work_sans_bold)
+
   themeAware {
     background = ColorDrawable(it.primaryColor)
     elevation = dp(4f)
-    findTitleView().textColor = it.accentColor
+    titleView.textColor = it.accentColor
   }
 }
 

@@ -4,7 +4,9 @@ import android.animation.AnimatorInflater.loadStateListAnimator
 import android.content.Context
 import android.text.TextUtils.TruncateAt.END
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import com.squareup.contour.ContourLayout
+import me.saket.press.R
 import press.theme.themeAware
 import press.theme.themed
 import press.widgets.textColor
@@ -18,6 +20,7 @@ class NoteRowView(context: Context) : ContourLayout(context) {
     textSize = 16f
     maxLines = 1
     ellipsize = END
+    typeface = ResourcesCompat.getFont(context, R.font.work_sans_bold)
     themeAware {
       textColor = it.textColorHeading
     }
@@ -28,7 +31,7 @@ class NoteRowView(context: Context) : ContourLayout(context) {
   }
 
   private val bodyView = themed(TextView(context)).apply {
-    textSize = 16f
+    textSize = 15f
     maxLines = 2
     ellipsize = END
     themeAware {

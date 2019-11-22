@@ -89,6 +89,7 @@ class EditorView @AssistedInject constructor(
         TYPE_TEXT_FLAG_MULTI_LINE or
         TYPE_TEXT_FLAG_NO_SUGGESTIONS
     padding = 16.dip
+    textSize = 16f
     CapitalizeOnHeadingStart.capitalize(this)
     fromOreo {
       importantForAutofill = IMPORTANT_FOR_AUTOFILL_NO
@@ -98,7 +99,7 @@ class EditorView @AssistedInject constructor(
     }
   }
 
-  private val headingHintTextView = TextView(context).apply {
+  private val headingHintTextView = themed(TextView(context)).apply {
     textSizePx = editorEditText.textSize
     themeAware {
       textColor = blendARGB(it.window.backgroundColor, WHITE, 0.50f)
