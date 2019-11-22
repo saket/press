@@ -2,6 +2,8 @@ package press.home
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.Color
+import android.graphics.Color.BLACK
 import android.view.View
 import android.view.animation.PathInterpolator
 import androidx.appcompat.widget.Toolbar
@@ -61,7 +63,7 @@ class HomeView @AssistedInject constructor(
   private val notesList = themed(InboxRecyclerView(context)).apply {
     layoutManager = LinearLayoutManager(context)
     adapter = noteAdapter
-    tintPainter = TintPainter.uncoveredArea()
+    tintPainter = TintPainter.uncoveredArea(color = BLACK, opacity = 0.25f)
     itemAnimator = AlphaInAnimator()
     addItemDecoration(SpacingBetweenItemsDecoration(2.dip))
     applyLayout(
@@ -90,6 +92,7 @@ class HomeView @AssistedInject constructor(
     notesList.expandablePage = this
     elevation = 20f.dip
     animationInterpolator = PathInterpolator(0.5f, 0f, 0f, 1f)
+    animationDurationMillis = 350
     pushParentToolbarOnExpand(toolbar)
     themeAware {
       setBackgroundColor(it.window.backgroundColor)
