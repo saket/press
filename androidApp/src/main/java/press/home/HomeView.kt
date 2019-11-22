@@ -45,6 +45,7 @@ import press.widgets.BackPressInterceptResult.BACK_PRESS_INTERCEPTED
 import press.widgets.SpacingBetweenItemsDecoration
 import press.widgets.addStateChangeCallbacks
 import press.widgets.attr
+import press.widgets.doOnNextCollapse
 import press.widgets.locationOnScreen
 import press.widgets.suspendWhileExpanded
 
@@ -130,23 +131,27 @@ class HomeView @AssistedInject constructor(
           else -> error("Unhandled $screen")
         }
       }
-      val editorView = editorViewFactory.create(
+      editorViewFactory.create(
           context = context,
           openMode = ExistingNote(noteUuid),
           navigator = editorNavigator
       )
-      editorView
     }
 
     noteAdapter.noteClicks
         .throttleFirst(1.seconds, mainThread())
         .takeUntil(detaches())
         .subscribe { noteModel ->
-          with(createEditorView(noteModel.noteUuid)) {
-            noteEditorPage.addView(this)
-            noteEditorPage.addStateChangeCallbacks(ToggleKeyboardOnPageStateChange(editorEditText))
-            noteEditorPage.pullToCollapseInterceptor = interceptIfViewCanBeScrolled(scrollView)
-          }
+          val editorView = createEditorView(noteModel.noteUuid)
+          noteEditorPage.addView(editorView)
+          noteEditorPage.doOnNextCollapse { it.removeView(editorView) }
+
+          val keyboardToggle = ToggleKeyboardOnPageStateChange(editorView.editorEditText)
+          noteEditorPage.addStateChangeCallbacks(keyboardToggle)
+          noteEditorPage.doOnNextCollapse { it.removeStateChangeCallbacks(keyboardToggle) }
+
+          noteEditorPage.pullToCollapseInterceptor = interceptIfViewCanBeScrolled(editorView.scrollView)
+
           noteEditorPage.post {
             notesList.expandItem(itemId = noteModel.adapterId)
           }
@@ -154,7 +159,6 @@ class HomeView @AssistedInject constructor(
 
     noteEditorPage.addStateChangeCallbacks(
         ToggleFabOnPageStateChange(newNoteFab),
-        RemoveChildrenOnPageCollapse(noteEditorPage),
         ToggleSoftInputModeOnPageStateChange(activity.window)
     )
   }

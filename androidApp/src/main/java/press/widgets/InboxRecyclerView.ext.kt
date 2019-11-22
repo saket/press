@@ -10,6 +10,7 @@ import me.saket.inboxrecyclerview.page.ExpandablePageLayout.PageState.COLLAPSING
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout.PageState.EXPANDED
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout.PageState.EXPANDING
 import me.saket.inboxrecyclerview.page.PageStateChangeCallbacks
+import me.saket.inboxrecyclerview.page.SimplePageStateChangeCallbacks
 
 fun ExpandablePageLayout.addStateChangeCallbacks(
   first: PageStateChangeCallbacks,
@@ -54,4 +55,14 @@ internal fun ExpandablePageLayout.stateChanges(): Observable<PageState> {
     addStateChangeCallbacks(listener)
     emitter.setCancellable { removeStateChangeCallbacks(listener) }
   }
+}
+
+internal inline fun ExpandablePageLayout.doOnNextCollapse(crossinline block: (ExpandablePageLayout) -> Unit) {
+  val page = this
+  addStateChangeCallbacks(object : SimplePageStateChangeCallbacks() {
+    override fun onPageCollapsed() {
+      block(page)
+      removeStateChangeCallbacks(this)
+    }
+  })
 }
