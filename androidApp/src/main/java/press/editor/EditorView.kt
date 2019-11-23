@@ -48,6 +48,7 @@ import me.saket.press.shared.editor.EditorUiUpdate.CloseNote
 import me.saket.press.shared.editor.EditorUiUpdate.PopulateContent
 import me.saket.press.shared.navigation.Navigator
 import me.saket.press.shared.navigation.ScreenKey.Back
+import me.saket.press.shared.theme.toColor
 import me.saket.press.shared.uiModels
 import me.saket.press.shared.uiUpdates2
 import me.saket.wysiwyg.Wysiwyg
@@ -66,6 +67,9 @@ class EditorView @AssistedInject constructor(
 
   private val toolbar = themed(Toolbar(context)).apply {
     navigationIcon = getDrawable(context, drawable.ic_close_24dp)
+    themeAware {
+      setBackgroundColor(it.window.editorBackgroundColor)
+    }
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
         y = topTo { parent.top() }
@@ -117,8 +121,17 @@ class EditorView @AssistedInject constructor(
     scrollView.addView(editorEditText, MATCH_PARENT, WRAP_CONTENT)
     bringChildToFront(scrollView)
 
-    val wysiwyg = Wysiwyg(editorEditText, WysiwygTheme(DisplayUnits(context)))
-    editorEditText.addTextChangedListener(wysiwyg.syntaxHighlighter())
+    themeAware { palette ->
+      setBackgroundColor(palette.window.editorBackgroundColor)
+
+      // TODO: avoid recreating Wysiwg on every theme change to share the same span-pool.
+      val wysiwygTheme = WysiwygTheme(
+          displayUnits = DisplayUnits(context),
+          headingTextColor = palette.textColorHeading
+      )
+      val wysiwyg = Wysiwyg(editorEditText, wysiwygTheme)
+      editorEditText.addTextChangedListener(wysiwyg.syntaxHighlighter())
+    }
 
     toolbar.setNavigationOnClickListener {
       // TODO: detect if the keyboard is up and delay going back by

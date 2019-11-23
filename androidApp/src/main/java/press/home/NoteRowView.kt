@@ -7,12 +7,12 @@ import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import com.squareup.contour.ContourLayout
 import me.saket.press.R
-import press.theme.themeAware
-import press.theme.themed
-import press.widgets.textColor
 import me.saket.press.R.animator
 import me.saket.press.shared.home.HomeUiModel
 import me.saket.press.shared.theme.toColor
+import press.theme.themeAware
+import press.theme.themed
+import press.widgets.textColor
 
 class NoteRowView(context: Context) : ContourLayout(context) {
 
@@ -49,7 +49,10 @@ class NoteRowView(context: Context) : ContourLayout(context) {
     contourHeightOf { bodyView.bottom() + 16.dip }
 
     stateListAnimator = loadStateListAnimator(context, animator.thread_elevation_stateanimator)
-    themeAware { setBackgroundColor("#393c4b".toColor()) }  // White with 2% opacity.
+
+    themeAware {
+      setBackgroundColor(it.window.editorBackgroundColor)
+    }
   }
 
   fun render(noteModel: HomeUiModel.Note) {

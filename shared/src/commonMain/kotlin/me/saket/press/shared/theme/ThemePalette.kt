@@ -9,5 +9,8 @@ abstract class ThemePalette(
   val textColorSecondary: Int,
   val fabColor: Int
 ) {
-  data class WindowTheme(val backgroundColor: Int)
+  data class WindowTheme(
+    val backgroundColor: Int,
+    val editorBackgroundColor: Int
+  )
 }

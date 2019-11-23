@@ -83,7 +83,6 @@ fun themed(toolbar: Toolbar) = toolbar.apply {
 
   themeAware {
     background = ColorDrawable(it.primaryColor)
-    elevation = dp(4f)
     titleView.textColor = it.accentColor
   }
 }

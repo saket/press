@@ -2,7 +2,6 @@ package press.home
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.Color
 import android.graphics.Color.BLACK
 import android.view.View
 import android.view.animation.PathInterpolator
@@ -65,7 +64,7 @@ class HomeView @AssistedInject constructor(
     adapter = noteAdapter
     tintPainter = TintPainter.uncoveredArea(color = BLACK, opacity = 0.25f)
     itemAnimator = AlphaInAnimator()
-    addItemDecoration(SpacingBetweenItemsDecoration(2.dip))
+    addItemDecoration(SpacingBetweenItemsDecoration(1.dip))
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
         y = topTo { toolbar.bottom() }.bottomTo { parent.bottom() }
