@@ -21,6 +21,7 @@ import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.appcompat.widget.Toolbar
 import androidx.core.graphics.ColorUtils.blendARGB
+import androidx.core.view.updatePaddingRelative
 import com.jakewharton.rxbinding3.view.detaches
 import com.jakewharton.rxbinding3.widget.textChanges
 import com.squareup.contour.ContourLayout
@@ -53,7 +54,6 @@ import press.theme.themed
 import press.util.exhaustive
 import press.widgets.Truss
 import press.widgets.fromOreo
-import press.widgets.padding
 import press.widgets.setTextAndCursor
 import press.widgets.textColor
 import press.widgets.textSizePx
@@ -94,7 +94,7 @@ class EditorView @AssistedInject constructor(
         TYPE_TEXT_FLAG_CAP_SENTENCES or
         TYPE_TEXT_FLAG_MULTI_LINE or
         TYPE_TEXT_FLAG_NO_SUGGESTIONS
-    padding = 16.dip
+    updatePaddingRelative(start = 16.dip, end = 16.dip, bottom = 16.dip)
     CapitalizeOnHeadingStart.capitalize(this)
     fromOreo {
       importantForAutofill = IMPORTANT_FOR_AUTOFILL_NO
@@ -183,12 +183,8 @@ class EditorView @AssistedInject constructor(
 
   private fun render(uiUpdate: EditorUiUpdate) {
     when (uiUpdate) {
-      is PopulateContent -> {
-        editorEditText.setTextAndCursor(uiUpdate.content)
-      }
-      is CloseNote -> {
-        navigator.goTo(Back)
-      }
+      is PopulateContent -> editorEditText.setTextAndCursor(uiUpdate.content)
+      is CloseNote -> navigator.goTo(Back)
     }.exhaustive
   }
 
