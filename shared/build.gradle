@@ -50,6 +50,7 @@ kotlin {
     androidMain {
       dependencies {
         implementation kotlin('stdlib')
+        implementation deps.androidx.appCompat
         implementation deps.timber
         implementation deps.rx2.core
         implementation deps.reaktive.interop.android

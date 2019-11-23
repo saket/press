@@ -26,15 +26,6 @@ import com.jakewharton.rxbinding3.widget.textChanges
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
-import press.theme.themeAware
-import press.theme.themed
-import press.util.exhaustive
-import press.widgets.Truss
-import press.widgets.fromOreo
-import press.widgets.padding
-import press.widgets.setTextAndCursor
-import press.widgets.textColor
-import press.widgets.textSizePx
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.press.R.drawable
@@ -48,7 +39,8 @@ import me.saket.press.shared.editor.EditorUiUpdate.CloseNote
 import me.saket.press.shared.editor.EditorUiUpdate.PopulateContent
 import me.saket.press.shared.navigation.Navigator
 import me.saket.press.shared.navigation.ScreenKey.Back
-import me.saket.press.shared.theme.toColor
+import me.saket.press.shared.theme.EditorUiStyles
+import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.uiModels
 import me.saket.press.shared.uiUpdates2
 import me.saket.wysiwyg.Wysiwyg
@@ -56,6 +48,15 @@ import me.saket.wysiwyg.parser.node.HeadingLevel.H1
 import me.saket.wysiwyg.theme.DisplayUnits
 import me.saket.wysiwyg.theme.WysiwygTheme
 import me.saket.wysiwyg.widgets.addTextChangedListener
+import press.theme.themeAware
+import press.theme.themed
+import press.util.exhaustive
+import press.widgets.Truss
+import press.widgets.fromOreo
+import press.widgets.padding
+import press.widgets.setTextAndCursor
+import press.widgets.textColor
+import press.widgets.textSizePx
 
 @SuppressLint("SetTextI18n")
 class EditorView @AssistedInject constructor(
@@ -85,6 +86,7 @@ class EditorView @AssistedInject constructor(
   }
 
   internal val editorEditText = themed(EditText(context)).apply {
+    EditorUiStyles.editor.applyStyle(this)
     background = null
     breakStrategy = BREAK_STRATEGY_HIGH_QUALITY
     gravity = TOP
@@ -93,7 +95,6 @@ class EditorView @AssistedInject constructor(
         TYPE_TEXT_FLAG_MULTI_LINE or
         TYPE_TEXT_FLAG_NO_SUGGESTIONS
     padding = 16.dip
-    textSize = 16f
     CapitalizeOnHeadingStart.capitalize(this)
     fromOreo {
       importantForAutofill = IMPORTANT_FOR_AUTOFILL_NO
@@ -124,7 +125,8 @@ class EditorView @AssistedInject constructor(
     themeAware { palette ->
       setBackgroundColor(palette.window.editorBackgroundColor)
 
-      // TODO: avoid recreating Wysiwg on every theme change to share the same span-pool.
+      // TODO: avoid recreating Wysiwg on every
+      //  theme change to share the same span-pool.
       val wysiwygTheme = WysiwygTheme(
           displayUnits = DisplayUnits(context),
           headingTextColor = palette.textColorHeading

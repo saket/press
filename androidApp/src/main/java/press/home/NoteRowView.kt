@@ -2,14 +2,12 @@ package press.home
 
 import android.animation.AnimatorInflater.loadStateListAnimator
 import android.content.Context
-import android.text.TextUtils.TruncateAt.END
 import android.widget.TextView
-import androidx.core.content.res.ResourcesCompat
 import com.squareup.contour.ContourLayout
-import me.saket.press.R
 import me.saket.press.R.animator
 import me.saket.press.shared.home.HomeUiModel
-import me.saket.press.shared.theme.toColor
+import me.saket.press.shared.theme.HomeUiStyles
+import me.saket.press.shared.theme.applyStyle
 import press.theme.themeAware
 import press.theme.themed
 import press.widgets.textColor
@@ -17,10 +15,7 @@ import press.widgets.textColor
 class NoteRowView(context: Context) : ContourLayout(context) {
 
   private val titleView = themed(TextView(context)).apply {
-    textSize = 16f
-    maxLines = 1
-    ellipsize = END
-    typeface = ResourcesCompat.getFont(context, R.font.work_sans_bold)
+    HomeUiStyles.NoteRow.title.applyStyle(this)
     themeAware {
       textColor = it.textColorHeading
     }
@@ -31,9 +26,7 @@ class NoteRowView(context: Context) : ContourLayout(context) {
   }
 
   private val bodyView = themed(TextView(context)).apply {
-    textSize = 15f
-    maxLines = 2
-    ellipsize = END
+    HomeUiStyles.NoteRow.body.applyStyle(this)
     themeAware {
       textColor = it.textColorSecondary
     }
