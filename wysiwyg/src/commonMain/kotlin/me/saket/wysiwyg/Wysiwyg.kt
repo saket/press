@@ -30,7 +30,7 @@ class Wysiwyg(
       val spanWriter = SpanWriter()
       RootNodeHighlighter.visit(rootNode, spanPool, spanWriter)
 
-      uiExecutor.post {
+      uiExecutor.enqueue {
         // Because the text is parsed in background, it is possible
         // that the text changes faster than they get processed.
         val isStale = textLengthToParse != textField.text.length

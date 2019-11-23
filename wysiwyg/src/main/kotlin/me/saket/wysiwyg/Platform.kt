@@ -2,6 +2,8 @@
 
 package me.saket.wysiwyg
 
+import android.os.Build.VERSION.SDK_INT
+import android.os.Build.VERSION_CODES.P
 import android.os.Handler
 import android.os.Looper
 import java.util.concurrent.Executors
@@ -21,9 +23,12 @@ actual class SingleThreadBackgroundExecutor {
 }
 
 actual object UiThreadExecutor {
-  private val handler = Handler(Looper.getMainLooper())
+  private val handler = when {
+    SDK_INT >= P -> Handler.createAsync(Looper.getMainLooper())
+    else -> Handler(Looper.getMainLooper())
+  }
 
-  actual fun post(runnable: () -> Unit) {
+  actual fun enqueue(runnable: () -> Unit) {
     handler.post(runnable)
   }
 }

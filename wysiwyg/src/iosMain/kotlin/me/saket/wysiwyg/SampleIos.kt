@@ -13,7 +13,7 @@ actual class SingleThreadBackgroundExecutor {
 }
 
 actual object UiThreadExecutor {
-  actual fun post(runnable: () -> Unit) {
+  actual fun enqueue(runnable: () -> Unit) {
     TODO()
   }
 }

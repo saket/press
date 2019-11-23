@@ -9,5 +9,5 @@ expect class SingleThreadBackgroundExecutor() {
 }
 
 expect object UiThreadExecutor {
-    fun post(runnable: () -> Unit)
+    fun enqueue(runnable: () -> Unit)
 }
