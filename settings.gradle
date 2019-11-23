@@ -1,4 +1,4 @@
-rootProject.name = 'Compose'
+rootProject.name = 'Press'
 enableFeaturePreview('GRADLE_METADATA')
 
 include ':shared'
