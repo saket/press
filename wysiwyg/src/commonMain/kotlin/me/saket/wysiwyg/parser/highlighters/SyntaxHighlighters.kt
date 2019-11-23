@@ -44,7 +44,6 @@ class SyntaxHighlighters {
     add(BulletListItem::class, BulletListItemVisitor())
     add(ThematicBreak::class, ThematicBreakVisitor())
     add(Heading::class, HeadingVisitor())
-    add(Paragraph::class, ParagraphVisitor())
   }
 
   /**
