@@ -13,6 +13,7 @@ import android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
 import android.text.Layout.BREAK_STRATEGY_HIGH_QUALITY
 import android.text.style.ForegroundColorSpan
 import android.view.Gravity.TOP
+import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.EditText
@@ -168,17 +169,21 @@ class EditorView @AssistedInject constructor(
   }
 
   private fun render(model: EditorUiModel) {
-    headingHintTextView.text = Truss()
-        .pushSpan(EditorHeadingHintSpan(H1))
-        .pushSpan(ForegroundColorSpan(Color.TRANSPARENT))
-        // Using a space character doesn't consume the same width
-        // as '#'. Probably because the font isn't monospaced.
-        .append("# ")
-        .popSpan()
-        .append(model.hintText ?: "")
-        .popSpan()
-        .build()
-    headingHintTextView.visibility = if (model.hintText.isNullOrBlank()) GONE else VISIBLE
+    if (model.hintText == null) {
+      headingHintTextView.visibility = GONE
+    } else {
+      headingHintTextView.visibility = View.VISIBLE
+      headingHintTextView.text = Truss()
+          .pushSpan(EditorHeadingHintSpan(H1))
+          .pushSpan(ForegroundColorSpan(Color.TRANSPARENT))
+          // Using a space character doesn't consume the same width
+          // as '#'. Probably because the font isn't monospaced.
+          .append("# ")
+          .popSpan()
+          .append(model.hintText ?: "")
+          .popSpan()
+          .build()
+    }
   }
 
   private fun render(uiUpdate: EditorUiUpdate) {
