@@ -10,7 +10,6 @@ import me.saket.press.shared.theme.ThemePalette
 object ThemeModule {
 
   @Provides
-  @JvmStatic
   fun palette(): Observable<ThemePalette> =
     Observable.just(DraculaThemePalette)
 }

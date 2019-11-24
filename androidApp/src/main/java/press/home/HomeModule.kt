@@ -10,7 +10,6 @@ import me.saket.press.shared.navigation.Navigator
 object HomeModule {
 
   @Provides
-  @JvmStatic
   fun presenter(): HomePresenter.Factory {
     return object : HomePresenter.Factory {
       override fun create(navigator: Navigator) = SharedHomeComponent.presenter(navigator)

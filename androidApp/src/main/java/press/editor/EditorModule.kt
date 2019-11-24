@@ -12,7 +12,6 @@ import me.saket.press.shared.localization.Strings
 object EditorModule {
 
   @Provides
-  @JvmStatic
   fun presenter(): EditorPresenter.Factory {
     return object : EditorPresenter.Factory {
       override fun create(openMode: EditorOpenMode) = SharedEditorComponent.presenter(openMode)
@@ -20,6 +19,5 @@ object EditorModule {
   }
 
   @Provides
-  @JvmStatic
   fun strings(): Strings.Editor = SharedLocalizationComponent.strings().editor
 }
