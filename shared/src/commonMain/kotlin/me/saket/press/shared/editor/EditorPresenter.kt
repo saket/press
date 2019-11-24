@@ -12,6 +12,7 @@ import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observableOf
 import com.badoo.reaktive.observable.observableOfEmpty
 import com.badoo.reaktive.observable.ofType
+import com.badoo.reaktive.observable.take
 import com.badoo.reaktive.scheduler.Scheduler
 import com.badoo.reaktive.single.flatMapCompletable
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
@@ -22,7 +23,6 @@ import me.saket.press.shared.editor.EditorUiUpdate.PopulateContent
 import me.saket.press.shared.localization.Strings.Editor
 import me.saket.press.shared.note.NoteRepository
 import me.saket.press.shared.rx.mapToOptional
-import me.saket.press.shared.rx.take
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.util.Optional
 import me.saket.press.shared.util.filterNone
