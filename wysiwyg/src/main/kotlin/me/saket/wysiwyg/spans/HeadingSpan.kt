@@ -10,7 +10,7 @@ import me.saket.wysiwyg.parser.node.HeadingLevel
  */
 open class HeadingSpan(
   val recycler: Recycler
-) : MetricAffectingSpan(), AndroidLineHeightSpan, WysiwygSpan {
+) : MetricAffectingSpan(), SimpleLineHeightSpan, WysiwygSpan {
 
   lateinit var level: HeadingLevel
 

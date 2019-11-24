@@ -5,11 +5,7 @@ import android.text.TextPaint
 import android.text.style.LineHeightSpan
 import android.text.style.UpdateLayout
 
-/**
- * PSA: extending [UpdateLayout] is necessary or else StaticLayout won't render
- * line height spans if they're inserted asynchronously until the line is edited again.
- */
-interface AndroidLineHeightSpan : LineHeightSpan.WithDensity, UpdateLayout {
+interface SimpleLineHeightSpan : LineHeightSpan.WithDensity {
 
   fun chooseHeight(lineHeight: Int, fm: FontMetricsInt, paint: TextPaint)
 

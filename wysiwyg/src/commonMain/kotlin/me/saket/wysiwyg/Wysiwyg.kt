@@ -19,15 +19,16 @@ class Wysiwyg(
 
   private val bgExecutor = SingleThreadBackgroundExecutor()
   private val uiExecutor = UiThreadExecutor
+  private val spanWriter = SpanWriter(textField)
 
   fun syntaxHighlighter() = AfterTextChange { text ->
-    val textLengthToParse = text.length
+    val immutableText = text.toString()
+    val textLengthToParse = immutableText.length
 
     bgExecutor.enqueue {
-      val immutableText = text.toString()
       val rootNode = parser.parseSpans(immutableText)
 
-      val spanWriter = SpanWriter()
+      spanWriter.clear()
       RootNodeHighlighter.visit(rootNode, spanPool, spanWriter)
 
       uiExecutor.enqueue {
