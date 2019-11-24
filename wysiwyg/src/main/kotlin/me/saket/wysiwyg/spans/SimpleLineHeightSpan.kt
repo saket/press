@@ -3,11 +3,17 @@ package me.saket.wysiwyg.spans
 import android.graphics.Paint.FontMetricsInt
 import android.text.TextPaint
 import android.text.style.LineHeightSpan
-import android.text.style.UpdateLayout
 
 interface SimpleLineHeightSpan : LineHeightSpan.WithDensity {
 
-  fun chooseHeight(lineHeight: Int, fm: FontMetricsInt, paint: TextPaint)
+  fun chooseHeight(
+    text: CharSequence,
+    lineStart: Int,
+    lineEnd: Int,
+    lineHeight: Int,
+    fm: FontMetricsInt,
+    paint: TextPaint
+  )
 
   override fun chooseHeight(
     text: CharSequence,
@@ -18,7 +24,7 @@ interface SimpleLineHeightSpan : LineHeightSpan.WithDensity {
     fm: FontMetricsInt,
     paint: TextPaint
   ) {
-    chooseHeight(lineHeight, fm, paint)
+    chooseHeight(text, start, end, lineHeight, fm, paint)
   }
 
   override fun chooseHeight(

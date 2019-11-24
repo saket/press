@@ -1,6 +1,7 @@
 package me.saket.wysiwyg.spans
 
 import android.graphics.Paint.FontMetricsInt
+import android.text.Spanned
 import android.text.TextPaint
 import android.text.style.MetricAffectingSpan
 import me.saket.wysiwyg.parser.node.HeadingLevel
@@ -23,10 +24,25 @@ open class HeadingSpan(
     paint.textSize *= level.textSizeRatio
   }
 
-  override fun chooseHeight(lineHeight: Int, fm: FontMetricsInt, paint: TextPaint) {
-    val spacing = (level.textSizeRatio * paint.density).toInt()
-    fm.descent *= spacing
-    fm.bottom *= spacing
+  /**
+   * For multiple lines, chooseHeight() gets called for each line.
+   */
+  override fun chooseHeight(
+    text: CharSequence,
+    lineStart: Int,
+    lineEnd: Int,
+    lineHeight: Int,
+    fm: FontMetricsInt,
+    paint: TextPaint
+  ) {
+    val spanEnd = (text as Spanned).getSpanEnd(this)
+    val isLastLine = spanEnd in lineStart..lineEnd
+
+    if (isLastLine) {
+      val spacing = (level.textSizeRatio * paint.density).toInt()
+      fm.descent *= spacing
+      fm.bottom *= spacing
+    }
   }
 
   override fun recycle() {
