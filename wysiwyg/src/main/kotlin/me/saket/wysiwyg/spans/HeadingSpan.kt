@@ -24,9 +24,6 @@ open class HeadingSpan(
     paint.textSize *= level.textSizeRatio
   }
 
-  /**
-   * For multiple lines, chooseHeight() gets called for each line.
-   */
   override fun chooseHeight(
     text: CharSequence,
     lineStart: Int,
@@ -35,6 +32,7 @@ open class HeadingSpan(
     fm: FontMetricsInt,
     paint: TextPaint
   ) {
+    // For multiple lines, chooseHeight() gets called for each line.
     val spanEnd = (text as Spanned).getSpanEnd(this)
     val isLastLine = spanEnd in lineStart..lineEnd
 
