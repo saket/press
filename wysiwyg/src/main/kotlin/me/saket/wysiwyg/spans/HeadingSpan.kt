@@ -45,6 +45,12 @@ open class HeadingSpan(
     }
   }
 
+  fun bottomSpacing(textPaintDensity: Float): Int {
+    // TODO: REVERT TIMES 3!
+    //return (level.textSizeRatio * textPaintDensity).toInt() * 3
+    return 60
+  }
+
   override fun recycle() {
     recycler(this)
   }

@@ -72,7 +72,7 @@ class InterceptibleResources(private val base: Resources) : ResourcesWrapper(bas
     }
   }
 
-  private inline fun avoidInfiniteLoop(resId: ResourceId, block: () -> Unit) {
+  private inline fun avoidInfiniteLoop(resId: ResourceId, crossinline block: () -> Unit) {
     if (resId in idsBeingIntercepted) {
       return
     }

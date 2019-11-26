@@ -86,7 +86,7 @@ class EditorView @AssistedInject constructor(
     )
   }
 
-  internal val editorEditText = themed(EditText(context)).apply {
+  internal val editorEditText = themed(EditorEditText(context)).apply {
     EditorUiStyles.editor.applyStyle(this)
     background = null
     breakStrategy = BREAK_STRATEGY_HIGH_QUALITY
@@ -139,7 +139,7 @@ class EditorView @AssistedInject constructor(
     toolbar.setNavigationOnClickListener {
       // TODO: detect if the keyboard is up and delay going back by
       //  a bit so that the IRV behind is resized before this View
-      //  start collapsing.
+      //  starts collapsing.
       navigator.goTo(Back)
     }
   }
