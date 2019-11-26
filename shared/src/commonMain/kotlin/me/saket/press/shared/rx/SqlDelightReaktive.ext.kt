@@ -61,36 +61,3 @@ fun <T : Any> Observable<Query<T>>.mapToOneOrOptional(): Observable<Optional<T>>
 fun <T : Any> Observable<Query<T>>.mapToList(): Observable<List<T>> {
   return map { it.executeAsList() }
 }
-
-internal fun <T> Observable<T>.mainSubscribe(onNext: (T) -> Unit): Disposable {
-  val mtDisposable = MainThreadDisposable(onNext).freeze()
-
-  mtDisposable.delegate.value = observeOn(mainScheduler)
-      .subscribe {
-        mtDisposable.call(it)
-      }
-
-  return mtDisposable
-}
-
-internal class MainThreadDisposable<T>(onNext: (T) -> Unit) : Disposable {
-  internal val delegate = AtomicReference<Disposable?>(null)
-
-  private val onNextRef: ThreadLocalRef<(T) -> Unit> = ThreadLocalRef()
-
-  init {
-    onNextRef.value = onNext
-  }
-
-  override val isDisposed: Boolean
-    get() = delegate.value?.isDisposed ?: true
-
-  fun call(arg:T){
-    onNextRef.value?.invoke(arg)
-  }
-
-  override fun dispose() {
-    delegate.value?.dispose()
-    onNextRef.remove()
-  }
-}
