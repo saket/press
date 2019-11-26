@@ -25,7 +25,7 @@ actual class MarkdownParser {
     }
   }
 
-  private fun buildParser() = FlexmarkParserBuilder()
-      .addExtension(StrikethroughExtension.create())
+  private fun buildParser() = Parser.builder()
+      .extensions(listOf(StrikethroughExtension.create()))
       .build()
 }
