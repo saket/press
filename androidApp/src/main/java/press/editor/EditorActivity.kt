@@ -23,22 +23,8 @@ import kotlin.LazyThreadSafetyMode.NONE
 
 class EditorActivity : ThemeAwareActivity() {
 
-  @field:Inject
-  lateinit var editorViewFactory: EditorView.Factory
-  private val editorView: EditorView by lazy(NONE) {
-    val navigator = RealNavigator { screenKey ->
-      when (screenKey) {
-        Back -> dismiss()
-        else -> error("Unhandled $screenKey")
-      }
-    }
-
-    editorViewFactory.create(
-        context = this@EditorActivity,
-        openMode = NewNote(uuid4()),
-        navigator = navigator
-    )
-  }
+  @field:Inject lateinit var editorViewFactory: EditorView.Factory
+  private val editorView: EditorView by lazy(NONE) { createEditorView() }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     App.component.inject(this)
@@ -51,6 +37,25 @@ class EditorActivity : ThemeAwareActivity() {
 
     editorView.editorEditText.showKeyboard()
     playEntryTransition()
+  }
+
+  override fun onBackPressed() {
+    dismiss()
+  }
+
+  private fun createEditorView(): EditorView {
+    val navigator = RealNavigator { screenKey ->
+      when (screenKey) {
+        Back -> dismiss()
+        else -> error("Unhandled $screenKey")
+      }
+    }
+
+    return editorViewFactory.create(
+        context = this@EditorActivity,
+        openMode = NewNote(uuid4()),
+        navigator = navigator
+    )
   }
 
   private fun playEntryTransition() {
@@ -67,10 +72,6 @@ class EditorActivity : ThemeAwareActivity() {
     } else {
       super.finish()
     }
-  }
-
-  override fun onBackPressed() {
-    dismiss()
   }
 
   companion object {
