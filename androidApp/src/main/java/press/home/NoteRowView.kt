@@ -4,7 +4,7 @@ import android.animation.AnimatorInflater.loadStateListAnimator
 import android.content.Context
 import android.widget.TextView
 import com.squareup.contour.ContourLayout
-import me.saket.press.R.animator
+import me.saket.press.R
 import me.saket.press.shared.home.HomeUiModel
 import me.saket.press.shared.theme.HomeUiStyles
 import me.saket.press.shared.theme.applyStyle
@@ -41,7 +41,7 @@ class NoteRowView(context: Context) : ContourLayout(context) {
   init {
     contourHeightOf { bodyView.bottom() + 16.dip }
 
-    stateListAnimator = loadStateListAnimator(context, animator.thread_elevation_stateanimator)
+    stateListAnimator = loadStateListAnimator(context, R.animator.thread_elevation_stateanimator)
 
     themeAware {
       setBackgroundColor(it.window.editorBackgroundColor)

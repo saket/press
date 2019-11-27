@@ -59,6 +59,14 @@ class HomeView @AssistedInject constructor(
 
   private val activity = context as Activity
 
+  private val toolbar = themed(Toolbar(context)).apply {
+    setTitle(R.string.app_name)
+    applyLayout(
+        x = leftTo { parent.left() }.rightTo { parent.right() },
+        y = topTo { parent.top() }.heightOf(attr(android.R.attr.actionBarSize))
+    )
+  }
+
   private val notesList = themed(InboxRecyclerView(context)).apply {
     layoutManager = LinearLayoutManager(context)
     adapter = noteAdapter
@@ -68,14 +76,6 @@ class HomeView @AssistedInject constructor(
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
         y = topTo { toolbar.bottom() }.bottomTo { parent.bottom() }
-    )
-  }
-
-  private val toolbar = themed(Toolbar(context)).apply {
-    setTitle(R.string.app_name)
-    applyLayout(
-        x = leftTo { parent.left() }.rightTo { parent.right() },
-        y = topTo { parent.top() }.heightOf(attr(android.R.attr.actionBarSize))
     )
   }
 
