@@ -1,14 +1,13 @@
 package press.theme
 
 import android.graphics.drawable.Drawable
-import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import press.util.reflect
 
 object EditTextSelectionHandleReflection {
 
-  fun find(view: EditText): Array<Drawable> {
+  fun find(view: TextView): Array<Drawable> {
     val centerDrawableResId = reflect(TextView::class, "mTextSelectHandleRes").getInt(view)
     val leftDrawableResId = reflect(TextView::class, "mTextSelectHandleLeftRes").getInt(view)
     val rightDrawableResId = reflect(TextView::class, "mTextSelectHandleRightRes").getInt(view)

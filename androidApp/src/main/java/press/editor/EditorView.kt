@@ -101,7 +101,7 @@ class EditorView @AssistedInject constructor(
       importantForAutofill = IMPORTANT_FOR_AUTOFILL_NO
     }
     themeAware {
-      textColor = it.textColorSecondary
+      textColor = it.textColorPrimary
     }
   }
 

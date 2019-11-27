@@ -21,7 +21,8 @@ data class WysiwygTheme(
   /** Gap before a block of ordered/unordered list. */
   val listBlockIndentationMargin: Int = displayUnits.fromPixels(24).toInt(),
 
-  val linkUrlColor: Int = "#8A93B4".toHexColor(),  // 50% white.
+  // A translucent color ensures that the text remains legible even on a lighter background.
+  val linkUrlColor: Int = "#AAC6D1FF".toHexColor(),
 
   val linkTextColor: Int = "#8DF0FF".toHexColor(),
 

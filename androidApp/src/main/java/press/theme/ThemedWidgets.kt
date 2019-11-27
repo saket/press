@@ -21,9 +21,7 @@ import com.jakewharton.rxbinding3.view.detaches
 import press.App
 import press.util.onDestroys
 import press.util.reflect
-import press.util.withOpacity
 import press.widgets.PorterDuffColorFilterWrapper
-import press.widgets.dp
 import press.widgets.findTitleView
 import press.widgets.textColor
 import me.saket.press.shared.theme.ThemePalette
@@ -46,6 +44,10 @@ fun AppCompatActivity.themeAware(onThemeChange: (ThemePalette) -> Unit) {
 
 fun themed(view: TextView): TextView = view.apply {
   typeface = ResourcesCompat.getFont(context, R.font.work_sans_regular)
+
+  themeAware {
+    highlightColor = it.textHighlightColor
+  }
 }
 
 fun themed(view: EditText) = view.apply {
@@ -54,7 +56,7 @@ fun themed(view: EditText) = view.apply {
 
   themeAware { palette ->
     selectionHandleDrawables.forEach { it.setColorFilter(palette.accentColor, SRC_IN) }
-    highlightColor = palette.accentColor.withOpacity(0.3f)
+    highlightColor = palette.textHighlightColor
   }
 }
 
