@@ -132,6 +132,7 @@ buildscript {
               'core': "com.facebook.flipper:flipper-noop:$versions.flipper"
           ]
       ],
-      'itemAnimators': "com.mikepenz:itemanimators:1.1.0"
+      'itemAnimators': "com.mikepenz:itemanimators:1.1.0",
+      'kluent': "org.amshove.kluent:kluent:1.57"
   ]
 }

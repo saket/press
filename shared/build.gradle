@@ -45,6 +45,7 @@ kotlin {
         implementation kotlin('test-annotations-common')
         implementation deps.reaktive.testing.common
         implementation deps.sqlDelight.driver.jdbcSqlite
+        implementation deps.kluent
       }
     }
     androidMain {
