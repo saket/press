@@ -130,7 +130,14 @@ class EditorView @AssistedInject constructor(
       //  theme change to share the same span-pool.
       val wysiwygTheme = WysiwygTheme(
           displayUnits = DisplayUnits(context),
-          headingTextColor = palette.textColorHeading
+          syntaxColor = palette.markdown.syntaxColor,
+          blockQuoteVerticalRuleColor = palette.markdown.blockQuoteVerticalRuleColor,
+          blockQuoteTextColor = palette.markdown.blockQuoteTextColor,
+          linkTextColor = palette.markdown.linkTextColor,
+          linkUrlColor = palette.markdown.linkUrlColor,
+          thematicBreakColor = palette.markdown.thematicBreakColor,
+          codeBackgroundColor = palette.markdown.codeBackgroundColor,
+          headingTextColor = palette.markdown.headingTextColor
       )
       val wysiwyg = Wysiwyg(editorEditText, wysiwygTheme)
       editorEditText.addTextChangedListener(wysiwyg.syntaxHighlighter())

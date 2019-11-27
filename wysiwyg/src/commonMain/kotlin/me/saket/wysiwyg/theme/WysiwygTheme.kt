@@ -6,11 +6,12 @@ data class WysiwygTheme(
   val displayUnits: DisplayUnits,
 
   /** Color used for highlighting '**', '~~' and other syntax characters. */
-  val syntaxColor: Int = "#CCAEF9".toHexColor(),
+  val syntaxColor: Int,
 
-  val blockQuoteVerticalRuleColor: Int = "#CCAEF9".toHexColor(),
+  /** Color a '>' blockquote's leading margin. */
+  val blockQuoteVerticalRuleColor: Int,
 
-  val blockQuoteTextColor: Int = "#CED2F8".toHexColor(),
+  val blockQuoteTextColor: Int,
 
   /** Width of a block-quote's vertical line/stripe/rule. */
   val blockQuoteVerticalRuleStrokeWidth: Int = displayUnits.fromPixels(4).toInt(),
@@ -21,20 +22,19 @@ data class WysiwygTheme(
   /** Gap before a block of ordered/unordered list. */
   val listBlockIndentationMargin: Int = displayUnits.fromPixels(24).toInt(),
 
-  // A translucent color ensures that the text remains legible even on a lighter background.
-  val linkUrlColor: Int = "#AAC6D1FF".toHexColor(),
+  val linkTextColor: Int,
 
-  val linkTextColor: Int = "#8DF0FF".toHexColor(),
+  val linkUrlColor: Int,
 
   /** Thematic break a.k.a. horizontal rule. */
-  val thematicBreakColor: Int = "#62677C".toHexColor(),
+  val thematicBreakColor: Int,
 
   val thematicBreakThickness: Float = displayUnits.fromPixels(4),
 
-  val codeBackgroundColor: Int = "#242632".toHexColor(),
+  val codeBackgroundColor: Int,
 
   val codeBlockMargin: Int = displayUnits.fromPixels(8).toInt(),
 
-  val headingTextColor: Int = "#50FA7B".toHexColor()
+  val headingTextColor: Int
 )
 

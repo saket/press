@@ -12,13 +12,24 @@ object DraculaThemePalette : ThemePalette(
     primaryColor = COLOR_TUNA,
     primaryColorDark = COLOR_TUNA,
     accentColor = COLOR_SPRING_GREEN,
-    window = WindowTheme(
+    textHighlightColor = COLOR_DELUGE,
+    window = WindowPalette(
         backgroundColor = COLOR_TUNA,
         editorBackgroundColor = COLOR_BLACK_ROCK
+    ),
+    markdown = MarkdownPalette(
+        heading = COLOR_SPRING_GREEN,
+        syntaxColor = "#CCAEF9".toColor(),
+        blockQuoteVerticalRuleColor = "#CCAEF9".toColor(),
+        blockQuoteTextColor = "#CED2F8".toColor(),
+        linkUrlColor = "#AAC6D1FF".toColor(),
+        linkTextColor = "#8DF0FF".toColor(),
+        thematicBreakColor = "#62677C".toColor(),
+        codeBackgroundColor = "#242632".toColor(),
+        headingTextColor = "#50FA7B".toColor()
     ),
     textColorHeading = COLOR_SPRING_GREEN,
     textColorPrimary = COLOR_WHITE,
     textColorSecondary = COLOR_GHOST,
-    textHighlightColor = COLOR_DELUGE,
     fabColor = COLOR_ANAKIWA
 )
