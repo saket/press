@@ -14,6 +14,7 @@ buildscript {
       koin: '2.1.6-mp',
       flipper: '0.23.5',
       klock: '1.8.0',
+      multiplatformSettings: '0.4.1',
   ]
 
   ext.deps = [
@@ -133,6 +134,10 @@ buildscript {
           ]
       ],
       'itemAnimators': "com.mikepenz:itemanimators:1.1.0",
-      'kluent': "org.amshove.kluent:kluent:1.57"
+      'kluent': "org.amshove.kluent:kluent:1.57",
+      'multiplatformSettings': [
+          'core': "com.russhwolf:multiplatform-settings:$versions.multiplatformSettings",
+          'testing': "com.russhwolf:multiplatform-settings-test:$versions.multiplatformSettings"
+      ]
   ]
 }

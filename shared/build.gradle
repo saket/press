@@ -37,6 +37,7 @@ kotlin {
         implementation deps.klock.common
         implementation deps.sqlDelight.runtime.common
         implementation deps.stately
+        implementation deps.multiplatformSettings.core
       }
     }
     commonTest {
@@ -46,6 +47,7 @@ kotlin {
         implementation deps.reaktive.testing.common
         implementation deps.sqlDelight.driver.jdbcSqlite
         implementation deps.kluent
+        implementation deps.multiplatformSettings.testing
       }
     }
     androidMain {
