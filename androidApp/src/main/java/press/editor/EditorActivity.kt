@@ -8,6 +8,9 @@ import android.os.Bundle
 import androidx.annotation.DrawableRes
 import com.benasher44.uuid.uuid4
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.jakewharton.rxbinding3.view.detaches
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import press.App
 import press.animation.FabTransform
 import press.theme.themeAware
@@ -35,8 +38,18 @@ class EditorActivity : ThemeAwareActivity() {
       editorView.setBackgroundColor(palette.window.backgroundColor)
     }
 
-    editorView.editorEditText.showKeyboard()
-    playEntryTransition()
+    val hasTransition = FabTransform.hasActivityTransition(this)
+    if (hasTransition) {
+      FabTransform.applyActivityTransition(this, editorView)
+    }
+
+    // The cursor doesn't show up when a shared element transition is used :/
+    val delayFocus = if (hasTransition) FabTransform.ANIM_DURATION_MILLIS else 0
+    Observable.timer(delayFocus, MILLISECONDS, mainThread())
+        .takeUntil(editorView.detaches())
+        .subscribe {
+          editorView.editorEditText.showKeyboard()
+        }
   }
 
   override fun onBackPressed() {
@@ -56,13 +69,6 @@ class EditorActivity : ThemeAwareActivity() {
         openMode = NewNote(uuid4()),
         navigator = navigator
     )
-  }
-
-  private fun playEntryTransition() {
-    if (FabTransform.hasActivityTransition(this)) {
-      editorView.transitionName = SHARED_ELEMENT_TRANSITION_NAME
-      FabTransform.setupActivityTransition(this, editorView)
-    }
   }
 
   private fun dismiss() {

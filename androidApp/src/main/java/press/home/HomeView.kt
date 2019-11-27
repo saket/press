@@ -6,7 +6,7 @@ import android.graphics.Color.BLACK
 import android.view.View
 import android.view.animation.PathInterpolator
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContextCompat.startActivity
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.benasher44.uuid.Uuid
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -189,7 +189,7 @@ class HomeView @AssistedInject constructor(
         fab = newNoteFab,
         fabIconRes = R.drawable.ic_note_add_24dp
     )
-    startActivity(context, intent, options.toBundle())
+    ContextCompat.startActivity(context, intent, options.toBundle())
   }
 
   fun offerBackPress(): BackPressInterceptResult {
