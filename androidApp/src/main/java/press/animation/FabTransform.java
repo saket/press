@@ -24,6 +24,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Outline;
@@ -40,27 +41,31 @@ import android.view.animation.Interpolator;
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.interpolator.view.animation.FastOutLinearInInterpolator;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.List;
+import press.widgets.PorterDuffColorFilterWrapper;
 
 import static android.view.View.MeasureSpec.makeMeasureSpec;
 import static press.animation.InterpolatorsKt.linearOutSlowInInterpolator;
 
 /**
+ * Copied from Plaid.
+ * https://github.com/android/plaid/blob/master/core/src/main/java/io/plaidapp/core/ui/transitions/FabTransform.java
+ *
  * A transition between a FAB & another surface using a circular reveal moving along an arc.
- * <p>
  * See: https://www.google.com/design/spec/motion/transforming-material.html#transforming-material-radial-transformation
  */
 public class FabTransform extends Transition {
 
+  public static final String SHARED_ELEMENT_TRANSITION_NAME = "sharedElement:FabTransform";
+  public static final long ANIM_DURATION_MILLIS = 240L;
   private static final String EXTRA_FAB_COLOR = "EXTRA_FAB_COLOR";
   private static final String EXTRA_FAB_ICON_RES_ID = "EXTRA_FAB_ICON_RES_ID";
   private static final String EXTRA_FAB_ICON_TINT = "EXTRA_FAB_ICON_TINT";
-  private static final long DEFAULT_DURATION = 240L;
   private static final String PROP_BOUNDS = "plaid:fabTransform:bounds";
   private static final String[] TRANSITION_PROPERTIES = {
       PROP_BOUNDS
@@ -70,43 +75,55 @@ public class FabTransform extends Transition {
   private final int icon;
   private final int iconTint;
 
-  public FabTransform(@ColorInt int fabColor, @DrawableRes int fabIconResId, int fabIconTint) {
+  private FabTransform(@ColorInt int fabColor, @DrawableRes int fabIconResId, int fabIconTint) {
     color = fabColor;
     icon = fabIconResId;
     iconTint = fabIconTint;
     setPathMotion(new GravityArcMotion());
-    setDuration(DEFAULT_DURATION);
+    setDuration(ANIM_DURATION_MILLIS);
   }
 
-  /**
-   * Configure {@code intent} with the extras needed to initialize this transition.
-   */
-  public static void addExtras(@NonNull Intent intent, @ColorInt int fabColor,
-      @DrawableRes int fabIconResId, @ColorInt int fabIconTint) {
+  public static ActivityOptions createOptions(
+      @NonNull Activity activity,
+      @NonNull Intent intent,
+      @NonNull FloatingActionButton fab,
+      @DrawableRes int fabIconResId)
+  {
+    //noinspection ConstantConditions
+    int fabColor = fab.getBackgroundTintList().getDefaultColor();
+    int fabIconTint = ((PorterDuffColorFilterWrapper) fab.getColorFilter()).getColor();
+
+    fab.setTransitionName(SHARED_ELEMENT_TRANSITION_NAME);
+
     intent.putExtra(EXTRA_FAB_COLOR, fabColor);
     intent.putExtra(EXTRA_FAB_ICON_RES_ID, fabIconResId);
     intent.putExtra(EXTRA_FAB_ICON_TINT, fabIconTint);
+
+    return ActivityOptions.makeSceneTransitionAnimation(
+        activity,
+        fab,
+        SHARED_ELEMENT_TRANSITION_NAME
+    );
   }
 
   /**
    * Create a {@link FabTransform} from the supplied {@code activity} extras and set as its
    * shared element enter/return transition.
    */
-  public static boolean setupActivityTransition(@NonNull Activity activity, @Nullable View target) {
+  public static void applyActivityTransition(@NonNull Activity activity, @NonNull View target) {
     final Intent intent = activity.getIntent();
     if (!hasActivityTransition(activity)) {
       throw new AssertionError();
     }
 
+    target.setTransitionName(SHARED_ELEMENT_TRANSITION_NAME);
+
     final int color = intent.getIntExtra(EXTRA_FAB_COLOR, Color.TRANSPARENT);
     final int icon = intent.getIntExtra(EXTRA_FAB_ICON_RES_ID, -1);
     final int iconTint = intent.getIntExtra(EXTRA_FAB_ICON_TINT, -1);
     final FabTransform sharedEnter = new FabTransform(color, icon, iconTint);
-    if (target != null) {
-      sharedEnter.addTarget(target);
-    }
+    sharedEnter.addTarget(target);
     activity.getWindow().setSharedElementEnterTransition(sharedEnter);
-    return true;
   }
 
     public static boolean hasActivityTransition(Activity activity) {

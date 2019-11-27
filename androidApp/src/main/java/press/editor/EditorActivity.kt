@@ -11,16 +11,16 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.detaches
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
-import press.App
-import press.animation.FabTransform
-import press.theme.themeAware
-import press.widgets.PorterDuffColorFilterWrapper
-import press.widgets.ThemeAwareActivity
-import press.widgets.hideKeyboard
-import press.widgets.showKeyboard
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.navigation.RealNavigator
 import me.saket.press.shared.navigation.ScreenKey.Back
+import press.App
+import press.animation.FabTransform
+import press.theme.themeAware
+import press.widgets.ThemeAwareActivity
+import press.widgets.hideKeyboard
+import press.widgets.showKeyboard
+import java.util.concurrent.TimeUnit.MILLISECONDS
 import javax.inject.Inject
 import kotlin.LazyThreadSafetyMode.NONE
 
@@ -81,8 +81,6 @@ class EditorActivity : ThemeAwareActivity() {
   }
 
   companion object {
-    private const val SHARED_ELEMENT_TRANSITION_NAME = "sharedElement:EditorActivity"
-
     private fun intent(context: Context): Intent = Intent(context, EditorActivity::class.java)
 
     @JvmStatic
@@ -91,19 +89,8 @@ class EditorActivity : ThemeAwareActivity() {
       fab: FloatingActionButton,
       @DrawableRes fabIconRes: Int
     ): Pair<Intent, ActivityOptions> {
-      fab.transitionName = SHARED_ELEMENT_TRANSITION_NAME
-
       val intent = intent(activity)
-
-      val fabColor = fab.backgroundTintList!!.defaultColor
-      val fabIconTint = (fab.colorFilter as PorterDuffColorFilterWrapper).color
-
-      FabTransform.addExtras(intent, fabColor, fabIconRes, fabIconTint)
-      val options = ActivityOptions.makeSceneTransitionAnimation(
-          activity,
-          fab,
-          SHARED_ELEMENT_TRANSITION_NAME
-      )
+      val options = FabTransform.createOptions(activity, intent, fab, fabIconRes)
       return intent to options
     }
   }
