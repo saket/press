@@ -3,13 +3,13 @@ package me.saket.wysiwyg.spans
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.text.style.LineBackgroundSpan
-import me.saket.wysiwyg.theme.WysiwygTheme
+import me.saket.wysiwyg.style.WysiwygStyle
 
 /**
  * @param syntax Used for calculating the left offset to avoid drawing under the text.
  */
 actual class ThematicBreakSpan actual constructor(
-  private val theme: WysiwygTheme,
+  private val style: WysiwygStyle,
   private val recycler: Recycler,
   actual val syntax: CharSequence
 ) : LineBackgroundSpan, WysiwygSpan {
@@ -38,8 +38,8 @@ actual class ThematicBreakSpan actual constructor(
     lineNumber: Int
   ) {
     val originalPaintColor = paint.color
-    paint.color = theme.thematicBreakColor
-    paint.strokeWidth = theme.thematicBreakThickness
+    paint.color = style.thematicBreak.color
+    paint.strokeWidth = style.thematicBreak.height
 
     if (offsetForSyntax == -1f) {
       offsetForSyntax = paint.measureText(syntax.toString())

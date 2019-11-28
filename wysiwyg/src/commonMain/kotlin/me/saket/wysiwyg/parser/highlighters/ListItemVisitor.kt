@@ -18,6 +18,6 @@ abstract class ListItemVisitor<T : ListItem> : NodeVisitor<T> {
     pool: SpanPool,
     writer: SpanWriter
   ) {
-    writer.add(pool.foregroundColor(pool.theme.syntaxColor), node.startOffset, node.startOffset + 1)
+    writer.add(pool.foregroundColor(pool.style.syntaxColor), node.startOffset, node.startOffset + 1)
   }
 }

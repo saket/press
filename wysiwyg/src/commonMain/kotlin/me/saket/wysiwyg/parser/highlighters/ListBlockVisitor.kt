@@ -19,7 +19,7 @@ abstract class ListBlockVisitor<T : ListBlock> : NodeVisitor<T> {
     pool: SpanPool,
     writer: SpanWriter
   ) {
-    val marginSpan = pool.leadingMargin(pool.theme.listBlockIndentationMargin)
+    val marginSpan = pool.leadingMargin(pool.style.list.indentationMargin)
     writer.add(marginSpan, node.startOffset, node.endOffset)
   }
 }

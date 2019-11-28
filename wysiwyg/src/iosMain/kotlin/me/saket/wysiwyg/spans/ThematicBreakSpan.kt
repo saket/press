@@ -1,9 +1,9 @@
 package me.saket.wysiwyg.spans
 
-import me.saket.wysiwyg.theme.WysiwygTheme
+import me.saket.wysiwyg.style.WysiwygStyle
 
 actual data class ThematicBreakSpan actual constructor(
-  val theme: WysiwygTheme,
+  val style: WysiwygStyle,
   val recycler: Recycler,
   actual val syntax: CharSequence
 ) : WysiwygSpan {

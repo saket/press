@@ -41,16 +41,18 @@ import me.saket.press.shared.editor.EditorUiUpdate.CloseNote
 import me.saket.press.shared.editor.EditorUiUpdate.PopulateContent
 import me.saket.press.shared.navigation.Navigator
 import me.saket.press.shared.navigation.ScreenKey.Back
+import me.saket.press.shared.theme.DisplayUnits
 import me.saket.press.shared.theme.EditorUiStyles
 import me.saket.press.shared.theme.applyStyle
+import me.saket.press.shared.theme.from
 import me.saket.press.shared.uiModels
 import me.saket.press.shared.uiUpdates2
 import me.saket.wysiwyg.Wysiwyg
 import me.saket.wysiwyg.parser.node.HeadingLevel.H1
-import me.saket.wysiwyg.theme.DisplayUnits
-import me.saket.wysiwyg.theme.WysiwygTheme
+import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.widgets.addTextChangedListener
 import press.theme.themeAware
+import press.theme.themePalette
 import press.theme.themed
 import press.util.exhaustive
 import press.widgets.Truss
@@ -125,23 +127,17 @@ class EditorView @AssistedInject constructor(
 
     themeAware { palette ->
       setBackgroundColor(palette.window.editorBackgroundColor)
-
-      // TODO: avoid recreating Wysiwg on every
-      //  theme change to share the same span-pool.
-      val wysiwygTheme = WysiwygTheme(
-          displayUnits = DisplayUnits(context),
-          syntaxColor = palette.markdown.syntaxColor,
-          blockQuoteVerticalRuleColor = palette.markdown.blockQuoteVerticalRuleColor,
-          blockQuoteTextColor = palette.markdown.blockQuoteTextColor,
-          linkTextColor = palette.markdown.linkTextColor,
-          linkUrlColor = palette.markdown.linkUrlColor,
-          thematicBreakColor = palette.markdown.thematicBreakColor,
-          codeBackgroundColor = palette.markdown.codeBackgroundColor,
-          headingTextColor = palette.markdown.headingTextColor
-      )
-      val wysiwyg = Wysiwyg(editorEditText, wysiwygTheme)
-      editorEditText.addTextChangedListener(wysiwyg.syntaxHighlighter())
     }
+
+    // TODO: add support for changing wysiwyg style
+    themePalette()
+        .take(1)
+        .takeUntil(detaches())
+        .subscribe { palette ->
+          val wysiwygStyle = WysiwygStyle.from(palette.markdown, DisplayUnits(context))
+          val wysiwyg = Wysiwyg(editorEditText, wysiwygStyle)
+          editorEditText.addTextChangedListener(wysiwyg.syntaxHighlighter())
+        }
 
     toolbar.setNavigationOnClickListener {
       // TODO: detect if the keyboard is up and delay going back by

@@ -21,16 +21,16 @@ actual fun SpanPool.strikethrough(): WysiwygSpan =
   get { StrikethroughSpan(recycler) }
 
 actual fun SpanPool.inlineCode(): WysiwygSpan =
-  get { InlineCodeSpan(theme, recycler) }
+  get { InlineCodeSpan(style, recycler) }
 
 actual fun SpanPool.monospaceTypeface(): WysiwygSpan =
   get { MonospaceTypefaceSpan(recycler) }
 
 actual fun SpanPool.indentedCodeBlock(): WysiwygSpan =
-  get { IndentedCodeBlockSpan(theme, recycler) }
+  get { IndentedCodeBlockSpan(style, recycler) }
 
 actual fun SpanPool.quote(): WysiwygSpan =
-  get { BlockQuoteSpan(theme, recycler) }
+  get { BlockQuoteSpan(style, recycler) }
 
 actual fun SpanPool.leadingMargin(margin: Int): WysiwygSpan =
   get { ParagraphLeadingMarginSpan(recycler) }.apply {

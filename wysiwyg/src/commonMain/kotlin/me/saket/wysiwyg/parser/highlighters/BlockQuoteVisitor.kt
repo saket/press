@@ -33,11 +33,11 @@ class BlockQuoteVisitor : NodeVisitor<BlockQuote> {
 
     // Quote markers ('>').
     val markerStartOffset = node.startOffset - nestedParents
-    writer.add(pool.foregroundColor(pool.theme.syntaxColor), markerStartOffset, node.startOffset + 1)
+    writer.add(pool.foregroundColor(pool.style.syntaxColor), markerStartOffset, node.startOffset + 1)
 
     // Text color.
     writer.add(
-        pool.foregroundColor(pool.theme.blockQuoteTextColor), node.startOffset - nestedParents,
+        pool.foregroundColor(pool.style.blockQuote.textColor), node.startOffset - nestedParents,
         node.endOffset
     )
   }

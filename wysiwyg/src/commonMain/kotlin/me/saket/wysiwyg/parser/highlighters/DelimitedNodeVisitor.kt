@@ -32,7 +32,7 @@ abstract class DelimitedNodeVisitor<T>
     ) {
       if (openingMarker.isNotEmpty()) {
         writer.add(
-            pool.foregroundColor(pool.theme.syntaxColor),
+            pool.foregroundColor(pool.style.syntaxColor),
             startOffset,
             startOffset + openingMarker.length
         )
@@ -47,7 +47,7 @@ abstract class DelimitedNodeVisitor<T>
     ) {
       if (closingMarker.isNotEmpty()) {
         writer.add(
-            pool.foregroundColor(pool.theme.syntaxColor),
+            pool.foregroundColor(pool.style.syntaxColor),
             endOffset - closingMarker.length,
             endOffset
         )

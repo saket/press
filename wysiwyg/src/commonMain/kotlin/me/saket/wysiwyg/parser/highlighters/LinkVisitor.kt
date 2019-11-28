@@ -15,14 +15,14 @@ class LinkVisitor : NodeVisitor<Link> {
     pool: SpanPool,
     writer: SpanWriter
   ) {
-    // Text.
-    writer.add(pool.foregroundColor(pool.theme.linkTextColor), node.startOffset, node.endOffset)
+    // Title.
+    writer.add(pool.foregroundColor(pool.style.link.titleTextColor), node.startOffset, node.endOffset)
 
     // Url.
     val textClosingPosition = node.startOffset + node.text.length + 1
     val urlOpeningPosition = textClosingPosition + 1
     writer.add(
-        pool.foregroundColor(pool.theme.linkUrlColor),
+        pool.foregroundColor(pool.style.link.urlTextColor),
         urlOpeningPosition,
         node.endOffset
     )

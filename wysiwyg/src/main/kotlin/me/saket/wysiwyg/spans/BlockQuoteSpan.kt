@@ -5,7 +5,7 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.text.Layout
 import android.text.style.LeadingMarginSpan
-import me.saket.wysiwyg.theme.WysiwygTheme
+import me.saket.wysiwyg.style.WysiwygStyle
 import kotlin.math.max
 import kotlin.math.min
 
@@ -13,14 +13,14 @@ import kotlin.math.min
  * Copied from https://github.com/noties/Markwon.
  */
 class BlockQuoteSpan(
-  val theme: WysiwygTheme,
+  val theme: WysiwygStyle,
   val recycler: Recycler
 ) : LeadingMarginSpan, WysiwygSpan {
 
   private val marginRect = COMMON_RECT
   private val marginPaint = COMMON_PAINT
 
-  override fun getLeadingMargin(first: Boolean) = theme.blockQuoteIndentationMargin
+  override fun getLeadingMargin(first: Boolean) = theme.blockQuote.indentationMargin
 
   override fun drawLeadingMargin(
     c: Canvas,
@@ -38,9 +38,9 @@ class BlockQuoteSpan(
   ) {
     marginPaint.set(p)
     marginPaint.style = Paint.Style.FILL
-    marginPaint.color = theme.blockQuoteVerticalRuleColor
+    marginPaint.color = theme.blockQuote.leftBorderColor
 
-    val width = theme.blockQuoteVerticalRuleStrokeWidth
+    val width = theme.blockQuote.leftBorderWidth
     val l = x + dir * width
     val r = l + dir * width
     val left = min(l, r)

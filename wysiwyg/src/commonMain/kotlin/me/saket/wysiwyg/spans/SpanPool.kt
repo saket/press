@@ -1,13 +1,13 @@
 package me.saket.wysiwyg.spans
 
-import me.saket.wysiwyg.theme.WysiwygTheme
+import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.util.Stack
 import kotlin.DeprecationLevel.WARNING
 import kotlin.reflect.KClass
 
 typealias Recycler = (WysiwygSpan) -> Unit
 
-class SpanPool(val theme: WysiwygTheme) {
+class SpanPool(val style: WysiwygStyle) {
 
   private val spans = mutableMapOf<KClass<*>, Stack<WysiwygSpan>>()
   val recycler: Recycler = this::recycle

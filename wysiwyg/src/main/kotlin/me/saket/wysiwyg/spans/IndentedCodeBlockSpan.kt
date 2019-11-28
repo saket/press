@@ -8,13 +8,13 @@ import android.text.Layout
 import android.text.TextPaint
 import android.text.style.LeadingMarginSpan
 import android.text.style.MetricAffectingSpan
-import me.saket.wysiwyg.theme.WysiwygTheme
+import me.saket.wysiwyg.style.WysiwygStyle
 
 /**
  * Copied from https://github.com/noties/Markwon.
  */
 class IndentedCodeBlockSpan(
-  val theme: WysiwygTheme,
+  val style: WysiwygStyle,
   val recycler: Recycler
 ) : MetricAffectingSpan(), LeadingMarginSpan, WysiwygSpan {
 
@@ -25,7 +25,7 @@ class IndentedCodeBlockSpan(
 
   override fun updateDrawState(textPaint: TextPaint) = apply(textPaint)
 
-  override fun getLeadingMargin(first: Boolean) = theme.codeBlockMargin
+  override fun getLeadingMargin(first: Boolean) = style.code.codeBlockMargin
 
   private fun apply(paint: TextPaint) {
     paint.typeface = Typeface.MONOSPACE
@@ -47,7 +47,7 @@ class IndentedCodeBlockSpan(
     layout: Layout
   ) {
     paint.style = Paint.Style.FILL
-    paint.color = theme.codeBackgroundColor
+    paint.color = style.code.backgroundColor
 
     val left = if (dir > 0) x else (x - c.width)
     val right = if (dir > 0) c.width else x

@@ -1,6 +1,6 @@
 package me.saket.wysiwyg.parser.highlighters
 
-import me.saket.wysiwyg.theme.WysiwygTheme
+import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.parser.SpanWriter
 import me.saket.wysiwyg.parser.node.ThematicBreak
 import me.saket.wysiwyg.parser.node.chars
@@ -20,7 +20,7 @@ class ThematicBreakVisitor : NodeVisitor<ThematicBreak> {
     pool: SpanPool,
     writer: SpanWriter
   ) {
-    writer.add(pool.foregroundColor(pool.theme.syntaxColor), node.startOffset, node.endOffset)
+    writer.add(pool.foregroundColor(pool.style.syntaxColor), node.startOffset, node.endOffset)
 
     val thematicBreakSyntax = node.chars
 
@@ -36,7 +36,7 @@ class ThematicBreakVisitor : NodeVisitor<ThematicBreak> {
     val immutableSyntax = thematicBreakSyntax.toString()
 
     val hrSpan = thematicBreakSpansPool.get(
-        theme = pool.theme,
+        style = pool.style,
         syntax = immutableSyntax
     )
     writer.add(hrSpan, node.startOffset, node.endOffset)
@@ -59,11 +59,11 @@ internal class ThematicSpanPool {
    * @param syntax See [ThematicBreakSpan.syntax].
    */
   internal fun get(
-    theme: WysiwygTheme,
+    style: WysiwygStyle,
     syntax: CharSequence
   ): ThematicBreakSpan {
     val key = recyclingKey(syntax)
-    return pool.remove(key) ?: ThematicBreakSpan(theme, recycler, syntax)
+    return pool.remove(key) ?: ThematicBreakSpan(style, recycler, syntax)
   }
 
   private fun recyclingKey(span: ThematicBreakSpan) =

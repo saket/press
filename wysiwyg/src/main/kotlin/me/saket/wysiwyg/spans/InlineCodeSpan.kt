@@ -3,17 +3,17 @@ package me.saket.wysiwyg.spans
 import android.graphics.Typeface
 import android.text.TextPaint
 import android.text.style.MetricAffectingSpan
-import me.saket.wysiwyg.theme.WysiwygTheme
+import me.saket.wysiwyg.style.WysiwygStyle
 
 /**
  * Copied from https://github.com/noties/Markwon.
  */
 class InlineCodeSpan(
-  theme: WysiwygTheme,
+  style: WysiwygStyle,
   val recycler: Recycler
 ) : MetricAffectingSpan(), WysiwygSpan {
 
-  private val codeBackgroundColor = theme.codeBackgroundColor
+  private val codeBackgroundColor = style.code.backgroundColor
 
   override fun updateMeasureState(textPaint: TextPaint) {
     apply(textPaint)
