@@ -4,20 +4,26 @@ import android.app.Activity
 import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color.BLACK
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.View
 import androidx.annotation.DrawableRes
 import com.benasher44.uuid.uuid4
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.detaches
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import me.saket.inboxrecyclerview.page.ExpandablePageLayout
+import me.saket.inboxrecyclerview.page.StandaloneExpandablePageLayout
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.navigation.RealNavigator
 import me.saket.press.shared.navigation.ScreenKey.Back
 import press.App
 import press.animation.FabTransform
-import press.theme.themeAware
+import press.util.withOpacity
 import press.widgets.ThemeAwareActivity
+import press.widgets.dp
 import press.widgets.hideKeyboard
 import press.widgets.showKeyboard
 import java.util.concurrent.TimeUnit.MILLISECONDS
@@ -32,11 +38,7 @@ class EditorActivity : ThemeAwareActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     App.component.inject(this)
     super.onCreate(savedInstanceState)
-
-    setContentView(editorView)
-    themeAware { palette ->
-      editorView.setBackgroundColor(palette.window.backgroundColor)
-    }
+    setContentView(wrapInExpandableLayout(editorView))
 
     val hasTransition = FabTransform.hasActivityTransition(this)
     if (hasTransition) {
@@ -69,6 +71,21 @@ class EditorActivity : ThemeAwareActivity() {
         openMode = NewNote(uuid4()),
         navigator = navigator
     )
+  }
+
+  private fun wrapInExpandableLayout(view: View): ExpandablePageLayout {
+    window.setBackgroundDrawable(ColorDrawable(BLACK.withOpacity(0.1f)))
+
+    return StandaloneExpandablePageLayout(this).apply {
+      elevation = dp(40f)
+      onPageRelease = { collapseEligible ->
+        if (collapseEligible) {
+          dismiss()
+        }
+      }
+      expandImmediately()
+      addView(view)
+    }
   }
 
   private fun dismiss() {

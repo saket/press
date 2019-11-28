@@ -83,7 +83,7 @@ buildscript {
       'junit': 'junit:junit:4.12',
       'truth': 'com.google.truth:truth:0.40',
       'timber': 'com.jakewharton.timber:timber:4.7.1',
-      'inboxRecyclerView': 'me.saket:inboxrecyclerview:2.0.0-beta3',
+      'inboxRecyclerView': 'me.saket:inboxrecyclerview:2.0.0-SNAPSHOT',
       'kotlinTime': 'com.github.kizitonwose.time:time-android:1.0.2',
       'threeTenBp': [
           'core': 'org.threeten:threetenbp:1.3.8:no-tzdb',
