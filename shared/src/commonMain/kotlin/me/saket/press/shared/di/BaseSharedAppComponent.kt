@@ -4,6 +4,7 @@ import me.saket.press.shared.db.SharedDatabaseComponent
 import me.saket.press.shared.editor.SharedEditorComponent
 import me.saket.press.shared.home.SharedHomeComponent
 import me.saket.press.shared.localization.SharedLocalizationComponent
+import me.saket.press.shared.note.PrePopulatedNotes
 import me.saket.press.shared.note.SharedNoteComponent
 import me.saket.press.shared.time.SharedTimeModule
 import org.koin.core.context.startKoin
@@ -26,5 +27,7 @@ abstract class BaseSharedAppComponent {
           ) + platformDependencies
       )
     }
+
+    koin<PrePopulatedNotes>().doWork()
   }
 }

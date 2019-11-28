@@ -24,10 +24,12 @@ class FakeNoteRepository : NoteRepository {
   override fun notes(): Observable<List<Note>> =
     observableOf(savedNotes)
 
-  override fun create(noteUuid: Uuid, content: String): Completable {
+  override fun create(vararg insertNotes: InsertNote): Completable {
     return completable {
-      assertNull(findNote(noteUuid))
-      savedNotes += fakeNote(uuid = noteUuid, content = content)
+      for (note in insertNotes) {
+        assertNull(findNote(note.uuid))
+        savedNotes += fakeNote(uuid = note.uuid, content = note.content)
+      }
     }
   }
 

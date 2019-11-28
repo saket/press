@@ -5,11 +5,17 @@ import org.koin.dsl.module
 
 internal object SharedNoteComponent {
   val module = module {
-    single<NoteRepository> { RealNotesRepository(
+    single<NoteRepository> { RealNoteRepository(
         noteQueries = get(),
-        settings = get(),
         ioScheduler = get(named("io")),
         clock = get()
     ) }
+    single {
+      PrePopulatedNotes(
+          settings = get(),
+          repository = get(),
+          ioScheduler = get(named("io"))
+      )
+    }
   }
 }

@@ -145,6 +145,7 @@ buildscript {
       'multiplatformSettings': [
           'core': "com.russhwolf:multiplatform-settings:$versions.multiplatformSettings",
           'testing': "com.russhwolf:multiplatform-settings-test:$versions.multiplatformSettings"
-      ]
+      ],
+      'robolectric': "org.robolectric:robolectric:4.3.1"
   ]
 }

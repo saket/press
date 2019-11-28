@@ -65,7 +65,7 @@ kotlin {
         implementation kotlin('test')
         implementation kotlin('test-junit')
         implementation deps.androidx.test.jUnit
-        implementation "org.robolectric:robolectric:4.3"
+        implementation deps.robolectric
       }
     }
     iosMain {

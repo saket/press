@@ -1,9 +1,20 @@
 package me.saket.press.shared.note
 
+import com.badoo.reaktive.completable.subscribe
+import com.badoo.reaktive.completable.subscribeOn
+import com.badoo.reaktive.scheduler.Scheduler
 import com.benasher44.uuid.Uuid
+import com.russhwolf.settings.ExperimentalListener
+import com.russhwolf.settings.ObservableSettings
+import com.russhwolf.settings.get
+import com.russhwolf.settings.set
 
-internal object PrePopulatedNotes {
-  val ALL get() = arrayOf(WELCOME, TIPS_AND_TRICKS, HOW_TO_CONTRIBUTE)
+@Suppress("PrivatePropertyName")
+class PrePopulatedNotes(
+  private val settings: ObservableSettings,
+  private val repository: NoteRepository,
+  private val ioScheduler: Scheduler
+) {
 
   /**
    * @param uuid UUIDs are hardcoded to ensure they remain the same for everyone. It's important
@@ -41,4 +52,15 @@ internal object PrePopulatedNotes {
         |Press is a community built app. For feedback and code contribution, checkout its [Github](https://github.com/saket/press) page.
       """.trimMargin()
   )
+
+  fun doWork() {
+    val welcomeNotesPopulated = settings.get("prepopulated_notes_inserted", defaultValue = false)
+    if (welcomeNotesPopulated.not()) {
+      repository.create(WELCOME, TIPS_AND_TRICKS, HOW_TO_CONTRIBUTE)
+          .subscribeOn(ioScheduler)
+          .subscribe {
+            settings["prepopulated_notes_inserted"] = true
+          }
+    }
+  }
 }
