@@ -1,7 +1,7 @@
 package me.saket.press.shared.theme
 
-import me.saket.press.shared.theme.UiStyles.FontWeight.BOLD
-import me.saket.press.shared.theme.UiStyles.FontWeight.REGULAR
+import me.saket.press.shared.theme.UiStyles.FontVariant.BOLD
+import me.saket.press.shared.theme.UiStyles.FontVariant.REGULAR
 import me.saket.press.shared.theme.UiStyles.Text
 import me.saket.press.shared.theme.UiStyles.Typeface.WORK_SANS
 
@@ -37,17 +37,17 @@ object UiStyles {
 
   data class Font(
     val typeface: Typeface,
-    val weight: FontWeight
+    val variant: FontVariant
   )
 
   enum class Typeface {
     WORK_SANS;
 
-    operator fun times(weight: FontWeight) = Font(this, weight)
+    operator fun times(variant: FontVariant) = Font(this, variant)
   }
 
-  enum class FontWeight {
-    REGULAR,
-    BOLD
+  enum class FontVariant(val weight: Int) {
+    REGULAR(weight = 400),
+    BOLD(weight = 700)
   }
 }
