@@ -46,7 +46,6 @@ kotlin {
         implementation kotlin('test-common')
         implementation kotlin('test-annotations-common')
         implementation deps.reaktive.testing.common
-        implementation deps.sqlDelight.driver.jdbcSqlite
         implementation deps.kluent
         implementation deps.multiplatformSettings.testing
       }
@@ -65,6 +64,8 @@ kotlin {
       dependencies {
         implementation kotlin('test')
         implementation kotlin('test-junit')
+        implementation deps.androidx.test.jUnit
+        implementation "org.robolectric:robolectric:4.3"
       }
     }
     iosMain {

@@ -15,6 +15,8 @@ buildscript {
       flipper: '0.23.5',
       klock: '1.8.0',
       multiplatformSettings: '0.4.1',
+      androidXTest: '1.2.0',
+      androidXTestJUnit: '1.1.2-alpha02'
   ]
 
   ext.deps = [
@@ -22,7 +24,13 @@ buildscript {
           'appCompat': 'androidx.appcompat:appcompat:1.0.2',
           'recyclerView': 'androidx.recyclerview:recyclerview:1.0.0',
           'ktx': "androidx.core:core-ktx:1.0.1",
-          'annotations': 'androidx.annotation:annotation:1.1.0'
+          'annotations': 'androidx.annotation:annotation:1.1.0',
+          'test': [
+              'core': "androidx.test:core:$versions.androidXTest",
+              'runner': "androidx.test:runner:$versions.androidXTest",
+              'jUnit': "androidx.test.ext:junit:$versions.androidXTestJUnit",
+              'jUnitKtx': "androidx.test.ext:junit-ktx:$versions.androidXTestJUnit"
+          ]
       ],
       'material': [
           'core': 'com.google.android.material:material:1.0.0'
@@ -54,7 +62,6 @@ buildscript {
               'jdk': "com.squareup.sqldelight:runtime-jvm:${versions.sqlDelight}",
           ],
           'driver': [
-              'jdbcSqlite': "com.squareup.sqldelight:sqlite-driver:${versions.sqlDelight}",
               'android': "com.squareup.sqldelight:android-driver:${versions.sqlDelight}",
               'iOS': "com.squareup.sqldelight:ios-driver:${versions.sqlDelight}",
           ],

@@ -69,9 +69,9 @@ dependencies {
 
   testImplementation deps.junit
 
-  androidTestImplementation 'androidx.test:core:1.2.0'
-  androidTestImplementation 'androidx.test:runner:1.2.0'
-  androidTestImplementation 'androidx.test.ext:junit:1.1.2-alpha02'
-  androidTestImplementation 'androidx.test.ext:junit-ktx:1.1.2-alpha02'
+  androidTestImplementation deps.androidx.test.core
+  androidTestImplementation deps.androidx.test.runner
+  androidTestImplementation deps.androidx.test.jUnit
+  androidTestImplementation deps.androidx.test.jUnitKtx
   androidTestImplementation deps.truth
 }
