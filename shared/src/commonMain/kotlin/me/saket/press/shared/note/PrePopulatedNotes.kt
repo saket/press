@@ -4,14 +4,13 @@ import com.badoo.reaktive.completable.subscribe
 import com.badoo.reaktive.completable.subscribeOn
 import com.badoo.reaktive.scheduler.Scheduler
 import com.benasher44.uuid.Uuid
-import com.russhwolf.settings.ExperimentalListener
-import com.russhwolf.settings.ObservableSettings
-import com.russhwolf.settings.get
-import com.russhwolf.settings.set
+import me.saket.press.shared.settings.Setting
+
+data class PrePopulatedNotesInserted(val inserted: Boolean)
 
 @Suppress("PrivatePropertyName")
 class PrePopulatedNotes(
-  private val settings: ObservableSettings,
+  private val setting: Setting<PrePopulatedNotesInserted>,
   private val repository: NoteRepository,
   private val ioScheduler: Scheduler
 ) {
@@ -54,12 +53,13 @@ class PrePopulatedNotes(
   )
 
   fun doWork() {
-    val welcomeNotesPopulated = settings.get("prepopulated_notes_inserted", defaultValue = false)
-    if (welcomeNotesPopulated.not()) {
+    val (inserted) = setting.get()
+
+    if (inserted.not()) {
       repository.create(WELCOME, TIPS_AND_TRICKS, HOW_TO_CONTRIBUTE)
           .subscribeOn(ioScheduler)
           .subscribe {
-            settings["prepopulated_notes_inserted"] = true
+            setting.set(PrePopulatedNotesInserted(true))
           }
     }
   }
