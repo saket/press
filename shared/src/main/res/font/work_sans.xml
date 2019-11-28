@@ -7,6 +7,11 @@
     app:fontWeight="400" />
 
   <font
+    app:font="@font/work_sans_italic"
+    app:fontStyle="italic"
+    app:fontWeight="400" />
+
+  <font
     app:font="@font/work_sans_bold"
     app:fontStyle="normal"
     app:fontWeight="700" />

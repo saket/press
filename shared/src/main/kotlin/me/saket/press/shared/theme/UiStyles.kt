@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import me.saket.press.shared.R
 import me.saket.press.shared.theme.UiStyles.FontVariant.BOLD
+import me.saket.press.shared.theme.UiStyles.FontVariant.ITALIC
 import me.saket.press.shared.theme.UiStyles.FontVariant.REGULAR
 import me.saket.press.shared.theme.UiStyles.Typeface.WORK_SANS
 
@@ -32,14 +33,12 @@ private fun UiStyles.Text.readFont(view: TextView): Typeface {
   val typeface = ResourcesCompat.getFont(view.context, typefaceRes)
 
   return if (SDK_INT >= P) {
-    val isItalic = when (font.variant) {
-      REGULAR -> false
-      BOLD -> false
-    }
+    val isItalic = font.variant.isItalic
     Typeface.create(typeface, font.variant.weight, isItalic)
   } else {
     val styleInt = when (font.variant) {
       REGULAR -> Typeface.NORMAL
+      ITALIC -> Typeface.ITALIC
       BOLD -> Typeface.BOLD
     }
     Typeface.create(typeface, styleInt)

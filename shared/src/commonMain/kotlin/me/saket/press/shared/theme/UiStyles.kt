@@ -46,8 +46,9 @@ object UiStyles {
     operator fun times(variant: FontVariant) = Font(this, variant)
   }
 
-  enum class FontVariant(val weight: Int) {
-    REGULAR(weight = 400),
-    BOLD(weight = 700)
+  enum class FontVariant(val weight: Int, val isItalic: Boolean) {
+    REGULAR(weight = 400, isItalic = false),
+    ITALIC(weight = 400, isItalic = true),
+    BOLD(weight = 700, isItalic = false)
   }
 }
