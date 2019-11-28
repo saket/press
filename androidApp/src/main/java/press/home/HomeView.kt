@@ -7,6 +7,9 @@ import android.view.View
 import android.view.animation.PathInterpolator
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.view.doOnLayout
+import androidx.core.view.updatePadding
+import androidx.core.view.updatePaddingRelative
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.benasher44.uuid.Uuid
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -72,10 +75,14 @@ class HomeView @AssistedInject constructor(
     adapter = noteAdapter
     tintPainter = TintPainter.uncoveredArea(color = BLACK, opacity = 0.25f)
     itemAnimator = AlphaInAnimator()
+    toolbar.doOnLayout {
+      clipToPadding = false
+      updatePadding(top = toolbar.height)
+    }
     addItemDecoration(SpacingBetweenItemsDecoration(1.dip))
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
-        y = topTo { toolbar.bottom() }.bottomTo { parent.bottom() }
+        y = topTo { parent.top() }.bottomTo { parent.bottom() }
     )
   }
 
