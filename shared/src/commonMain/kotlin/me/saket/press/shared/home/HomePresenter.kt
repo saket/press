@@ -14,7 +14,7 @@ import me.saket.press.shared.ui.Presenter
 class HomePresenter(
   private val repository: NoteRepository,
   private val navigator: Navigator
-) : Presenter<HomeEvent, HomeUiModel, Any> {
+) : Presenter<HomeEvent, HomeUiModel, Nothing> {
 
   override fun uiModels(events: Observable<HomeEvent>): Observable<HomeUiModel> {
     return merge(populateNotes(), events.openNewNoteScreen())

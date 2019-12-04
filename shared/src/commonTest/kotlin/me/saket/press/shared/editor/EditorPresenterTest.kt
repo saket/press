@@ -12,7 +12,7 @@ import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
-import me.saket.press.shared.editor.EditorUiUpdate.PopulateContent
+import me.saket.press.shared.editor.EditorUiEffect.PopulateContent
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.note.FakeNoteRepository
@@ -144,7 +144,7 @@ class EditorPresenterTest {
 
   @Test fun `show new note placeholder on start`() {
     presenter(NewNote(noteUuid))
-        .uiUpdates()
+        .uiEffects()
         .test()
         .apply {
           assertEquals(values[0], PopulateContent(NEW_NOTE_PLACEHOLDER))
@@ -181,7 +181,7 @@ class EditorPresenterTest {
     )
 
     presenter(ExistingNote(noteUuid))
-        .uiUpdates()
+        .uiEffects()
         .test()
         .apply {
           assertValue(PopulateContent("Nicolas Cage favorite dialogues"))

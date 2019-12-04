@@ -22,15 +22,14 @@ import me.saket.press.data.shared.Note
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
-import me.saket.press.shared.editor.EditorUiUpdate.CloseNote
-import me.saket.press.shared.editor.EditorUiUpdate.PopulateContent
+import me.saket.press.shared.editor.EditorUiEffect.CloseNote
+import me.saket.press.shared.editor.EditorUiEffect.PopulateContent
 import me.saket.press.shared.localization.Strings.Editor
 import me.saket.press.shared.note.NoteRepository
 import me.saket.press.shared.note.deletedAt
 import me.saket.press.shared.rx.mapToOptional
 import me.saket.press.shared.rx.mapToSome
 import me.saket.press.shared.rx.observableInterval
-import me.saket.press.shared.rx.takeWhile
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.util.Optional
 
@@ -41,7 +40,7 @@ class EditorPresenter(
   private val computationScheduler: Scheduler,
   private val strings: Editor,
   private val config: EditorConfig
-) : Presenter<EditorEvent, EditorUiModel, EditorUiUpdate> {
+) : Presenter<EditorEvent, EditorUiModel, EditorUiEffect> {
 
   // Need replayingShare or something.
   private val noteStream = createOrFetchNote().share()
@@ -61,7 +60,7 @@ class EditorPresenter(
     return merge(uiModels, autoSave)
   }
 
-  override fun uiUpdates(): Observable<EditorUiUpdate> {
+  override fun uiEffects(): Observable<EditorUiEffect> {
     return merge(
         populateExistingNoteOnStart(),
         populateNewNotePlaceholderOnStart(),
@@ -93,7 +92,7 @@ class EditorPresenter(
         .mapToSome()
   }
 
-  private fun populateExistingNoteOnStart(): Observable<EditorUiUpdate> {
+  private fun populateExistingNoteOnStart(): Observable<EditorUiEffect> {
     return if (openMode is ExistingNote) {
       noteStream
           .take(1)
@@ -103,7 +102,7 @@ class EditorPresenter(
     }
   }
 
-  private fun populateNewNotePlaceholderOnStart(): Observable<EditorUiUpdate> {
+  private fun populateNewNotePlaceholderOnStart(): Observable<EditorUiEffect> {
     return if (openMode is NewNote) {
       observableOf(PopulateContent(NEW_NOTE_PLACEHOLDER))
     } else {
@@ -114,7 +113,7 @@ class EditorPresenter(
   /**
    * Can happen if the note was deleted outside of the app (e.g., on another device).
    */
-  private fun closeIfNoteGetsDeleted(): Observable<EditorUiUpdate> {
+  private fun closeIfNoteGetsDeleted(): Observable<EditorUiEffect> {
     return noteStream
         .filter { it.deletedAt != null }
         .take(1)

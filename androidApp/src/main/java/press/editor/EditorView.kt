@@ -36,17 +36,17 @@ import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode
 import me.saket.press.shared.editor.EditorPresenter
 import me.saket.press.shared.editor.EditorUiModel
-import me.saket.press.shared.editor.EditorUiUpdate
-import me.saket.press.shared.editor.EditorUiUpdate.CloseNote
-import me.saket.press.shared.editor.EditorUiUpdate.PopulateContent
+import me.saket.press.shared.editor.EditorUiEffect
+import me.saket.press.shared.editor.EditorUiEffect.CloseNote
+import me.saket.press.shared.editor.EditorUiEffect.PopulateContent
 import me.saket.press.shared.navigation.Navigator
 import me.saket.press.shared.navigation.ScreenKey.Back
+import me.saket.press.shared.subscribe
 import me.saket.press.shared.theme.DisplayUnits
 import me.saket.press.shared.theme.EditorUiStyles
 import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.theme.from
-import me.saket.press.shared.uiModels
-import me.saket.press.shared.uiUpdates2
+import me.saket.press.shared.uiUpdates
 import me.saket.wysiwyg.Wysiwyg
 import me.saket.wysiwyg.parser.node.HeadingLevel.H1
 import me.saket.wysiwyg.style.WysiwygStyle
@@ -129,7 +129,7 @@ class EditorView @AssistedInject constructor(
       setBackgroundColor(palette.window.editorBackgroundColor)
     }
 
-    // TODO: add support for changing wysiwyg style
+    // TODO: add support for changing WysiwygStyle.
     themePalette()
         .take(1)
         .takeUntil(detaches())
@@ -155,15 +155,10 @@ class EditorView @AssistedInject constructor(
         .map { NoteTextChanged(it.toString()) }
 
     Observable.mergeArray(noteTextChanges)
-        .uiModels(presenter)
+        .uiUpdates(presenter)
         .takeUntil(detaches())
         .observeOn(mainThread())
-        .subscribe(::render)
-
-    presenter.uiUpdates2()
-        .takeUntil(detaches())
-        .observeOn(mainThread())
-        .subscribe(::render)
+        .subscribe(models = ::render, effects = ::render)
   }
 
   override fun onDetachedFromWindow() {
@@ -189,7 +184,7 @@ class EditorView @AssistedInject constructor(
     }
   }
 
-  private fun render(uiUpdate: EditorUiUpdate) {
+  private fun render(uiUpdate: EditorUiEffect) {
     when (uiUpdate) {
       is PopulateContent -> editorEditText.setTextAndCursor(uiUpdate.content)
       is CloseNote -> navigator.goTo(Back)

@@ -9,13 +9,11 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
-import androidx.core.view.updatePaddingRelative
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.benasher44.uuid.Uuid
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.detaches
-import com.jakewharton.rxbinding3.view.focusChanges
 import com.mikepenz.itemanimators.AlphaInAnimator
 import com.soywiz.klock.seconds
 import com.squareup.contour.ContourLayout
@@ -35,15 +33,18 @@ import me.saket.press.shared.home.HomeEvent
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.home.HomeUiModel
+import me.saket.press.shared.home.WindowFocusChanged
 import me.saket.press.shared.navigation.RealNavigator
 import me.saket.press.shared.navigation.ScreenKey.Back
 import me.saket.press.shared.navigation.ScreenKey.ComposeNewNote
-import me.saket.press.shared.uiModels
+import me.saket.press.shared.subscribe
+import me.saket.press.shared.uiUpdates
 import press.editor.EditorActivity
 import press.editor.EditorView
 import press.theme.themeAware
 import press.theme.themed
 import press.util.heightOf
+import press.util.suspendWhile
 import press.util.throttleFirst
 import press.widgets.BackPressInterceptResult
 import press.widgets.BackPressInterceptResult.BACK_PRESS_IGNORED
@@ -54,8 +55,6 @@ import press.widgets.attr
 import press.widgets.doOnNextCollapse
 import press.widgets.locationOnScreen
 import press.widgets.suspendWhileExpanded
-import me.saket.press.shared.home.WindowFocusChanged
-import press.util.suspendWhile
 
 class HomeView @AssistedInject constructor(
   @Assisted context: Context,
@@ -125,17 +124,18 @@ class HomeView @AssistedInject constructor(
         .clicks()
         .map<HomeEvent> { NewNoteClicked }
 
+    // TODO: accept this from the presenter as a Ui effect.
     val navigator = RealNavigator {
       require(it is ComposeNewNote)
       openNewNoteScreen()
     }
 
-    newNoteClicks.uiModels(presenter.create(navigator))
+    newNoteClicks.uiUpdates(presenter.create(navigator))
         .suspendWhileExpanded(noteEditorPage)
         .suspendWhile(windowFocusChanges) { it.hasFocus.not() }
         .takeUntil(detaches())
         .observeOn(mainThread())
-        .subscribe(::render)
+        .subscribe(models = ::render)
   }
 
   override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
