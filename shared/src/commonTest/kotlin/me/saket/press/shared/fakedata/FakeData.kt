@@ -16,7 +16,7 @@ fun fakeNote(
   createdAt: DateTime = clock.nowUtc(),
   updatedAt: DateTime = clock.nowUtc(),
   deletedAt: DateTime? = null
-): Note {
+): Note.Impl {
   return Note.Impl(
       localId = localId,
       uuid = uuid,

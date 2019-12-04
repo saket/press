@@ -2,6 +2,7 @@ package me.saket.press.shared.editor
 
 import com.badoo.reaktive.scheduler.trampolineScheduler
 import com.badoo.reaktive.subject.publish.publishSubject
+import com.badoo.reaktive.test.base.assertNotError
 import com.badoo.reaktive.test.observable.assertValue
 import com.badoo.reaktive.test.observable.test
 import com.badoo.reaktive.test.scheduler.TestScheduler
@@ -18,6 +19,7 @@ import me.saket.press.shared.note.FakeNoteRepository
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldHaveSize
+import org.amshove.kluent.shouldNotBe
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -48,13 +50,15 @@ class EditorPresenterTest {
   @Test fun `blank note is created on start when a new note is opened`() {
     repository.savedNotes shouldHaveSize 0
 
-    presenter(NewNote(noteUuid))
+    val observer = presenter(NewNote(noteUuid))
         .uiModels(events)
         .test()
 
     val createdNote = repository.savedNotes.single()
     createdNote.uuid shouldEqual noteUuid
     createdNote.content shouldEqual ""
+
+    observer.assertNotError()
   }
 
   @Test fun `auto-save note at regular intervals`() {
@@ -63,7 +67,7 @@ class EditorPresenterTest {
         content = "# "
     )
 
-    presenter(NewNote(noteUuid))
+    val observer = presenter(NewNote(noteUuid))
         .uiModels(events)
         .test()
 
@@ -80,21 +84,22 @@ class EditorPresenterTest {
     events.onNext(NoteTextChanged("# Ghost"))
     testScheduler.timer.advanceBy(config.autoSaveEvery.millisecondsLong)
     repository.updateCount shouldBe 2
-  }
 
-  @Test fun `auto-saving stops when note is deleted`() {
+    observer.assertNotError()
   }
 
   @Test fun `blank note is not created on start when an existing note is opened`() {
     repository.savedNotes += fakeNote(uuid = noteUuid, content = "Nicolas")
 
-    presenter(ExistingNote(noteUuid))
+    val observer = presenter(ExistingNote(noteUuid))
         .uiModels(events)
         .test()
 
     val updatedNote = repository.savedNotes.single()
     updatedNote.uuid shouldEqual noteUuid
     updatedNote.content shouldEqual "Nicolas"
+
+    observer.assertNotError()
   }
 
   @Test fun `blank note shouldn't be saved`() {
@@ -133,15 +138,18 @@ class EditorPresenterTest {
     presenter.saveEditorContentOnExit("  ")
     presenter.saveEditorContentOnExit("")
 
-    assertTrue(repository.savedNotes.isEmpty())
+    val deletedNote = repository.savedNotes.last()
+    deletedNote.deletedAtString?.trim() shouldNotBe null
   }
 
   @Test fun `show new note placeholder on start`() {
-    val uiUpdates = presenter(NewNote(noteUuid))
+    presenter(NewNote(noteUuid))
         .uiUpdates()
         .test()
-
-    assertEquals(uiUpdates.values[0], PopulateContent(NEW_NOTE_PLACEHOLDER))
+        .apply {
+          assertEquals(values[0], PopulateContent(NEW_NOTE_PLACEHOLDER))
+        }
+        .assertNotError()
   }
 
   @Test fun `show hint text until the text is changed`() {
@@ -162,6 +170,8 @@ class EditorPresenterTest {
     assertEquals(randomlySelectedHint, uiModels.values[2].hintText)
     assertEquals(null, uiModels.values[3].hintText)
     assertEquals(randomlySelectedHint, uiModels.values[4].hintText)
+
+    uiModels.assertNotError()
   }
 
   @Test fun `populate note content on start`() {
@@ -170,7 +180,12 @@ class EditorPresenterTest {
         content = "Nicolas Cage favorite dialogues"
     )
 
-    val uiUpdates = presenter(ExistingNote(noteUuid)).uiUpdates().test()
-    uiUpdates.assertValue(PopulateContent("Nicolas Cage favorite dialogues"))
+    presenter(ExistingNote(noteUuid))
+        .uiUpdates()
+        .test()
+        .apply {
+          assertValue(PopulateContent("Nicolas Cage favorite dialogues"))
+          assertNotError()
+        }
   }
 }

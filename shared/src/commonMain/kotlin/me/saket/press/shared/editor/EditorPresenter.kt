@@ -7,7 +7,7 @@ import com.badoo.reaktive.completable.subscribe
 import com.badoo.reaktive.completable.subscribeOn
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.distinctUntilChanged
-import com.badoo.reaktive.observable.doOnBeforeNext
+import com.badoo.reaktive.observable.filter
 import com.badoo.reaktive.observable.flatMapCompletable
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
@@ -26,15 +26,13 @@ import me.saket.press.shared.editor.EditorUiUpdate.CloseNote
 import me.saket.press.shared.editor.EditorUiUpdate.PopulateContent
 import me.saket.press.shared.localization.Strings.Editor
 import me.saket.press.shared.note.NoteRepository
+import me.saket.press.shared.note.deletedAt
 import me.saket.press.shared.rx.mapToOptional
 import me.saket.press.shared.rx.mapToSome
 import me.saket.press.shared.rx.observableInterval
 import me.saket.press.shared.rx.takeWhile
-import me.saket.press.shared.rx.withLatestFrom
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.util.Optional
-import me.saket.press.shared.util.filterNone
-import me.saket.press.shared.util.filterSome
 
 class EditorPresenter(
   private val openMode: EditorOpenMode,
@@ -71,7 +69,7 @@ class EditorPresenter(
     )
   }
 
-  private fun createOrFetchNote(): Observable<Optional<Note>> {
+  private fun createOrFetchNote(): Observable<Note> {
     val newOrExistingId = when (openMode) {
       is NewNote -> openMode.placeholderUuid
       is ExistingNote -> openMode.noteUuid
@@ -90,13 +88,14 @@ class EditorPresenter(
           }
         }
 
-    return createIfNeeded.andThen(noteRepository.note(newOrExistingId))
+    return createIfNeeded
+        .andThen(noteRepository.note(newOrExistingId))
+        .mapToSome()
   }
 
   private fun populateExistingNoteOnStart(): Observable<EditorUiUpdate> {
     return if (openMode is ExistingNote) {
       noteStream
-          .filterSome()
           .take(1)
           .map { PopulateContent(it.content) }
     } else {
@@ -117,7 +116,7 @@ class EditorPresenter(
    */
   private fun closeIfNoteGetsDeleted(): Observable<EditorUiUpdate> {
     return noteStream
-        .filterNone()
+        .filter { it.deletedAt != null }
         .take(1)
         .map { CloseNote }
   }
@@ -139,9 +138,9 @@ class EditorPresenter(
     val textChanges = ofType<NoteTextChanged>()
         .map { it.text }
 
+    // TODO: auto-save even if note gets deleted.
     return noteStream
-        .takeWhile { (note) -> note != null }
-        .mapToSome()
+        .takeWhile { it.deletedAt == null }
         .take(1)
         .flatMapCompletable { note ->
           observableInterval(config.autoSaveEvery, computationScheduler)
@@ -172,7 +171,7 @@ class EditorPresenter(
     // the note again here.
     return noteRepository.note(noteId)
         .take(1)
-        .filterSome()
+        .mapToSome()
         .flatMapCompletable { note ->
           val contentChanged = note.content.trim() != trimmedContent
           when {

@@ -3,6 +3,7 @@ package me.saket.press.shared.note
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.observable.Observable
+import com.badoo.reaktive.observable.observableFromFunction
 import com.badoo.reaktive.observable.observableOf
 import com.benasher44.uuid.Uuid
 import me.saket.press.data.shared.Note
@@ -14,13 +15,14 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class FakeNoteRepository : NoteRepository {
-  val savedNotes = mutableListOf<Note>()
+  val savedNotes = mutableListOf<Note.Impl>()
   var updateCount = 0
 
   private fun findNote(noteUuid: Uuid) = savedNotes.find { it.uuid == noteUuid }
 
-  override fun note(noteUuid: Uuid): Observable<Optional<Note>> =
-    observableOf(findNote(noteUuid).toOptional())
+  override fun note(noteUuid: Uuid): Observable<Optional<Note>> {
+    return observableFromFunction { findNote(noteUuid).toOptional() }
+  }
 
   override fun notes(): Observable<List<Note>> =
     observableOf(savedNotes)
@@ -44,8 +46,9 @@ class FakeNoteRepository : NoteRepository {
 
   override fun markAsDeleted(noteUuid: Uuid): Completable {
     return completableFromFunction {
-      assertNotNull(findNote(noteUuid))
-      savedNotes.remove(findNote(noteUuid))
+      val existingNote = findNote(noteUuid)!!
+      assertTrue(savedNotes.remove(existingNote))
+      savedNotes += existingNote.copy(deletedAtString = "current_time")
       updateCount++
     }
   }
