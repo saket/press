@@ -135,12 +135,9 @@ class EditorPresenter(
   }
 
   private fun Observable<EditorEvent>.autoSaveContent(): Observable<EditorUiModel> {
-    val textChanges = ofType<NoteTextChanged>()
-        .map { it.text }
+    val textChanges = ofType<NoteTextChanged>().map { it.text }
 
-    // TODO: auto-save even if note gets deleted.
     return noteStream
-        .takeWhile { it.deletedAt == null }
         .take(1)
         .flatMapCompletable { note ->
           observableInterval(config.autoSaveEvery, computationScheduler)
