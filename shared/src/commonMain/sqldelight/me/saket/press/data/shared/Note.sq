@@ -16,7 +16,7 @@ selectAllNonDeleted:
 SELECT *
 FROM note
 WHERE deletedAtString IS NULL
-ORDER BY createdAt DESC;
+ORDER BY updatedAt DESC;
 
 selectNote:
 SELECT *
