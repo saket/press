@@ -56,7 +56,8 @@ internal class RealNoteRepository(
     return completableFromFunction {
       noteQueries.updateContent(
           uuid = noteUuid,
-          content = content
+          content = content,
+          updatedAt = clock.nowUtc()
       )
     }
   }

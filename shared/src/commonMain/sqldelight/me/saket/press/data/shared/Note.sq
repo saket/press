@@ -29,7 +29,7 @@ VALUES (?,?,?,?,?,?);
 
 updateContent:
 UPDATE note
-SET content = ?
+SET content = ?, updatedAt = ?
 WHERE uuid = ?;
 
 markAsDeleted:
