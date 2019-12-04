@@ -1,8 +1,9 @@
 package me.saket.press.shared.home
 
-import com.benasher44.uuid.Uuid
+import me.saket.press.shared.editor.EditorEvent
 
 interface HomeEvent {
   object NewNoteClicked : HomeEvent
-  data class OpenNoteClicked(val noteUuid: Uuid): HomeEvent
 }
+
+inline class WindowFocusChanged(val hasFocus: Boolean) : EditorEvent

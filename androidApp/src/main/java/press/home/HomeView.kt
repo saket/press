@@ -15,12 +15,14 @@ import com.benasher44.uuid.Uuid
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.detaches
+import com.jakewharton.rxbinding3.view.focusChanges
 import com.mikepenz.itemanimators.AlphaInAnimator
 import com.soywiz.klock.seconds
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import io.reactivex.subjects.BehaviorSubject
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.dimming.TintPainter
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
@@ -52,6 +54,8 @@ import press.widgets.attr
 import press.widgets.doOnNextCollapse
 import press.widgets.locationOnScreen
 import press.widgets.suspendWhileExpanded
+import me.saket.press.shared.home.WindowFocusChanged
+import press.util.suspendWhile
 
 class HomeView @AssistedInject constructor(
   @Assisted context: Context,
@@ -61,6 +65,7 @@ class HomeView @AssistedInject constructor(
 ) : ContourLayout(context) {
 
   private val activity = context as Activity
+  private val windowFocusChanges = BehaviorSubject.createDefault(WindowFocusChanged(hasFocus = true))
 
   private val toolbar = themed(Toolbar(context)).apply {
     setTitle(R.string.app_name)
@@ -127,9 +132,15 @@ class HomeView @AssistedInject constructor(
 
     newNoteClicks.uiModels(presenter.create(navigator))
         .suspendWhileExpanded(noteEditorPage)
+        .suspendWhile(windowFocusChanges) { it.hasFocus.not() }
         .takeUntil(detaches())
         .observeOn(mainThread())
         .subscribe(::render)
+  }
+
+  override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
+    super.onWindowFocusChanged(hasWindowFocus)
+    windowFocusChanges.onNext(WindowFocusChanged(hasWindowFocus))
   }
 
   private fun setupNoteEditorPage() {

@@ -11,6 +11,7 @@ import me.saket.inboxrecyclerview.page.ExpandablePageLayout.PageState.EXPANDED
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout.PageState.EXPANDING
 import me.saket.inboxrecyclerview.page.PageStateChangeCallbacks
 import me.saket.inboxrecyclerview.page.SimplePageStateChangeCallbacks
+import press.util.suspendWhile
 
 fun ExpandablePageLayout.addStateChangeCallbacks(
   first: PageStateChangeCallbacks,
@@ -21,9 +22,7 @@ fun ExpandablePageLayout.addStateChangeCallbacks(
 }
 
 fun <T> Observable<T>.suspendWhileExpanded(page: ExpandablePageLayout): Observable<T> {
-  return Observables.combineLatest(this, page.stateChanges())
-      .filter { page.isCollapsed }
-      .map { (upstreamItem) -> upstreamItem }
+  return suspendWhile(page.stateChanges()) { page.isCollapsed.not() }
 }
 
 private val isMainThread: Boolean
