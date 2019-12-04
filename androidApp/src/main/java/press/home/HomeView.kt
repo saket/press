@@ -20,7 +20,6 @@ import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
-import io.reactivex.subjects.BehaviorSubject
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.dimming.TintPainter
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
@@ -33,7 +32,6 @@ import me.saket.press.shared.home.HomeEvent
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.home.HomeUiModel
-import me.saket.press.shared.home.WindowFocusChanged
 import me.saket.press.shared.navigation.RealNavigator
 import me.saket.press.shared.navigation.ScreenKey.Back
 import me.saket.press.shared.navigation.ScreenKey.ComposeNewNote
@@ -44,7 +42,6 @@ import press.editor.EditorView
 import press.theme.themeAware
 import press.theme.themed
 import press.util.heightOf
-import press.util.suspendWhile
 import press.util.throttleFirst
 import press.widgets.BackPressInterceptResult
 import press.widgets.BackPressInterceptResult.BACK_PRESS_IGNORED
@@ -64,7 +61,6 @@ class HomeView @AssistedInject constructor(
 ) : ContourLayout(context) {
 
   private val activity = context as Activity
-  private val windowFocusChanges = BehaviorSubject.createDefault(WindowFocusChanged(hasFocus = true))
 
   private val toolbar = themed(Toolbar(context)).apply {
     setTitle(R.string.app_name)
@@ -130,17 +126,11 @@ class HomeView @AssistedInject constructor(
       openNewNoteScreen()
     }
 
-    newNoteClicks.uiUpdates(presenter.create(navigator))
+    newNoteClicks.uiUpdates(presenter.create(navigator, includeEmptyNotes = false))
         .suspendWhileExpanded(noteEditorPage)
-        .suspendWhile(windowFocusChanges) { it.hasFocus.not() }
         .takeUntil(detaches())
         .observeOn(mainThread())
         .subscribe(models = ::render)
-  }
-
-  override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
-    super.onWindowFocusChanged(hasWindowFocus)
-    windowFocusChanges.onNext(WindowFocusChanged(hasWindowFocus))
   }
 
   private fun setupNoteEditorPage() {

@@ -23,7 +23,7 @@ class PrePopulatedNotes(
       uuid = Uuid.parse("e731d56f-8db6-4351-a05e-8df27d5086f0")!!,
       content = """
       |# Welcome to Press
-      |Press is a cross-platform app for crafting notes, inspired by [Bear](bear.app) written using Kotlin Multiplatform.
+      |Press is a cross-platform app for crafting notes, inspired by [Bear](bear.app) and written using Kotlin Multiplatform.
     """.trimMargin()
   )
 

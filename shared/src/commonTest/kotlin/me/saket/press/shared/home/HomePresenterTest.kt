@@ -17,7 +17,7 @@ class HomePresenterTest {
   private val noteRepository = FakeNoteRepository()
   private val navigator = FakeNavigator()
 
-  private val presenter = HomePresenter(noteRepository, navigator)
+  private val presenter = HomePresenter(noteRepository, navigator, includeEmptyNotes = true)
   private val events = publishSubject<HomeEvent>()
 
   @Test fun `populate notes on creation`() {

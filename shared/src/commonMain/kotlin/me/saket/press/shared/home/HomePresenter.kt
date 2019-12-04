@@ -13,7 +13,8 @@ import me.saket.press.shared.ui.Presenter
 
 class HomePresenter(
   private val repository: NoteRepository,
-  private val navigator: Navigator
+  private val navigator: Navigator,
+  private val includeEmptyNotes: Boolean
 ) : Presenter<HomeEvent, HomeUiModel, Nothing> {
 
   override fun uiModels(events: Observable<HomeEvent>): Observable<HomeUiModel> {
@@ -27,7 +28,7 @@ class HomePresenter(
         }
 
   private fun populateNotes(): Observable<HomeUiModel> =
-    repository.notes().map {
+    repository.notes(includeEmptyNotes).map {
       HomeUiModel(it.map { note ->
         val (heading, body) = SplitHeadingAndBody.split(note.content)
 
@@ -41,6 +42,9 @@ class HomePresenter(
     }
 
   interface Factory {
-    fun create(navigator: Navigator): HomePresenter
+    fun create(
+      navigator: Navigator,
+      includeEmptyNotes: Boolean
+    ): HomePresenter
   }
 }

@@ -4,8 +4,6 @@ import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.scheduler.Scheduler
-import com.badoo.reaktive.single.Single
-import com.badoo.reaktive.single.singleFromFunction
 import com.benasher44.uuid.Uuid
 import me.saket.press.data.shared.Note
 import me.saket.press.data.shared.NoteQueries
@@ -23,14 +21,17 @@ internal class RealNoteRepository(
 ) : NoteRepository {
 
   override fun note(noteUuid: Uuid): Observable<Optional<Note>> {
-    return noteQueries.selectNote(noteUuid)
+    return noteQueries.note(noteUuid)
         .asObservable(ioScheduler)
         .mapToOneOrOptional()
   }
 
-  override fun notes(): Observable<List<Note>> {
-    return noteQueries
-        .selectAllNonDeleted()
+  override fun notes(includeEmptyNotes: Boolean): Observable<List<Note>> {
+    val query = when {
+      includeEmptyNotes -> noteQueries.nonDeletedNotes()
+      else -> noteQueries.nonDeletedAndNonEmptyNotes()
+    }
+    return query
         .asObservable(ioScheduler)
         .mapToList()
   }

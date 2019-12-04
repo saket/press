@@ -8,8 +8,11 @@ import org.koin.dsl.module
 object SharedHomeComponent {
 
   val module = module {
-    factory { (navigator: Navigator) -> HomePresenter(get(), navigator) }
+    factory { (navigator: Navigator, includeEmptyNotes: Boolean) -> HomePresenter(get(), navigator, includeEmptyNotes) }
   }
 
-  fun presenter(navigator: Navigator): HomePresenter = koin { parametersOf(navigator) }
+  fun presenter(
+    navigator: Navigator,
+    includeEmptyNotes: Boolean
+  ) = koin<HomePresenter> { parametersOf(navigator, includeEmptyNotes) }
 }

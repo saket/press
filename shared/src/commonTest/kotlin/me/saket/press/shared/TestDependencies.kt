@@ -15,5 +15,5 @@ expect class AndroidJUnit4 : Runner
 
 @Suppress("unused")
 @OptionalExpectation
-@ExperimentalMultiplatform
+@UseExperimental(ExperimentalMultiplatform::class)
 expect annotation class RunWith(val value: KClass<out Runner>)

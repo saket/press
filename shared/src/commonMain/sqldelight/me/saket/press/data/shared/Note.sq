@@ -12,13 +12,19 @@ CREATE TABLE note (
 
 CREATE INDEX note_content ON note(content);
 
-selectAllNonDeleted:
+nonDeletedNotes:
 SELECT *
 FROM note
 WHERE deletedAtString IS NULL
 ORDER BY updatedAt DESC;
 
-selectNote:
+nonDeletedAndNonEmptyNotes:
+SELECT *
+FROM note
+WHERE deletedAtString IS NULL AND content != ""
+ORDER BY updatedAt DESC;
+
+note:
 SELECT *
 FROM note
 WHERE uuid = ?;

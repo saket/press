@@ -10,7 +10,6 @@ import me.saket.press.data.shared.Note
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.util.Optional
 import me.saket.press.shared.util.toOptional
-import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -24,8 +23,13 @@ class FakeNoteRepository : NoteRepository {
     return observableFromFunction { findNote(noteUuid).toOptional() }
   }
 
-  override fun notes(): Observable<List<Note>> =
-    observableOf(savedNotes)
+  override fun notes(includeEmptyNotes: Boolean): Observable<List<Note>> =
+    observableFromFunction {
+      when {
+        includeEmptyNotes -> savedNotes
+        else -> savedNotes.filter { it.content.isNotEmpty() }
+      }
+    }
 
   override fun create(vararg insertNotes: InsertNote): Completable {
     return completableFromFunction {

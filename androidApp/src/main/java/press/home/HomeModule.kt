@@ -12,7 +12,10 @@ object HomeModule {
   @Provides
   fun presenter(): HomePresenter.Factory {
     return object : HomePresenter.Factory {
-      override fun create(navigator: Navigator) = SharedHomeComponent.presenter(navigator)
+      override fun create(
+        navigator: Navigator,
+        includeEmptyNotes: Boolean
+      ) = SharedHomeComponent.presenter(navigator, includeEmptyNotes)
     }
   }
 }
