@@ -110,7 +110,10 @@ buildscript {
               'iOS64': "com.badoo.reaktive:reaktive-ios64:$versions.reaktive"
           ],
           'testing': [
-              'common': "com.badoo.reaktive:reaktive-testing:$versions.reaktive"
+              'common': "com.badoo.reaktive:reaktive-testing:$versions.reaktive",
+              // Unit tests fail without this. This shouldn't be needed explicitly.
+              // Report an issue on https://github.com/badoo/Reaktive/issues.
+              'utils': "com.badoo.reaktive:utils:$versions.reaktive"
           ],
           'interop': [
               'android': "com.badoo.reaktive:rxjava2-interop:$versions.reaktive"

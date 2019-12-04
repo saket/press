@@ -2,6 +2,7 @@ package me.saket.press.shared.note
 
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.completable
+import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.observableOf
 import com.benasher44.uuid.Uuid
@@ -25,7 +26,7 @@ class FakeNoteRepository : NoteRepository {
     observableOf(savedNotes)
 
   override fun create(vararg insertNotes: InsertNote): Completable {
-    return completable {
+    return completableFromFunction {
       for (note in insertNotes) {
         assertNull(findNote(note.uuid))
         savedNotes += fakeNote(uuid = note.uuid, content = note.content)
@@ -34,14 +35,14 @@ class FakeNoteRepository : NoteRepository {
   }
 
   override fun update(noteUuid: Uuid, content: String): Completable {
-    return completable {
+    return completableFromFunction {
       assertTrue(savedNotes.remove(findNote(noteUuid)))
       savedNotes += fakeNote(uuid = noteUuid, content = content)
     }
   }
 
   override fun markAsDeleted(noteUuid: Uuid): Completable {
-    return completable {
+    return completableFromFunction {
       assertNotNull(findNote(noteUuid))
       savedNotes.remove(findNote(noteUuid))
     }

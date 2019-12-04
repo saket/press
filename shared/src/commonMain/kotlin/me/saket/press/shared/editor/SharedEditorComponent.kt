@@ -1,5 +1,7 @@
 package me.saket.press.shared.editor
 
+import com.soywiz.klock.TimeSpan
+import com.soywiz.klock.seconds
 import me.saket.press.shared.di.koin
 import me.saket.press.shared.localization.Strings
 import org.koin.core.parameter.parametersOf
@@ -13,9 +15,13 @@ object SharedEditorComponent {
         openMode = openMode,
         noteRepository = get(),
         ioScheduler = get(named("io")),
-        strings = get<Strings>().editor
+        computationScheduler = get(named("computation")),
+        strings = get<Strings>().editor,
+        config = editorConfig()
     ) }
   }
+
+  fun editorConfig() = EditorConfig(autoSaveEvery = 5.seconds)
 
   fun presenter(openMode: EditorOpenMode): EditorPresenter = koin { parametersOf(openMode) }
 }

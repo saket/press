@@ -1,20 +1,32 @@
 package me.saket.press.shared.editor
 
 import com.badoo.reaktive.completable.Completable
+import com.badoo.reaktive.completable.andThen
+import com.badoo.reaktive.completable.asObservable
 import com.badoo.reaktive.completable.completableOfEmpty
+import com.badoo.reaktive.completable.doOnBeforeComplete
 import com.badoo.reaktive.completable.subscribe
 import com.badoo.reaktive.completable.subscribeOn
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.distinctUntilChanged
-import com.badoo.reaktive.observable.firstOrError
+import com.badoo.reaktive.observable.doOnBeforeComplete
+import com.badoo.reaktive.observable.doOnBeforeDispose
+import com.badoo.reaktive.observable.doOnBeforeFinally
+import com.badoo.reaktive.observable.doOnBeforeNext
+import com.badoo.reaktive.observable.doOnBeforeSubscribe
+import com.badoo.reaktive.observable.flatMapCompletable
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observableOf
 import com.badoo.reaktive.observable.observableOfEmpty
 import com.badoo.reaktive.observable.ofType
+import com.badoo.reaktive.observable.publish
+import com.badoo.reaktive.observable.share
 import com.badoo.reaktive.observable.take
+import com.badoo.reaktive.observable.toObservable
 import com.badoo.reaktive.scheduler.Scheduler
-import com.badoo.reaktive.single.flatMapCompletable
+import com.benasher44.uuid.uuid4
+import me.saket.press.data.shared.Note
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
@@ -23,6 +35,10 @@ import me.saket.press.shared.editor.EditorUiUpdate.PopulateContent
 import me.saket.press.shared.localization.Strings.Editor
 import me.saket.press.shared.note.NoteRepository
 import me.saket.press.shared.rx.mapToOptional
+import me.saket.press.shared.rx.mapToSome
+import me.saket.press.shared.rx.observableInterval
+import me.saket.press.shared.rx.takeWhile
+import me.saket.press.shared.rx.withLatestFrom
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.util.Optional
 import me.saket.press.shared.util.filterNone
@@ -32,13 +48,27 @@ class EditorPresenter(
   private val openMode: EditorOpenMode,
   private val noteRepository: NoteRepository,
   private val ioScheduler: Scheduler,
-  private val strings: Editor
+  private val computationScheduler: Scheduler,
+  private val strings: Editor,
+  private val config: EditorConfig
 ) : Presenter<EditorEvent, EditorUiModel, EditorUiUpdate> {
 
+  // Need replayingShare or something.
+  private val noteStream = createOrFetchNote().share()
+
   override fun uiModels(events: Observable<EditorEvent>): Observable<EditorUiModel> {
-    return events
+    // Using share() is dangerous when UI events are emitted immediately
+    // on subscribe. Find a way to make publishElements() work in Rx.ext.kt.
+    // https://github.com/badoo/Reaktive/issues/315.
+    val sharedEvents = events.share()
+
+    val uiModels = sharedEvents
         .toggleHintText()
         .map { (hint) -> EditorUiModel(hintText = hint) }
+
+    val autoSave = sharedEvents.autoSaveContent()
+
+    return merge(uiModels, autoSave)
   }
 
   override fun uiUpdates(): Observable<EditorUiUpdate> {
@@ -49,9 +79,31 @@ class EditorPresenter(
     )
   }
 
+  private fun createOrFetchNote(): Observable<Optional<Note>> {
+    val newOrExistingId = when (openMode) {
+      is NewNote -> openMode.placeholderUuid
+      is ExistingNote -> openMode.noteUuid
+    }
+
+    // This function can get called multiple times. Don't create a
+    // new note everytime. If the note was deleted on another device,
+    // continue updating it.
+    val createIfNeeded = noteRepository
+        .note(newOrExistingId)
+        .take(1)
+        .flatMapCompletable { (existingNote) ->
+          when (existingNote) {
+            null -> noteRepository.create(newOrExistingId, "")
+            else -> completableOfEmpty()
+          }
+        }
+
+    return createIfNeeded.andThen(noteRepository.note(newOrExistingId))
+  }
+
   private fun populateExistingNoteOnStart(): Observable<EditorUiUpdate> {
     return if (openMode is ExistingNote) {
-      noteRepository.note(openMode.noteUuid)
+      noteStream
           .filterSome()
           .take(1)
           .map { PopulateContent(it.content) }
@@ -72,15 +124,10 @@ class EditorPresenter(
    * Can happen if the note was deleted outside of the app (e.g., on another device).
    */
   private fun closeIfNoteGetsDeleted(): Observable<EditorUiUpdate> {
-    return if (openMode is ExistingNote) {
-      noteRepository.note(openMode.noteUuid)
-          .filterNone()
-          .take(1)
-          .map { CloseNote }
-
-    } else {
-      observableOfEmpty()
-    }
+    return noteStream
+        .filterNone()
+        .take(1)
+        .map { CloseNote }
   }
 
   private fun Observable<EditorEvent>.toggleHintText(): Observable<Optional<String>> {
@@ -96,30 +143,48 @@ class EditorPresenter(
         }
   }
 
+  private fun Observable<EditorEvent>.autoSaveContent(): Observable<EditorUiModel> {
+    val textChanges = ofType<NoteTextChanged>()
+        .map { it.text }
+
+    return noteStream
+        .takeWhile { (note) -> note != null }
+        .mapToSome()
+        .take(1)
+        .flatMapCompletable { note ->
+          observableInterval(config.autoSaveEvery, computationScheduler)
+              .withLatestFrom(textChanges)
+              .flatMapCompletable { (_, text) ->
+                noteRepository.update(note.uuid, text)
+              }
+        }
+        .andThen(observableOfEmpty())
+  }
+
   fun saveEditorContentOnExit(content: CharSequence) {
-    createUpdateOrDeleteNote(content.toString())
+    updateOrDeleteNote(content.toString())
         .subscribeOn(ioScheduler)
         .subscribe()
   }
 
-  private fun createUpdateOrDeleteNote(content: String): Completable {
-    val noteUuid = openMode.noteUuid
-    return noteRepository.note(noteUuid)
-        .firstOrError()
-        .flatMapCompletable { (existingNote) ->
-          val hasExistingNote = existingNote != null
-          val nonBlankContent =
-            content.isNotBlank() && content.trim() != NEW_NOTE_PLACEHOLDER.trim()
+  private fun updateOrDeleteNote(content: String): Completable {
+    val shouldDelete = content.isBlank() || content.trim() == NEW_NOTE_PLACEHOLDER.trim()
 
-          val shouldCreate = hasExistingNote.not() && nonBlankContent
-          val shouldUpdate = hasExistingNote && nonBlankContent
-          val shouldDelete = hasExistingNote && nonBlankContent.not()
+    val noteId = when (openMode) {
+      is NewNote -> openMode.placeholderUuid
+      is ExistingNote -> openMode.noteUuid
+    }
 
-          when {
-            shouldCreate -> noteRepository.create(noteUuid, content)
-            shouldUpdate -> noteRepository.update(noteUuid, content)
-            shouldDelete -> noteRepository.markAsDeleted(noteUuid)
-            else -> completableOfEmpty()
+    // For reasons I don't understand, noteStream doesn't get re-subscribed
+    // when this function is called after EditorView gets detached. Fetching
+    // the note again here.
+    return noteRepository.note(noteId)
+        .take(1)
+        .filterSome()
+        .flatMapCompletable { note ->
+          when (shouldDelete) {
+            true -> noteRepository.markAsDeleted(note.uuid)
+            else -> noteRepository.update(note.uuid, content)
           }
         }
   }
