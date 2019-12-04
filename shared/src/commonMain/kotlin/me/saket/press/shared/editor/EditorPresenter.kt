@@ -2,30 +2,22 @@ package me.saket.press.shared.editor
 
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.andThen
-import com.badoo.reaktive.completable.asObservable
 import com.badoo.reaktive.completable.completableOfEmpty
-import com.badoo.reaktive.completable.doOnBeforeComplete
 import com.badoo.reaktive.completable.subscribe
 import com.badoo.reaktive.completable.subscribeOn
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.distinctUntilChanged
-import com.badoo.reaktive.observable.doOnBeforeComplete
-import com.badoo.reaktive.observable.doOnBeforeDispose
-import com.badoo.reaktive.observable.doOnBeforeFinally
 import com.badoo.reaktive.observable.doOnBeforeNext
-import com.badoo.reaktive.observable.doOnBeforeSubscribe
 import com.badoo.reaktive.observable.flatMapCompletable
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observableOf
 import com.badoo.reaktive.observable.observableOfEmpty
 import com.badoo.reaktive.observable.ofType
-import com.badoo.reaktive.observable.publish
 import com.badoo.reaktive.observable.share
 import com.badoo.reaktive.observable.take
-import com.badoo.reaktive.observable.toObservable
+import com.badoo.reaktive.observable.withLatestFrom
 import com.badoo.reaktive.scheduler.Scheduler
-import com.benasher44.uuid.uuid4
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
@@ -153,10 +145,9 @@ class EditorPresenter(
         .take(1)
         .flatMapCompletable { note ->
           observableInterval(config.autoSaveEvery, computationScheduler)
-              .withLatestFrom(textChanges)
-              .flatMapCompletable { (_, text) ->
-                noteRepository.update(note.uuid, text)
-              }
+              .withLatestFrom(textChanges) { _, text -> text }
+              .distinctUntilChanged()
+              .flatMapCompletable { text -> noteRepository.update(note.uuid, text) }
         }
         .andThen(observableOfEmpty())
   }
@@ -168,7 +159,8 @@ class EditorPresenter(
   }
 
   private fun updateOrDeleteNote(content: String): Completable {
-    val shouldDelete = content.isBlank() || content.trim() == NEW_NOTE_PLACEHOLDER.trim()
+    val trimmedContent = content.trim()
+    val shouldDelete = content.isBlank() || trimmedContent == NEW_NOTE_PLACEHOLDER.trim()
 
     val noteId = when (openMode) {
       is NewNote -> openMode.placeholderUuid
@@ -182,9 +174,11 @@ class EditorPresenter(
         .take(1)
         .filterSome()
         .flatMapCompletable { note ->
-          when (shouldDelete) {
-            true -> noteRepository.markAsDeleted(note.uuid)
-            else -> noteRepository.update(note.uuid, content)
+          val contentChanged = note.content.trim() != trimmedContent
+          when {
+            shouldDelete -> noteRepository.markAsDeleted(note.uuid)
+            contentChanged -> noteRepository.update(note.uuid, content)
+            else -> completableOfEmpty()
           }
         }
   }

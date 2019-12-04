@@ -1,7 +1,6 @@
 package me.saket.press.shared.note
 
 import com.badoo.reaktive.completable.Completable
-import com.badoo.reaktive.completable.completable
 import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.observableOf
@@ -16,6 +15,7 @@ import kotlin.test.assertTrue
 
 class FakeNoteRepository : NoteRepository {
   val savedNotes = mutableListOf<Note>()
+  var updateCount = 0
 
   private fun findNote(noteUuid: Uuid) = savedNotes.find { it.uuid == noteUuid }
 
@@ -38,6 +38,7 @@ class FakeNoteRepository : NoteRepository {
     return completableFromFunction {
       assertTrue(savedNotes.remove(findNote(noteUuid)))
       savedNotes += fakeNote(uuid = noteUuid, content = content)
+      updateCount++
     }
   }
 
@@ -45,6 +46,7 @@ class FakeNoteRepository : NoteRepository {
     return completableFromFunction {
       assertNotNull(findNote(noteUuid))
       savedNotes.remove(findNote(noteUuid))
+      updateCount++
     }
   }
 }

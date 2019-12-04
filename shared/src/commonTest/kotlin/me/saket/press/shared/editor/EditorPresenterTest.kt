@@ -76,6 +76,10 @@ class EditorPresenterTest {
     events.onNext(NoteTextChanged("# Ghost"))
     testScheduler.timer.advanceBy(config.autoSaveEvery.millisecondsLong)
     savedNote().content shouldBe "# Ghost"
+
+    events.onNext(NoteTextChanged("# Ghost"))
+    testScheduler.timer.advanceBy(config.autoSaveEvery.millisecondsLong)
+    repository.updateCount shouldBe 2
   }
 
   @Test fun `auto-saving stops when note is deleted`() {
