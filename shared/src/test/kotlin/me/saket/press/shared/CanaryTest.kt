@@ -5,7 +5,7 @@ import kotlin.test.assertEquals
 
 class CanaryTest {
 
-  @Test fun foo() {
+  @Test fun canary() {
     assertEquals(Platform.name, "Android")
   }
 }

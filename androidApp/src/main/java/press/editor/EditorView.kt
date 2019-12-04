@@ -60,6 +60,7 @@ import press.widgets.fromOreo
 import press.widgets.setTextAndCursor
 import press.widgets.textColor
 import press.widgets.textSizePx
+import java.util.concurrent.TimeUnit.SECONDS
 
 @SuppressLint("SetTextI18n")
 class EditorView @AssistedInject constructor(

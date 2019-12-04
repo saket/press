@@ -30,6 +30,7 @@ import me.saket.press.shared.note.deletedAt
 import me.saket.press.shared.rx.mapToOptional
 import me.saket.press.shared.rx.mapToSome
 import me.saket.press.shared.rx.observableInterval
+import me.saket.press.shared.rx.publishElements
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.util.Optional
 
@@ -46,18 +47,15 @@ class EditorPresenter(
   private val noteStream = createOrFetchNote().share()
 
   override fun uiModels(events: Observable<EditorEvent>): Observable<EditorUiModel> {
-    // Using share() is dangerous when UI events are emitted immediately
-    // on subscribe. Find a way to make publishElements() work in Rx.ext.kt.
-    // https://github.com/badoo/Reaktive/issues/315.
-    val sharedEvents = events.share()
+    return events.publishElements { sharedEvents ->
+      val uiModels = sharedEvents
+          .toggleHintText()
+          .map { (hint) -> EditorUiModel(hintText = hint) }
 
-    val uiModels = sharedEvents
-        .toggleHintText()
-        .map { (hint) -> EditorUiModel(hintText = hint) }
+      val autoSave = sharedEvents.autoSaveContent()
 
-    val autoSave = sharedEvents.autoSaveContent()
-
-    return merge(uiModels, autoSave)
+      merge(uiModels, autoSave)
+    }
   }
 
   override fun uiEffects(): Observable<EditorUiEffect> {
