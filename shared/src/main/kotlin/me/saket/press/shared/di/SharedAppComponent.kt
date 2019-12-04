@@ -14,17 +14,15 @@ import org.koin.dsl.module
 actual object SharedAppComponent : BaseSharedAppComponent() {
 
   fun initialize(appContext: Application) {
-    val platformDependencies = module {
-      single<Context> { appContext }
-      single<SqlDriver> { androidSqliteDriver(appContext) }
-      single<Settings> { androidSettings() }
-    }
-    setupGraph(platformDependencies)
+    setupGraph(PlatformDependencies(
+        sqlDriver = { androidSqliteDriver(appContext) },
+        settings = { androidSettings(appContext) }
+    ))
   }
 
   private fun androidSqliteDriver(appContext: Application) =
     AndroidSqliteDriver(PressDatabase.Schema, appContext, "press.db")
 
-  private fun Scope.androidSettings() =
-    AndroidSettings(PreferenceManager.getDefaultSharedPreferences(get()))
+  private fun androidSettings(appContext: Application) =
+    AndroidSettings(PreferenceManager.getDefaultSharedPreferences(appContext))
 }

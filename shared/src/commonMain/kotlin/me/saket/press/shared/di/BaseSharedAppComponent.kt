@@ -8,13 +8,11 @@ import me.saket.press.shared.note.PrePopulatedNotes
 import me.saket.press.shared.note.SharedNoteComponent
 import me.saket.press.shared.time.SharedTimeModule
 import org.koin.core.context.startKoin
-import org.koin.core.module.Module
 
 expect object SharedAppComponent : BaseSharedAppComponent
 
 abstract class BaseSharedAppComponent {
-
-  fun setupGraph(platformDependencies: Module) {
+  fun setupGraph(platform: PlatformDependencies) {
     startKoin {
       modules(
           listOf(
@@ -23,8 +21,9 @@ abstract class BaseSharedAppComponent {
               SharedNoteComponent.module,
               SharedDatabaseComponent.module,
               SharedTimeModule.module,
-              SharedLocalizationComponent.module
-          ) + platformDependencies
+              SharedLocalizationComponent.module,
+              platform.asKoinModule()
+          )
       )
     }
 

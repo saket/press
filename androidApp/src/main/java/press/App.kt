@@ -24,5 +24,4 @@ abstract class App : Application() {
   }
 
   abstract fun buildDependencyGraph(): AppComponent
-
 }
