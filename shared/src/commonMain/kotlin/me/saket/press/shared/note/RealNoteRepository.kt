@@ -4,9 +4,12 @@ import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.scheduler.Scheduler
+import com.badoo.reaktive.single.Single
+import com.badoo.reaktive.single.singleFromFunction
 import com.benasher44.uuid.Uuid
 import me.saket.press.data.shared.Note
 import me.saket.press.data.shared.NoteQueries
+import me.saket.press.shared.db.DateTimeAdapter
 import me.saket.press.shared.rx.asObservable
 import me.saket.press.shared.rx.mapToList
 import me.saket.press.shared.rx.mapToOneOrOptional
@@ -42,7 +45,7 @@ internal class RealNoteRepository(
               content = note.content,
               createdAt = clock.nowUtc(),
               updatedAt = clock.nowUtc(),
-              deletedAt = null
+              deletedAtString = null
           )
         }
       }
@@ -62,7 +65,7 @@ internal class RealNoteRepository(
     return completableFromFunction {
       noteQueries.markAsDeleted(
           uuid = noteUuid,
-          deletedAt = clock.nowUtc()
+          deletedAtString = DateTimeAdapter.encode(clock.nowUtc())
       )
     }
   }

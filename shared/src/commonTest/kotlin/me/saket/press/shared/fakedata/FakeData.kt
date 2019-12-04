@@ -4,6 +4,7 @@ import com.benasher44.uuid.Uuid
 import com.benasher44.uuid.uuid4
 import com.soywiz.klock.DateTime
 import me.saket.press.data.shared.Note
+import me.saket.press.shared.db.DateTimeAdapter
 import me.saket.press.shared.time.FakeClock
 
 private val clock = FakeClock()
@@ -22,6 +23,6 @@ fun fakeNote(
       content = content,
       createdAt = createdAt,
       updatedAt = updatedAt,
-      deletedAt = deletedAt
+      deletedAtString = deletedAt?.let{ DateTimeAdapter.encode(it) }
   )
 }

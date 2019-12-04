@@ -7,7 +7,7 @@ CREATE TABLE note (
   content TEXT NOT NULL,
   createdAt TEXT AS DateTime NOT NULL,
   updatedAt TEXT AS DateTime NOT NULL,
-  deletedAt TEXT AS DateTime
+  deletedAtString TEXT AS String
 );
 
 CREATE INDEX note_content ON note(content);
@@ -15,14 +15,13 @@ CREATE INDEX note_content ON note(content);
 selectAllNonDeleted:
 SELECT *
 FROM note
-WHERE deletedAt IS NULL
+WHERE deletedAtString IS NULL
 ORDER BY createdAt DESC;
 
 selectNote:
 SELECT *
 FROM note
-WHERE uuid = ?
-ORDER BY createdAt DESC;
+WHERE uuid = ?;
 
 insert:
 INSERT INTO note
@@ -35,5 +34,5 @@ WHERE uuid = ?;
 
 markAsDeleted:
 UPDATE note
-SET deletedAt = ?
+SET deletedAtString = ?
 WHERE uuid = ?;

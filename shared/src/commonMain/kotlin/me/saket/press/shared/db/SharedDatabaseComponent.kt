@@ -1,5 +1,6 @@
 package me.saket.press.shared.db
 
+import com.badoo.reaktive.scheduler.computationScheduler
 import com.badoo.reaktive.scheduler.ioScheduler
 import com.squareup.sqldelight.db.SqlDriver
 import me.saket.press.PressDatabase
@@ -12,6 +13,7 @@ internal object SharedDatabaseComponent {
     single { get<SqlDriver>().createPressDatabase() }
     single { get<PressDatabase>().noteQueries }
     single(named("io")) { ioScheduler }
+    single(named("computation")) { computationScheduler }
   }
 }
 
@@ -20,9 +22,8 @@ internal fun SqlDriver.createPressDatabase(): PressDatabase {
       driver = this,
       noteAdapter = Note.Adapter(
           uuidAdapter = UuidAdapter(),
-          createdAtAdapter = DateTimeAdapter(),
-          updatedAtAdapter = DateTimeAdapter(),
-          deletedAtAdapter = DateTimeAdapter()
+          createdAtAdapter = DateTimeAdapter,
+          updatedAtAdapter = DateTimeAdapter
       )
   )
 }
