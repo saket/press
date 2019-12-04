@@ -47,22 +47,22 @@ fun WysiwygStyle.Companion.from(palette: MarkdownPalette, displayUnits: DisplayU
           indentationMargin = displayUnits.fromPixels(24).roundToInt(),
           textColor = palette.blockQuoteTextColor
       ),
-      list = WysiwygStyle.List(
-          indentationMargin = displayUnits.fromPixels(24).roundToInt()
-      ),
-      link = Link(
-          titleTextColor = palette.linkTextColor,
-          urlTextColor = palette.linkUrlColor
-      ),
-      thematicBreak = ThematicBreak(
-          color = palette.thematicBreakColor,
-          height = displayUnits.fromPixels(4)
-      ),
       code = Code(
           backgroundColor = palette.codeBackgroundColor,
           codeBlockMargin = displayUnits.fromPixels(8).roundToInt()
       ),
       heading = Heading(
           textColor = palette.headingTextColor
+      ),
+      link = Link(
+          titleTextColor = palette.linkTextColor,
+          urlTextColor = palette.linkUrlColor
+      ),
+      list = WysiwygStyle.List(
+          indentationMargin = displayUnits.fromPixels(24).roundToInt()
+      ),
+      thematicBreak = ThematicBreak(
+          color = palette.thematicBreakColor,
+          height = displayUnits.fromPixels(4)
       )
   )
