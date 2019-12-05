@@ -47,8 +47,8 @@ kotlin {
         implementation kotlin('test-annotations-common')
         implementation deps.reaktive.testing.common
         implementation deps.reaktive.testing.utils
-        implementation deps.kluent
         implementation deps.multiplatformSettings.testing
+        implementation deps.atrium
       }
     }
     androidMain {

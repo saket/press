@@ -1,5 +1,10 @@
 package me.saket.press.shared.editor
 
+import ch.tutteli.atrium.api.fluent.en_GB.hasSize
+import ch.tutteli.atrium.api.fluent.en_GB.isEmpty
+import ch.tutteli.atrium.api.fluent.en_GB.notToBeNull
+import ch.tutteli.atrium.api.fluent.en_GB.toBe
+import ch.tutteli.atrium.api.verbs.expect
 import com.badoo.reaktive.scheduler.trampolineScheduler
 import com.badoo.reaktive.subject.publish.publishSubject
 import com.badoo.reaktive.test.base.assertNotError
@@ -16,10 +21,6 @@ import me.saket.press.shared.editor.EditorUiEffect.PopulateContent
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.note.FakeNoteRepository
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
-import org.amshove.kluent.shouldHaveSize
-import org.amshove.kluent.shouldNotBe
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -48,16 +49,16 @@ class EditorPresenterTest {
   }
 
   @Test fun `blank note is created on start when a new note is opened`() {
-    repository.savedNotes shouldHaveSize 0
+    expect(repository.savedNotes).hasSize(0)
 
     val observer = presenter(NewNote(noteUuid))
         .uiModels(events)
         .test()
 
-    val createdNote = repository.savedNotes.single()
-    createdNote.uuid shouldEqual noteUuid
-    createdNote.content shouldEqual ""
-
+    repository.savedNotes.single().let {
+      expect(it.uuid).toBe(noteUuid)
+      expect(it.content).isEmpty()
+    }
     observer.assertNotError()
   }
 
@@ -75,15 +76,15 @@ class EditorPresenterTest {
 
     events.onNext(NoteTextChanged("# Ghost Rider"))
     testScheduler.timer.advanceBy(config.autoSaveEvery.millisecondsLong)
-    savedNote().content shouldBe "# Ghost Rider"
+    expect(savedNote().content).toBe("# Ghost Rider")
 
     events.onNext(NoteTextChanged("# Ghost"))
     testScheduler.timer.advanceBy(config.autoSaveEvery.millisecondsLong)
-    savedNote().content shouldBe "# Ghost"
+    expect(savedNote().content).toBe("# Ghost")
 
     events.onNext(NoteTextChanged("# Ghost"))
     testScheduler.timer.advanceBy(config.autoSaveEvery.millisecondsLong)
-    repository.updateCount shouldBe 2
+    expect(repository.updateCount).toBe(2)
 
     observer.assertNotError()
   }
@@ -95,10 +96,10 @@ class EditorPresenterTest {
         .uiModels(events)
         .test()
 
-    val updatedNote = repository.savedNotes.single()
-    updatedNote.uuid shouldEqual noteUuid
-    updatedNote.content shouldEqual "Nicolas"
-
+    repository.savedNotes.single().let {
+      expect(it.uuid).toBe(noteUuid)
+      expect(it.content).toBe("Nicolas")
+    }
     observer.assertNotError()
   }
 
@@ -139,7 +140,7 @@ class EditorPresenterTest {
     presenter.saveEditorContentOnExit("")
 
     val deletedNote = repository.savedNotes.last()
-    deletedNote.deletedAtString?.trim() shouldNotBe null
+    expect(deletedNote.deletedAtString).notToBeNull()
   }
 
   @Test fun `show new note placeholder on start`() {

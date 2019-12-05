@@ -7,6 +7,7 @@ import com.badoo.reaktive.completable.subscribe
 import com.badoo.reaktive.completable.subscribeOn
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.distinctUntilChanged
+import com.badoo.reaktive.observable.doOnBeforeNext
 import com.badoo.reaktive.observable.filter
 import com.badoo.reaktive.observable.flatMapCompletable
 import com.badoo.reaktive.observable.map
@@ -167,11 +168,9 @@ class EditorPresenter(
         .take(1)
         .mapToSome()
         .flatMapCompletable { note ->
-          val contentChanged = note.content.trim() != trimmedContent
           when {
             shouldDelete -> noteRepository.markAsDeleted(note.uuid)
-            contentChanged -> noteRepository.update(note.uuid, content)
-            else -> completableOfEmpty()
+            else -> noteRepository.update(note.uuid, content)
           }
         }
   }

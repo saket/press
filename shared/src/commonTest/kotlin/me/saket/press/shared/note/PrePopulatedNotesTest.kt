@@ -1,8 +1,9 @@
 package me.saket.press.shared.note
 
+import ch.tutteli.atrium.api.fluent.en_GB.hasSize
+import ch.tutteli.atrium.api.verbs.expect
 import com.badoo.reaktive.scheduler.trampolineScheduler
 import me.saket.press.shared.settings.FakeSetting
-import org.amshove.kluent.shouldHaveSize
 import kotlin.test.Test
 
 class PrePopulatedNotesTest {
@@ -19,16 +20,16 @@ class PrePopulatedNotesTest {
   @Test fun `notes are pre-populated on first app launch`() {
     setting.set(PrePopulatedNotesInserted(false))
 
-    repository.savedNotes shouldHaveSize 0
+    expect(repository.savedNotes).hasSize(0)
 
     prePopulatedNotes.doWork()
-    repository.savedNotes shouldHaveSize 3
+    expect(repository.savedNotes).hasSize(3)
   }
 
   @Test fun `notes aren't pre-populated on subsequent app launches`() {
     setting.set(PrePopulatedNotesInserted(true))
 
     prePopulatedNotes.doWork()
-    repository.savedNotes shouldHaveSize 0
+    expect(repository.savedNotes).hasSize(0)
   }
 }

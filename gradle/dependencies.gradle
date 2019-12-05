@@ -16,7 +16,8 @@ buildscript {
       klock: '1.8.0',
       multiplatformSettings: '0.4.1',
       androidXTest: '1.2.0',
-      androidXTestJUnit: '1.1.2-alpha02'
+      androidXTestJUnit: '1.1.2-alpha02',
+      atrium: '0.9.0-alpha'
   ]
 
   ext.deps = [
@@ -144,11 +145,11 @@ buildscript {
           ]
       ],
       'itemAnimators': "com.mikepenz:itemanimators:1.1.0",
-      'kluent': "org.amshove.kluent:kluent:1.57",
       'multiplatformSettings': [
           'core': "com.russhwolf:multiplatform-settings:$versions.multiplatformSettings",
           'testing': "com.russhwolf:multiplatform-settings-test:$versions.multiplatformSettings"
       ],
-      'robolectric': "org.robolectric:robolectric:4.3.1"
+      'robolectric': "org.robolectric:robolectric:4.3.1",
+      'atrium': "ch.tutteli.atrium:atrium-fluent-en_GB:$versions.atrium"
   ]
 }

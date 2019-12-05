@@ -42,3 +42,8 @@ markAsDeleted:
 UPDATE note
 SET deletedAtString = ?
 WHERE uuid = ?;
+
+-- Test functions
+testInsert:
+INSERT INTO note
+VALUES ?;
