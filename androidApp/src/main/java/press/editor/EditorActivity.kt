@@ -17,8 +17,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.StandaloneExpandablePageLayout
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
-import me.saket.press.shared.navigation.RealNavigator
-import me.saket.press.shared.navigation.ScreenKey.Back
 import press.App
 import press.animation.FabTransform
 import press.util.withOpacity
@@ -59,17 +57,10 @@ class EditorActivity : ThemeAwareActivity() {
   }
 
   private fun createEditorView(): EditorView {
-    val navigator = RealNavigator { screenKey ->
-      when (screenKey) {
-        Back -> dismiss()
-        else -> error("Unhandled $screenKey")
-      }
-    }
-
     return editorViewFactory.create(
         context = this@EditorActivity,
         openMode = NewNote(uuid4()),
-        navigator = navigator
+        onDismiss = ::dismiss
     )
   }
 

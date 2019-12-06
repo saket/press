@@ -5,27 +5,24 @@ import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.ofType
 import me.saket.press.shared.editor.EditorPresenter
+import me.saket.press.shared.home.HomeUiEffect.ComposeNewNote
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
-import me.saket.press.shared.navigation.Navigator
-import me.saket.press.shared.navigation.ScreenKey
 import me.saket.press.shared.note.NoteRepository
-import me.saket.press.shared.rx.consumeOnNext
 import me.saket.press.shared.ui.Presenter
 
 class HomePresenter(
   private val args: Args,
   private val repository: NoteRepository
-) : Presenter<HomeEvent, HomeUiModel, Nothing> {
+) : Presenter<HomeEvent, HomeUiModel, HomeUiEffect> {
 
-  override fun uiModels(events: Observable<HomeEvent>): Observable<HomeUiModel> {
-    return merge(populateNotes(), events.openNewNoteScreen())
-  }
+  override fun uiModels(publishedEvents: Observable<HomeEvent>) =
+    merge(populateNotes())
 
-  private fun Observable<HomeEvent>.openNewNoteScreen(): Observable<HomeUiModel> =
-    ofType<NewNoteClicked>()
-        .consumeOnNext {
-          args.navigator.goTo(ScreenKey.ComposeNewNote)
-        }
+  override fun uiEffects(publishedEvents: Observable<HomeEvent>) =
+    publishedEvents.openNewNoteScreen()
+
+  private fun Observable<HomeEvent>.openNewNoteScreen(): Observable<HomeUiEffect> =
+    ofType<NewNoteClicked>().map { ComposeNewNote }
 
   private fun populateNotes(): Observable<HomeUiModel> =
     repository.notes(args.includeEmptyNotes).map {
@@ -51,7 +48,6 @@ class HomePresenter(
    * been nice.
    */
   data class Args(
-    val navigator: Navigator,
     /**
      * [EditorPresenter] creates a new note as soon as the editor screen is opened,
      * causing the new note to show up on home while the new note screen is opening.

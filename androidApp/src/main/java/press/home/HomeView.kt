@@ -32,16 +32,16 @@ import me.saket.press.shared.home.HomeEvent
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.home.HomePresenter.Args
+import me.saket.press.shared.home.HomeUiEffect
+import me.saket.press.shared.home.HomeUiEffect.ComposeNewNote
 import me.saket.press.shared.home.HomeUiModel
-import me.saket.press.shared.navigation.RealNavigator
-import me.saket.press.shared.navigation.ScreenKey.Back
-import me.saket.press.shared.navigation.ScreenKey.ComposeNewNote
 import me.saket.press.shared.subscribe
 import me.saket.press.shared.uiUpdates
 import press.editor.EditorActivity
 import press.editor.EditorView
 import press.theme.themeAware
 import press.theme.themed
+import press.util.exhaustive
 import press.util.heightOf
 import press.util.throttleFirst
 import press.widgets.BackPressInterceptResult
@@ -121,33 +121,21 @@ class HomeView @AssistedInject constructor(
         .clicks()
         .map<HomeEvent> { NewNoteClicked }
 
-    // TODO: accept this from the presenter as a Ui effect.
-    val navigator = RealNavigator {
-      require(it is ComposeNewNote)
-      openNewNoteScreen()
-    }
-
-    val presenter = presenter.create(Args(navigator, includeEmptyNotes = false))
+    val presenter = presenter.create(Args(includeEmptyNotes = false))
 
     newNoteClicks.uiUpdates(presenter)
         .suspendWhileExpanded(noteEditorPage)
         .takeUntil(detaches())
         .observeOn(mainThread())
-        .subscribe(models = ::render)
+        .subscribe(models = ::render, effects = ::render)
   }
 
   private fun setupNoteEditorPage() {
     val createEditorView = { noteUuid: Uuid ->
-      val editorNavigator = RealNavigator { screen ->
-        when (screen) {
-          is Back -> notesList.collapse()
-          else -> error("Unhandled $screen")
-        }
-      }
       editorViewFactory.create(
           context = context,
           openMode = ExistingNote(noteUuid),
-          navigator = editorNavigator
+          onDismiss = notesList::collapse
       )
     }
 
@@ -192,6 +180,12 @@ class HomeView @AssistedInject constructor(
 
   private fun render(model: HomeUiModel) {
     noteAdapter.submitList(model.notes)
+  }
+
+  private fun render(effect: HomeUiEffect) {
+    when (effect) {
+      ComposeNewNote -> openNewNoteScreen()
+    }.exhaustive
   }
 
   private fun openNewNoteScreen() {

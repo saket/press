@@ -49,8 +49,8 @@ class EditorPresenter(
   // replay(1).autoConnect() might also work once they're released
   private val noteStream = createOrFetchNote().share()
 
-  override fun uiModels(events: Observable<EditorEvent>): Observable<EditorUiModel> {
-    return events.publishElements { sharedEvents ->
+  override fun uiModels(publishedEvents: Observable<EditorEvent>): Observable<EditorUiModel> {
+    return publishedEvents.publishElements { sharedEvents ->
       val uiModels = sharedEvents
           .toggleHintText()
           .map { (hint) -> EditorUiModel(hintText = hint) }
@@ -61,7 +61,7 @@ class EditorPresenter(
     }
   }
 
-  override fun uiEffects(): Observable<EditorUiEffect> {
+  override fun uiEffects(publishedEvents: Observable<EditorEvent>): Observable<EditorUiEffect> {
     return merge(
         populateExistingNoteOnStart(),
         populateNewNotePlaceholderOnStart(),
@@ -184,7 +184,7 @@ class EditorPresenter(
   data class Args(val openMode: EditorOpenMode)
 
   companion object {
-    
+
     internal const val NEW_NOTE_PLACEHOLDER = "# "
   }
 }

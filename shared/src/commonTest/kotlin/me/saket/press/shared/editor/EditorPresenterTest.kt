@@ -146,7 +146,7 @@ class EditorPresenterTest {
 
   @Test fun `show new note placeholder on start`() {
     presenter(NewNote(noteUuid))
-        .uiEffects()
+        .uiEffects(events)
         .test()
         .apply {
           assertEquals(values[0], PopulateContent(NEW_NOTE_PLACEHOLDER))
@@ -183,7 +183,7 @@ class EditorPresenterTest {
     )
 
     presenter(ExistingNote(noteUuid))
-        .uiEffects()
+        .uiEffects(events)
         .test()
         .apply {
           assertValue(PopulateContent("Nicolas Cage favorite dialogues"))

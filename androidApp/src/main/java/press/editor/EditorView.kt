@@ -40,8 +40,6 @@ import me.saket.press.shared.editor.EditorUiModel
 import me.saket.press.shared.editor.EditorUiEffect
 import me.saket.press.shared.editor.EditorUiEffect.CloseNote
 import me.saket.press.shared.editor.EditorUiEffect.PopulateContent
-import me.saket.press.shared.navigation.Navigator
-import me.saket.press.shared.navigation.ScreenKey.Back
 import me.saket.press.shared.subscribe
 import me.saket.press.shared.theme.DisplayUnits
 import me.saket.press.shared.theme.EditorUiStyles
@@ -61,13 +59,12 @@ import press.widgets.fromOreo
 import press.widgets.setTextAndCursor
 import press.widgets.textColor
 import press.widgets.textSizePx
-import java.util.concurrent.TimeUnit.SECONDS
 
 @SuppressLint("SetTextI18n")
 class EditorView @AssistedInject constructor(
   @Assisted context: Context,
   @Assisted openMode: EditorOpenMode,
-  @Assisted private val navigator: Navigator,
+  @Assisted private val onDismiss: () -> Unit,
   presenterFactory: EditorPresenter.Factory
 ) : ContourLayout(context) {
 
@@ -145,7 +142,7 @@ class EditorView @AssistedInject constructor(
       // TODO: detect if the keyboard is up and delay going back by
       //  a bit so that the IRV behind is resized before this View
       //  start collapsing.
-      navigator.goTo(Back)
+      onDismiss()
     }
   }
 
@@ -189,7 +186,7 @@ class EditorView @AssistedInject constructor(
   private fun render(uiUpdate: EditorUiEffect) {
     when (uiUpdate) {
       is PopulateContent -> editorEditText.setTextAndCursor(uiUpdate.content)
-      is CloseNote -> navigator.goTo(Back)
+      is CloseNote -> onDismiss()
     }.exhaustive
   }
 
@@ -198,7 +195,7 @@ class EditorView @AssistedInject constructor(
     fun create(
       context: Context,
       openMode: EditorOpenMode,
-      navigator: Navigator
+      onDismiss: () -> Unit
     ): EditorView
   }
 }
