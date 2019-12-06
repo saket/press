@@ -7,7 +7,6 @@ import com.badoo.reaktive.completable.subscribe
 import com.badoo.reaktive.completable.subscribeOn
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.distinctUntilChanged
-import com.badoo.reaktive.observable.doOnBeforeNext
 import com.badoo.reaktive.observable.filter
 import com.badoo.reaktive.observable.flatMapCompletable
 import com.badoo.reaktive.observable.map
@@ -36,7 +35,7 @@ import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.util.Optional
 
 class EditorPresenter(
-  private val openMode: EditorOpenMode,
+  args: Args,
   private val noteRepository: NoteRepository,
   private val ioScheduler: Scheduler,
   private val computationScheduler: Scheduler,
@@ -44,7 +43,10 @@ class EditorPresenter(
   private val config: EditorConfig
 ) : Presenter<EditorEvent, EditorUiModel, EditorUiEffect> {
 
-  // Need replayingShare or something.
+  private val openMode = args.openMode
+
+  // replayingShare() would have been better.
+  // replay(1).autoConnect() might also work once they're released
   private val noteStream = createOrFetchNote().share()
 
   override fun uiModels(events: Observable<EditorEvent>): Observable<EditorUiModel> {
@@ -176,10 +178,13 @@ class EditorPresenter(
   }
 
   interface Factory {
-    fun create(openMode: EditorOpenMode): EditorPresenter
+    fun create(args: Args): EditorPresenter
   }
 
+  data class Args(val openMode: EditorOpenMode)
+
   companion object {
+    
     internal const val NEW_NOTE_PLACEHOLDER = "# "
   }
 }

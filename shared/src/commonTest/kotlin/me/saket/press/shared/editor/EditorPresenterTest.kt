@@ -16,6 +16,7 @@ import com.soywiz.klock.seconds
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
+import me.saket.press.shared.editor.EditorPresenter.Args
 import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
 import me.saket.press.shared.editor.EditorUiEffect.PopulateContent
 import me.saket.press.shared.fakedata.fakeNote
@@ -39,7 +40,7 @@ class EditorPresenterTest {
 
   private fun presenter(openMode: EditorOpenMode): EditorPresenter {
     return EditorPresenter(
-        openMode = openMode,
+        args = Args(openMode),
         noteRepository = repository,
         ioScheduler = trampolineScheduler,
         computationScheduler = testScheduler,

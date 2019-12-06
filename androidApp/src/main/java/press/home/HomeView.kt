@@ -31,6 +31,7 @@ import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.home.HomeEvent
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomePresenter
+import me.saket.press.shared.home.HomePresenter.Args
 import me.saket.press.shared.home.HomeUiModel
 import me.saket.press.shared.navigation.RealNavigator
 import me.saket.press.shared.navigation.ScreenKey.Back
@@ -126,7 +127,9 @@ class HomeView @AssistedInject constructor(
       openNewNoteScreen()
     }
 
-    newNoteClicks.uiUpdates(presenter.create(navigator, includeEmptyNotes = false))
+    val presenter = presenter.create(Args(navigator, includeEmptyNotes = false))
+
+    newNoteClicks.uiUpdates(presenter)
         .suspendWhileExpanded(noteEditorPage)
         .takeUntil(detaches())
         .observeOn(mainThread())

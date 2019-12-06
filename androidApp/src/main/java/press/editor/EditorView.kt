@@ -35,6 +35,7 @@ import me.saket.press.shared.editor.EditorEvent
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode
 import me.saket.press.shared.editor.EditorPresenter
+import me.saket.press.shared.editor.EditorPresenter.Args
 import me.saket.press.shared.editor.EditorUiModel
 import me.saket.press.shared.editor.EditorUiEffect
 import me.saket.press.shared.editor.EditorUiEffect.CloseNote
@@ -120,7 +121,7 @@ class EditorView @AssistedInject constructor(
     )
   }
 
-  private val presenter = presenterFactory.create(openMode)
+  private val presenter = presenterFactory.create(Args(openMode))
 
   init {
     scrollView.addView(editorEditText, MATCH_PARENT, WRAP_CONTENT)

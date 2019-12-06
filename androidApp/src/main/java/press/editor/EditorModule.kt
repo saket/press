@@ -13,8 +13,9 @@ object EditorModule {
 
   @Provides
   fun presenter(): EditorPresenter.Factory {
+    // SAM conversion of Kotlin interfaces would have been nice.
     return object : EditorPresenter.Factory {
-      override fun create(openMode: EditorOpenMode) = SharedEditorComponent.presenter(openMode)
+      override fun create(args: EditorPresenter.Args) = SharedEditorComponent.presenter(args)
     }
   }
 

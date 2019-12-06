@@ -5,6 +5,7 @@ import com.badoo.reaktive.test.observable.test
 import com.benasher44.uuid.uuid4
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
+import me.saket.press.shared.home.HomePresenter.Args
 import me.saket.press.shared.navigation.FakeNavigator
 import me.saket.press.shared.navigation.ScreenKey
 import me.saket.press.shared.note.FakeNoteRepository
@@ -17,7 +18,10 @@ class HomePresenterTest {
   private val noteRepository = FakeNoteRepository()
   private val navigator = FakeNavigator()
 
-  private val presenter = HomePresenter(noteRepository, navigator, includeEmptyNotes = true)
+  private val presenter = HomePresenter(
+      args = Args(navigator, includeEmptyNotes = true),
+      repository = noteRepository
+  )
   private val events = publishSubject<HomeEvent>()
 
   @Test fun `populate notes on creation`() {
