@@ -9,6 +9,10 @@ data class EditorUiModel(
 )
 
 sealed class EditorUiEffect {
-  data class PopulateContent(val content: String) : EditorUiEffect()
+  data class PopulateContent(
+    val content: String,
+    val moveCursorToEnd: Boolean
+  ) : EditorUiEffect()
+
   object CloseNote : EditorUiEffect()
 }

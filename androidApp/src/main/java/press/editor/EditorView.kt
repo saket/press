@@ -56,6 +56,7 @@ import press.theme.themed
 import press.util.exhaustive
 import press.widgets.Truss
 import press.widgets.fromOreo
+import press.widgets.setText
 import press.widgets.textColor
 import press.widgets.textSizePx
 
@@ -172,8 +173,6 @@ class EditorView @AssistedInject constructor(
       headingHintTextView.text = Truss()
           .pushSpan(EditorHeadingHintSpan(H1))
           .pushSpan(ForegroundColorSpan(Color.TRANSPARENT))
-          // Using a space character doesn't consume the same width
-          // as '#'. Probably because the font isn't monospaced.
           .append("# ")
           .popSpan()
           .append(model.hintText ?: "")
@@ -184,7 +183,7 @@ class EditorView @AssistedInject constructor(
 
   private fun render(uiUpdate: EditorUiEffect) {
     when (uiUpdate) {
-      is PopulateContent -> editorEditText.setText(uiUpdate.content)
+      is PopulateContent -> editorEditText.setText(uiUpdate.content, moveCursorToEnd = uiUpdate.moveCursorToEnd)
       is CloseNote -> onDismiss()
     }.exhaustive
   }

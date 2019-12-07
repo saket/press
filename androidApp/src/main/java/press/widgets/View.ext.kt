@@ -60,6 +60,13 @@ fun Toolbar.findTitleView(): TextView {
   return children.find { it is TextView } as TextView
 }
 
+fun EditText.setText(text: CharSequence, moveCursorToEnd: Boolean) {
+  setText(text)
+  if (moveCursorToEnd) {
+    setSelection(this.text.length)
+  }
+}
+
 fun EditText.showKeyboard(): Boolean {
   requestFocus()
   val inputManager = context.getSystemService(InputMethodManager::class.java)

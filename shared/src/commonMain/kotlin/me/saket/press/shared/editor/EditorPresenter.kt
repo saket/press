@@ -97,7 +97,7 @@ class EditorPresenter(
     return if (openMode is ExistingNote) {
       noteStream
           .take(1)
-          .map { PopulateContent(it.content) }
+          .map { PopulateContent(it.content, moveCursorToEnd = false) }
     } else {
       observableOfEmpty()
     }
@@ -105,7 +105,7 @@ class EditorPresenter(
 
   private fun populateNewNotePlaceholderOnStart(): Observable<EditorUiEffect> {
     return if (openMode is NewNote) {
-      observableOf(PopulateContent(NEW_NOTE_PLACEHOLDER))
+      observableOf(PopulateContent(NEW_NOTE_PLACEHOLDER, moveCursorToEnd = true))
     } else {
       observableOfEmpty()
     }

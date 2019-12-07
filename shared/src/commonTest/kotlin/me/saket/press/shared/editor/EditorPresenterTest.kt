@@ -134,7 +134,7 @@ class EditorPresenterTest {
         .uiEffects(events)
         .test()
         .apply {
-          assertEquals(values[0], PopulateContent(NEW_NOTE_PLACEHOLDER))
+          assertEquals(values[0], PopulateContent(NEW_NOTE_PLACEHOLDER, moveCursorToEnd = true))
         }
         .assertNotError()
   }
@@ -171,7 +171,7 @@ class EditorPresenterTest {
         .uiEffects(events)
         .test()
         .apply {
-          assertValue(PopulateContent("Nicolas Cage favorite dialogues"))
+          assertValue(PopulateContent("Nicolas Cage favorite dialogues", moveCursorToEnd = false))
           assertNotError()
         }
   }
