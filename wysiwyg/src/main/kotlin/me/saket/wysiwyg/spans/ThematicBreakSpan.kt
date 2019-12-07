@@ -18,9 +18,9 @@ actual class ThematicBreakSpan actual constructor(
 
   /** Used for centering the rule with the text. */
   private val topOffsetFactor: Float = when (syntax[0]) {
-    '*' -> -0.11f
-    '-' -> 0.07f
-    '_' -> 0.40f
+    '*' -> -0.3f
+    '-' -> -0.05f
+    '_' -> 0.35f
     else -> throw UnsupportedOperationException("Unknown thematic break mode: $syntax")
   }
 
