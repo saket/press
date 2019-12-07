@@ -27,20 +27,59 @@ class PrePopulatedNotes(
     """.trimMargin()
   )
 
-  private val TIPS_AND_TRICKS = InsertNote(
+  private val MARKDOWN_GUIDE = InsertNote(
       uuid = Uuid.parse("8f4192fd-38cf-4c15-8ac7-028d15fe5fc3")!!,
       content = """
-        |# Tips and tricks
-        |Press supports these markdown syntax:
-        |- Bold
-        |- Italic
-        |- Strikethrough
-        |- Headings
-        |- Quote
-        |- Horizontal rule
-        |- Lists
-        |- Links
-        |- Code
+      | # Markdown guide
+      |Press understands standard markdown syntaxes, including: **bold**, *italic*, ~~strikethrough~~, and many more:
+      |
+      |### Code blocks
+      |```
+      |fun helloWorld() {
+      |  println(""${'"'}
+      |    Code blocks are wrapped inside 
+      |    three ticks.
+      |  ""${'"'})
+      |}
+      |``` 
+      |
+      |### Headings
+      |Headings start with 1-6 `#` characters at the start of the line. 
+      |
+      |```
+      |# Heading 1
+      |## Heading 2
+      |### Heading 3
+      |#### Heading 4
+      |##### Heading 5
+      |###### Heading 6
+      |```
+      |
+      |### Links
+      |Links use a set of square brackets (`[]`) for describing the link text, followed by regular parentheses (`()`) containing the URL. 
+      |
+      |[Rick and Morty](https://www.imdb.com/title/tt2861424/).
+      |
+      |### Lists
+      |Press supports ordered (numbered) and unordered (bulleted) lists. Unordered lists use asterisks, pluses, and hyphens — interchangeably — as list markers:
+      |
+      |- National Treasure
+      |+ Ghost Rider
+      |* Face/Off
+      |
+      |Ordered lists use numbers followed by periods:
+      |
+      |1. The Last of Us
+      |2. Death Stranding
+      |3. Cyberpunk 2077
+      |
+      |### Thematic breaks
+      |Lines starting with three asterisks (`*`), hyphens (`-`) or underscores (`_`) are rendered as horizontal rules, a.k.a. “thematic breaks”. 
+      |
+      |---
+      |
+      |### Quotes
+      |> A paragraph starting with a `>` are rendered as a quote. 
       """.trimMargin()
   )
 
@@ -56,7 +95,7 @@ class PrePopulatedNotes(
     val (inserted) = setting.get()
 
     if (inserted.not()) {
-      repository.create(WELCOME, TIPS_AND_TRICKS, HOW_TO_CONTRIBUTE)
+      repository.create(WELCOME, MARKDOWN_GUIDE, HOW_TO_CONTRIBUTE)
           .subscribeOn(ioScheduler)
           .subscribe {
             setting.set(PrePopulatedNotesInserted(true))
