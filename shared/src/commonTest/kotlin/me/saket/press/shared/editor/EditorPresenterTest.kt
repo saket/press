@@ -104,18 +104,6 @@ class EditorPresenterTest {
     observer.assertNotError()
   }
 
-  @Test fun `blank note shouldn't be saved`() {
-    val presenter = presenter(NewNote(noteUuid))
-
-    presenter.saveEditorContentOnExit("  \n ")
-    presenter.saveEditorContentOnExit("  ")
-    presenter.saveEditorContentOnExit("")
-    presenter.saveEditorContentOnExit(NEW_NOTE_PLACEHOLDER)
-    presenter.saveEditorContentOnExit("  $NEW_NOTE_PLACEHOLDER ")
-
-    assertTrue(repository.savedNotes.isEmpty())
-  }
-
   @Test fun `updating an existing note on exit when its content is non-blank`() {
     repository.savedNotes += fakeNote(
         uuid = noteUuid,
