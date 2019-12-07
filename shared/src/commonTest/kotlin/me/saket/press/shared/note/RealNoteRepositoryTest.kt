@@ -1,8 +1,8 @@
 package me.saket.press.shared.note
 
-import ch.tutteli.atrium.api.fluent.en_GB.hasSize
-import ch.tutteli.atrium.api.fluent.en_GB.toBe
-import ch.tutteli.atrium.api.verbs.expect
+import assertk.assertThat
+import assertk.assertions.hasSize
+import assertk.assertions.isEqualTo
 import com.badoo.reaktive.observable.firstOrError
 import com.badoo.reaktive.scheduler.trampolineScheduler
 import com.badoo.reaktive.single.blockingGet
@@ -40,11 +40,11 @@ class RealNoteRepositoryTest {
         .blockingGet()
 
     savedNote.let {
-      expect(it.uuid).toBe(noteUuid)
-      expect(it.content).toBe(content)
-      expect(it.createdAt).toBe(clock.nowUtc())
-      expect(it.updatedAt).toBe(clock.nowUtc())
-      expect(it.deletedAt).toBe(null)
+      assertThat(it.uuid).isEqualTo(noteUuid)
+      assertThat(it.content).isEqualTo(content)
+      assertThat(it.createdAt).isEqualTo(clock.nowUtc())
+      assertThat(it.updatedAt).isEqualTo(clock.nowUtc())
+      assertThat(it.deletedAt).isEqualTo(null)
     }
   }
 
@@ -56,7 +56,7 @@ class RealNoteRepositoryTest {
         .firstOrError()
         .blockingGet()
 
-    expect(savedNotes).hasSize(1)
+    assertThat(savedNotes).hasSize(1)
   }
 
   @Test fun `include empty notes if requested`() {
@@ -67,7 +67,7 @@ class RealNoteRepositoryTest {
         .firstOrError()
         .blockingGet()
 
-    expect(savedNotes).hasSize(2)
+    assertThat(savedNotes).hasSize(2)
   }
 
   @Test fun `update a note only if its content is changed`() {
@@ -76,10 +76,10 @@ class RealNoteRepositoryTest {
     val savedNote = { noteQueries.note(note.uuid).executeAsOne() }
 
     repository.update(note.uuid, content = "# Nicolas").test()
-    expect(savedNote().updatedAt).toBe(note.updatedAt)
+    assertThat(savedNote().updatedAt).isEqualTo(note.updatedAt)
 
     clock.advanceTimeBy(5.seconds)
     repository.update(note.uuid, content = "# Nicolas Cage").test()
-    expect(savedNote().updatedAt).toBe(note.updatedAt + 5.seconds)
+    assertThat(savedNote().updatedAt).isEqualTo(note.updatedAt + 5.seconds)
   }
 }

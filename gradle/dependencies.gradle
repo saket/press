@@ -150,6 +150,8 @@ buildscript {
           'testing': "com.russhwolf:multiplatform-settings-test:$versions.multiplatformSettings"
       ],
       'robolectric': "org.robolectric:robolectric:4.3.1",
-      'atrium': "ch.tutteli.atrium:atrium-fluent-en_GB:$versions.atrium"
+      'assertK': [
+          'common': "com.willowtreeapps.assertk:assertk:0.20",
+      ],
   ]
 }

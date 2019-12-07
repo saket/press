@@ -1,5 +1,7 @@
 package me.saket.press.shared.home
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import com.badoo.reaktive.subject.publish.publishSubject
 import com.badoo.reaktive.test.observable.assertValue
 import com.badoo.reaktive.test.observable.test
@@ -44,7 +46,7 @@ class HomePresenterTest {
     )
 
     val uiModel = testObserver.values[0]
-    assertEquals(noteUiModels, uiModel.notes)
+    assertThat(uiModel.notes).isEqualTo(noteUiModels)
   }
 
   @Test fun `open new note screen when new note is clicked`() {
