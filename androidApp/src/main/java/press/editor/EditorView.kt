@@ -56,7 +56,6 @@ import press.theme.themed
 import press.util.exhaustive
 import press.widgets.Truss
 import press.widgets.fromOreo
-import press.widgets.setTextAndCursor
 import press.widgets.textColor
 import press.widgets.textSizePx
 
@@ -185,7 +184,7 @@ class EditorView @AssistedInject constructor(
 
   private fun render(uiUpdate: EditorUiEffect) {
     when (uiUpdate) {
-      is PopulateContent -> editorEditText.setTextAndCursor(uiUpdate.content)
+      is PopulateContent -> editorEditText.setText(uiUpdate.content)
       is CloseNote -> onDismiss()
     }.exhaustive
   }

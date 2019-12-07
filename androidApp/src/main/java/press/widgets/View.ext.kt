@@ -49,10 +49,6 @@ inline fun fromOreo(block: () -> Unit) {
   }
 }
 
-fun Drawable.mutateAndTint(color: Int): Drawable {
-  return mutate().apply { setTint(color) }
-}
-
 fun Toolbar.findTitleView(): TextView {
   if (subtitle != null && subtitle.isNotBlank()) {
     throw UnsupportedOperationException("TODO")
@@ -62,15 +58,6 @@ fun Toolbar.findTitleView(): TextView {
     title = " "
   }
   return children.find { it is TextView } as TextView
-}
-
-fun EditText.setTextAndCursor(text: CharSequence) {
-  setText(text)
-  setSelection(this.text.length)
-}
-
-fun View.setBackground(attr: Attr) {
-  background = attr.asDrawable()
 }
 
 fun EditText.showKeyboard(): Boolean {
