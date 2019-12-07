@@ -22,13 +22,6 @@ class SyntaxHighlighters {
 
   private val highlighters = mutableMapOf<KClass<out Node>, MutableList<SyntaxHighlighter<*>>>()
 
-  private val ignoredNodeNames = arrayOf(
-      "com.vladsch.flexmark.ast.Paragraph",
-      "com.vladsch.flexmark.ast.Text",
-      "com.vladsch.flexmark.ast.SoftLineBreak",
-      "com.vladsch.flexmark.ast.HardLineBreak"
-  )
-
   init {
     add(Emphasis::class, EmphasisVisitor())
     add(StrongEmphasis::class, StrongEmphasisVisitor())
@@ -65,11 +58,6 @@ class SyntaxHighlighters {
           return nodeVisitor
         }
       }
-    }
-
-    val isIgnoredNode = ignoredNodeNames.any { node::class.toString().contains(it) }
-    if (isIgnoredNode.not()) {
-      throw AssertionError("No visitor for node: ${node::class}")
     }
 
     return NodeVisitor.EMPTY
