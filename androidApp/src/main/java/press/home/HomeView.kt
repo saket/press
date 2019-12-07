@@ -77,7 +77,6 @@ class HomeView @AssistedInject constructor(
     tintPainter = TintPainter.uncoveredArea(color = BLACK, opacity = 0.25f)
     itemAnimator = AlphaInAnimator()
     toolbar.doOnLayout {
-      clipToPadding = false
       updatePadding(top = toolbar.height)
     }
     addItemDecoration(SpacingBetweenItemsDecoration(1.dip))
@@ -147,7 +146,7 @@ class HomeView @AssistedInject constructor(
           noteEditorPage.addView(editorView)
           noteEditorPage.doOnNextCollapse { it.removeView(editorView) }
 
-          val keyboardToggle = ToggleKeyboardOnPageStateChange(editorView.editorEditText)
+          val keyboardToggle = HideKeyboardOnPageCollapse(editorView.editorEditText)
           noteEditorPage.addStateChangeCallbacks(keyboardToggle)
           noteEditorPage.doOnNextCollapse { it.removeStateChangeCallbacks(keyboardToggle) }
 
