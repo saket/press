@@ -36,7 +36,7 @@ class PrePopulatedNotes(
   private val MARKDOWN_GUIDE = InsertNote(
       uuid = Uuid.parse("8f4192fd-38cf-4c15-8ac7-028d15fe5fc3")!!,
       content = """
-      | # Markdown guide
+      |# Markdown guide
       |Press understands standard markdown syntaxes, including: **bold**, *italic*, ~~strikethrough~~, and many more:
       |
       |### Code blocks
