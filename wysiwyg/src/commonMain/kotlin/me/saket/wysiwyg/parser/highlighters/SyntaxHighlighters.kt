@@ -25,7 +25,7 @@ class SyntaxHighlighters {
   init {
     add(Emphasis::class, EmphasisVisitor())
     add(StrongEmphasis::class, StrongEmphasisVisitor())
-    add(Link::class, LinkVisitor())
+    add(Link::class, LinkWithTitleVisitor())
     add(Strikethrough::class, StrikethroughVisitor())
     add(Code::class, InlineCodeVisitor())
     add(IndentedCodeBlock::class, IndentedCodeBlockVisitor())

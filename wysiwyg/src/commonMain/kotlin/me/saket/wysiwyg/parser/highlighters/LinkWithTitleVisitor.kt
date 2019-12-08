@@ -8,7 +8,7 @@ import me.saket.wysiwyg.parser.node.text
 import me.saket.wysiwyg.spans.SpanPool
 import me.saket.wysiwyg.spans.foregroundColor
 
-class LinkVisitor : NodeVisitor<Link> {
+class LinkWithTitleVisitor : NodeVisitor<Link> {
 
   override fun visit(
     node: Link,
