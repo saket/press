@@ -11,12 +11,14 @@ import me.saket.press.shared.ui.UiUpdate.UiEffect
 /**
  * @param [Event] UI events being performed by the user.
  * @param [Model] Content model for describing the UI
- * @param [Effect] One-off updates on the UI that cannot be stored inside the content model.
- *                 E.g., updating a text field just once, showing a toast or navigating to a
- *                 new screen.
+ * @param [Effect] One-off updates on the UI that cannot be modeled as state in the content
+ *                 model. For e.g., updating a text field just once, showing a toast or
+ *                 navigating to a new screen.
  */
 interface Presenter<Event, Model, Effect> {
+
   fun uiModels(publishedEvents: Observable<Event>): Observable<Model>
+
   fun uiEffects(publishedEvents: Observable<Event>): Observable<Effect> = observableOfEmpty()
 
   fun uiUpdates(events: Observable<Event>): Observable<UiUpdate<out Model, out Effect>> {
