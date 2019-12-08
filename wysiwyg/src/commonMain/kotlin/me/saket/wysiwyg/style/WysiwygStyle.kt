@@ -5,6 +5,7 @@ package me.saket.wysiwyg.style
  */
 data class WysiwygStyle(
   val syntaxColor: Int,
+  val strikethroughTextColor: Int,
   val blockQuote: BlockQuote,
   val code: Code,
   val heading: Heading,

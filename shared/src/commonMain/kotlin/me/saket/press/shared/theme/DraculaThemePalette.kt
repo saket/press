@@ -18,14 +18,15 @@ object DraculaThemePalette : ThemePalette(
         editorBackgroundColor = COLOR_BLACK_ROCK
     ),
     markdown = MarkdownPalette(
-        syntaxColor = "#CCAEF9".toColor(),
         blockQuoteVerticalRuleColor = "#CCAEF9".toColor(),
         blockQuoteTextColor = "#CED2F8".toColor(),
+        codeBackgroundColor = "#242632".toColor(),
+        headingTextColor = COLOR_SPRING_GREEN,
         linkUrlColor = "#AAC6D1FF".toColor(),
         linkTextColor = "#8DF0FF".toColor(),
-        thematicBreakColor = "#62677C".toColor(),
-        codeBackgroundColor = "#242632".toColor(),
-        headingTextColor = COLOR_SPRING_GREEN
+        syntaxColor = "#CCAEF9".toColor(),
+        strikethroughTextColor = "#9E9E9E".toColor(),
+        thematicBreakColor = "#62677C".toColor()
     ),
     textColorHeading = COLOR_SPRING_GREEN,
     textColorPrimary = COLOR_WHITE,

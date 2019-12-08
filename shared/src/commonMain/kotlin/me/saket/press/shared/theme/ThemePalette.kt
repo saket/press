@@ -27,19 +27,21 @@ data class WindowPalette(
 )
 
 data class MarkdownPalette(
-  val syntaxColor: Int,
   val blockQuoteVerticalRuleColor: Int,
   val blockQuoteTextColor: Int,
+  val codeBackgroundColor: Int,
+  val headingTextColor: Int,
   val linkUrlColor: Int,
   val linkTextColor: Int,
-  val thematicBreakColor: Int,
-  val codeBackgroundColor: Int,
-  val headingTextColor: Int
+  val strikethroughTextColor: Int,
+  val syntaxColor: Int,
+  val thematicBreakColor: Int
 )
 
 fun WysiwygStyle.Companion.from(palette: MarkdownPalette, displayUnits: DisplayUnits) =
   WysiwygStyle(
       syntaxColor = palette.syntaxColor,
+      strikethroughTextColor = palette.strikethroughTextColor,
       blockQuote = BlockQuote(
           leftBorderColor = palette.blockQuoteTextColor,
           leftBorderWidth = displayUnits.fromPixels(4).roundToInt(),
