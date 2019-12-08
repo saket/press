@@ -8,7 +8,7 @@ import me.saket.wysiwyg.parser.node.Emphasis
 import me.saket.wysiwyg.parser.node.FencedCodeBlock
 import me.saket.wysiwyg.parser.node.Heading
 import me.saket.wysiwyg.parser.node.IndentedCodeBlock
-import me.saket.wysiwyg.parser.node.Link
+import me.saket.wysiwyg.parser.node.LinkWithTitle
 import me.saket.wysiwyg.parser.node.Node
 import me.saket.wysiwyg.parser.node.OrderedList
 import me.saket.wysiwyg.parser.node.OrderedListItem
@@ -25,7 +25,7 @@ class SyntaxHighlighters {
   init {
     add(Emphasis::class, EmphasisVisitor())
     add(StrongEmphasis::class, StrongEmphasisVisitor())
-    add(Link::class, LinkWithTitleVisitor())
+    add(LinkWithTitle::class, LinkWithTitleVisitor())
     add(Strikethrough::class, StrikethroughVisitor())
     add(Code::class, InlineCodeVisitor())
     add(IndentedCodeBlock::class, IndentedCodeBlockVisitor())

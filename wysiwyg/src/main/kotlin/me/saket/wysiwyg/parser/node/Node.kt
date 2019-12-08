@@ -55,8 +55,8 @@ actual typealias LinkNodeBase = FlexmarkLinkNodeBase
 actual typealias LinkNode = FlexmarkLinkNode
 actual typealias InlineLinkNode = FlexmarkInlineLinkNode
 
-actual typealias Link = FlexmarkLink
-actual val Link.text: CharSequence get() = text
+actual typealias LinkWithTitle = FlexmarkLink
+actual val LinkWithTitle.text: CharSequence get() = text
 
 actual typealias Strikethrough = FlexmarkStrikethrough
 

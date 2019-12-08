@@ -20,8 +20,8 @@ actual abstract class LinkNodeBase : Node()
 actual abstract class LinkNode : LinkNodeBase()
 actual abstract class InlineLinkNode : LinkNode()
 
-actual class Link : InlineLinkNode()
-actual val Link.text: CharSequence get() = TODO()
+actual class LinkWithTitle : InlineLinkNode()
+actual val LinkWithTitle.text: CharSequence get() = TODO()
 
 actual class Strikethrough : Node(), DelimitedNode
 

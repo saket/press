@@ -22,8 +22,8 @@ expect abstract class LinkNodeBase : Node
 expect abstract class LinkNode : LinkNodeBase
 expect abstract class InlineLinkNode : LinkNode
 
-expect class Link : InlineLinkNode
-expect val Link.text: CharSequence
+expect class LinkWithTitle : InlineLinkNode
+expect val LinkWithTitle.text: CharSequence
 
 expect class Strikethrough : Node, DelimitedNode
 
