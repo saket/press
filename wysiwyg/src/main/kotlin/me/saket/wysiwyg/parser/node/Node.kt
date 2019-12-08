@@ -108,5 +108,3 @@ actual val Heading.headingLevel: HeadingLevel
   }
 actual val Heading.isAtxHeading: Boolean get() = isAtxHeading
 actual val Heading.openingMarker: CharSequence get() = openingMarker
-
-actual typealias Paragraph = FlexmarkParagraph

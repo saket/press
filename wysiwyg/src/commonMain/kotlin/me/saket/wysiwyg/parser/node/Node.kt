@@ -75,6 +75,3 @@ expect class Heading : Block
 expect val Heading.isAtxHeading: Boolean
 expect val Heading.headingLevel: HeadingLevel
 expect val Heading.openingMarker: CharSequence
-
-// TODO: this looks unused.
-expect class Paragraph : Block

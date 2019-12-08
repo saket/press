@@ -12,7 +12,6 @@ import me.saket.wysiwyg.parser.node.LinkWithTitle
 import me.saket.wysiwyg.parser.node.Node
 import me.saket.wysiwyg.parser.node.OrderedList
 import me.saket.wysiwyg.parser.node.OrderedListItem
-import me.saket.wysiwyg.parser.node.Paragraph
 import me.saket.wysiwyg.parser.node.Strikethrough
 import me.saket.wysiwyg.parser.node.StrongEmphasis
 import me.saket.wysiwyg.parser.node.ThematicBreak
