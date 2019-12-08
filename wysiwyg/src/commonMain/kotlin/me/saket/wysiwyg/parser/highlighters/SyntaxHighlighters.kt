@@ -16,6 +16,7 @@ import me.saket.wysiwyg.parser.node.Paragraph
 import me.saket.wysiwyg.parser.node.Strikethrough
 import me.saket.wysiwyg.parser.node.StrongEmphasis
 import me.saket.wysiwyg.parser.node.ThematicBreak
+import me.saket.wysiwyg.parser.node.Url
 import kotlin.reflect.KClass
 
 class SyntaxHighlighters {
@@ -26,6 +27,7 @@ class SyntaxHighlighters {
     add(Emphasis::class, EmphasisVisitor())
     add(StrongEmphasis::class, StrongEmphasisVisitor())
     add(LinkWithTitle::class, LinkWithTitleVisitor())
+    add(Url::class, UrlVisitor())
     add(Strikethrough::class, StrikethroughVisitor())
     add(Code::class, InlineCodeVisitor())
     add(IndentedCodeBlock::class, IndentedCodeBlockVisitor())

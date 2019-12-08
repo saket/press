@@ -100,7 +100,8 @@ buildscript {
       'contour': 'app.cash.contour:contour:0.1.5-SNAPSHOT',
       'flexmark': [
           'core': "com.vladsch.flexmark:flexmark-java:$versions.flexmark",
-          'strikethrough': "com.vladsch.flexmark:flexmark-ext-gfm-strikethrough:$versions.flexmark"
+          'strikethrough': "com.vladsch.flexmark:flexmark-ext-gfm-strikethrough:$versions.flexmark",
+          'autoLink': "com.vladsch.flexmark:flexmark-ext-autolink:$versions.flexmark"
       ],
       'reaktive': [
           'core': [

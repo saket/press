@@ -21,9 +21,18 @@ expect class StrongEmphasis : DelimitedNodeImpl
 expect abstract class LinkNodeBase : Node
 expect abstract class LinkNode : LinkNodeBase
 expect abstract class InlineLinkNode : LinkNode
+expect open class DelimitedLinkNode : LinkNode
 
+/**
+ * [title](http://example.com)
+ */
 expect class LinkWithTitle : InlineLinkNode
 expect val LinkWithTitle.text: CharSequence
+
+/**
+ * http://example.com
+ */
+expect class Url : DelimitedLinkNode
 
 expect class Strikethrough : Node, DelimitedNode
 
@@ -67,4 +76,5 @@ expect val Heading.isAtxHeading: Boolean
 expect val Heading.headingLevel: HeadingLevel
 expect val Heading.openingMarker: CharSequence
 
+// TODO: this looks unused.
 expect class Paragraph : Block

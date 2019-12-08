@@ -1,9 +1,9 @@
 package me.saket.wysiwyg.parser
 
+import com.vladsch.flexmark.ext.autolink.AutolinkExtension
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension
 import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.ast.Node
-import com.vladsch.flexmark.util.data.MutableDataHolder
 import com.vladsch.flexmark.util.data.MutableDataSet
 import me.saket.wysiwyg.spans.WysiwygSpan
 import me.saket.wysiwyg.widgets.EditableText
@@ -34,7 +34,12 @@ actual class MarkdownParser {
     }
 
     return Parser.builder(options)
-        .extensions(listOf(StrikethroughExtension.create()))
+        .extensions(
+            listOf(
+                StrikethroughExtension.create(),
+                AutolinkExtension.create()
+            )
+        )
         .build()
   }
 }
