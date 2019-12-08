@@ -41,3 +41,8 @@ actual fun SpanPool.heading(level: HeadingLevel): WysiwygSpan =
   get { HeadingSpan(recycler) }.apply {
     this.level = level
   }
+
+actual fun SpanPool.clickableUrl(url: String): WysiwygSpan =
+  get { ClickableUrlSpan(recycler) }.apply {
+    this.url = url
+  }

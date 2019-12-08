@@ -30,7 +30,9 @@ class EditorPresenterTest {
   private val testScheduler = TestScheduler()
   private val config = EditorConfig(autoSaveEvery = 5.seconds)
   private val strings = Strings.Editor(
-      newNoteHints = listOf("New note heading hint #1", "New note heading hint #2")
+      newNoteHints = listOf("New note heading hint #1", "New note heading hint #2"),
+      openUrl = "Open",
+      editUrl = "Edit"
   )
 
   private val events = publishSubject<EditorEvent>()

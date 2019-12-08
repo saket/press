@@ -5,6 +5,10 @@ import press.editor.EditorModule
 import press.home.HomeModule
 import press.theme.ThemeModule
 import dagger.Module
+import dagger.Provides
+import me.saket.press.shared.di.SharedAppComponent
+import me.saket.press.shared.localization.Strings
+import me.saket.press.shared.localization.SharedLocalizationComponent
 
 @AssistedModule
 @Module(includes = [
@@ -13,4 +17,7 @@ import dagger.Module
   HomeModule::class,
   EditorModule::class
 ])
-object AppModule
+object AppModule {
+  @Provides
+  fun strings(): Strings = SharedLocalizationComponent.strings()
+}

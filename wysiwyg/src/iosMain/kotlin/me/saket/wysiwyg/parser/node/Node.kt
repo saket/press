@@ -23,8 +23,10 @@ actual open class DelimitedLinkNode : LinkNode()
 
 actual class LinkWithTitle : InlineLinkNode()
 actual val LinkWithTitle.text: CharSequence get() = TODO()
+actual val LinkWithTitle.url: CharSequence get() = TODO()
 
 actual class Url : DelimitedLinkNode()
+actual val Url.url: CharSequence get() = TODO()
 
 actual class Strikethrough : Node(), DelimitedNode
 

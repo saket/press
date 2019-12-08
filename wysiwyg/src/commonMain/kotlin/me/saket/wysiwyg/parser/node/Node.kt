@@ -28,11 +28,13 @@ expect open class DelimitedLinkNode : LinkNode
  */
 expect class LinkWithTitle : InlineLinkNode
 expect val LinkWithTitle.text: CharSequence
+expect val LinkWithTitle.url: CharSequence
 
 /**
  * http://example.com
  */
 expect class Url : DelimitedLinkNode
+expect val Url.url : CharSequence
 
 expect class Strikethrough : Node, DelimitedNode
 

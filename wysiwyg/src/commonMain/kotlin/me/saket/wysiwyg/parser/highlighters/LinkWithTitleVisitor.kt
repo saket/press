@@ -5,7 +5,9 @@ import me.saket.wysiwyg.parser.node.LinkWithTitle
 import me.saket.wysiwyg.parser.node.endOffset
 import me.saket.wysiwyg.parser.node.startOffset
 import me.saket.wysiwyg.parser.node.text
+import me.saket.wysiwyg.parser.node.url
 import me.saket.wysiwyg.spans.SpanPool
+import me.saket.wysiwyg.spans.clickableUrl
 import me.saket.wysiwyg.spans.foregroundColor
 
 class LinkWithTitleVisitor : NodeVisitor<LinkWithTitle> {
@@ -26,5 +28,6 @@ class LinkWithTitleVisitor : NodeVisitor<LinkWithTitle> {
         urlOpeningPosition,
         node.endOffset
     )
+    writer.add(pool.clickableUrl(node.url.toString()), urlOpeningPosition, node.endOffset)
   }
 }

@@ -62,8 +62,10 @@ actual typealias DelimitedLinkNode = FlexmarkDelimitedLinkNode
 actual typealias LinkWithTitle = FlexmarkLink
 
 actual val LinkWithTitle.text: CharSequence get() = text
+actual val LinkWithTitle.url: CharSequence get() = url
 
 actual typealias Url = FlexmarkAutoLink
+actual val Url.url: CharSequence get() = url
 
 actual typealias Strikethrough = FlexmarkStrikethrough
 

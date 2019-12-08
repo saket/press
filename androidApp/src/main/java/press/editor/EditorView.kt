@@ -6,6 +6,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Color.WHITE
+import android.graphics.Point
 import android.text.InputType.TYPE_CLASS_TEXT
 import android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
 import android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
@@ -36,10 +37,10 @@ import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode
 import me.saket.press.shared.editor.EditorPresenter
 import me.saket.press.shared.editor.EditorPresenter.Args
-import me.saket.press.shared.editor.EditorUiModel
 import me.saket.press.shared.editor.EditorUiEffect
 import me.saket.press.shared.editor.EditorUiEffect.CloseNote
 import me.saket.press.shared.editor.EditorUiEffect.PopulateContent
+import me.saket.press.shared.editor.EditorUiModel
 import me.saket.press.shared.subscribe
 import me.saket.press.shared.theme.DisplayUnits
 import me.saket.press.shared.theme.EditorUiStyles
@@ -96,6 +97,7 @@ class EditorView @AssistedInject constructor(
         TYPE_TEXT_FLAG_CAP_SENTENCES or
         TYPE_TEXT_FLAG_MULTI_LINE or
         TYPE_TEXT_FLAG_NO_SUGGESTIONS
+    movementMethod = EditorLinkMovementMethod(scrollView)
     updatePaddingRelative(start = 16.dip, end = 16.dip, bottom = 16.dip)
     CapitalizeOnHeadingStart.capitalize(this)
     fromOreo {

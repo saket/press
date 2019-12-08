@@ -4,7 +4,9 @@ import me.saket.press.shared.localization.Strings.Editor
 
 data class Strings(val editor: Editor) {
   data class Editor(
-    val newNoteHints: List<String>
+    val newNoteHints: List<String>,
+    val openUrl: String,
+    val editUrl: String
   )
 }
 
@@ -19,6 +21,8 @@ val ENGLISH_STRINGS = Strings(
             "Untitled composition",
             "Here we go",
             "Type your heart out"
-        )
+        ),
+        openUrl = "Open",
+        editUrl = "Edit"
     )
 )
