@@ -4,7 +4,7 @@ import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observableOfEmpty
-import me.saket.press.shared.rx.publishElements
+import com.badoo.reaktive.observable.publish
 import me.saket.press.shared.ui.UiUpdate.UiModel
 import me.saket.press.shared.ui.UiUpdate.UiEffect
 
@@ -22,7 +22,7 @@ interface Presenter<Event, Model, Effect> {
   fun uiEffects(publishedEvents: Observable<Event>): Observable<Effect> = observableOfEmpty()
 
   fun uiUpdates(events: Observable<Event>): Observable<UiUpdate<out Model, out Effect>> {
-    return events.publishElements { publishedEvents ->
+    return events.publish { publishedEvents ->
       merge(
           uiModels(publishedEvents).map(::UiModel),
           uiEffects(publishedEvents).map(::UiEffect)
@@ -35,4 +35,3 @@ sealed class UiUpdate<Model, Effect> {
   data class UiModel<T>(val model: T) : UiUpdate<T, Nothing>()
   data class UiEffect<T>(val effect: T) : UiUpdate<Nothing, T>()
 }
-

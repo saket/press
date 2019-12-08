@@ -14,6 +14,7 @@ import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observableOf
 import com.badoo.reaktive.observable.observableOfEmpty
 import com.badoo.reaktive.observable.ofType
+import com.badoo.reaktive.observable.publish
 import com.badoo.reaktive.observable.share
 import com.badoo.reaktive.observable.take
 import com.badoo.reaktive.observable.withLatestFrom
@@ -30,7 +31,6 @@ import me.saket.press.shared.note.deletedAt
 import me.saket.press.shared.rx.mapToOptional
 import me.saket.press.shared.rx.mapToSome
 import me.saket.press.shared.rx.observableInterval
-import me.saket.press.shared.rx.publishElements
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.util.Optional
 
@@ -46,11 +46,10 @@ class EditorPresenter(
   private val openMode = args.openMode
 
   // replayingShare() would have been better.
-  // replay(1).autoConnect() might also work once they're released
   private val noteStream = createOrFetchNote().share()
 
   override fun uiModels(publishedEvents: Observable<EditorEvent>): Observable<EditorUiModel> {
-    return publishedEvents.publishElements { sharedEvents ->
+    return publishedEvents.publish { sharedEvents ->
       val uiModels = sharedEvents
           .toggleHintText()
           .map { (hint) -> EditorUiModel(hintText = hint) }
