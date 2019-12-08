@@ -23,7 +23,7 @@ class PrePopulatedNotesTest {
     assertThat(repository.savedNotes).hasSize(0)
 
     prePopulatedNotes.doWork()
-    assertThat(repository.savedNotes).hasSize(3)
+    assertThat(repository.savedNotes).hasSize(2)
   }
 
   @Test fun `notes aren't pre-populated on subsequent app launches`() {

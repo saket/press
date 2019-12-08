@@ -23,7 +23,13 @@ class PrePopulatedNotes(
       uuid = Uuid.parse("e731d56f-8db6-4351-a05e-8df27d5086f0")!!,
       content = """
       |# Welcome to Press
-      |Press is a cross-platform app for crafting notes, inspired by [Bear](bear.app) and written using Kotlin Multiplatform.
+      |Press is a *wysiwyg* writer for crafting notes. It uses markdown for styling and formatting text with a beautiful inline preview. If you’re new to markdown, check out the next note for tips and tricks.
+      |
+      |Press is currently only available on Android as a proof-of-concept, but the plan is to introduce it to macOS and iOS in the near future using Kotlin Multiplatform. If you’d like to contribute, Press is hosted on Github:
+      |
+      |https://github.com/saket/press
+      |
+      |Kudos to [Bear](https://bear.app) for being the inspiration behind Press.
     """.trimMargin()
   )
 
@@ -83,19 +89,11 @@ class PrePopulatedNotes(
       """.trimMargin()
   )
 
-  private val HOW_TO_CONTRIBUTE = InsertNote(
-      uuid = Uuid.parse("b17bf2a8-6faf-4cc7-9c6a-d526a48c2530")!!,
-      content = """
-        |# How to contribute
-        |Press is a community built app. For feedback and code contribution, checkout its [Github](https://github.com/saket/press) page.
-      """.trimMargin()
-  )
-
   fun doWork() {
     val (inserted) = setting.get()
 
     if (inserted.not()) {
-      repository.create(WELCOME, MARKDOWN_GUIDE, HOW_TO_CONTRIBUTE)
+      repository.create(WELCOME, MARKDOWN_GUIDE)
           .subscribeOn(ioScheduler)
           .subscribe {
             setting.set(PrePopulatedNotesInserted(true))
