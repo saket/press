@@ -18,7 +18,6 @@ object DraculaThemePalette : ThemePalette(
         editorBackgroundColor = COLOR_BLACK_ROCK
     ),
     markdown = MarkdownPalette(
-        heading = COLOR_SPRING_GREEN,
         syntaxColor = "#CCAEF9".toColor(),
         blockQuoteVerticalRuleColor = "#CCAEF9".toColor(),
         blockQuoteTextColor = "#CED2F8".toColor(),
@@ -26,7 +25,7 @@ object DraculaThemePalette : ThemePalette(
         linkTextColor = "#8DF0FF".toColor(),
         thematicBreakColor = "#62677C".toColor(),
         codeBackgroundColor = "#242632".toColor(),
-        headingTextColor = "#50FA7B".toColor()
+        headingTextColor = COLOR_SPRING_GREEN
     ),
     textColorHeading = COLOR_SPRING_GREEN,
     textColorPrimary = COLOR_WHITE,

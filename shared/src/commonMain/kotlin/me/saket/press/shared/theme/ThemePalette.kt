@@ -27,7 +27,6 @@ data class WindowPalette(
 )
 
 data class MarkdownPalette(
-  val heading: Int,
   val syntaxColor: Int,
   val blockQuoteVerticalRuleColor: Int,
   val blockQuoteTextColor: Int,
