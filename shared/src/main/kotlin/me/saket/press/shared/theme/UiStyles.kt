@@ -23,9 +23,6 @@ fun UiStyles.Text.applyStyle(view: TextView) {
   }
 }
 
-/**
- * Wish Android stopped using "font" and "typeface" interchangeably.
- */
 private fun UiStyles.Text.readFont(view: TextView): Typeface {
   val typefaceRes = when (font.typeface) {
     WORK_SANS -> R.font.work_sans
