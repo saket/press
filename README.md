@@ -14,10 +14,10 @@ Kudos to [Bear](https://bear.app) for being the inspiration behind Press.
 Press is a barebones app right now and there are many improvements to make. The first steps would be setting up the iOS app, followed by macOS once [macOS support](https://github.com/cashapp/sqldelight/pull/1506) is merged into SQLDelight.
 
 **Architecture design records**
-- [Overview of the UI architecture](https://github.com/saket/Press/blob/saket/dec8/readme/documentation/architecture.md)
-- [Why Press uses custom Views for screens](https://github.com/saket/Press/blob/saket/dec8/readme/documentation/screens_as_custom_views.md)
-- [Dependency injection with respect to shared code](https://github.com/saket/Press/blob/saket/dec8/readme/documentation/dependency_injection.md)
-- [Testing shared code](https://github.com/saket/Press/blob/saket/dec8/readme/documentation/testing.md)
+- [Overview of the UI architecture](documentation/architecture.md)
+- [Why Press uses custom Views for screens](documentation/screens_as_custom_views.md)
+- [Dependency injection with respect to shared code](documentation/dependency_injection.md)
+- [Testing shared code](documentation/testing.md)
 
 ### License
 ```
