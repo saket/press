@@ -1,8 +1,8 @@
-<img width="100" height="100" src="https://github.com/saket/Press/blob/saket/dec8/readme/resources/github/app_icon_github.png?raw=true"> 
+<img width="100" height="100" src="resources/github/app_icon_github.png?raw=true"> 
 
-![home](https://github.com/saket/Press/blob/saket/dec8/readme/resources/github/home.png?raw=true) 
-![new note](https://github.com/saket/Press/blob/saket/dec8/readme/resources/github/editor_new_note.png?raw=true) 
-![existing note](https://github.com/saket/Press/blob/saket/dec8/readme/resources/github/editor_existing_note.png?raw=true)
+![home](resources/github/home.png?raw=true)
+![new note](resources/github/editor_new_note.png?raw=true)
+![existing note](resources/github/editor_existing_note.png?raw=true)
 
 Press is a *wysiwyg* writer for crafting notes. It uses markdown for styling and formatting text with a beautiful inline preview. 
 
