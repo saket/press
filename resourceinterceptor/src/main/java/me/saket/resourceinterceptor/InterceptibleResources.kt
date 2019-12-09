@@ -25,7 +25,7 @@ class InterceptibleResources(private val base: Resources) : ResourcesWrapper(bas
     drawableInterceptors.remove(resId)
   }
 
-  override fun getDrawable(id: ResourceId, theme: Theme) = interceptOrGetDrawable(id, theme)
+  override fun getDrawable(id: ResourceId, theme: Theme?) = interceptOrGetDrawable(id, theme)
   override fun getDrawable(id: ResourceId) = interceptOrGetDrawable(id, theme = null)
 
   override fun getColor(id: ResourceId, theme: Theme?) = interceptOrGetColor(id, theme)

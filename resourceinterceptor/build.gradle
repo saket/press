@@ -3,11 +3,9 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-  compileSdkVersion 28
-
+  compileSdkVersion projectVersions.compileSdk
   defaultConfig {
-    minSdkVersion 23
-    targetSdkVersion 28
+    minSdkVersion projectVersions.minSdk
   }
 
   buildTypes {
