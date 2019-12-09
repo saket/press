@@ -1,0 +1,5 @@
+<lint>
+  <issue id="InvalidPackage">
+    <ignore path="**flexmark-util*.jar"/>
+  </issue>
+</lint>
