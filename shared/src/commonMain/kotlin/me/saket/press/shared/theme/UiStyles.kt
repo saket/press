@@ -3,7 +3,7 @@ package me.saket.press.shared.theme
 import me.saket.press.shared.theme.UiStyles.FontVariant.BOLD
 import me.saket.press.shared.theme.UiStyles.FontVariant.REGULAR
 import me.saket.press.shared.theme.UiStyles.Text
-import me.saket.press.shared.theme.UiStyles.Typeface.WORK_SANS
+import me.saket.press.shared.theme.UiStyles.FontFamily.WORK_SANS
 
 object HomeUiStyles {
   object NoteRow {
@@ -36,11 +36,11 @@ object UiStyles {
   )
 
   data class Font(
-    val typeface: Typeface,
+    val family: FontFamily,
     val variant: FontVariant
   )
 
-  enum class Typeface {
+  enum class FontFamily {
     WORK_SANS;
 
     operator fun times(variant: FontVariant) = Font(this, variant)
