@@ -14,7 +14,7 @@ val ENGLISH_STRINGS = Strings(
     editor = Editor(
         newNoteHints = listOf(
             "A wonderful note",
-            "It beings with a word",
+            "It begins with a word",
             "This is the beginning",
             "Once upon a time",
             "Unleash those wild ideas",
