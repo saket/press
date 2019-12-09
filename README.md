@@ -1,14 +1,20 @@
 <img width="100" height="100" src="resources/github/app_icon_github.png?raw=true"> 
 
-![home](resources/github/home.png?raw=true)
-![new note](resources/github/editor_new_note.png?raw=true)
-![existing note](resources/github/editor_existing_note.png?raw=true)
+<p align="center">
+  <img width="285" src="resources/play_store/screenshots/home.png?raw=true">
+  <img width="285" src="resources/play_store/screenshots/editor_new_note.png?raw=true">
+  <img width="285" src="resources/play_store/screenshots/editor_existing_note.png?raw=true">
+</p>
 
-Press is a *wysiwyg* writer for crafting notes. It uses markdown for styling and formatting text with a beautiful inline preview. 
+Press is a *wysiwyg* writer for crafting notes inspired by [Bear](https://bear.app). It uses markdown for styling and formatting text with a beautiful inline preview. 
 
 Press was created as a proof-of-concept for exploring Kotlin Multiplatform, as well as the author’s frustration from the lack of minimal markdown note taking apps that work on all platforms, especially Android and macOS. If you relate to either of these reasons, Press is looking for contributors. 
 
-Kudos to [Bear](https://bear.app) for being the inspiration behind Press.
+- Android: https://play.google.com/store/apps/details?id=me.saket.press
+
+- iOS: TODO
+
+- macOS: TODO
 
 ### Contributing
 Press is a barebones app right now and there are many improvements to make. The first steps would be setting up the iOS app, followed by macOS once [macOS support](https://github.com/cashapp/sqldelight/pull/1506) is merged into SQLDelight.
