@@ -2,5 +2,6 @@
 <resources>
     <color name="default_window_background">#353846</color>
 
-    <color name="overscroll">#FFD43D</color>
+    <!-- The user should never see this color. See ThemeAwareActivity.kt and ThemedWidgets.kt. -->
+    <color name="overscroll_canary">#FFD43D</color>
 </resources>
