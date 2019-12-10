@@ -1,6 +1,6 @@
 package me.saket.wysiwyg.parser.highlighters
 
-import me.saket.wysiwyg.parser.RealSpanWriter
+import me.saket.wysiwyg.parser.SpanWriter
 import me.saket.wysiwyg.parser.highlighters.DelimitedNodeVisitor.Companion.highlightClosingSyntax
 import me.saket.wysiwyg.parser.highlighters.DelimitedNodeVisitor.Companion.highlightOpeningSyntax
 import me.saket.wysiwyg.parser.node.FencedCodeBlock
@@ -8,9 +8,6 @@ import me.saket.wysiwyg.parser.node.closingMarker
 import me.saket.wysiwyg.parser.node.endOffset
 import me.saket.wysiwyg.parser.node.openingMarker
 import me.saket.wysiwyg.parser.node.startOffset
-import me.saket.wysiwyg.spans.SpanPool
-import me.saket.wysiwyg.spans.indentedCodeBlock
-import me.saket.wysiwyg.spans.monospaceTypeface
 
 class FencedCodeBlockVisitor : SyntaxHighlighter<FencedCodeBlock> {
 
@@ -28,14 +25,13 @@ class FencedCodeBlockVisitor : SyntaxHighlighter<FencedCodeBlock> {
     object : NodeVisitor<FencedCodeBlock> {
       override fun visit(
         node: FencedCodeBlock,
-        pool: SpanPool,
-        writer: RealSpanWriter
+        writer: SpanWriter
       ) {
-        writer.add(pool.indentedCodeBlock(), node.startOffset, node.endOffset)
-        writer.add(pool.monospaceTypeface(), node.startOffset, node.endOffset)
+        writer.addIndentedCodeBlock(from = node.startOffset, to = node.endOffset)
+        writer.addMonospaceTypeface(from = node.startOffset, to = node.endOffset)
 
-        highlightOpeningSyntax(node.openingMarker, node.startOffset, writer, pool)
-        highlightClosingSyntax(node.closingMarker, node.endOffset, writer, pool)
+        highlightOpeningSyntax(node.openingMarker, node.startOffset, writer)
+        highlightClosingSyntax(node.closingMarker, node.endOffset, writer)
       }
     }
 }

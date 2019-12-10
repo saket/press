@@ -1,22 +1,22 @@
 package me.saket.wysiwyg.parser.highlighters
 
-import me.saket.wysiwyg.parser.RealSpanWriter
+import me.saket.wysiwyg.parser.SpanWriter
 import me.saket.wysiwyg.parser.node.ThematicBreak
 import me.saket.wysiwyg.parser.node.chars
 import me.saket.wysiwyg.parser.node.endOffset
 import me.saket.wysiwyg.parser.node.startOffset
-import me.saket.wysiwyg.spans.SpanPool
-import me.saket.wysiwyg.spans.foregroundColor
-import me.saket.wysiwyg.spans.thematicBreak
 
 class ThematicBreakVisitor : NodeVisitor<ThematicBreak> {
 
   override fun visit(
     node: ThematicBreak,
-    pool: SpanPool,
-    writer: RealSpanWriter
+    writer: SpanWriter
   ) {
-    writer.add(pool.foregroundColor(pool.style.syntaxColor), node.startOffset, node.endOffset)
+    writer.addForegroundColor(
+        color = writer.style.syntaxColor,
+        from = node.startOffset,
+        to = node.endOffset
+    )
 
     val thematicBreakSyntax = node.chars
 
@@ -30,7 +30,11 @@ class ThematicBreakVisitor : NodeVisitor<ThematicBreak> {
 
     // Flexmark (Android) maintains a mutable String, which isn't a good idea to cache.
     val immutableSyntax = thematicBreakSyntax.toString()
-    writer.add(pool.thematicBreak(immutableSyntax), node.startOffset, node.endOffset)
+    writer.addThematicBreak(
+        syntax = immutableSyntax,
+        from = node.startOffset,
+        to = node.endOffset
+    )
   }
 
   companion object {

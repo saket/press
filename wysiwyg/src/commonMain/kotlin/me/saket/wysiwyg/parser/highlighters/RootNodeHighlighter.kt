@@ -1,13 +1,12 @@
 package me.saket.wysiwyg.parser.highlighters
 
-import me.saket.wysiwyg.parser.RealSpanWriter
+import me.saket.wysiwyg.parser.SpanWriter
 import me.saket.wysiwyg.parser.node.ListBlock
 import me.saket.wysiwyg.parser.node.ListItem
 import me.saket.wysiwyg.parser.node.Node
 import me.saket.wysiwyg.parser.node.firstChild
 import me.saket.wysiwyg.parser.node.nextNode
 import me.saket.wysiwyg.parser.node.parent
-import me.saket.wysiwyg.spans.SpanPool
 
 object RootNodeHighlighter : NodeVisitor<Node> {
 
@@ -15,8 +14,7 @@ object RootNodeHighlighter : NodeVisitor<Node> {
 
   override fun visit(
     node: Node,
-    pool: SpanPool,
-    writer: RealSpanWriter
+    writer: SpanWriter
   ) {
     var child: Node? = node.firstChild
 
@@ -29,10 +27,10 @@ object RootNodeHighlighter : NodeVisitor<Node> {
       val isSubList = child is ListBlock && child.parent is ListItem
       if (isSubList.not()) {
         val visitor = highlighters.nodeVisitor(child)
-        visitor.visit(child, pool, writer)
+        visitor.visit(child, writer)
       }
 
-      visit(child, pool, writer)
+      visit(child, writer)
       child = next
     }
   }
