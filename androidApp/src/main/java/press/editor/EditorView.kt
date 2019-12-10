@@ -2,7 +2,6 @@
 
 package press.editor
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Color.WHITE
@@ -10,7 +9,6 @@ import android.text.InputType.TYPE_CLASS_TEXT
 import android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
 import android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
 import android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-import android.text.Layout
 import android.text.Layout.BREAK_STRATEGY_HIGH_QUALITY
 import android.text.style.ForegroundColorSpan
 import android.view.Gravity.TOP
@@ -61,7 +59,6 @@ import press.widgets.setText
 import press.widgets.textColor
 import press.widgets.textSizePx
 
-@SuppressLint("SetTextI18n")
 class EditorView @AssistedInject constructor(
   @Assisted context: Context,
   @Assisted openMode: EditorOpenMode,

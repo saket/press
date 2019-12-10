@@ -8,6 +8,10 @@ android {
   defaultConfig {
     minSdkVersion projectVersions.minSdk
   }
+
+  lintOptions {
+    lintConfig file("lint.xml")
+  }
 }
 
 // Not sure, but probably used by CocoaPods.

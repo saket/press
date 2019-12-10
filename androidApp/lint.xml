@@ -3,4 +3,6 @@
     <!-- https://issuetracker.google.com/issues/145944378 -->
     <ignore regexp="LineBreaker.BREAK_STRATEGY_" />
   </issue>
+  <issue id="ViewConstructor" severity="ignore" />
+  <issue id="CheckResult" severity="ignore" />
 </lint>

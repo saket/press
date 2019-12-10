@@ -15,7 +15,7 @@ android {
   }
 
   lintOptions {
-    disable 'ViewConstructor','CheckResult'
+    lintConfig file("lint.xml")
   }
 
   buildTypes {
