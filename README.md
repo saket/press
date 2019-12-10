@@ -17,7 +17,7 @@ Press was created as a proof-of-concept for exploring Kotlin Multiplatform, as w
 - macOS: TODO
 
 ### Contributing
-Press is a barebones app right now and there are many improvements to make. The first steps would be setting up the iOS app, followed by macOS once [macOS support](https://github.com/cashapp/sqldelight/pull/1393) is merged into SQLDelight.
+Press is a barebones app right now and there are many improvements to make. The first steps would be setting up the iOS app, followed by macOS. Take a look at the [open issues](https://github.com/saket/Press/issues) and feel free to pick something up.
 
 **Architecture design records**
 - [Overview of the UI architecture](documentation/architecture.md)
