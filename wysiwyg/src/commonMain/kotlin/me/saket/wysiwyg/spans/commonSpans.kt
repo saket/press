@@ -13,3 +13,4 @@ expect fun SpanPool.quote(): WysiwygSpan
 expect fun SpanPool.leadingMargin(margin: Int): WysiwygSpan
 expect fun SpanPool.heading(level: HeadingLevel): WysiwygSpan
 expect fun SpanPool.clickableUrl(url: String): WysiwygSpan
+expect fun SpanPool.thematicBreak(syntax: String): WysiwygSpan

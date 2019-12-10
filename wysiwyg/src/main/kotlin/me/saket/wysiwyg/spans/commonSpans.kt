@@ -46,3 +46,8 @@ actual fun SpanPool.clickableUrl(url: String): WysiwygSpan =
   get { ClickableUrlSpan(recycler) }.apply {
     this.url = url
   }
+
+actual fun SpanPool.thematicBreak(syntax: String): WysiwygSpan =
+  get { ThematicBreakSpan(style, recycler) }.apply {
+    this.syntax = syntax
+  }
