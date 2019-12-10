@@ -1,6 +1,6 @@
 package me.saket.wysiwyg.parser.highlighters
 
-import me.saket.wysiwyg.parser.SpanWriter
+import me.saket.wysiwyg.parser.RealSpanWriter
 import me.saket.wysiwyg.parser.node.Emphasis
 import me.saket.wysiwyg.parser.node.endOffset
 import me.saket.wysiwyg.parser.node.startOffset
@@ -12,7 +12,7 @@ class EmphasisVisitor : DelimitedNodeVisitor<Emphasis>() {
   override fun visit(
     node: Emphasis,
     pool: SpanPool,
-    writer: SpanWriter
+    writer: RealSpanWriter
   ) {
     writer.add(pool.italics(), node.startOffset, node.endOffset)
     super.visit(node, pool, writer)

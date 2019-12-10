@@ -1,6 +1,6 @@
 package me.saket.wysiwyg.parser.highlighters
 
-import me.saket.wysiwyg.parser.SpanWriter
+import me.saket.wysiwyg.parser.RealSpanWriter
 import me.saket.wysiwyg.parser.node.Code
 import me.saket.wysiwyg.parser.node.endOffset
 import me.saket.wysiwyg.parser.node.startOffset
@@ -13,7 +13,7 @@ class InlineCodeVisitor : DelimitedNodeVisitor<Code>() {
   override fun visit(
     node: Code,
     pool: SpanPool,
-    writer: SpanWriter
+    writer: RealSpanWriter
   ) {
     writer.add(pool.inlineCode(), node.startOffset, node.endOffset)
     writer.add(pool.monospaceTypeface(), node.startOffset, node.endOffset)

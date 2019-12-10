@@ -1,7 +1,7 @@
 package me.saket.wysiwyg
 
 import me.saket.wysiwyg.parser.MarkdownParser
-import me.saket.wysiwyg.parser.SpanWriter
+import me.saket.wysiwyg.parser.RealSpanWriter
 import me.saket.wysiwyg.parser.highlighters.RootNodeHighlighter
 import me.saket.wysiwyg.spans.SpanPool
 import me.saket.wysiwyg.style.WysiwygStyle
@@ -19,7 +19,7 @@ class Wysiwyg(
 
   private val bgExecutor = SingleThreadBackgroundExecutor()
   private val uiExecutor = UiThreadExecutor
-  private val spanWriter = SpanWriter(textField)
+  private val spanWriter = RealSpanWriter(textField)
 
   fun syntaxHighlighter() = AfterTextChange { text ->
     val immutableText = text.toString()

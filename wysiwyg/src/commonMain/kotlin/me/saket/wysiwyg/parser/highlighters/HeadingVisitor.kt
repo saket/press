@@ -1,6 +1,6 @@
 package me.saket.wysiwyg.parser.highlighters
 
-import me.saket.wysiwyg.parser.SpanWriter
+import me.saket.wysiwyg.parser.RealSpanWriter
 import me.saket.wysiwyg.parser.node.Heading
 import me.saket.wysiwyg.parser.node.endOffset
 import me.saket.wysiwyg.parser.node.headingLevel
@@ -35,7 +35,7 @@ class HeadingVisitor : SyntaxHighlighter<Heading> {
       override fun visit(
         node: Heading,
         pool: SpanPool,
-        writer: SpanWriter
+        writer: RealSpanWriter
       ) {
         writer.add(pool.heading(node.headingLevel), node.startOffset, node.endOffset)
         writer.add(

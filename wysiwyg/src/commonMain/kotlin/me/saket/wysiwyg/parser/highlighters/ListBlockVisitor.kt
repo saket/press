@@ -1,6 +1,6 @@
 package me.saket.wysiwyg.parser.highlighters
 
-import me.saket.wysiwyg.parser.SpanWriter
+import me.saket.wysiwyg.parser.RealSpanWriter
 import me.saket.wysiwyg.parser.node.BulletList
 import me.saket.wysiwyg.parser.node.ListBlock
 import me.saket.wysiwyg.parser.node.OrderedList
@@ -17,7 +17,7 @@ abstract class ListBlockVisitor<T : ListBlock> : NodeVisitor<T> {
   override fun visit(
     node: T,
     pool: SpanPool,
-    writer: SpanWriter
+    writer: RealSpanWriter
   ) {
     val marginSpan = pool.leadingMargin(pool.style.list.indentationMargin)
     writer.add(marginSpan, node.startOffset, node.endOffset)

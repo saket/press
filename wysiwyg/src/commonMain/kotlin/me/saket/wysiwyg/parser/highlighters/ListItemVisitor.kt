@@ -1,6 +1,6 @@
 package me.saket.wysiwyg.parser.highlighters
 
-import me.saket.wysiwyg.parser.SpanWriter
+import me.saket.wysiwyg.parser.RealSpanWriter
 import me.saket.wysiwyg.parser.node.BulletListItem
 import me.saket.wysiwyg.parser.node.ListItem
 import me.saket.wysiwyg.parser.node.OrderedListItem
@@ -17,7 +17,7 @@ abstract class ListItemVisitor<T : ListItem> : NodeVisitor<T> {
   override fun visit(
     node: T,
     pool: SpanPool,
-    writer: SpanWriter
+    writer: RealSpanWriter
   ) {
     writer.add(
         pool.foregroundColor(pool.style.syntaxColor),

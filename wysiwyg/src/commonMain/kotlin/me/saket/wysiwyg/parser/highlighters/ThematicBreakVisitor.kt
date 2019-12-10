@@ -1,7 +1,7 @@
 package me.saket.wysiwyg.parser.highlighters
 
 import me.saket.wysiwyg.style.WysiwygStyle
-import me.saket.wysiwyg.parser.SpanWriter
+import me.saket.wysiwyg.parser.RealSpanWriter
 import me.saket.wysiwyg.parser.node.ThematicBreak
 import me.saket.wysiwyg.parser.node.chars
 import me.saket.wysiwyg.parser.node.endOffset
@@ -18,7 +18,7 @@ class ThematicBreakVisitor : NodeVisitor<ThematicBreak> {
   override fun visit(
     node: ThematicBreak,
     pool: SpanPool,
-    writer: SpanWriter
+    writer: RealSpanWriter
   ) {
     writer.add(pool.foregroundColor(pool.style.syntaxColor), node.startOffset, node.endOffset)
 

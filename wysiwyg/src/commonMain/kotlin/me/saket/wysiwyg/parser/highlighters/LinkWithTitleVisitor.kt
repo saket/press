@@ -1,6 +1,6 @@
 package me.saket.wysiwyg.parser.highlighters
 
-import me.saket.wysiwyg.parser.SpanWriter
+import me.saket.wysiwyg.parser.RealSpanWriter
 import me.saket.wysiwyg.parser.node.LinkWithTitle
 import me.saket.wysiwyg.parser.node.endOffset
 import me.saket.wysiwyg.parser.node.startOffset
@@ -15,7 +15,7 @@ class LinkWithTitleVisitor : NodeVisitor<LinkWithTitle> {
   override fun visit(
     node: LinkWithTitle,
     pool: SpanPool,
-    writer: SpanWriter
+    writer: RealSpanWriter
   ) {
     // Text.
     writer.add(pool.foregroundColor(pool.style.link.textColor), node.startOffset, node.endOffset)

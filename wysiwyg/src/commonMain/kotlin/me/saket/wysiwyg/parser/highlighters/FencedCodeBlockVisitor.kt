@@ -1,6 +1,6 @@
 package me.saket.wysiwyg.parser.highlighters
 
-import me.saket.wysiwyg.parser.SpanWriter
+import me.saket.wysiwyg.parser.RealSpanWriter
 import me.saket.wysiwyg.parser.highlighters.DelimitedNodeVisitor.Companion.highlightClosingSyntax
 import me.saket.wysiwyg.parser.highlighters.DelimitedNodeVisitor.Companion.highlightOpeningSyntax
 import me.saket.wysiwyg.parser.node.FencedCodeBlock
@@ -29,7 +29,7 @@ class FencedCodeBlockVisitor : SyntaxHighlighter<FencedCodeBlock> {
       override fun visit(
         node: FencedCodeBlock,
         pool: SpanPool,
-        writer: SpanWriter
+        writer: RealSpanWriter
       ) {
         writer.add(pool.indentedCodeBlock(), node.startOffset, node.endOffset)
         writer.add(pool.monospaceTypeface(), node.startOffset, node.endOffset)

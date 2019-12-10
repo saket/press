@@ -1,6 +1,6 @@
 package me.saket.wysiwyg.parser.highlighters
 
-import me.saket.wysiwyg.parser.SpanWriter
+import me.saket.wysiwyg.parser.RealSpanWriter
 import me.saket.wysiwyg.parser.node.BlockQuote
 import me.saket.wysiwyg.parser.node.Node
 import me.saket.wysiwyg.parser.node.endOffset
@@ -15,7 +15,7 @@ class BlockQuoteVisitor : NodeVisitor<BlockQuote> {
   override fun visit(
     node: BlockQuote,
     pool: SpanPool,
-    writer: SpanWriter
+    writer: RealSpanWriter
   ) {
     // Android requires quote spans to be inserted at the starting of the line. Nested
     // quote spans are otherwise not rendered correctly. Calculate the offset for this
