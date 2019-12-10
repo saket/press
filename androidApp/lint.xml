@@ -1,0 +1,6 @@
+<lint>
+  <issue id="WrongConstant">
+    <!-- https://issuetracker.google.com/issues/145944378 -->
+    <ignore regexp="LineBreaker.BREAK_STRATEGY_" />
+  </issue>
+</lint>

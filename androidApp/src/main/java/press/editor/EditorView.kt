@@ -10,7 +10,8 @@ import android.text.InputType.TYPE_CLASS_TEXT
 import android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
 import android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
 import android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-import android.graphics.text.LineBreaker.BREAK_STRATEGY_HIGH_QUALITY
+import android.text.Layout
+import android.text.Layout.BREAK_STRATEGY_HIGH_QUALITY
 import android.text.style.ForegroundColorSpan
 import android.view.Gravity.TOP
 import android.view.View
