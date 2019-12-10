@@ -11,5 +11,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    - uses: actions/cache@v1
+      with:
+        path: ~/.gradle/caches
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}-${{ hashFiles('gradle/dependencies.gradle') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
     - name: Run unit tests and code analyzers
       run: ./gradlew check
