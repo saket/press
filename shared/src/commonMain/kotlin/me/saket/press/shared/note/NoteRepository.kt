@@ -14,6 +14,7 @@ interface NoteRepository {
   fun create(vararg insertNotes: InsertNote): Completable
   fun update(noteUuid: Uuid, content: String): Completable
   fun markAsDeleted(noteUuid: Uuid): Completable
+  fun markAsArchived(noteUuid: Uuid): Completable
 
   fun create(noteUuid: Uuid, content: String): Completable {
     return create(InsertNote(noteUuid, content))

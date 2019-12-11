@@ -56,4 +56,9 @@ class FakeNoteRepository : NoteRepository {
       updateCount++
     }
   }
+
+  override fun markAsArchived(noteUuid: Uuid): Completable {
+   TODO()
+    //We need the instance of a Clock to set the archivedAt property
+  }
 }

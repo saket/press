@@ -51,6 +51,7 @@ internal class RealNoteRepository(
               content = note.content,
               createdAt = clock.nowUtc(),
               updatedAt = clock.nowUtc(),
+              archivedAt = null,
               deletedAtString = null
           )
         }
@@ -78,6 +79,15 @@ internal class RealNoteRepository(
       noteQueries.markAsDeleted(
           uuid = noteUuid,
           deletedAtString = DateTimeAdapter.encode(clock.nowUtc())
+      )
+    }
+  }
+
+  override fun markAsArchived(noteUuid: Uuid): Completable {
+    return completableFromFunction {
+      noteQueries.markAsArchived(
+          uuid = noteUuid,
+          archivedAt = clock.nowUtc()
       )
     }
   }
