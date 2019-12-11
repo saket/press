@@ -1,12 +1,13 @@
 <resources>
 
   <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+    <!-- These colors are applied in Kotlin. The user should never see these. -->
     <item name="colorPrimary">#f00</item>
     <item name="colorPrimaryDark">#f00</item>
     <item name="colorAccent">#f00</item>
 
     <item name="android:editTextStyle">@style/DefaultEditTextStyle</item>
-    <item name="android:colorEdgeEffect">@color/overscroll</item>
+    <item name="android:colorEdgeEffect">@color/overscroll_canary</item>
 
     <item name="android:windowBackground">@color/default_window_background</item>
     <item name="android:statusBarColor">@color/default_window_background</item>

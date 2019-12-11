@@ -14,13 +14,13 @@ inline fun <reified T : Any> reflect(): Reflection =
   Reflection(T::class.java)
 
 class Reflection(private val clazz: Class<out Any>) {
-  fun field(name: String): Field =
+  fun field(name: FieldName): Field =
     fieldCache.getOrPut(
         key = clazz to name,
         defaultValue = { clazz.getDeclaredField(name).apply { isAccessible = true } }
     )
 
-  fun method(name: String, vararg paramTypes: Class<out Any>): Method =
+  fun method(name: MethodName, vararg paramTypes: Class<out Any>): Method =
     methodCache.getOrPut(
         key = Triple(clazz, name, paramTypes),
         defaultValue = {
@@ -31,6 +31,6 @@ class Reflection(private val clazz: Class<out Any>) {
 
   companion object {
     val fieldCache = mutableMapOf<Pair<Class<out Any>, FieldName>, Field>()
-    val methodCache = mutableMapOf<Triple<Class<out Any>, String, Array<out Class<out Any>>>, Method>()
+    val methodCache = mutableMapOf<Triple<Class<out Any>, MethodName, Array<out Class<out Any>>>, Method>()
   }
 }
