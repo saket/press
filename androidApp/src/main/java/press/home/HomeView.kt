@@ -3,6 +3,8 @@ package press.home
 import android.app.Activity
 import android.content.Context
 import android.graphics.Color.BLACK
+import android.os.Bundle
+import android.os.Parcelable
 import android.view.View
 import android.view.animation.PathInterpolator
 import androidx.appcompat.widget.Toolbar
@@ -21,6 +23,7 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import io.reactivex.subjects.BehaviorSubject
+import kotlinx.android.parcel.Parcelize
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.dimming.TintPainter
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
@@ -56,6 +59,7 @@ import press.widgets.attr
 import press.widgets.doOnNextCollapse
 import press.widgets.locationOnScreen
 import press.widgets.suspendWhileExpanded
+import kotlin.properties.Delegates.observable
 
 class HomeView @AssistedInject constructor(
   @Assisted context: Context,
@@ -63,6 +67,11 @@ class HomeView @AssistedInject constructor(
   private val presenter: HomePresenter.Factory,
   private val editorViewFactory: EditorView.Factory
 ) : ContourLayout(context) {
+
+  companion object {
+    private const val KEY_SUPER = "press::key::super"
+    private const val KEY_NOTE_MODEL = "press::key::note"
+  }
 
   private val activity = context as Activity
   private val windowFocusChanges = BehaviorSubject.createDefault(WindowFocusChanged(hasFocus = true))
@@ -76,6 +85,7 @@ class HomeView @AssistedInject constructor(
   }
 
   private val notesList = themed(InboxRecyclerView(context)).apply {
+    id = R.id.notesListViewId
     layoutManager = LinearLayoutManager(context)
     adapter = noteAdapter
     tintPainter = TintPainter.uncoveredArea(color = BLACK, opacity = 0.25f)
@@ -98,7 +108,9 @@ class HomeView @AssistedInject constructor(
     )
   }
 
-  private val noteEditorPage = ExpandablePageLayout(context).apply {
+  // Clarify the type here to clear the 'type checking recursive problem'.
+  private val noteEditorPage: ExpandablePageLayout = ExpandablePageLayout(context).apply {
+    doOnNextCollapse { noteForEditor = null }
     notesList.expandablePage = this
     elevation = 20f.dip
     animationInterpolator = PathInterpolator(0.5f, 0f, 0f, 1f)
@@ -113,8 +125,61 @@ class HomeView @AssistedInject constructor(
     )
   }
 
+  private val createEditorView = { noteUuid: Uuid ->
+    editorViewFactory.create(
+        context = context,
+        openMode = ExistingNote(noteUuid),
+        onDismiss = { notesList.collapse() }
+    )
+  }
+
+  // When restoring from config change, we want the List to expand immediately.
+  private var expandImmediately = false
+
+  private var noteForEditor by observable<NoteParcelable?>(null) { _, oldNote, newNote ->
+    if (oldNote == newNote) return@observable
+    if (newNote != null) {
+      val editorView = createEditorView(requireNotNull(Uuid.parse(newNote.noteUuid)))
+      editorView.id = R.id.editorViewId
+      noteEditorPage.addView(editorView)
+      noteEditorPage.doOnNextCollapse { it.removeView(editorView) }
+
+      val keyboardToggle = HideKeyboardOnPageCollapse(editorView.editorEditText)
+      noteEditorPage.addStateChangeCallbacks(keyboardToggle)
+      noteEditorPage.doOnNextCollapse { it.removeStateChangeCallbacks(keyboardToggle) }
+
+      noteEditorPage.pullToCollapseInterceptor =
+        interceptIfViewCanBeScrolled(editorView.scrollView)
+
+      noteEditorPage.post {
+        notesList.expandItem(itemId = newNote.adapterId, immediate = expandImmediately)
+        expandImmediately = false
+      }
+    } else {
+      notesList.collapse()
+    }
+  }
+
   init {
     setupNoteEditorPage()
+  }
+
+  override fun onSaveInstanceState(): Parcelable? {
+    val bundle = Bundle()
+    val superState = super.onSaveInstanceState()
+    if (superState != null) bundle.putParcelable(KEY_SUPER, superState)
+    noteForEditor?.let { bundle.putParcelable(KEY_NOTE_MODEL, it) }
+    return bundle
+  }
+
+  override fun onRestoreInstanceState(state: Parcelable?) {
+    var savedState = state
+    if (savedState is Bundle) {
+      expandImmediately = true
+      this.noteForEditor = savedState.getParcelable(KEY_NOTE_MODEL)
+      savedState = savedState.getParcelable(KEY_SUPER)
+    }
+    super.onRestoreInstanceState(savedState)
   }
 
   override fun onAttachedToWindow() {
@@ -140,31 +205,14 @@ class HomeView @AssistedInject constructor(
   }
 
   private fun setupNoteEditorPage() {
-    val createEditorView = { noteUuid: Uuid ->
-      editorViewFactory.create(
-          context = context,
-          openMode = ExistingNote(noteUuid),
-          onDismiss = notesList::collapse
-      )
-    }
-
     noteAdapter.noteClicks
         .throttleFirst(1.seconds, mainThread())
         .takeUntil(detaches())
         .subscribe { noteModel ->
-          val editorView = createEditorView(noteModel.noteUuid)
-          noteEditorPage.addView(editorView)
-          noteEditorPage.doOnNextCollapse { it.removeView(editorView) }
-
-          val keyboardToggle = HideKeyboardOnPageCollapse(editorView.editorEditText)
-          noteEditorPage.addStateChangeCallbacks(keyboardToggle)
-          noteEditorPage.doOnNextCollapse { it.removeStateChangeCallbacks(keyboardToggle) }
-
-          noteEditorPage.pullToCollapseInterceptor = interceptIfViewCanBeScrolled(editorView.scrollView)
-
-          noteEditorPage.post {
-            notesList.expandItem(itemId = noteModel.adapterId)
-          }
+          this.noteForEditor = NoteParcelable(
+              noteModel.noteUuid.toString(),
+              noteModel.adapterId
+          )
         }
 
     noteEditorPage.addStateChangeCallbacks(
@@ -175,7 +223,8 @@ class HomeView @AssistedInject constructor(
 
   private fun interceptIfViewCanBeScrolled(view: View): OnPullToCollapseInterceptor {
     return { downX, downY, upwardPull ->
-      val touchLiesOnView = view.locationOnScreen().contains(downX.toInt(), downY.toInt())
+      val touchLiesOnView = view.locationOnScreen()
+          .contains(downX.toInt(), downY.toInt())
 
       if (touchLiesOnView) {
         val directionInt = if (upwardPull) +1 else -1
@@ -220,3 +269,9 @@ class HomeView @AssistedInject constructor(
     fun withContext(context: Context): HomeView
   }
 }
+
+@Parcelize
+class NoteParcelable(
+  val noteUuid: String, // Plan to use Uuid, but String is easier to parcelize.
+  val adapterId: Long
+) : Parcelable

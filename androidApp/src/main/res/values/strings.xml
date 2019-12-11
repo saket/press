@@ -1,3 +1,10 @@
 <resources>
-    <string name="app_name">Press</string>
+  <string name="app_name">Press</string>
+
+  <item name="homeViewId" type="id" />
+  <item name="notesListViewId" type="id" />
+  <item name="editorViewId" type="id" />
+
+  <item name="scrollStatePosition" type="id" />
+  <item name="scrollStateContentWidth" type="id" />
 </resources>

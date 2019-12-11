@@ -6,11 +6,12 @@ import android.text.Spannable
 import android.text.style.ClickableSpan
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_UP
+import android.view.View
 import android.widget.ScrollView
 import android.widget.TextView
 import me.saket.bettermovementmethod.BetterLinkMovementMethod
 
-class EditorLinkMovementMethod(scrollView: ScrollView) : BetterLinkMovementMethod() {
+class EditorLinkMovementMethod(scrollView: View) : BetterLinkMovementMethod() {
 
   lateinit var clickedUrlCoordinates: Point
 

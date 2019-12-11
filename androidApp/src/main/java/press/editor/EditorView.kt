@@ -5,6 +5,8 @@ package press.editor
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Color.WHITE
+import android.os.Bundle
+import android.os.Parcelable
 import android.text.InputType.TYPE_CLASS_TEXT
 import android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
 import android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
@@ -21,6 +23,8 @@ import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.appcompat.widget.Toolbar
 import androidx.core.graphics.ColorUtils.blendARGB
+import androidx.core.view.doOnLayout
+import androidx.core.view.doOnNextLayout
 import androidx.core.view.updatePaddingRelative
 import com.jakewharton.rxbinding3.view.detaches
 import com.jakewharton.rxbinding3.widget.textChanges
@@ -29,6 +33,7 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import me.saket.press.R
 import me.saket.press.R.drawable
 import me.saket.press.shared.editor.EditorEvent
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
@@ -66,6 +71,12 @@ class EditorView @AssistedInject constructor(
   presenterFactory: EditorPresenter.Factory
 ) : ContourLayout(context) {
 
+  companion object {
+    private const val KEY_SUPER = "press::key::super"
+    private const val KEY_SCROLL_POSITION = "press::key::scroll_position"
+    private const val KEY_CONTENT_WIDTH = "press::key::aspect_ratio"
+  }
+
   private val toolbar = themed(Toolbar(context)).apply {
     navigationIcon = getDrawable(context, drawable.ic_close_24dp)
     themeAware {
@@ -96,6 +107,9 @@ class EditorView @AssistedInject constructor(
         TYPE_TEXT_FLAG_NO_SUGGESTIONS
     movementMethod = EditorLinkMovementMethod(scrollView)
     updatePaddingRelative(start = 16.dip, end = 16.dip, bottom = 16.dip)
+    doOnLayout {
+      contentWidth = layout.width
+    }
     CapitalizeOnHeadingStart.capitalize(this)
     fromOreo {
       importantForAutofill = IMPORTANT_FOR_AUTOFILL_NO
@@ -116,6 +130,8 @@ class EditorView @AssistedInject constructor(
         y = topTo { scrollView.top() + editorEditText.paddingTop }
     )
   }
+
+  private var contentWidth: Int = 0
 
   private val presenter = presenterFactory.create(Args(openMode))
 
@@ -143,6 +159,31 @@ class EditorView @AssistedInject constructor(
       //  start collapsing.
       onDismiss()
     }
+  }
+
+  override fun onSaveInstanceState(): Parcelable? {
+    val bundle = Bundle()
+    val scrollPosition = scrollView.scrollY
+    bundle.putInt(KEY_SCROLL_POSITION, scrollPosition)
+    bundle.putInt(KEY_CONTENT_WIDTH, contentWidth)
+    super.onSaveInstanceState()
+        ?.let {
+          bundle.putParcelable(KEY_SUPER, it)
+        }
+    return bundle
+  }
+
+  override fun onRestoreInstanceState(state: Parcelable?) {
+    var savedState = state
+    if (savedState is Bundle) {
+      val scrollPosition = savedState.getInt(KEY_SCROLL_POSITION)
+      scrollView.setTag(R.id.scrollStatePosition, scrollPosition)
+      val oldWidth: Int = savedState.getInt(KEY_CONTENT_WIDTH)
+      scrollView.setTag(R.id.scrollStateContentWidth, oldWidth)
+
+      savedState = savedState.getParcelable(KEY_SUPER)
+    }
+    super.onRestoreInstanceState(savedState)
   }
 
   override fun onAttachedToWindow() {
@@ -178,13 +219,43 @@ class EditorView @AssistedInject constructor(
           .popSpan()
           .build()
     }
+
+    onRendered()
   }
 
   private fun render(uiUpdate: EditorUiEffect) {
     when (uiUpdate) {
-      is PopulateContent -> editorEditText.setText(uiUpdate.content, moveCursorToEnd = uiUpdate.moveCursorToEnd)
+      is PopulateContent -> editorEditText.setText(
+          uiUpdate.content, moveCursorToEnd = uiUpdate.moveCursorToEnd
+      )
       is CloseNote -> onDismiss()
     }.exhaustive
+
+    onRendered()
+  }
+
+  private fun onRendered() {
+    val scrollPosition = scrollView.getTag(R.id.scrollStatePosition)
+    val oldWidth = scrollView.getTag(R.id.scrollStateContentWidth)
+    if (scrollPosition is Int && oldWidth is Int) {
+      scrollView.setTag(R.id.scrollStatePosition, Any())
+      scrollView.setTag(R.id.scrollStateContentWidth, Any())
+
+      scrollView.doOnNextLayout {
+        scrollView.post {
+          val currentWidth = editorEditText.layout.width
+
+          val toScroll = run {
+            if (oldWidth == currentWidth) {
+              scrollPosition
+            } else {
+              scrollPosition * oldWidth / currentWidth
+            }
+          }
+          scrollView.scrollTo(0, toScroll)
+        }
+      }
+    }
   }
 
   @AssistedInject.Factory

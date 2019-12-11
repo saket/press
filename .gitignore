@@ -65,3 +65,4 @@ playground.xcworkspace
 
 buildboth.sh
 
+/.idea/sqldelight/shared/.sqldelight
