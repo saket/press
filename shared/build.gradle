@@ -34,7 +34,7 @@ kotlin {
         implementation kotlin('stdlib-common')
         implementation deps.reaktive.core.common
         implementation deps.koin.core.common
-        implementation deps.kNativeUuid
+        implementation deps.multiplatformUuid
         implementation deps.klock.common
         implementation deps.sqlDelight.runtime.common
         implementation deps.stately

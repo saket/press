@@ -18,6 +18,7 @@ buildscript {
       androidXTest: '1.2.0',
       androidXTestJUnit: '1.1.2-alpha02',
       betterLinkMovementMethod: '2.2.0',
+      multiplatformUuid: '0.0.6'
   ]
 
   ext.deps = [
@@ -130,7 +131,7 @@ buildscript {
               'ios32': "co.touchlab:koin-core-iosarm32:$versions.koin"
           ]
       ],
-      'kNativeUuid': "com.benasher44:uuid:0.0.5",
+      'multiplatformUuid': "com.benasher44:uuid:$versions.multiplatformUuid",
       'klock': [
           'common': "com.soywiz.korlibs.klock:klock:$versions.klock",
           'jvm': "com.soywiz.korlibs.klock:klock-jvm:$versions.klock",
