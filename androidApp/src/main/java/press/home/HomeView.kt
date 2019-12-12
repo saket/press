@@ -127,6 +127,8 @@ class HomeView @AssistedInject constructor(
     val presenter = presenter.create(Args(includeEmptyNotes = false))
 
     newNoteClicks.uiUpdates(presenter)
+        // These two suspend calls skip updates while an
+        // existing note or the new-note screen is open.
         .suspendWhileExpanded(noteEditorPage)
         .suspendWhile(windowFocusChanges) { it.hasFocus.not() }
         .takeUntil(detaches())
