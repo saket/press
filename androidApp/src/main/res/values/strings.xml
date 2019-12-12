@@ -4,6 +4,7 @@
   <item name="homeViewId" type="id" />
   <item name="editorViewId" type="id" />
 
+  <!-- Unique integers to be used in EditorView to store some transient states -->
   <item name="scrollStatePosition" type="id" />
   <item name="scrollStateLineDiff" type="id" />
   <item name="scrollStateLineOffset" type="id" />
