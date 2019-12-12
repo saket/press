@@ -23,6 +23,7 @@ import press.util.withOpacity
 import press.widgets.ThemeAwareActivity
 import press.widgets.dp
 import press.widgets.hideKeyboard
+import press.widgets.interceptPullToCollapseOnView
 import press.widgets.showKeyboard
 import java.util.concurrent.TimeUnit.MILLISECONDS
 import javax.inject.Inject
@@ -64,7 +65,7 @@ class EditorActivity : ThemeAwareActivity() {
     )
   }
 
-  private fun wrapInExpandableLayout(view: View): ExpandablePageLayout {
+  private fun wrapInExpandableLayout(view: EditorView): ExpandablePageLayout {
     window.setBackgroundDrawable(ColorDrawable(BLACK.withOpacity(0.1f)))
 
     return StandaloneExpandablePageLayout(this).apply {
@@ -74,6 +75,7 @@ class EditorActivity : ThemeAwareActivity() {
           dismiss()
         }
       }
+      pullToCollapseInterceptor = interceptPullToCollapseOnView(view.scrollView)
       expandImmediately()
       addView(view)
     }
