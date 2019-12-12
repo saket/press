@@ -85,7 +85,6 @@ class HomeView @AssistedInject constructor(
   }
 
   private val notesList = themed(InboxRecyclerView(context)).apply {
-    id = R.id.notesListViewId
     layoutManager = LinearLayoutManager(context)
     adapter = noteAdapter
     tintPainter = TintPainter.uncoveredArea(color = BLACK, opacity = 0.25f)
@@ -133,9 +132,6 @@ class HomeView @AssistedInject constructor(
     )
   }
 
-  // When restoring from config change, we want the List to expand immediately.
-  private var expandImmediately = false
-
   private var noteForEditor by observable<NoteParcelable?>(null) { _, oldNote, newNote ->
     if (oldNote == newNote) return@observable
     if (newNote != null) {
@@ -152,8 +148,7 @@ class HomeView @AssistedInject constructor(
         interceptIfViewCanBeScrolled(editorView.scrollView)
 
       noteEditorPage.post {
-        notesList.expandItem(itemId = newNote.adapterId, immediate = expandImmediately)
-        expandImmediately = false
+        notesList.expandItem(itemId = newNote.adapterId, immediate = false)
       }
     } else {
       notesList.collapse()
@@ -175,7 +170,6 @@ class HomeView @AssistedInject constructor(
   override fun onRestoreInstanceState(state: Parcelable?) {
     var savedState = state
     if (savedState is Bundle) {
-      expandImmediately = true
       this.noteForEditor = savedState.getParcelable(KEY_NOTE_MODEL)
       savedState = savedState.getParcelable(KEY_SUPER)
     }

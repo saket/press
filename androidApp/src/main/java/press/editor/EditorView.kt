@@ -2,6 +2,7 @@
 
 package press.editor
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Color.WHITE
@@ -23,7 +24,6 @@ import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.appcompat.widget.Toolbar
 import androidx.core.graphics.ColorUtils.blendARGB
-import androidx.core.view.doOnLayout
 import androidx.core.view.doOnNextLayout
 import androidx.core.view.updatePaddingRelative
 import com.jakewharton.rxbinding3.view.detaches
@@ -73,8 +73,8 @@ class EditorView @AssistedInject constructor(
 
   companion object {
     private const val KEY_SUPER = "press::key::super"
-    private const val KEY_SCROLL_POSITION = "press::key::scroll_position"
-    private const val KEY_CONTENT_WIDTH = "press::key::aspect_ratio"
+    private const val KEY_LINE_OFFSET = "press::key::offset"
+    private const val KEY_LINE_DIFF = "press::key::diff"
   }
 
   private val toolbar = themed(Toolbar(context)).apply {
@@ -107,9 +107,6 @@ class EditorView @AssistedInject constructor(
         TYPE_TEXT_FLAG_NO_SUGGESTIONS
     movementMethod = EditorLinkMovementMethod(scrollView)
     updatePaddingRelative(start = 16.dip, end = 16.dip, bottom = 16.dip)
-    doOnLayout {
-      contentWidth = layout.width
-    }
     CapitalizeOnHeadingStart.capitalize(this)
     fromOreo {
       importantForAutofill = IMPORTANT_FOR_AUTOFILL_NO
@@ -130,8 +127,6 @@ class EditorView @AssistedInject constructor(
         y = topTo { scrollView.top() + editorEditText.paddingTop }
     )
   }
-
-  private var contentWidth: Int = 0
 
   private val presenter = presenterFactory.create(Args(openMode))
 
@@ -163,9 +158,15 @@ class EditorView @AssistedInject constructor(
 
   override fun onSaveInstanceState(): Parcelable? {
     val bundle = Bundle()
-    val scrollPosition = scrollView.scrollY
-    bundle.putInt(KEY_SCROLL_POSITION, scrollPosition)
-    bundle.putInt(KEY_CONTENT_WIDTH, contentWidth)
+    editorEditText.layout?.apply {
+      val scrollPosition = scrollView.scrollY
+      val lineIndex = getLineForVertical(scrollPosition)
+      val lineStart = getLineStart(lineIndex)
+      bundle.putInt(KEY_LINE_OFFSET, lineStart)
+      val lineTop = getLineTop(lineIndex)
+      bundle.putInt(KEY_LINE_DIFF, scrollPosition - lineTop)
+    }
+
     super.onSaveInstanceState()
         ?.let {
           bundle.putParcelable(KEY_SUPER, it)
@@ -176,10 +177,10 @@ class EditorView @AssistedInject constructor(
   override fun onRestoreInstanceState(state: Parcelable?) {
     var savedState = state
     if (savedState is Bundle) {
-      val scrollPosition = savedState.getInt(KEY_SCROLL_POSITION)
-      scrollView.setTag(R.id.scrollStatePosition, scrollPosition)
-      val oldWidth: Int = savedState.getInt(KEY_CONTENT_WIDTH)
-      scrollView.setTag(R.id.scrollStateContentWidth, oldWidth)
+      val lineDiff: Int = savedState.getInt(KEY_LINE_DIFF)
+      scrollView.setTag(R.id.scrollStateLineDiff, lineDiff)
+      val lineOffset: Int = savedState.getInt(KEY_LINE_OFFSET)
+      scrollView.setTag(R.id.scrollStateLineOffset, lineOffset)
 
       savedState = savedState.getParcelable(KEY_SUPER)
     }
@@ -234,24 +235,19 @@ class EditorView @AssistedInject constructor(
     onRendered()
   }
 
+  @SuppressLint("BinaryOperationInTimber")
   private fun onRendered() {
-    val scrollPosition = scrollView.getTag(R.id.scrollStatePosition)
-    val oldWidth = scrollView.getTag(R.id.scrollStateContentWidth)
-    if (scrollPosition is Int && oldWidth is Int) {
-      scrollView.setTag(R.id.scrollStatePosition, Any())
-      scrollView.setTag(R.id.scrollStateContentWidth, Any())
+    val lineDiff = scrollView.getTag(R.id.scrollStateLineDiff)
+    val lineOffset = scrollView.getTag(R.id.scrollStateLineOffset)
+    if (lineDiff is Int && lineOffset is Int) {
+      scrollView.setTag(R.id.scrollStateLineDiff, Any())
+      scrollView.setTag(R.id.scrollStateLineOffset, Any())
 
       scrollView.doOnNextLayout {
         scrollView.post {
-          val currentWidth = editorEditText.layout.width
-
-          val toScroll = run {
-            if (oldWidth == currentWidth) {
-              scrollPosition
-            } else {
-              scrollPosition * oldWidth / currentWidth
-            }
-          }
+          val lineIndex = editorEditText.layout.getLineForOffset(lineOffset)
+          val lineTop = editorEditText.layout.getLineTop(lineIndex)
+          val toScroll = lineTop + lineDiff
           scrollView.scrollTo(0, toScroll)
         }
       }
