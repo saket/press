@@ -2,7 +2,6 @@
 
 package press.editor
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Color.WHITE
@@ -178,8 +177,11 @@ class EditorView @AssistedInject constructor(
     var savedState = state
     if (savedState is Bundle) {
       val lineDiff: Int = savedState.getInt(KEY_LINE_DIFF)
-      scrollView.setTag(R.id.scrollStateLineDiff, lineDiff)
       val lineOffset: Int = savedState.getInt(KEY_LINE_OFFSET)
+      // We do not restore now because the text may not be there yet. Instead, we set a tag 
+      // and consume/reset them later, so we can ensure the restoration happens only once after 
+      // the editor/markdown is rendered.
+      scrollView.setTag(R.id.scrollStateLineDiff, lineDiff)
       scrollView.setTag(R.id.scrollStateLineOffset, lineOffset)
 
       savedState = savedState.getParcelable(KEY_SUPER)
@@ -235,7 +237,6 @@ class EditorView @AssistedInject constructor(
     onRendered()
   }
 
-  @SuppressLint("BinaryOperationInTimber")
   private fun onRendered() {
     val lineDiff = scrollView.getTag(R.id.scrollStateLineDiff)
     val lineOffset = scrollView.getTag(R.id.scrollStateLineOffset)
