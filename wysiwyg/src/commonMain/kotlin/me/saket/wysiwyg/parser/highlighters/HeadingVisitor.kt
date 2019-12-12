@@ -28,23 +28,26 @@ class HeadingVisitor : SyntaxHighlighter<Heading> {
     }
   }
 
-  private fun headingVisitor() = object : NodeVisitor<Heading> {
-    override fun visit(
-      node: Heading,
-      pool: SpanPool,
-      writer: SpanWriter
-    ) {
-      writer.add(pool.heading(node.headingLevel), node.startOffset, node.endOffset)
-      writer.add(
-          pool.foregroundColor(pool.style.syntaxColor),
-          node.startOffset,
-          node.startOffset + node.openingMarker.length
-      )
-      writer.add(
-          pool.foregroundColor(pool.style.heading.textColor),
-          node.startOffset + node.openingMarker.length,
-          node.endOffset
-      )
+  // FYI compileKotlinMetadata task fails with an
+  // error if the return type isn't explicitly specified.
+  private fun headingVisitor(): NodeVisitor<Heading> =
+    object : NodeVisitor<Heading> {
+      override fun visit(
+        node: Heading,
+        pool: SpanPool,
+        writer: SpanWriter
+      ) {
+        writer.add(pool.heading(node.headingLevel), node.startOffset, node.endOffset)
+        writer.add(
+            pool.foregroundColor(pool.style.syntaxColor),
+            node.startOffset,
+            node.startOffset + node.openingMarker.length
+        )
+        writer.add(
+            pool.foregroundColor(pool.style.heading.textColor),
+            node.startOffset + node.openingMarker.length,
+            node.endOffset
+        )
+      }
     }
-  }
 }

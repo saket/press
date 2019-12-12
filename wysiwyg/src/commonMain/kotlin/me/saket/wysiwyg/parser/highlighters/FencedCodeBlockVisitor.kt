@@ -22,7 +22,9 @@ class FencedCodeBlockVisitor : SyntaxHighlighter<FencedCodeBlock> {
     }
   }
 
-  private fun fencedCodeVisitor() =
+  // FYI compileKotlinMetadata task fails with an
+  // error if the return type isn't explicitly specified.
+  private fun fencedCodeVisitor(): NodeVisitor<FencedCodeBlock> =
     object : NodeVisitor<FencedCodeBlock> {
       override fun visit(
         node: FencedCodeBlock,
