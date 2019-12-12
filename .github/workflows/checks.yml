@@ -7,9 +7,27 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macOS-latest
 
     steps:
     - uses: actions/checkout@v1
+    - uses: actions/cache@v1.0.3
+      with:
+        path: ~/.gradle/caches/jars-3
+        key: ${{ runner.os }}-gradle-jars-${{ hashFiles('**/*.gradle') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-jars-
+    - uses: actions/cache@v1.0.3
+      with:
+        path: ~/.gradle/caches/modules-2
+        key: ${{ runner.os }}-gradle-modules-${{ hashFiles('**/*.gradle') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-modules
+    - uses: actions/cache@v1.0.3
+      with:
+        path: ~/.gradle/wrapper/dists
+        key: ${{ runner.os }}-gradle-dists-${{ hashFiles('**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-dists
     - name: Run unit tests and code analyzers
       run: ./gradlew check
