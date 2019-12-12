@@ -3,7 +3,7 @@ buildscript {
       dagger: '2.25.2',
       butterKnife: '8.8.1',
       kotlin: '1.3.60',     // Keep in sync with build.gradle
-      sqlDelight: '1.2.0',  // Keep in sync with build.gradle
+      sqlDelight: '1.2.1',  // Keep in sync with build.gradle
       moshi: '1.9.2',
       persistence: '2.0.0',
       okhttp: '4.0.1',
