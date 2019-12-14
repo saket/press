@@ -25,7 +25,7 @@ class HomePresenter(
   }
 
   override fun uiModels(publishedEvents: Observable<HomeEvent>) =
-    merge(populateNotes())
+    populateNotes().observeOn(mainScheduler)
 
   override fun uiEffects(publishedEvents: Observable<HomeEvent>) =
     publishedEvents.openNewNoteScreen()
@@ -33,14 +33,9 @@ class HomePresenter(
   private fun Observable<HomeEvent>.openNewNoteScreen(): Observable<HomeUiEffect> =
     ofType<NewNoteClicked>().map { ComposeNewNote }
 
-  /*
-   * Must be called on main thread
-   */
   private fun populateNotes(): Observable<HomeUiModel> =
     repository
       .notes(args.includeEmptyNotes)
-      .observeOn(mainScheduler)
-      .threadLocal()
       .map {
         HomeUiModel(it.map { note ->
           val (heading, body) = SplitHeadingAndBody.split(note.content)

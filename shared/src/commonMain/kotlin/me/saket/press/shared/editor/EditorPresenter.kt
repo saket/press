@@ -62,7 +62,7 @@ class EditorPresenter(
 
       val autoSave = sharedEvents.autoSaveContent()
 
-      merge(uiModels, autoSave)
+      merge(uiModels, autoSave).observeOn(mainScheduler)
     }
   }
 
@@ -72,6 +72,7 @@ class EditorPresenter(
         populateNewNotePlaceholderOnStart(),
         closeIfNoteGetsDeleted()
     )
+      .observeOn(mainScheduler)
   }
 
   /*
