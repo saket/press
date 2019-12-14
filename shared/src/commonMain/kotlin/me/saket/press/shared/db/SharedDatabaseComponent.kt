@@ -2,6 +2,7 @@ package me.saket.press.shared.db
 
 import com.badoo.reaktive.scheduler.computationScheduler
 import com.badoo.reaktive.scheduler.ioScheduler
+import com.badoo.reaktive.scheduler.mainScheduler
 import com.squareup.sqldelight.db.SqlDriver
 import me.saket.press.PressDatabase
 import me.saket.press.data.shared.Note
@@ -12,6 +13,7 @@ internal object SharedDatabaseComponent {
   val module = module {
     single { get<SqlDriver>().createPressDatabase() }
     single { get<PressDatabase>().noteQueries }
+    single(named("main")) { mainScheduler }
     single(named("io")) { ioScheduler }
     single(named("computation")) { computationScheduler }
   }

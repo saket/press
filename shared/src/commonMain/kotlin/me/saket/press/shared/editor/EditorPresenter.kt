@@ -5,7 +5,6 @@ import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.andThen
 import com.badoo.reaktive.completable.completableOfEmpty
 import com.badoo.reaktive.completable.subscribe
-import com.badoo.reaktive.completable.subscribeOn
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.distinctUntilChanged
 import com.badoo.reaktive.observable.filter
@@ -14,10 +13,12 @@ import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observableOf
 import com.badoo.reaktive.observable.observableOfEmpty
+import com.badoo.reaktive.observable.observeOn
 import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.publish
 import com.badoo.reaktive.observable.share
 import com.badoo.reaktive.observable.take
+import com.badoo.reaktive.observable.threadLocal
 import com.badoo.reaktive.observable.withLatestFrom
 import com.badoo.reaktive.scheduler.Scheduler
 import me.saket.press.data.shared.Note
@@ -38,7 +39,7 @@ import me.saket.press.shared.util.Optional
 class EditorPresenter(
   args: Args,
   private val noteRepository: NoteRepository,
-  private val ioScheduler: Scheduler,
+  private val mainScheduler: Scheduler,
   private val computationScheduler: Scheduler,
   private val strings: Editor,
   private val config: EditorConfig
@@ -73,6 +74,9 @@ class EditorPresenter(
     )
   }
 
+  /*
+   * Must be called on Main thread
+   */
   private fun createOrFetchNote(): Observable<Note> {
     val newOrExistingId = when (openMode) {
       is NewNote -> openMode.placeholderUuid
@@ -85,6 +89,8 @@ class EditorPresenter(
     val createIfNeeded = noteRepository
         .note(newOrExistingId)
         .take(1)
+        .observeOn(mainScheduler)
+        .threadLocal()
         .flatMapCompletable { (existingNote) ->
           when (existingNote) {
             null -> noteRepository.create(newOrExistingId, "")
@@ -138,13 +144,19 @@ class EditorPresenter(
         }
   }
 
+  /*
+   * Must be called on Main thread
+   */
   private fun Observable<EditorEvent>.autoSaveContent(): Observable<EditorUiModel> {
     val textChanges = ofType<NoteTextChanged>().map { it.text }
 
     return noteStream
         .take(1)
+        .threadLocal()
         .flatMapCompletable { note ->
           observableInterval(config.autoSaveEvery, computationScheduler)
+              .observeOn(mainScheduler)
+              .threadLocal()
               .withLatestFrom(textChanges) { _, text -> text }
               .distinctUntilChanged()
               .flatMapCompletable { text -> noteRepository.update(note.uuid, text) }
@@ -152,12 +164,17 @@ class EditorPresenter(
         .andThen(observableOfEmpty())
   }
 
+  /*
+   * Must be called on Main thread
+   */
   fun saveEditorContentOnExit(content: CharSequence) {
     updateOrDeleteNote(content.toString())
-        .subscribeOn(ioScheduler)
         .subscribe()
   }
 
+  /*
+   * Must be called on Main thread
+   */
   private fun updateOrDeleteNote(content: String): Completable {
     val trimmedContent = content.trim()
     val shouldDelete = content.isBlank() || trimmedContent == NEW_NOTE_PLACEHOLDER.trim()
@@ -173,6 +190,8 @@ class EditorPresenter(
     return noteRepository.note(noteId)
         .take(1)
         .mapToSome()
+        .observeOn(mainScheduler)
+        .threadLocal()
         .flatMapCompletable { note ->
           when {
             shouldDelete -> noteRepository.markAsDeleted(note.uuid)
