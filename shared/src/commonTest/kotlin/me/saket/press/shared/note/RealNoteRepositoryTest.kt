@@ -12,19 +12,19 @@ import com.benasher44.uuid.uuid4
 import com.soywiz.klock.seconds
 import me.saket.press.shared.AndroidJUnit4
 import me.saket.press.shared.RunWith
-import me.saket.press.shared.db.TestDatabase
+import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.time.FakeClock
 import me.saket.press.shared.util.filterSome
 import kotlin.test.Test
 
 @RunWith(AndroidJUnit4::class)
-class RealNoteRepositoryTest {
+class RealNoteRepositoryTest : BaseDatabaeTest() {
 
-  private val noteQueries = TestDatabase().noteQueries
   private val clock = FakeClock()
+  private val noteQueries get() = database().noteQueries
 
-  private val repository = RealNoteRepository(
+  private fun repository() = RealNoteRepository(
       noteQueries = noteQueries,
       ioScheduler = trampolineScheduler,
       clock = clock
@@ -35,7 +35,7 @@ class RealNoteRepositoryTest {
     val content = "Nicolas Cage is a national treasure"
     noteQueries.testInsert(fakeNote(uuid = noteUuid, content = content))
 
-    val savedNote = repository.note(noteUuid)
+    val savedNote = repository().note(noteUuid)
         .filterSome()
         .firstOrError()
         .blockingGet()
@@ -53,7 +53,7 @@ class RealNoteRepositoryTest {
     noteQueries.testInsert(fakeNote(uuid = uuid4(), content = "# Non-empty note"))
     noteQueries.testInsert(fakeNote(uuid = uuid4(), content = ""))
 
-    val savedNotes = repository.notes(includeEmptyNotes = false)
+    val savedNotes = repository().notes(includeEmptyNotes = false)
         .firstOrError()
         .blockingGet()
 
@@ -64,7 +64,7 @@ class RealNoteRepositoryTest {
     noteQueries.testInsert(fakeNote(uuid = uuid4(), content = "# Non-empty note"))
     noteQueries.testInsert(fakeNote(uuid = uuid4(), content = ""))
 
-    val savedNotes = repository.notes(includeEmptyNotes = true)
+    val savedNotes = repository().notes(includeEmptyNotes = true)
         .firstOrError()
         .blockingGet()
 
@@ -76,11 +76,11 @@ class RealNoteRepositoryTest {
     noteQueries.testInsert(note)
     val savedNote = { noteQueries.note(note.uuid).executeAsOne() }
 
-    repository.update(note.uuid, content = "# Nicolas").test()
+    repository().update(note.uuid, content = "# Nicolas").test()
     assertThat(savedNote().updatedAt).isEqualTo(note.updatedAt)
 
     clock.advanceTimeBy(5.seconds)
-    repository.update(note.uuid, content = "# Nicolas Cage").test()
+    repository().update(note.uuid, content = "# Nicolas Cage").test()
     assertThat(savedNote().updatedAt).isEqualTo(note.updatedAt + 5.seconds)
   }
 
@@ -88,7 +88,7 @@ class RealNoteRepositoryTest {
     val note = fakeNote(uuid = uuid4(), content = "# Nicolas Cage")
     noteQueries.testInsert(note)
 
-    repository.markAsDeleted(note.uuid).test()
+    repository().markAsDeleted(note.uuid).test()
 
     val savedNote = noteQueries.note(note.uuid).executeAsOne()
     assertThat(savedNote.deletedAt).isNotNull()
