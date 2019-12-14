@@ -2,6 +2,7 @@ package me.saket.press.shared.note
 
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.completableFromFunction
+import com.badoo.reaktive.completable.subscribeOn
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.asCompletable
 import com.badoo.reaktive.observable.filter
@@ -55,7 +56,7 @@ internal class RealNoteRepository(
           )
         }
       }
-    }
+    }.subscribeOn(ioScheduler)
   }
 
   override fun update(noteUuid: Uuid, content: String): Completable {
@@ -79,6 +80,6 @@ internal class RealNoteRepository(
           uuid = noteUuid,
           deletedAtString = DateTimeAdapter.encode(clock.nowUtc())
       )
-    }
+    }.subscribeOn(ioScheduler)
   }
 }

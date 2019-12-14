@@ -121,6 +121,9 @@ buildscript {
           ],
           'interop': [
               'android': "com.badoo.reaktive:rxjava2-interop:$versions.reaktive"
+          ],
+          'annotations': [
+              'common': "com.badoo.reaktive:reaktive-annotations:$versions.reaktive"
           ]
       ],
       'koin': [

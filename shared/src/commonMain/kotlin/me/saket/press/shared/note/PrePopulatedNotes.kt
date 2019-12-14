@@ -94,7 +94,6 @@ class PrePopulatedNotes(
 
     if (inserted.not()) {
       repository.create(WELCOME, MARKDOWN_GUIDE)
-          .subscribeOn(ioScheduler)
           .subscribe {
             setting.set(PrePopulatedNotesInserted(true))
           }

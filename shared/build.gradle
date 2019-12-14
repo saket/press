@@ -40,6 +40,7 @@ kotlin {
         implementation project(':wysiwyg')
         implementation kotlin('stdlib-common')
         implementation deps.reaktive.core.common
+        implementation deps.reaktive.annotations.common
         implementation deps.koin.core.common
         implementation deps.multiplatformUuid
         implementation deps.klock.common
