@@ -2,8 +2,6 @@ package me.saket.press.shared.note
 
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.observable.Observable
-import com.badoo.reaktive.single.Single
-import com.badoo.reaktive.single.map
 import com.benasher44.uuid.Uuid
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.util.Optional
