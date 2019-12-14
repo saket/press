@@ -1,5 +1,6 @@
 package me.saket.press.shared.editor
 
+import co.touchlab.stately.ensureNeverFrozen
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.andThen
 import com.badoo.reaktive.completable.completableOfEmpty
@@ -42,6 +43,10 @@ class EditorPresenter(
   private val strings: Editor,
   private val config: EditorConfig
 ) : Presenter<EditorEvent, EditorUiModel, EditorUiEffect> {
+
+  init {
+    ensureNeverFrozen()
+  }
 
   private val openMode = args.openMode
 

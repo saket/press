@@ -1,11 +1,13 @@
 package me.saket.press.shared.note
 
-import co.touchlab.stately.collections.frozenCopyOnWriteList
-import co.touchlab.stately.concurrency.AtomicInt
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.completableFromFunction
+import com.badoo.reaktive.completable.observeOn
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.observableFromFunction
+import com.badoo.reaktive.observable.observeOn
+import com.badoo.reaktive.test.scheduler.TestScheduler
+import com.badoo.reaktive.utils.ensureNeverFrozen
 import com.benasher44.uuid.Uuid
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.fakedata.fakeNote
@@ -15,10 +17,17 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class FakeNoteRepository : NoteRepository {
-  val savedNotes = frozenCopyOnWriteList<Note.Impl>()
 
-  private val _updateCount = AtomicInt(0)
-  val updateCount: Int get() = _updateCount.get()
+  init {
+    ensureNeverFrozen()
+  }
+
+  val savedNotes = ArrayList<Note.Impl>()
+
+  var updateCount: Int = 0
+    private set
+
+  private val scheduler = TestScheduler()
 
   private fun findNote(noteUuid: Uuid) = savedNotes.find { it.uuid == noteUuid }
 
@@ -27,12 +36,12 @@ class FakeNoteRepository : NoteRepository {
   }
 
   override fun notes(includeEmptyNotes: Boolean): Observable<List<Note>> =
-    observableFromFunction {
+    observableFromFunction<List<Note>> {
       when {
         includeEmptyNotes -> savedNotes
         else -> savedNotes.filter { it.content.isNotEmpty() }
       }
-    }
+    }.observeOn(scheduler)
 
   override fun create(vararg insertNotes: InsertNote): Completable {
     return completableFromFunction {
@@ -40,15 +49,15 @@ class FakeNoteRepository : NoteRepository {
         assertNull(findNote(note.uuid))
         savedNotes += fakeNote(uuid = note.uuid, content = note.content)
       }
-    }
+    }.observeOn(scheduler)
   }
 
   override fun update(noteUuid: Uuid, content: String): Completable {
     return completableFromFunction {
       assertTrue(savedNotes.remove(findNote(noteUuid)))
       savedNotes += fakeNote(uuid = noteUuid, content = content)
-      _updateCount.addAndGet(1)
-    }
+      updateCount++
+    }.observeOn(scheduler)
   }
 
   override fun markAsDeleted(noteUuid: Uuid): Completable {
@@ -56,7 +65,7 @@ class FakeNoteRepository : NoteRepository {
       val existingNote = findNote(noteUuid)!!
       assertTrue(savedNotes.remove(existingNote))
       savedNotes += existingNote.copy(deletedAtString = "current_time")
-      _updateCount.addAndGet(1)
-    }
+      updateCount++
+    }.observeOn(scheduler)
   }
 }
