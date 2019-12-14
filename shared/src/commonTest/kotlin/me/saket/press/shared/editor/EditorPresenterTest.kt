@@ -10,7 +10,6 @@ import com.badoo.reaktive.test.base.assertNotError
 import com.badoo.reaktive.test.observable.assertValue
 import com.badoo.reaktive.test.observable.test
 import com.badoo.reaktive.test.scheduler.TestScheduler
-import com.badoo.reaktive.utils.isFrozen
 import com.benasher44.uuid.uuid4
 import com.soywiz.klock.seconds
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
@@ -24,7 +23,6 @@ import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.note.FakeNoteRepository
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class EditorPresenterTest {
@@ -64,7 +62,6 @@ class EditorPresenterTest {
       assertThat(it.content).isEmpty()
     }
     observer.assertNotError()
-    assertFalse(observer.isFrozen)
   }
 
   @Test fun `auto-save note at regular intervals`() {
@@ -92,7 +89,6 @@ class EditorPresenterTest {
     assertThat(repository.updateCount).isEqualTo(2)
 
     observer.assertNotError()
-    assertFalse(observer.isFrozen)
   }
 
   @Test fun `blank note is not created on start when an existing note is opened`() {
@@ -107,7 +103,6 @@ class EditorPresenterTest {
       assertThat(it.content).isEqualTo("Nicolas")
     }
     observer.assertNotError()
-    assertFalse(observer.isFrozen)
   }
 
   @Test fun `updating an existing note on exit when its content is non-blank`() {
@@ -145,7 +140,6 @@ class EditorPresenterTest {
         .apply {
           assertEquals(values[0], PopulateContent(NEW_NOTE_PLACEHOLDER, moveCursorToEnd = true))
           assertNotError()
-          assertFalse(isFrozen)
         }
   }
 
@@ -169,7 +163,6 @@ class EditorPresenterTest {
     assertEquals(randomlySelectedHint, uiModels.values[4].hintText)
 
     uiModels.assertNotError()
-    assertFalse(uiModels.isFrozen)
   }
 
   @Test fun `populate note content on start`() {
@@ -184,7 +177,6 @@ class EditorPresenterTest {
         .apply {
           assertValue(PopulateContent("Nicolas Cage favorite dialogues", moveCursorToEnd = false))
           assertNotError()
-          assertFalse(isFrozen)
         }
   }
 }
