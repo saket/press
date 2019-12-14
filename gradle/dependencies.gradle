@@ -154,7 +154,7 @@ buildscript {
       ],
       'robolectric': "org.robolectric:robolectric:4.3.1",
       'assertK': [
-          'common': "com.willowtreeapps.assertk:assertk:0.20",
+          'common': "co.touchlab.assertk:assertk:0.22-SNAPSHOT",
           'opentest4j': "org.opentest4j:opentest4j:1.1.1"
       ],
       'betterLinkMovementMethod': "me.saket:better-link-movement-method:$versions.betterLinkMovementMethod"
