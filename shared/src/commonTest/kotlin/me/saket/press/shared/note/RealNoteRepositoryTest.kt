@@ -3,6 +3,7 @@ package me.saket.press.shared.note
 import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
 import com.badoo.reaktive.observable.firstOrError
 import com.badoo.reaktive.scheduler.trampolineScheduler
 import com.badoo.reaktive.single.blockingGet
@@ -81,5 +82,15 @@ class RealNoteRepositoryTest {
     clock.advanceTimeBy(5.seconds)
     repository.update(note.uuid, content = "# Nicolas Cage").test()
     assertThat(savedNote().updatedAt).isEqualTo(note.updatedAt + 5.seconds)
+  }
+
+  @Test fun `mark a note as archived`() {
+    val note = fakeNote(uuid = uuid4(), content = "Jake Wharton secretly loves Flutter")
+    noteQueries.testInsert(note)
+
+    repository.markAsArchived(note.uuid).test()
+
+    val savedNote = noteQueries.note(note.uuid).executeAsOne()
+    assertThat(savedNote.archivedAt).isNotNull()
   }
 }

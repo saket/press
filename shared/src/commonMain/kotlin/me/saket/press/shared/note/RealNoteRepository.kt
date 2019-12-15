@@ -33,8 +33,8 @@ internal class RealNoteRepository(
 
   override fun notes(includeEmptyNotes: Boolean): Observable<List<Note>> {
     val query = when {
-      includeEmptyNotes -> noteQueries.nonDeletedNotes()
-      else -> noteQueries.nonDeletedAndNonEmptyNotes()
+      includeEmptyNotes -> noteQueries.notes()
+      else -> noteQueries.nonEmptyNotes()
     }
     return query
         .asObservable(ioScheduler)
@@ -87,7 +87,7 @@ internal class RealNoteRepository(
     return completableFromFunction {
       noteQueries.markAsArchived(
           uuid = noteUuid,
-          archivedAt = clock.nowUtc()
+          archivedAt = DateTimeAdapter.encode(clock.nowUtc())
       )
     }
   }

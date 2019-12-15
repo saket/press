@@ -7,19 +7,19 @@ CREATE TABLE note (
   content TEXT NOT NULL,
   createdAt TEXT AS DateTime NOT NULL,
   updatedAt TEXT AS DateTime NOT NULL,
-  archivedAt TEXT AS DateTime,
+  archivedAt TEXT AS String,
   deletedAtString TEXT AS String
 );
 
 CREATE INDEX note_content ON note(content);
 
-nonDeletedNotes:
+notes:
 SELECT *
 FROM note
 WHERE deletedAtString IS NULL AND archivedAt IS NULL
 ORDER BY updatedAt DESC;
 
-nonDeletedAndNonEmptyNotes:
+nonEmptyNotes:
 SELECT *
 FROM note
 WHERE deletedAtString IS NULL AND archivedAt IS NULL AND content != ""

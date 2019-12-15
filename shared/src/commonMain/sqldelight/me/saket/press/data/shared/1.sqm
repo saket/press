@@ -1,0 +1,1 @@
+ALTER TABLE note ADD COLUMN archivedAt TEXT AS String;

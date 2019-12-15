@@ -58,7 +58,11 @@ class FakeNoteRepository : NoteRepository {
   }
 
   override fun markAsArchived(noteUuid: Uuid): Completable {
-   TODO()
-    //We need the instance of a Clock to set the archivedAt property
+    return completableFromFunction {
+      val existingNote = findNote(noteUuid)!!
+      assertTrue(savedNotes.remove(existingNote))
+      savedNotes += existingNote.copy(archivedAt = "current_time")
+      updateCount++
+    }
   }
 }

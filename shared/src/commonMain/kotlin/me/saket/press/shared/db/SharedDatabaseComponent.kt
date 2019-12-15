@@ -23,8 +23,7 @@ internal fun SqlDriver.createPressDatabase(): PressDatabase {
       noteAdapter = Note.Adapter(
           uuidAdapter = UuidAdapter(),
           createdAtAdapter = DateTimeAdapter,
-          updatedAtAdapter = DateTimeAdapter,
-          archivedAtAdapter = DateTimeAdapter
+          updatedAtAdapter = DateTimeAdapter
       )
   )
 }
