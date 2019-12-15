@@ -1,6 +1,10 @@
 package me.saket.press.shared.editor
 
-import com.badoo.reaktive.scheduler.trampolineScheduler
+import assertk.assertThat
+import assertk.assertions.hasSize
+import assertk.assertions.isEmpty
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
 import com.badoo.reaktive.subject.publish.publishSubject
 import com.badoo.reaktive.test.base.assertNotError
 import com.badoo.reaktive.test.observable.assertValue
@@ -20,8 +24,6 @@ import me.saket.press.shared.note.FakeNoteRepository
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import assertk.assertThat
-import assertk.assertions.*
 
 class EditorPresenterTest {
 
@@ -41,7 +43,7 @@ class EditorPresenterTest {
     return EditorPresenter(
         args = Args(openMode),
         noteRepository = repository,
-        ioScheduler = trampolineScheduler,
+        ioScheduler = TestScheduler(),
         computationScheduler = testScheduler,
         strings = strings,
         config = config

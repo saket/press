@@ -3,7 +3,6 @@ package press.home
 import android.app.Activity
 import android.content.Context
 import android.graphics.Color.BLACK
-import android.view.View
 import android.view.animation.PathInterpolator
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
@@ -24,9 +23,6 @@ import io.reactivex.subjects.BehaviorSubject
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.dimming.TintPainter
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
-import me.saket.inboxrecyclerview.page.InterceptResult.IGNORED
-import me.saket.inboxrecyclerview.page.InterceptResult.INTERCEPTED
-import me.saket.inboxrecyclerview.page.OnPullToCollapseInterceptor
 import me.saket.press.R
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.home.HomeEvent
@@ -54,7 +50,7 @@ import press.widgets.SpacingBetweenItemsDecoration
 import press.widgets.addStateChangeCallbacks
 import press.widgets.attr
 import press.widgets.doOnNextCollapse
-import press.widgets.locationOnScreen
+import press.widgets.interceptPullToCollapseOnView
 import press.widgets.suspendWhileExpanded
 
 class HomeView @AssistedInject constructor(
@@ -127,6 +123,8 @@ class HomeView @AssistedInject constructor(
     val presenter = presenter.create(Args(includeEmptyNotes = false))
 
     newNoteClicks.uiUpdates(presenter)
+        // These two suspend calls skip updates while an
+        // existing note or the new-note screen is open.
         .suspendWhileExpanded(noteEditorPage)
         .suspendWhile(windowFocusChanges) { it.hasFocus.not() }
         .takeUntil(detaches())
@@ -160,7 +158,7 @@ class HomeView @AssistedInject constructor(
           noteEditorPage.addStateChangeCallbacks(keyboardToggle)
           noteEditorPage.doOnNextCollapse { it.removeStateChangeCallbacks(keyboardToggle) }
 
-          noteEditorPage.pullToCollapseInterceptor = interceptIfViewCanBeScrolled(editorView.scrollView)
+          noteEditorPage.pullToCollapseInterceptor = interceptPullToCollapseOnView(editorView.scrollView)
 
           noteEditorPage.post {
             notesList.expandItem(itemId = noteModel.adapterId)
@@ -171,20 +169,6 @@ class HomeView @AssistedInject constructor(
         ToggleFabOnPageStateChange(newNoteFab),
         ToggleSoftInputModeOnPageStateChange(activity.window)
     )
-  }
-
-  private fun interceptIfViewCanBeScrolled(view: View): OnPullToCollapseInterceptor {
-    return { downX, downY, upwardPull ->
-      val touchLiesOnView = view.locationOnScreen().contains(downX.toInt(), downY.toInt())
-
-      if (touchLiesOnView) {
-        val directionInt = if (upwardPull) +1 else -1
-        val canScrollFurther = view.canScrollVertically(directionInt)
-        if (canScrollFurther) INTERCEPTED else IGNORED
-      } else {
-        IGNORED
-      }
-    }
   }
 
   private fun render(model: HomeUiModel) {

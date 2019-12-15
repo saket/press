@@ -15,6 +15,8 @@ import android.view.Gravity.TOP
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN
 import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.TextView
@@ -94,6 +96,7 @@ class EditorView @AssistedInject constructor(
         TYPE_TEXT_FLAG_CAP_SENTENCES or
         TYPE_TEXT_FLAG_MULTI_LINE or
         TYPE_TEXT_FLAG_NO_SUGGESTIONS
+    imeOptions = IME_FLAG_NO_FULLSCREEN
     movementMethod = EditorLinkMovementMethod(scrollView)
     updatePaddingRelative(start = 16.dip, end = 16.dip, bottom = 16.dip)
     CapitalizeOnHeadingStart.capitalize(this)

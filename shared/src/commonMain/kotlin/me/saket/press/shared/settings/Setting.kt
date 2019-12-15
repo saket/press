@@ -13,18 +13,13 @@ interface Setting<T> {
   fun set(value: T)
 }
 
-data class FakeSetting<T>(var value: T): Setting<T> {
-  override fun get(): T = value
-  override fun set(value: T) { this.value = value }
-}
-
 fun <T> customTypeSetting(
   settings: Settings,
   key: String,
   from: (String) -> T,
   to: (T) -> String,
   defaultValue: T
-) : Setting<T> {
+): Setting<T> {
   return object : Setting<T> {
     override fun get(): T {
       val saved = settings.getStringOrNull(key)

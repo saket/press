@@ -3,9 +3,9 @@ package me.saket.press.shared
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class PlatformTest {
+class CanaryTest {
 
   @Test fun canary() {
-    assertEquals(true, true)
+    assertEquals(Platform.name, "iOS")
   }
 }

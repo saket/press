@@ -59,7 +59,7 @@ dependencies {
   implementation deps.assistedInject.annotations
   kapt deps.dagger.compiler
   kapt deps.assistedInject.processor
-  implementation deps.kNativeUuid
+  implementation deps.multiplatformUuid
   implementation deps.inboxRecyclerView
   implementation deps.klock.android
   implementation deps.itemAnimators
