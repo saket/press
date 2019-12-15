@@ -1,6 +1,5 @@
 apply plugin: 'com.android.library'
 apply plugin: 'org.jetbrains.kotlin.multiplatform'
-apply plugin: 'org.jetbrains.kotlin.native.cocoapods'
 apply plugin: 'kotlin-android-extensions'
 
 android {
@@ -19,9 +18,17 @@ version = 0.1
 
 kotlin {
   android("android")
-  // This is for iPhone emulator
-  // Switch here to iosArm64 (or iosArm32) to build library for iPhone device
-  iosX64("ios")
+
+  def buildForDevice = project.findProperty("device")?.toBoolean() ?: false
+  def iosTarget = (buildForDevice) ? iosArm64('ios') : iosX64('ios')
+  iosTarget.binaries {
+    framework {
+      // Disable bitcode embedding for the simulator build.
+      if (!buildForDevice) {
+        embedBitcode("disable")
+      }
+    }
+  }
 
   sourceSets {
     commonMain {
@@ -60,12 +67,22 @@ kotlin {
       }
     }
   }
-
-  cocoapods {
-    // Configure fields required by CocoaPods.
-    summary = "Wysiwyg"
-    homepage = "https://github.com/saket/press"
-  }
 }
 
 dependencies {}
+
+task copyFramework {
+  def buildType = project.findProperty("kotlin.build.type") ?: "DEBUG"
+  dependsOn "link${buildType.toLowerCase().capitalize()}FrameworkIos"
+
+  doLast {
+    def srcFile = kotlin.targets.ios.binaries.getFramework(buildType).outputFile
+    def targetDir = getProperty("configuration.build.dir")
+    copy {
+      from srcFile.parent
+      into targetDir
+      include 'wysiwyg.framework/**'
+      include 'wysiwyg.framework.dSYM'
+    }
+  }
+}

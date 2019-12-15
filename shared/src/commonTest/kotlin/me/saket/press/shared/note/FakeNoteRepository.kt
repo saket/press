@@ -1,10 +1,11 @@
 package me.saket.press.shared.note
 
+import co.touchlab.stately.collections.frozenCopyOnWriteList
+import co.touchlab.stately.concurrency.AtomicInt
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.observableFromFunction
-import com.badoo.reaktive.observable.observableOf
 import com.benasher44.uuid.Uuid
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.fakedata.fakeNote
@@ -14,8 +15,10 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class FakeNoteRepository : NoteRepository {
-  val savedNotes = mutableListOf<Note.Impl>()
-  var updateCount = 0
+  val savedNotes = frozenCopyOnWriteList<Note.Impl>()
+
+  private val _updateCount = AtomicInt(0)
+  val updateCount: Int get() = _updateCount.get()
 
   private fun findNote(noteUuid: Uuid) = savedNotes.find { it.uuid == noteUuid }
 
@@ -44,7 +47,7 @@ class FakeNoteRepository : NoteRepository {
     return completableFromFunction {
       assertTrue(savedNotes.remove(findNote(noteUuid)))
       savedNotes += fakeNote(uuid = noteUuid, content = content)
-      updateCount++
+      _updateCount.addAndGet(1)
     }
   }
 
@@ -53,7 +56,7 @@ class FakeNoteRepository : NoteRepository {
       val existingNote = findNote(noteUuid)!!
       assertTrue(savedNotes.remove(existingNote))
       savedNotes += existingNote.copy(deletedAtString = "current_time")
-      updateCount++
+      _updateCount.addAndGet(1)
     }
   }
 
