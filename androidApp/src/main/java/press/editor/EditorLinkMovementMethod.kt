@@ -1,9 +1,10 @@
 package press.editor
 
 import android.graphics.Point
-import android.graphics.PointF
+import android.text.Selection
 import android.text.Spannable
-import android.text.style.ClickableSpan
+import android.text.method.BaseMovementMethod
+import android.text.method.MetaKeyKeyListener
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_UP
 import android.widget.ScrollView
@@ -34,5 +35,50 @@ class EditorLinkMovementMethod(scrollView: ScrollView) : BetterLinkMovementMetho
       )
     }
     return super.onTouchEvent(view, text, event)
+  }
+
+// ===============================================================
+// Functions copied from ArrowKeyMovementMethod because
+// LinkMovementMethod focuses links when arrow keys are pressed.
+// ===============================================================
+
+  override fun left(widget: TextView, buffer: Spannable): Boolean {
+    val layout = widget.layout
+    return if (isSelecting(buffer)) {
+      Selection.extendLeft(buffer, layout)
+    } else {
+      Selection.moveLeft(buffer, layout)
+    }
+  }
+
+  override fun right(widget: TextView, buffer: Spannable): Boolean {
+    val layout = widget.layout
+    return if (isSelecting(buffer)) {
+      Selection.extendRight(buffer, layout)
+    } else {
+      Selection.moveRight(buffer, layout)
+    }
+  }
+
+  override fun up(widget: TextView, buffer: Spannable): Boolean {
+    val layout = widget.layout
+    return if (isSelecting(buffer)) {
+      Selection.extendUp(buffer, layout)
+    } else {
+      Selection.moveUp(buffer, layout)
+    }
+  }
+
+  override fun down(widget: TextView, buffer: Spannable): Boolean {
+    val layout = widget.layout
+    return if (isSelecting(buffer)) {
+      Selection.extendDown(buffer, layout)
+    } else {
+      Selection.moveDown(buffer, layout)
+    }
+  }
+
+  private fun isSelecting(buffer: Spannable): Boolean {
+    return MetaKeyKeyListener.getMetaState(buffer, MetaKeyKeyListener.META_SHIFT_ON) == 1
   }
 }
