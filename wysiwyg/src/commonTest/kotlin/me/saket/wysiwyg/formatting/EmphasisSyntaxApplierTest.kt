@@ -4,28 +4,28 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import kotlin.test.Test
 
-class StrongEmphasisSyntaxApplierTest : BaseMarkdownSyntaxApplierTest() {
+class EmphasisSyntaxApplierTest : BaseMarkdownSyntaxApplierTest() {
 
   @Test override fun `insert at cursor position`() {
     val (text, selection) = buildSelection(
-        "You don't ▮ these people anymore, you've given them everything."
+        "You think ▮ can last?"
     )
-    val applyFormat = StrongEmphasisSyntaxApplier.apply(text, selection)
+    val applyFormat = EmphasisSyntaxApplier.apply(text, selection)
 
     val (expectedText, expectedSelection) = buildSelection(
-        "You don't **▮** these people anymore, you've given them everything."
+        "You think *▮* can last?"
     )
     assertThat(applyFormat).isEqualTo(ApplyMarkdownSyntax(expectedText, expectedSelection))
   }
 
   @Test override fun `apply to selection`() {
-    val (text, selection) = buildSelection(
-        "Not everything, ▮not yet▮."
+    val (text, selection) = buildSelection("" +
+        "You think ▮this▮ can last?"
     )
-    val applyFormat = StrongEmphasisSyntaxApplier.apply(text, selection)
+    val applyFormat = EmphasisSyntaxApplier.apply(text, selection)
 
     val (expectedText, expectedSelection) = buildSelection(
-        "Not everything, **not yet**▮."
+        "You think *this*▮ can last?"
     )
     assertThat(applyFormat).isEqualTo(ApplyMarkdownSyntax(expectedText, expectedSelection))
   }
