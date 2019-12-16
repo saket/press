@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package press.editor
 
 import android.content.Context
@@ -87,7 +85,7 @@ class EditorView @AssistedInject constructor(
     )
   }
 
-  internal val editorEditText = themed(EditText(context)).apply {
+  internal val editorEditText = themed(PlainTextPasteEditText(context)).apply {
     EditorUiStyles.editor.applyStyle(this)
     background = null
     breakStrategy = BREAK_STRATEGY_HIGH_QUALITY

@@ -10,6 +10,7 @@ import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.ColorUtils.blendARGB
@@ -51,6 +52,8 @@ fun themed(view: TextView): TextView = view.apply {
 }
 
 fun themed(view: EditText) = view.apply {
+  require(view !is AppCompatEditText) { "Cursor tinting doesn't work with AppCompatEditText, not sure why." }
+
   typeface = ResourcesCompat.getFont(context, R.font.work_sans_regular)
   val selectionHandleDrawables = TextViewCompat.textSelectionHandles(this)
 
