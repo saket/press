@@ -1,17 +1,22 @@
 package press.editor
 
-import android.text.InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
 import android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+import android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS
 import android.text.Spannable
 import android.text.Spannable.SPAN_INCLUSIVE_INCLUSIVE
 import android.widget.EditText
 import androidx.core.text.getSpans
-import press.widgets.OnSpanAdded
 import me.saket.wysiwyg.spans.HeadingSpan
 import me.saket.wysiwyg.widgets.AfterTextChange
 import me.saket.wysiwyg.widgets.addTextChangedListener
+import press.widgets.OnSpanAdded
 import java.lang.Character.isWhitespace
 
+/**
+ * Uses [TYPE_TEXT_FLAG_CAP_WORDS] for the first letter after '# ' so that the
+ * heading starts with a capital letter and [TYPE_TEXT_FLAG_CAP_SENTENCES] for
+ * the rest of the content.
+ */
 object CapitalizeOnHeadingStart {
 
   fun capitalize(editText: EditText) {
@@ -38,7 +43,7 @@ object CapitalizeOnHeadingStart {
       val newInputType = when {
         forceCapitalize -> originalInputType
             .xor(TYPE_TEXT_FLAG_CAP_SENTENCES)
-            .or(TYPE_TEXT_FLAG_CAP_CHARACTERS)
+            .or(TYPE_TEXT_FLAG_CAP_WORDS)
         else -> originalInputType
       }
 
