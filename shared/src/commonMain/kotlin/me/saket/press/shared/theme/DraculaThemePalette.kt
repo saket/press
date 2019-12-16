@@ -20,7 +20,7 @@ object DraculaThemePalette : ThemePalette(
     markdown = MarkdownPalette(
         blockQuoteVerticalRuleColor = "#CCAEF9".parseColor(),
         blockQuoteTextColor = "#CED2F8".parseColor(),
-        codeBackgroundColor = "#242632".parseColor(),
+        codeBackgroundColor = "#5C121321".parseColor(),
         headingTextColor = COLOR_SPRING_GREEN,
         linkUrlColor = "#AAC6D1FF".parseColor(),
         linkTextColor = "#8DF0FF".parseColor(),

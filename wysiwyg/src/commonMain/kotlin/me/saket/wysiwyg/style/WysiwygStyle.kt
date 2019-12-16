@@ -22,7 +22,12 @@ data class WysiwygStyle(
     val textColor: Int
   )
 
-  /** Inline code and fenced code blocks. */
+  /**
+   * Inline code and fenced code blocks.
+   *
+   * PSA: Use a translucent color on Android or else the cursor
+   * will not show up because it's drawn behind the background.
+   * */
   data class Code(
     val backgroundColor: Int,
     val codeBlockMargin: Int
