@@ -12,7 +12,6 @@ import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomePresenter.Args
 import me.saket.press.shared.note.FakeNoteRepository
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class HomePresenterTest {
 
