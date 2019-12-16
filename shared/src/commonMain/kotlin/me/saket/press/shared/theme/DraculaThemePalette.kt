@@ -22,10 +22,10 @@ object DraculaThemePalette : ThemePalette(
         blockQuoteTextColor = "#CED2F8".parseColor(),
         codeBackgroundColor = "#5C121321".parseColor(),
         headingTextColor = COLOR_SPRING_GREEN,
-        linkUrlColor = "#AAC6D1FF".parseColor(),
         linkTextColor = "#8DF0FF".parseColor(),
-        syntaxColor = "#CCAEF9".parseColor(),
+        linkUrlColor = "#AAC6D1FF".parseColor(),
         strikethroughTextColor = "#9E9E9E".parseColor(),
+        syntaxColor = "#CCAEF9".parseColor(),
         thematicBreakColor = "#62677C".parseColor()
     ),
     textColorHeading = COLOR_SPRING_GREEN,

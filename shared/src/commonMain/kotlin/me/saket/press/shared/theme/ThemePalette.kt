@@ -31,8 +31,8 @@ data class MarkdownPalette(
   val blockQuoteTextColor: Int,
   val codeBackgroundColor: Int,
   val headingTextColor: Int,
-  val linkUrlColor: Int,
   val linkTextColor: Int,
+  val linkUrlColor: Int,
   val strikethroughTextColor: Int,
   val syntaxColor: Int,
   val thematicBreakColor: Int
@@ -56,8 +56,8 @@ fun WysiwygStyle.Companion.from(palette: MarkdownPalette, displayUnits: DisplayU
           textColor = palette.headingTextColor
       ),
       link = Link(
-          titleTextColor = palette.linkTextColor,
-          urlTextColor = palette.linkUrlColor
+          textColor = palette.linkTextColor,
+          urlColor = palette.linkUrlColor
       ),
       list = WysiwygStyle.List(
           indentationMargin = displayUnits.fromPixels(24).roundToInt()

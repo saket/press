@@ -17,7 +17,7 @@ class UrlVisitor : NodeVisitor<Url> {
     writer: SpanWriter
   ) {
     writer.add(
-        pool.foregroundColor(pool.style.link.urlTextColor),
+        pool.foregroundColor(pool.style.link.urlColor),
         node.startOffset,
         node.endOffset
     )

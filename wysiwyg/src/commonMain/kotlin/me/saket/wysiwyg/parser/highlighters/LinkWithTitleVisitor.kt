@@ -17,14 +17,14 @@ class LinkWithTitleVisitor : NodeVisitor<LinkWithTitle> {
     pool: SpanPool,
     writer: SpanWriter
   ) {
-    // Title.
-    writer.add(pool.foregroundColor(pool.style.link.titleTextColor), node.startOffset, node.endOffset)
+    // Text.
+    writer.add(pool.foregroundColor(pool.style.link.textColor), node.startOffset, node.endOffset)
 
     // Url.
     val textClosingPosition = node.startOffset + node.text.length + 1
     val urlOpeningPosition = textClosingPosition + 1
     writer.add(
-        pool.foregroundColor(pool.style.link.urlTextColor),
+        pool.foregroundColor(pool.style.link.urlColor),
         urlOpeningPosition,
         node.endOffset
     )
