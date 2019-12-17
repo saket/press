@@ -24,11 +24,6 @@ abstract class BaseMarkdownSyntaxApplierTest {
     assertThat(applyFormat).isEqualTo(expectedApply)
   }
 
-  @Deprecated(message = "Use #test() function instead.")
-  protected fun buildSelection(text: String): Pair<String, TextSelection> {
-    return decodeSelection(text)
-  }
-
   private fun decodeSelection(text: String): Pair<String, TextSelection> {
     val markerCount = text.count { it == '▮' }
     require(markerCount in 1..2) {
