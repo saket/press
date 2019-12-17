@@ -46,6 +46,10 @@ captures/
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 /.idea/encodings.xml
+/.idea/misc.xml
+/.idea/gradle.xml
+/.idea/vcs.xml
+/.idea/$PRODUCT_WORKSPACE_FILE$
 .DS_Store
 /build
 /captures
