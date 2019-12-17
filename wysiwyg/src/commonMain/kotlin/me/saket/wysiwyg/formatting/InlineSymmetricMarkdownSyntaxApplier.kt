@@ -4,7 +4,7 @@ package me.saket.wysiwyg.formatting
  * For markdown syntaxes that use the same characters on both sides of text.
  * For example: **strong emphasis**, ~~strikethrough~~.
  */
-abstract class SymmetricMarkdownSyntaxApplier(private val syntax: String) : MarkdownSyntaxApplier {
+abstract class InlineSymmetricMarkdownSyntaxApplier(private val syntax: String) : MarkdownSyntaxApplier {
 
   override fun apply(text: String, selection: TextSelection): ApplyMarkdownSyntax {
     val selectedText = text.substring(selection.start, selection.end)
