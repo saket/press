@@ -6,7 +6,7 @@ import kotlin.test.Test
 
 class StrikethroughSyntaxApplierTest : BaseMarkdownSyntaxApplierTest() {
 
-  @Test override fun `insert at cursor position`() {
+  @Test fun `insert at cursor position`() {
     val (text, selection) = buildSelection(
         "He was trying to kill ▮ millions of innocent people."
     )
@@ -18,7 +18,7 @@ class StrikethroughSyntaxApplierTest : BaseMarkdownSyntaxApplierTest() {
     assertThat(applyFormat).isEqualTo(ApplyMarkdownSyntax(expectedText, expectedSelection))
   }
 
-  @Test override fun `apply to selection`() {
+  @Test fun `apply to selection`() {
     val (text, selection) = buildSelection(
         "Innocent is a ▮strong▮ word to throw around Gotham, Bruce."
     )

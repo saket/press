@@ -6,7 +6,7 @@ import kotlin.test.Test
 
 class StrongEmphasisSyntaxApplierTest : BaseMarkdownSyntaxApplierTest() {
 
-  @Test override fun `insert at cursor position`() {
+  @Test fun `insert at cursor position`() {
     val (text, selection) = buildSelection(
         "You don't ▮ these people anymore, you've given them everything."
     )
@@ -18,7 +18,7 @@ class StrongEmphasisSyntaxApplierTest : BaseMarkdownSyntaxApplierTest() {
     assertThat(applyFormat).isEqualTo(ApplyMarkdownSyntax(expectedText, expectedSelection))
   }
 
-  @Test override fun `apply to selection`() {
+  @Test fun `apply to selection`() {
     val (text, selection) = buildSelection(
         "Not everything, ▮not yet▮."
     )

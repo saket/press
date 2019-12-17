@@ -1,12 +1,35 @@
 package me.saket.wysiwyg.formatting
 
-import kotlin.test.Test
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 
 abstract class BaseMarkdownSyntaxApplierTest {
-  @Test abstract fun `insert at cursor position`()
-  @Test abstract fun `apply to selection`()
 
+  protected fun MarkdownSyntaxApplier.test(
+    input: String,
+    output: String
+  ) {
+    val (parsedText, parsedSelection) = decodeSelection(input)
+    val applyFormat = apply(parsedText, parsedSelection)
+
+    val (expectedText, expectedSelection) = decodeSelection(output)
+    val expectedApply = ApplyMarkdownSyntax(expectedText, expectedSelection)
+
+    if (applyFormat != expectedApply) {
+      println("--------------------------------------")
+      println("Text doesn't match.")
+      println("Expected:\n${encodeSelection(expectedText, expectedSelection)}")
+      println("\nActual: \n${encodeSelection(applyFormat.newText, applyFormat.newSelection)}")
+    }
+    assertThat(applyFormat).isEqualTo(expectedApply)
+  }
+
+  @Deprecated(message = "Use #test() function instead.")
   protected fun buildSelection(text: String): Pair<String, TextSelection> {
+    return decodeSelection(text)
+  }
+
+  private fun decodeSelection(text: String): Pair<String, TextSelection> {
     val markerCount = text.count { it == '▮' }
     require(markerCount in 1..2) {
       when (markerCount) {
@@ -23,5 +46,15 @@ abstract class BaseMarkdownSyntaxApplierTest {
       )
     }
     return text.replace("▮", "") to selection
+  }
+
+  private fun encodeSelection(text: String, selection: TextSelection): String {
+    return if (selection.isCursor) {
+      text.substring(0, selection.cursorPosition) + "▮" + text.substring(selection.cursorPosition, text.length)
+    } else {
+      text.substring(0, selection.start) +
+          "▮" + text.substring(selection.start, selection.end) + "▮" +
+          text.substring(selection.end, text.length)
+    }
   }
 }
