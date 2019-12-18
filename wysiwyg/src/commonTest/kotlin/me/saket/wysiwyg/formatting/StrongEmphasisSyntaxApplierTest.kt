@@ -14,7 +14,7 @@ class StrongEmphasisSyntaxApplierTest : BaseMarkdownSyntaxApplierTest() {
   @Test fun `apply to selection`() {
     StrongEmphasisSyntaxApplier.test(
         input = "Not everything, ▮not yet▮.",
-        output = "Not everything, **not yet**▮."
+        output = "Not everything, ▮**not yet**▮."
     )
   }
 }

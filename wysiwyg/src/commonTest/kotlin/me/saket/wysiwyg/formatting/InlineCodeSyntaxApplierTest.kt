@@ -14,7 +14,7 @@ class InlineCodeSyntaxApplierTest : BaseMarkdownSyntaxApplierTest() {
   @Test fun `apply to selection`() {
     InlineCodeSyntaxApplier.test(
         input = "Really? Then, why are you ▮people▮ in here?",
-        output = "Really? Then, why are you `people`▮ in here?"
+        output = "Really? Then, why are you ▮`people`▮ in here?"
     )
   }
 }

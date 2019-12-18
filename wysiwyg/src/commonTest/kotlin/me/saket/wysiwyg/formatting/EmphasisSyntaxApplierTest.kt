@@ -14,7 +14,7 @@ class EmphasisSyntaxApplierTest : BaseMarkdownSyntaxApplierTest() {
   @Test fun `apply to selection`() {
     EmphasisSyntaxApplier.test(
         input = "You think ▮this▮ can last?",
-        output = "You think *this*▮ can last?"
+        output = "You think ▮*this*▮ can last?"
     )
   }
 }

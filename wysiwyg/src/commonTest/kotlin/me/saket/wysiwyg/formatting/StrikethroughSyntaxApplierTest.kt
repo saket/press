@@ -14,7 +14,7 @@ class StrikethroughSyntaxApplierTest : BaseMarkdownSyntaxApplierTest() {
   @Test fun `apply to selection`() {
     StrikethroughSyntaxApplier.test(
         input = "Innocent is a ▮strong▮ word to throw around Gotham, Bruce.",
-        output = "Innocent is a ~~strong~~▮ word to throw around Gotham, Bruce."
+        output = "Innocent is a ▮~~strong~~▮ word to throw around Gotham, Bruce."
     )
   }
 }

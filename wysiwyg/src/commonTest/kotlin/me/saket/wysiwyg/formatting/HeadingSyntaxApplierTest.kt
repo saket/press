@@ -132,7 +132,7 @@ class HeadingSyntaxApplierTest : BaseMarkdownSyntaxApplierTest() {
     )
   }
 
-  @Test fun `apply to a paragraph that already is a block-quote`() {
+  @Test fun `apply to a paragraph that is already a heading`() {
     HeadingSyntaxApplier.test(
         input = """
                 |# Tell your men they work for me now. This is my city.▮

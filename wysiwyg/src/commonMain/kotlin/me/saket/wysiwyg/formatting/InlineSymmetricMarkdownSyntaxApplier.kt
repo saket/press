@@ -15,8 +15,8 @@ abstract class InlineSymmetricMarkdownSyntaxApplier(private val syntax: String) 
         text.substring(selection.end, text.length)
 
     val newSelection = if (isTextSelected) {
-      // Move to the end of the selected text.
-      TextSelection.cursor(selection.end + syntax.length * 2)
+      // Preserve selection include the syntax.
+      selection.copy(end = selection.end + syntax.length * 2)
     } else {
       // Move to the middle of the syntax.
       TextSelection.cursor(selection.cursorPosition + syntax.length)
