@@ -68,7 +68,7 @@ class FencedCodeBlockSyntaxApplierTest : BaseMarkdownSyntaxApplierTest() {
     )
   }
 
-  @Test fun `insert at cursor position in blank content with trailing new line`() {
+  @Test fun `insert at cursor position in blank content with leading new line`() {
     FencedCodeBlockSyntaxApplier.test(
         input = """
                 |
@@ -137,7 +137,7 @@ class FencedCodeBlockSyntaxApplierTest : BaseMarkdownSyntaxApplierTest() {
     )
   }
 
-  @Test fun `insert at cursor position on a new line with trailing spaces`() {
+  @Test fun `insert at cursor position on a new line with leading spaces`() {
     FencedCodeBlockSyntaxApplier.test(
         input = """
                 |What's your name son?
