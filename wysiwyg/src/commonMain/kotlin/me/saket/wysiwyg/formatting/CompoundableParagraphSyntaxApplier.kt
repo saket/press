@@ -5,11 +5,14 @@ package me.saket.wysiwyg.formatting
  * The can be applied to the same paragraph multiple times and this will
  * take care of combining multiple syntax markers without any whitespaces.
  */
-abstract class CompoundableParagraphSyntaxApplier(private val leftSyntax: Char) : MarkdownSyntaxApplier {
+abstract class CompoundableParagraphSyntaxApplier(
+  private val leftSyntax: Char,
+  private val addSurroundingLineBreaks: Boolean
+) : MarkdownSyntaxApplier {
 
   override fun apply(text: String, selection: TextSelection): ApplyMarkdownSyntax {
-    val (paragraphStart, paragraphEnd) = ParagraphBounds.find(text, selection.start)
-    val paragraphUnderSelection = text.substring(paragraphStart, paragraphEnd)
+    val paraBounds = ParagraphBounds.find(text, selection)
+    val paragraphUnderSelection = text.substring(paraBounds.start, paraBounds.endExclusive)
 
     // Nesting is when the same syntax is applied multiple times to the same paragraph.
     val isNesting = paragraphUnderSelection.getOrNull(0) == leftSyntax
@@ -20,13 +23,26 @@ abstract class CompoundableParagraphSyntaxApplier(private val leftSyntax: Char) 
       else -> "$leftSyntax "
     }
 
+    val needsLeadingNewLine = { paraBounds.start >= 2 && text[paraBounds.start - 2] != '\n' }
+    val leadingNewLine = if (addSurroundingLineBreaks && needsLeadingNewLine()) "\n" else ""
+
+    // text[paraBounds.endExclusive]     = \n character
+    // text[paraBounds.endExclusive + 1] = if this is also \n then the paragraph has a line break.
+    val needsFollowingNewLine = {
+      val hasFollowingNewLine = text.getOrNull(paraBounds.endExclusive + 1) == '\n'
+      paraBounds.endExclusive != text.length && hasFollowingNewLine.not()
+    }
+    val followingNewLine = if (addSurroundingLineBreaks && needsFollowingNewLine()) "\n" else ""
+
     return ApplyMarkdownSyntax(
-        newText = text.substring(0, paragraphStart)
+        newText = text.substring(0, paraBounds.start)
+            + leadingNewLine
             + compoundedLeftSyntax + paragraphUnderSelection
-            + text.substring(paragraphEnd, text.length),
+            + followingNewLine
+            + text.substring(paraBounds.endExclusive, text.length),
         newSelection = selection.copy(
-            start = selection.start + compoundedLeftSyntax.length,
-            end = selection.end + compoundedLeftSyntax.length
+            start = selection.start + leadingNewLine.length + compoundedLeftSyntax.length,
+            end = selection.end + leadingNewLine.length + compoundedLeftSyntax.length
         )
     )
   }

@@ -1,15 +1,21 @@
 package me.saket.wysiwyg.formatting
 
-data class ParagraphBounds(val startIndex: Int, val endIndex: Int) {
+data class ParagraphBounds(
+  val start: Int,
+  val end: Int,
+  val endExclusive: Int // For use with String#substring().
+) {
 
   companion object {
     /**
-     * Finds the beginning/ending of a paragraph under a cursor position.
+     * Finds the beginning/ending of paragraph(s) under a cursor position or
+     * null if `text` is empty. Unlike functions in [String], this does not
+     * return -1 for empty paragraphs. See [ParagraphBoundsTest].
      */
-    fun find(text: String, cursorPosition: Int): ParagraphBounds {
+    fun find(text: String, selection: TextSelection): ParagraphBounds {
       // Begin with the assumption that this is the first paragraph
       var start = 0
-      for (i in cursorPosition downTo 0) {
+      for (i in selection.start downTo 0) {
         if (i > 0 && text[i - 1] == '\n') {
           start = i
           break
@@ -17,15 +23,25 @@ data class ParagraphBounds(val startIndex: Int, val endIndex: Int) {
       }
 
       // Begin with the assumption that this is the last paragraph.
-      var end = text.length
-      for (i in cursorPosition until text.length) {
-        if (text[i] == '\n') {  // TODO: avoid including the newline char.
-          end = i
+      var end = if (text.isEmpty()) 0 else text.length - 1
+      var endExclusive = text.length
+
+      for (i in selection.end until text.length) {
+        if (text[i] == '\n') {
+          end = i - 1
+          endExclusive = i
           break
         }
       }
 
-      return ParagraphBounds(start, end)
+      // An example where this is needed is text with a single
+      // '\n' character and the cursor is at the end.
+      end = maxOf(start, end)
+
+      // TODO: remove this
+      val trytry = text.substring(start, endExclusive)
+
+      return ParagraphBounds(start, end, endExclusive)
     }
   }
 }

@@ -13,6 +13,7 @@ class BlockQuoteSyntaxApplierTest : BaseMarkdownSyntaxApplierTest() {
                 """.trimMargin(),
         output = """
                 |> Alfred: Shall you be taking the Batpod sir?▮
+                |
                 |Batman/Bruce Wayne: In the middle of the day Alfred?
                 |Alfred: The Lamborghini then? Much more subtle.
                 """.trimMargin()
@@ -28,7 +29,9 @@ class BlockQuoteSyntaxApplierTest : BaseMarkdownSyntaxApplierTest() {
                 """.trimMargin(),
         output = """
                 |Alfred: Shall you be taking the Batpod sir?
+                |
                 |> Batman/Bruce Wayne: In the middle of the day Alfred?▮
+                |
                 |Alfred: The Lamborghini then? Much more subtle.
                 """.trimMargin()
     )
@@ -44,7 +47,43 @@ class BlockQuoteSyntaxApplierTest : BaseMarkdownSyntaxApplierTest() {
         output = """
                 |Alfred: Shall you be taking the Batpod sir?
                 |Batman/Bruce Wayne: In the middle of the day Alfred?
+                |
                 |> Alfred: The Lamborghini then? Much more subtle.▮
+                """.trimMargin()
+    )
+  }
+
+  @Test fun `insert at cursor position on a line followed by an empty line in a paragraph`() {
+    BlockQuoteSyntaxApplier.test(
+        input = """
+                |Alfred: Shall you be taking the Batpod sir?
+                |Batman/Bruce Wayne: In the middle of the day Alfred?▮
+                |
+                |Alfred: The Lamborghini then? Much more subtle.
+                """.trimMargin(),
+        output = """
+                |Alfred: Shall you be taking the Batpod sir?
+                |
+                |> Batman/Bruce Wayne: In the middle of the day Alfred?▮
+                |
+                |Alfred: The Lamborghini then? Much more subtle.
+                """.trimMargin()
+    )
+    BlockQuoteSyntaxApplier.test(
+        input = """
+                |Alfred: Shall you be taking the Batpod sir?
+                |Batman/Bruce Wayne: In the middle of the day Alfred?
+                |Alfred: The Lamborghini then? Much more subtle.▮
+                |
+                |Another line.
+                """.trimMargin(),
+        output = """
+                |Alfred: Shall you be taking the Batpod sir?
+                |Batman/Bruce Wayne: In the middle of the day Alfred?
+                |
+                |> Alfred: The Lamborghini then? Much more subtle.▮
+                |
+                |Another line.
                 """.trimMargin()
     )
   }
@@ -106,6 +145,30 @@ class BlockQuoteSyntaxApplierTest : BaseMarkdownSyntaxApplierTest() {
     )
   }
 
+  @Test fun `apply to selection of multiple paragraphs`() {
+    BlockQuoteSyntaxApplier.test(
+        input = """
+                |James Gordon: ▮Batman. Batman! Why is he running dad?
+                |Gordon: Because we have to▮ chase him.
+                |Uniform Cop: Okay we're going in. Go go! Move!
+                |James Gordon: He didn't do anything wrong.
+                |Gordon: Because he's the hero Gotham deserves, but not the one it needs right now.
+                |So we'll hunt him. Because he can take it. Because he's not a hero. He's a silent
+                |guardian. A watchful protector. The Dark Knight.
+                """.trimMargin(),
+        output = """
+                |> James Gordon: ▮Batman. Batman! Why is he running dad?
+                |Gordon: Because we have to▮ chase him.
+                |
+                |Uniform Cop: Okay we're going in. Go go! Move!
+                |James Gordon: He didn't do anything wrong.
+                |Gordon: Because he's the hero Gotham deserves, but not the one it needs right now.
+                |So we'll hunt him. Because he can take it. Because he's not a hero. He's a silent
+                |guardian. A watchful protector. The Dark Knight.
+                """.trimMargin()
+    )
+  }
+
   @Test fun `insert at cursor position on a new line`() {
     BlockQuoteSyntaxApplier.test(
         input = """
@@ -114,6 +177,7 @@ class BlockQuoteSyntaxApplierTest : BaseMarkdownSyntaxApplierTest() {
                 """.trimMargin(),
         output = """
                 |Tell your men they work for me now. This is my city.
+                |
                 |> ▮
                 """.trimMargin()
     )
@@ -127,6 +191,7 @@ class BlockQuoteSyntaxApplierTest : BaseMarkdownSyntaxApplierTest() {
                 """.trimMargin(),
         output = """
                 |Tell your men they work for me now. This is my city.
+                |
                 |>  ▮
                 """.trimMargin()
     )

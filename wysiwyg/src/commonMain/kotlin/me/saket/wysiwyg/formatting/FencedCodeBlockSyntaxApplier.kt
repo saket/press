@@ -5,19 +5,17 @@ package me.saket.wysiwyg.formatting
  */
 object FencedCodeBlockSyntaxApplier : MarkdownSyntaxApplier {
 
-  private const val syntax = "```"
+  private const val leftSyntax = "```\n"
+  private const val rightSyntax = "\n```"
 
   override fun apply(text: String, selection: TextSelection): ApplyMarkdownSyntax {
-    val (paragraphStart, paragraphEnd) = ParagraphBounds.find(text, selection.start)
-    val paragraphUnderSelection = text.substring(paragraphStart, paragraphEnd)
-
-    val leftSyntax = "$syntax\n"
-    val rightSyntax = "\n$syntax"
+    val paraBounds = ParagraphBounds.find(text, selection)
+    val paragraphUnderSelection = text.substring(paraBounds.start, paraBounds.endExclusive)
 
     return ApplyMarkdownSyntax(
-        newText = text.substring(0, paragraphStart)
+        newText = text.substring(0, paraBounds.start)
             + leftSyntax + paragraphUnderSelection + rightSyntax
-            + text.substring(paragraphEnd, text.length),
+            + text.substring(paraBounds.endExclusive, text.length),
         newSelection = selection.copy(
             start = selection.start + leftSyntax.length,
             end = selection.end + leftSyntax.length
