@@ -2,8 +2,7 @@ package me.saket.wysiwyg.formatting
 
 data class ParagraphBounds(
   val start: Int,
-  val end: Int,
-  val endExclusive: Int // For use with String#substring().
+  val endExclusive: Int // For use with String#substring()
 ) {
 
   companion object {
@@ -23,25 +22,15 @@ data class ParagraphBounds(
       }
 
       // Begin with the assumption that this is the last paragraph.
-      var end = if (text.isEmpty()) 0 else text.length - 1
       var endExclusive = text.length
-
       for (i in selection.end until text.length) {
         if (text[i] == '\n') {
-          end = i - 1
           endExclusive = i
           break
         }
       }
 
-      // An example where this is needed is text with a single
-      // '\n' character and the cursor is at the end.
-      end = maxOf(start, end)
-
-      // TODO: remove this
-      val trytry = text.substring(start, endExclusive)
-
-      return ParagraphBounds(start, end, endExclusive)
+      return ParagraphBounds(start, endExclusive)
     }
   }
 }

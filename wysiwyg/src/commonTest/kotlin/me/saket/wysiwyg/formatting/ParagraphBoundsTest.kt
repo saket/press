@@ -13,7 +13,7 @@ class ParagraphBoundsTest : BaseTextSelectionTest() {
                """.trimMargin()
     )
     val bounds = ParagraphBounds.find(text, selection)
-    assertThat(bounds).isEqualTo(ParagraphBounds(start = 0, end = 0, endExclusive = 0))
+    assertThat(bounds).isEqualTo(ParagraphBounds(start = 0, endExclusive = 0))
   }
 
   @Test fun `cursor after a whitespace`() {
@@ -23,7 +23,7 @@ class ParagraphBoundsTest : BaseTextSelectionTest() {
                """.trimMargin()
     )
     val bounds = ParagraphBounds.find(text, selection)
-    assertThat(bounds).isEqualTo(ParagraphBounds(start = 0, end = 0, endExclusive = 1))
+    assertThat(bounds).isEqualTo(ParagraphBounds(start = 0, endExclusive = 1))
   }
 
   @Test fun `cursor surrounded by whitespaces`() {
@@ -36,7 +36,7 @@ class ParagraphBoundsTest : BaseTextSelectionTest() {
 
     // Note to future self: if you're wondering why end=1,
     // it's because there are invisible whitespaces in the text.
-    assertThat(bounds).isEqualTo(ParagraphBounds(start = 0, end = 1, endExclusive = 2))
+    assertThat(bounds).isEqualTo(ParagraphBounds(start = 0, endExclusive = 2))
   }
 
   @Test fun `empty paragraph with a leading empty line`() {
@@ -47,7 +47,7 @@ class ParagraphBoundsTest : BaseTextSelectionTest() {
                """.trimMargin()
     )
     val bounds = ParagraphBounds.find(text, selection)
-    assertThat(bounds).isEqualTo(ParagraphBounds(start = 1, end = 1, endExclusive = 1))
+    assertThat(bounds).isEqualTo(ParagraphBounds(start = 1, endExclusive = 1))
   }
 
   @Test fun `empty paragraph with a multiple leading empty lines`() {
@@ -61,7 +61,7 @@ class ParagraphBoundsTest : BaseTextSelectionTest() {
                """.trimMargin()
     )
     val bounds = ParagraphBounds.find(text, selection)
-    assertThat(bounds).isEqualTo(ParagraphBounds(start = 4, end = 4, endExclusive = 4))
+    assertThat(bounds).isEqualTo(ParagraphBounds(start = 4, endExclusive = 4))
   }
 
   @Test fun `empty paragraph with a leading paragraph`() {
@@ -72,7 +72,7 @@ class ParagraphBoundsTest : BaseTextSelectionTest() {
                """.trimMargin()
     )
     val bounds = ParagraphBounds.find(text, selection)
-    assertThat(bounds).isEqualTo(ParagraphBounds(start = 44, end = 44, endExclusive = 44))
+    assertThat(bounds).isEqualTo(ParagraphBounds(start = 44, endExclusive = 44))
   }
 
   @Test fun `empty paragraph with a following empty line`() {
@@ -83,7 +83,7 @@ class ParagraphBoundsTest : BaseTextSelectionTest() {
                """.trimMargin()
     )
     val bounds = ParagraphBounds.find(text, selection)
-    assertThat(bounds).isEqualTo(ParagraphBounds(start = 0, end = 0, endExclusive = 0))
+    assertThat(bounds).isEqualTo(ParagraphBounds(start = 0, endExclusive = 0))
   }
 
   @Test fun `blank paragraph after a blank line`() {
@@ -94,7 +94,7 @@ class ParagraphBoundsTest : BaseTextSelectionTest() {
                """.trimMargin()
     )
     val bounds = ParagraphBounds.find(text, selection)
-    assertThat(bounds).isEqualTo(ParagraphBounds(start = 3, end = 3, endExclusive = 4))
+    assertThat(bounds).isEqualTo(ParagraphBounds(start = 3, endExclusive = 4))
   }
 
   @Test fun `blank paragraph surrounded by blank lines`() {
@@ -106,7 +106,7 @@ class ParagraphBoundsTest : BaseTextSelectionTest() {
                """.trimMargin()
     )
     val bounds = ParagraphBounds.find(text, selection)
-    assertThat(bounds).isEqualTo(ParagraphBounds(start = 3, end = 3, endExclusive = 4))
+    assertThat(bounds).isEqualTo(ParagraphBounds(start = 3, endExclusive = 4))
   }
 
   @Test fun `cursor at the starting of a single paragraph`() {
@@ -116,7 +116,7 @@ class ParagraphBoundsTest : BaseTextSelectionTest() {
                """.trimMargin()
     )
     val bounds = ParagraphBounds.find(text, selection)
-    assertThat(bounds).isEqualTo(ParagraphBounds(start = 0, end = 42, endExclusive = 43))
+    assertThat(bounds).isEqualTo(ParagraphBounds(start = 0, endExclusive = 43))
   }
 
   @Test fun `cursor in the middle of a single paragraph`() {
@@ -126,7 +126,7 @@ class ParagraphBoundsTest : BaseTextSelectionTest() {
                """.trimMargin()
     )
     val bounds = ParagraphBounds.find(text, selection)
-    assertThat(bounds).isEqualTo(ParagraphBounds(start = 0, end = 42, endExclusive = 43))
+    assertThat(bounds).isEqualTo(ParagraphBounds(start = 0, endExclusive = 43))
   }
 
   @Test fun `cursor at the end of a single paragraph`() {
@@ -136,7 +136,7 @@ class ParagraphBoundsTest : BaseTextSelectionTest() {
                """.trimMargin()
     )
     val bounds = ParagraphBounds.find(text, selection)
-    assertThat(bounds).isEqualTo(ParagraphBounds(start = 0, end = 42, endExclusive = 43))
+    assertThat(bounds).isEqualTo(ParagraphBounds(start = 0, endExclusive = 43))
   }
 
   @Test fun `cursor at the end of a paragraph surrounded by paragraphs`() {
@@ -150,7 +150,7 @@ class ParagraphBoundsTest : BaseTextSelectionTest() {
                """.trimMargin()
     )
     val bounds = ParagraphBounds.find(text, selection)
-    assertThat(bounds).isEqualTo(ParagraphBounds(start = 45, end = 96, endExclusive = 97))
+    assertThat(bounds).isEqualTo(ParagraphBounds(start = 45, endExclusive = 97))
   }
 
   @Test fun `cursor at the starting of a paragraph surrounded by paragraphs`() {
@@ -164,7 +164,7 @@ class ParagraphBoundsTest : BaseTextSelectionTest() {
                """.trimMargin()
     )
     val bounds = ParagraphBounds.find(text, selection)
-    assertThat(bounds).isEqualTo(ParagraphBounds(start = 45, end = 96, endExclusive = 97))
+    assertThat(bounds).isEqualTo(ParagraphBounds(start = 45, endExclusive = 97))
   }
 
   @Test fun `cursor in the middle of a paragraph surrounded by paragraphs`() {
@@ -178,6 +178,6 @@ class ParagraphBoundsTest : BaseTextSelectionTest() {
                """.trimMargin()
     )
     val bounds = ParagraphBounds.find(text, selection)
-    assertThat(bounds).isEqualTo(ParagraphBounds(start = 45, end = 96, endExclusive = 97))
+    assertThat(bounds).isEqualTo(ParagraphBounds(start = 45, endExclusive = 97))
   }
 }
