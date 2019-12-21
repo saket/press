@@ -2,29 +2,32 @@ package me.saket.press.shared.home
 
 object SplitHeadingAndBody {
 
+  private val headingRegex = Regex("^#{1,6}[ \t]+")
+
   fun split(content: String): Pair<String, String> {
-    val trimmedContent = content.trimStart()
+    @Suppress("NAME_SHADOWING")
+    val content = content.trimStart()
 
     val title: String
     val body: String
 
-    if (trimmedContent.startsWith("#")) {
-      val titleStartIndex = trimmedContent.indexOfFirst { it.isWhitespace() } + 1
-      val titleAndBodySeparatorIndex = trimmedContent.indexOf('\n')
+    if (headingRegex.containsMatchIn(content)) {
+      val titleStartIndex = content.indexOfFirst { it.isWhitespace() } + 1
+      val titleAndBodySeparatorIndex = content.indexOf('\n')
       val hasBody = titleAndBodySeparatorIndex != -1
 
       if (hasBody) {
-        title = trimmedContent.substring(titleStartIndex, titleAndBodySeparatorIndex)
-        body = trimmedContent.substring(titleAndBodySeparatorIndex + 1).trimStart()
+        title = content.substring(titleStartIndex, titleAndBodySeparatorIndex)
+        body = content.substring(titleAndBodySeparatorIndex + 1).trimStart()
 
       } else {
-        title = trimmedContent.substring(titleStartIndex)
+        title = content.substring(titleStartIndex)
         body = ""
       }
 
     } else {
       title = ""
-      body = trimmedContent
+      body = content
     }
 
     return title to body
