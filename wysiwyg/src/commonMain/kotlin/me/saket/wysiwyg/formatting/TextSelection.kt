@@ -8,6 +8,10 @@ data class TextSelection(val start: Int, val end: Int) {
   val isCursor get() = start == end
   val cursorPosition get() = if (isCursor) start else throw AssertionError()
 
+  fun offsetBy(by: Int): TextSelection {
+    return copy(start = start + by, end = end + by)
+  }
+
   companion object {
     /**
      * For use when the user isn't selecting any

@@ -10,40 +10,44 @@ abstract class BaseApplyMarkdownSyntaxTest : BaseTextSelectionTest() {
     output: String
   ) {
     val (parsedText, parsedSelection) = decodeSelection(input)
-    val applyFormat = apply(parsedText, parsedSelection)
+    val actualFormat = apply(parsedText, parsedSelection)
 
-    val (expectedText, expectedSelection) = decodeSelection(output)
-    val expectedApply = ApplyMarkdownSyntax(expectedText, expectedSelection)
-
-    if (applyFormat != expectedApply) {
-      println("--------------------------------------")
-      println("Text doesn't match.")
-      println("Expected:\n'${encodeSelection(expectedText, expectedSelection)}'")
-      println("\nActual: \n'${encodeSelection(applyFormat.newText, applyFormat.newSelection)}'")
+    val expectedFormat = decodeSelection(output)
+    if (actualFormat != expectedFormat) {
+      printDifference(expectedFormat, actualFormat)
     }
-    assertThat(applyFormat).isEqualTo(expectedApply)
+    assertThat(actualFormat).isEqualTo(expectedFormat)
   }
 
-  protected fun AutoFormatOnEnterPress.test(
+  protected fun AutoFormatOnEnterPress.onEnterTest(
     input: String,
-    output: String
+    output: String?
   ) {
     val (parsedText, parsedSelection) = decodeSelection(input)
-    val applyFormat = onEnter(parsedText, parsedSelection)
+    val actualFormat = onEnter(parsedText, parsedSelection)
 
-    val (expectedText, expectedSelection) = decodeSelection(output)
-    val expectedApply = ApplyMarkdownSyntax(expectedText, expectedSelection)
-
-    if (applyFormat != expectedApply) {
-      println("--------------------------------------")
-      println("Text doesn't match.")
-      println("Expected:\n'${encodeSelection(expectedText, expectedSelection)}'")
-      if (applyFormat != null) {
-        println("\nActual: \n'${encodeSelection(applyFormat.newText, applyFormat.newSelection)}'")
-      } else {
-        println("\nActual: \nnull")
-      }
+    val expectedFormat = output?.let(::decodeSelection)
+    if (actualFormat != expectedFormat) {
+      printDifference(expectedFormat, actualFormat)
     }
-    assertThat(applyFormat).isEqualTo(expectedApply)
+    assertThat(actualFormat).isEqualTo(expectedFormat)
+  }
+
+  private fun printDifference(
+    expected: ApplyMarkdownSyntax?,
+    actual: ApplyMarkdownSyntax?
+  ) {
+    println("--------------------------------------")
+    println("Text doesn't match.")
+    if (expected != null) {
+      println("Expected:\n\"\"\"\n${encodeSelection(expected.newText, expected.newSelection)}\n\"\"\"")
+    } else {
+      println("Expected: \nnull")
+    }
+    if (actual != null) {
+      println("\nActual: \n\"\"\"\n${encodeSelection(actual.newText, actual.newSelection)}\n\"\"\"")
+    } else {
+      println("\nActual: \nnull")
+    }
   }
 }
