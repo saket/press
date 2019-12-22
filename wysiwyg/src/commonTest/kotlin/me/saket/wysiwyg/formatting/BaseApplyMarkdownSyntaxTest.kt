@@ -3,7 +3,7 @@ package me.saket.wysiwyg.formatting
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 
-abstract class BaseMarkdownSyntaxApplierTest : BaseTextSelectionTest() {
+abstract class BaseApplyMarkdownSyntaxTest : BaseTextSelectionTest() {
 
   protected fun MarkdownSyntaxApplier.test(
     input: String,

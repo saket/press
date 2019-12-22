@@ -2,7 +2,7 @@ package me.saket.wysiwyg.formatting
 
 import kotlin.test.Test
 
-class EmphasisSyntaxApplierTest : BaseMarkdownSyntaxApplierTest() {
+class EmphasisSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
 
   @Test fun `insert at cursor position`() {
     EmphasisSyntaxApplier.test(

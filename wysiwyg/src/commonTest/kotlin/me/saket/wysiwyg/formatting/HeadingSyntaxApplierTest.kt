@@ -2,7 +2,7 @@ package me.saket.wysiwyg.formatting
 
 import kotlin.test.Test
 
-class HeadingSyntaxApplierTest : BaseMarkdownSyntaxApplierTest() {
+class HeadingSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
 
   @Test fun `insert at cursor position at the end of the first line in a paragraph`() {
     HeadingSyntaxApplier.test(
