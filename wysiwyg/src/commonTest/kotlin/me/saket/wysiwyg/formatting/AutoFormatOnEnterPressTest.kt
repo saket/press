@@ -173,7 +173,87 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
     )
   }
 
-//  @Test fun `enter key on an empty list item`() {
-//    TODO()
-//  }
+  @Test fun `enter key on an empty unordered list item`() {
+    AutoFormatOnEnterPress.onEnterTest(
+        input = """
+                |# Shopping list
+                |- Milk
+                |- Bread
+                |- ▮
+                |
+                |Some other text
+                """.trimMargin(),
+        output = """
+                |# Shopping list
+                |- Milk
+                |- Bread
+                |
+                |▮
+                |
+                |Some other text
+                """.trimMargin()
+    )
+
+    AutoFormatOnEnterPress.onEnterTest(
+        input = """
+                |# Shopping list
+                |+ Milk
+                |+ Bread
+                |+ ▮
+                |
+                |Some other text
+                """.trimMargin(),
+        output = """
+                |# Shopping list
+                |+ Milk
+                |+ Bread
+                |
+                |▮
+                |
+                |Some other text
+                """.trimMargin()
+    )
+
+    AutoFormatOnEnterPress.onEnterTest(
+        input = """
+                |# Shopping list
+                |* Milk
+                |* Bread
+                |* ▮
+                |
+                |Some other text
+                """.trimMargin(),
+        output = """
+                |# Shopping list
+                |* Milk
+                |* Bread
+                |
+                |▮
+                |
+                |Some other text
+                """.trimMargin()
+    )
+  }
+
+  @Test fun `enter key on an empty ordered list item`() {
+    AutoFormatOnEnterPress.onEnterTest(
+        input = """
+                |# Shopping list
+                |1. Milk
+                |2. Bread
+                |3. ▮
+                |
+                |Some other text
+                """.trimMargin(),
+        output = """
+                |# Shopping list
+                |1. Milk
+                |2. Bread
+                |
+                |▮
+                |
+                |Some other text
+                """.trimMargin()
+    )
+  }
 }

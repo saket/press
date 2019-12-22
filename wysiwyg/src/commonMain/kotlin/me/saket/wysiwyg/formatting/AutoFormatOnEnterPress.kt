@@ -17,11 +17,12 @@ object AutoFormatOnEnterPress {
       return null
     }
 
+    // Paragraph under cursor.
     val paragraphBounds = ParagraphBounds.find(text, selection)
-    val paragraphUnderSelection = text.substring(paragraphBounds.start, paragraphBounds.endExclusive)
+    val paragraph = text.substring(paragraphBounds.start, paragraphBounds.endExclusive)
 
     return formatters
-        .mapNotNull { it.onEnter(text, paragraphUnderSelection, selection) }
+        .mapNotNull { it.onEnter(text, paragraph, paragraphBounds, selection) }
         .firstOrNull()
   }
 
@@ -30,13 +31,23 @@ object AutoFormatOnEnterPress {
      * @param paragraph Paragraph under the cursor before enter key was pressed.
      * @param selection cursor position before enter key was pressed.
      */
-    fun onEnter(text: String, paragraph: String, selection: TextSelection): ApplyMarkdownSyntax?
+    fun onEnter(
+      text: String,
+      paragraph: String,
+      paragraphBounds: ParagraphBounds,
+      selection: TextSelection
+    ): ApplyMarkdownSyntax?
   }
 
   private object StartFencedCodeBlock : OnEnterAutoFormatter {
     val fencedCodeRegex by lazy(NONE) { Regex("```[a-z]*[\\s\\S]*?```") }
 
-    override fun onEnter(text: String, paragraph: String, selection: TextSelection): ApplyMarkdownSyntax? {
+    override fun onEnter(
+      text: String,
+      paragraph: String,
+      paragraphBounds: ParagraphBounds,
+      selection: TextSelection
+    ): ApplyMarkdownSyntax? {
       if (!paragraph.startsWith("```")) {
         return null
       }
@@ -61,21 +72,22 @@ object AutoFormatOnEnterPress {
     private val orderedItemRegex by lazy(NONE) { Regex("(\\d+).\\s") }
 
     @Suppress("NAME_SHADOWING")
-    override fun onEnter(text: String, paragraph: String, selection: TextSelection): ApplyMarkdownSyntax? {
-      val buildForSyntax = { syntax: String ->
-        val cursor = selection.cursorPosition
-        val syntaxWithLineBreak = "\n$syntax"
-        ApplyMarkdownSyntax(
-            newText = text.substring(0, cursor) + syntaxWithLineBreak + text.substring(cursor),
-            newSelection = selection.offsetBy(syntaxWithLineBreak.length)
-        )
-      }
-
+    override fun onEnter(
+      text: String,
+      paragraph: String,
+      paragraphBounds: ParagraphBounds,
+      selection: TextSelection
+    ): ApplyMarkdownSyntax? {
       val paragraph = paragraph.trimStart()
 
       // Unordered list item.
       if (paragraph[0] in "*+-" && paragraph[1].isWhitespace()) {
-        return buildForSyntax("${paragraph[0]} ")
+        val isItemEmpty = paragraph.length == 2
+        return if (isItemEmpty) {
+          undoListItem(text, paragraphBounds)
+        } else {
+          continueListItem(text, selection, syntax = "${paragraph[0]} ")
+        }
       }
 
       // Ordered list item.
@@ -83,13 +95,35 @@ object AutoFormatOnEnterPress {
       if (potentiallyOrderedItem) {
         val matchResult = orderedItemRegex.find(paragraph)
         if (matchResult != null) {
-          val (number) = matchResult.destructured
-          val nextNumber = number.toInt().inc()
-          return buildForSyntax("$nextNumber. ")
+          val (syntax, number) = matchResult.groupValues
+          val isItemEmpty = paragraph.length == syntax.length
+
+          return if (isItemEmpty) {
+            undoListItem(text, paragraphBounds)
+          } else {
+            val nextNumber = number.toInt().inc()
+            continueListItem(text, selection, syntax = "$nextNumber. ")
+          }
         }
       }
 
       return null
+    }
+
+    private fun continueListItem(text: String, selection: TextSelection, syntax: String): ApplyMarkdownSyntax {
+      val cursor = selection.cursorPosition
+      val syntaxWithLineBreak = "\n$syntax"
+      return ApplyMarkdownSyntax(
+          newText = text.substring(0, cursor) + syntaxWithLineBreak + text.substring(cursor),
+          newSelection = selection.offsetBy(syntaxWithLineBreak.length)
+      )
+    }
+
+    private fun undoListItem(text: String, paragraphBounds: ParagraphBounds): ApplyMarkdownSyntax {
+      return ApplyMarkdownSyntax(
+          newText = text.substring(0, paragraphBounds.start) + "\n" + text.substring(paragraphBounds.endExclusive),
+          newSelection = TextSelection.cursor(paragraphBounds.start + 1)
+      )
     }
   }
 }
