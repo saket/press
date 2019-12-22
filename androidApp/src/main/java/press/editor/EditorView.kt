@@ -1,7 +1,7 @@
 package press.editor
 
 import android.content.Context
-import android.graphics.Color
+import android.graphics.Color.TRANSPARENT
 import android.graphics.Color.WHITE
 import android.text.InputType.TYPE_CLASS_TEXT
 import android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
@@ -13,9 +13,7 @@ import android.view.Gravity.TOP
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN
-import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
@@ -30,7 +28,7 @@ import com.squareup.inject.assisted.AssistedInject
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.press.R.drawable
-import me.saket.press.shared.editor.EditorEvent
+import me.saket.press.shared.editor.EditorEvent.EnterKeyPressed
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode
 import me.saket.press.shared.editor.EditorPresenter
@@ -46,6 +44,8 @@ import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.theme.from
 import me.saket.press.shared.uiUpdates
 import me.saket.wysiwyg.Wysiwyg
+import me.saket.wysiwyg.formatting.TextSelection
+import me.saket.wysiwyg.formatting.from
 import me.saket.wysiwyg.parser.node.HeadingLevel.H1
 import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.widgets.addTextChangedListener
@@ -149,11 +149,14 @@ class EditorView @AssistedInject constructor(
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
 
-    val noteTextChanges: Observable<EditorEvent> = editorEditText
+    val noteTextChanges = editorEditText
         .textChanges()
         .map { NoteTextChanged(it.toString()) }
 
-    Observable.mergeArray(noteTextChanges)
+    val enterKeyPresses = EnterKeyPressListener
+        .listen(editorEditText)
+
+    Observable.merge(noteTextChanges, enterKeyPresses)
         .uiUpdates(presenter)
         .takeUntil(detaches())
         .observeOn(mainThread())
@@ -172,7 +175,7 @@ class EditorView @AssistedInject constructor(
       headingHintTextView.visibility = View.VISIBLE
       headingHintTextView.text = Truss()
           .pushSpan(EditorHeadingHintSpan(H1))
-          .pushSpan(ForegroundColorSpan(Color.TRANSPARENT))
+          .pushSpan(ForegroundColorSpan(TRANSPARENT))
           .append("# ")
           .popSpan()
           .append(model.hintText ?: "")

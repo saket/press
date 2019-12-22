@@ -1,6 +1,10 @@
 package me.saket.press.shared.editor
 
+import me.saket.wysiwyg.formatting.TextSelection
+
 // Specs for client apps to implement:
+//
+// - Send all EditorEvents.
 //
 // - Capitalize the first letter of a heading. See `CapitalizeOnHeadingStart`.
 //
@@ -12,6 +16,7 @@ package me.saket.press.shared.editor
 //   span, which we don't want.
 interface EditorEvent {
   data class NoteTextChanged(val text: String) : EditorEvent
+  data class EnterKeyPressed(val selectionBeforeEnter: TextSelection): EditorEvent
 }
 
 data class EditorUiModel(
