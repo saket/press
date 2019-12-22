@@ -91,8 +91,7 @@ object AutoFormatOnEnterPress {
       }
 
       // Ordered list item.
-      val potentiallyOrderedItem = paragraph[0].isDigit()
-      if (potentiallyOrderedItem) {
+      if (paragraph[0].isDigit()) {
         val matchResult = orderedItemRegex.find(paragraph)
         if (matchResult != null) {
           val (syntax, number) = matchResult.groupValues
