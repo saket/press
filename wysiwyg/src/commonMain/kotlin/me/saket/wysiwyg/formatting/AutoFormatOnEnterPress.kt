@@ -1,13 +1,16 @@
 package me.saket.wysiwyg.formatting
 
+import me.saket.wysiwyg.util.isDigit
+import kotlin.LazyThreadSafetyMode.NONE
+
 /**
  * Auto-inserts markdown syntaxes on enter:
  * - Fenced code blocks [```]
- * - List item (TODO)
+ * - List item [-, *, +, 1.]
  */
 object AutoFormatOnEnterPress {
 
-  private val formatters = listOf<OnEnterAutoFormatter>(FencedCodeBlock)
+  private val formatters = listOf(StartFencedCodeBlock, ListContinuation)
 
   fun onEnter(text: String, selection: TextSelection): ApplyMarkdownSyntax? {
     if (selection.isCursor.not()) {
@@ -30,13 +33,11 @@ object AutoFormatOnEnterPress {
     fun onEnter(text: String, paragraph: String, selection: TextSelection): ApplyMarkdownSyntax?
   }
 
-  private object FencedCodeBlock : OnEnterAutoFormatter {
-    val fencedCodeRegex = Regex("```[a-z]*[\\s\\S]*?```")
+  private object StartFencedCodeBlock : OnEnterAutoFormatter {
+    val fencedCodeRegex by lazy(NONE) { Regex("```[a-z]*[\\s\\S]*?```") }
 
     override fun onEnter(text: String, paragraph: String, selection: TextSelection): ApplyMarkdownSyntax? {
-      // TODO: consume only if cursor isn't already inside a fenced code block.
-      val isCodeBlock = paragraph.startsWith("```")
-      if (!isCodeBlock) {
+      if (!paragraph.startsWith("```")) {
         return null
       }
 
@@ -55,4 +56,41 @@ object AutoFormatOnEnterPress {
       )
     }
   }
+
+  private object ListContinuation : OnEnterAutoFormatter {
+    private val orderedItemRegex by lazy(NONE) { Regex("(\\d+).\\s") }
+
+    @Suppress("NAME_SHADOWING")
+    override fun onEnter(text: String, paragraph: String, selection: TextSelection): ApplyMarkdownSyntax? {
+      val buildForSyntax = { syntax: String ->
+        val cursor = selection.cursorPosition
+        val syntaxWithLineBreak = "\n$syntax"
+        ApplyMarkdownSyntax(
+            newText = text.substring(0, cursor) + syntaxWithLineBreak + text.substring(cursor),
+            newSelection = selection.offsetBy(syntaxWithLineBreak.length)
+        )
+      }
+
+      val paragraph = paragraph.trimStart()
+
+      // Unordered list item.
+      if (paragraph[0] in "*+-" && paragraph[1].isWhitespace()) {
+        return buildForSyntax("${paragraph[0]} ")
+      }
+
+      // Ordered list item.
+      val potentiallyOrderedItem = paragraph[0].isDigit()
+      if (potentiallyOrderedItem) {
+        val matchResult = orderedItemRegex.find(paragraph)
+        if (matchResult != null) {
+          val (number) = matchResult.destructured
+          val nextNumber = number.toInt().inc()
+          return buildForSyntax("$nextNumber. ")
+        }
+      }
+
+      return null
+    }
+  }
 }
+

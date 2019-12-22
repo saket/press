@@ -58,4 +58,122 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
         output = null
     )
   }
+
+  @Test fun `enter key after a valid unordered list item`() {
+    AutoFormatOnEnterPress.onEnterTest(
+        input = """
+                |# Shopping list
+                |- Milk
+                |- Bread▮
+                """.trimMargin(),
+        output = """
+                |# Shopping list
+                |- Milk
+                |- Bread
+                |- ▮
+                """.trimMargin()
+    )
+
+    AutoFormatOnEnterPress.onEnterTest(
+        input = """
+                |# Shopping list
+                |+ Milk
+                |+ Bread▮
+                """.trimMargin(),
+        output = """
+                |# Shopping list
+                |+ Milk
+                |+ Bread
+                |+ ▮
+                """.trimMargin()
+    )
+
+    AutoFormatOnEnterPress.onEnterTest(
+        input = """
+                |# Shopping list
+                |* Milk
+                |* Bread▮
+                """.trimMargin(),
+        output = """
+                |# Shopping list
+                |* Milk
+                |* Bread
+                |* ▮
+                """.trimMargin()
+    )
+  }
+
+  @Test fun `enter key after an invalid unordered list item`() {
+    AutoFormatOnEnterPress.onEnterTest(
+        input = """
+                |# Shopping list
+                |- Milk
+                |Bread▮
+                """.trimMargin(),
+        output = null
+    )
+
+    AutoFormatOnEnterPress.onEnterTest(
+        input = """
+                |# Shopping list
+                |+ Milk
+                |+Bread▮
+                """.trimMargin(),
+        output = null
+    )
+  }
+
+  @Test fun `enter key after a valid ordered list item`() {
+    AutoFormatOnEnterPress.onEnterTest(
+        input = """
+                |# Shopping list
+                |1. Milk
+                |2. Bread▮
+                """.trimMargin(),
+        output = """
+                |# Shopping list
+                |1. Milk
+                |2. Bread
+                |3. ▮
+                """.trimMargin()
+    )
+
+    AutoFormatOnEnterPress.onEnterTest(
+        input = """
+                |# Shopping list
+                |199. Milk
+                |200. Bread▮
+                """.trimMargin(),
+        output = """
+                |# Shopping list
+                |199. Milk
+                |200. Bread
+                |201. ▮
+                """.trimMargin()
+    )
+  }
+
+  @Test fun `enter key after an invalid ordered list item`() {
+    AutoFormatOnEnterPress.onEnterTest(
+        input = """
+                |# Shopping list
+                |1. Milk
+                |2.Bread▮
+                """.trimMargin(),
+        output = null
+    )
+
+    AutoFormatOnEnterPress.onEnterTest(
+        input = """
+                |# Shopping list
+                |1. Milk
+                |2Bread▮
+                """.trimMargin(),
+        output = null
+    )
+  }
+
+//  @Test fun `enter key on an empty list item`() {
+//    TODO()
+//  }
 }
