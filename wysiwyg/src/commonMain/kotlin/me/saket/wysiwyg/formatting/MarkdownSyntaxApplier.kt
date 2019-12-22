@@ -9,5 +9,3 @@ package me.saket.wysiwyg.formatting
 interface MarkdownSyntaxApplier {
   fun apply(text: String, selection: TextSelection): ApplyMarkdownSyntax
 }
-
-data class ApplyMarkdownSyntax(val newText: String, val newSelection: TextSelection)
