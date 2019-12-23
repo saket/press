@@ -24,9 +24,9 @@ data class EditorUiModel(
 )
 
 sealed class EditorUiEffect {
-  data class PopulateContent(
-    val content: String,
-    val moveCursorToEnd: Boolean
+  data class UpdateNoteText(
+    val newText: String,
+    val newSelection: TextSelection?
   ) : EditorUiEffect()
 
   object CloseNote : EditorUiEffect()

@@ -17,10 +17,12 @@ import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorPresenter.Args
 import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
-import me.saket.press.shared.editor.EditorUiEffect.PopulateContent
+import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.note.FakeNoteRepository
+import me.saket.wysiwyg.formatting.TextSelection
+import me.saket.wysiwyg.formatting.TextSelection.Companion
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -138,7 +140,10 @@ class EditorPresenterTest {
         .uiEffects(events)
         .test()
         .apply {
-          assertEquals(values[0], PopulateContent(NEW_NOTE_PLACEHOLDER, moveCursorToEnd = true))
+          assertEquals(values[0], UpdateNoteText(
+              newText = NEW_NOTE_PLACEHOLDER,
+              newSelection = TextSelection.cursor(NEW_NOTE_PLACEHOLDER.length)
+          ))
         }
         .assertNotError()
   }
@@ -175,7 +180,7 @@ class EditorPresenterTest {
         .uiEffects(events)
         .test()
         .apply {
-          assertValue(PopulateContent("Nicolas Cage favorite dialogues", moveCursorToEnd = false))
+          assertValue(UpdateNoteText("Nicolas Cage favorite dialogues", newSelection = null))
           assertNotError()
         }
   }

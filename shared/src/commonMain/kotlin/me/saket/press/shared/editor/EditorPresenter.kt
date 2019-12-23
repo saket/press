@@ -24,7 +24,7 @@ import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorUiEffect.CloseNote
-import me.saket.press.shared.editor.EditorUiEffect.PopulateContent
+import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.localization.Strings.Editor
 import me.saket.press.shared.note.NoteRepository
 import me.saket.press.shared.note.deletedAt
@@ -33,6 +33,7 @@ import me.saket.press.shared.rx.mapToSome
 import me.saket.press.shared.rx.observableInterval
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.util.Optional
+import me.saket.wysiwyg.formatting.TextSelection
 
 class EditorPresenter(
   args: Args,
@@ -96,7 +97,7 @@ class EditorPresenter(
     return if (openMode is ExistingNote) {
       noteStream
           .take(1)
-          .map { PopulateContent(it.content, moveCursorToEnd = false) }
+          .map { UpdateNoteText(it.content, newSelection = null) }
     } else {
       observableOfEmpty()
     }
@@ -104,7 +105,7 @@ class EditorPresenter(
 
   private fun populateNewNotePlaceholderOnStart(): Observable<EditorUiEffect> {
     return if (openMode is NewNote) {
-      observableOf(PopulateContent(NEW_NOTE_PLACEHOLDER, moveCursorToEnd = true))
+      observableOf(UpdateNoteText(NEW_NOTE_PLACEHOLDER, TextSelection.cursor(NEW_NOTE_PLACEHOLDER.length)))
     } else {
       observableOfEmpty()
     }

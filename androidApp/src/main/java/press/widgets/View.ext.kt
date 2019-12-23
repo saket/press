@@ -1,7 +1,6 @@
 package press.widgets
 
 import android.graphics.Rect
-import android.graphics.drawable.Drawable
 import android.os.Build.VERSION.SDK_INT
 import android.util.TypedValue.COMPLEX_UNIT_PX
 import android.view.View
@@ -60,21 +59,14 @@ fun Toolbar.findTitleView(): TextView {
   return children.find { it is TextView } as TextView
 }
 
-fun EditText.setText(text: CharSequence, moveCursorToEnd: Boolean) {
-  setText(text)
-  if (moveCursorToEnd) {
-    setSelection(this.text.length)
-  }
-}
-
 fun EditText.showKeyboard(): Boolean {
   requestFocus()
-  val inputManager = context.getSystemService(InputMethodManager::class.java)
+  val inputManager = context.getSystemService(InputMethodManager::class.java)!!
   return inputManager.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
 }
 
 fun View.hideKeyboard() {
-  val inputManager = context.getSystemService(InputMethodManager::class.java)
+  val inputManager = context.getSystemService(InputMethodManager::class.java)!!
   inputManager.hideSoftInputFromWindow(windowToken, 0)
 }
 

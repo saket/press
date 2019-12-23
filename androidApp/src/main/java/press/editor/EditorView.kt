@@ -8,17 +8,20 @@ import android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
 import android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
 import android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
 import android.text.Layout.BREAK_STRATEGY_HIGH_QUALITY
+import android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
 import android.text.style.ForegroundColorSpan
 import android.view.Gravity.TOP
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN
+import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.appcompat.widget.Toolbar
 import androidx.core.graphics.ColorUtils.blendARGB
+import androidx.core.text.getSpans
 import androidx.core.view.updatePaddingRelative
 import com.jakewharton.rxbinding3.view.detaches
 import com.jakewharton.rxbinding3.widget.textChanges
@@ -28,14 +31,13 @@ import com.squareup.inject.assisted.AssistedInject
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.press.R.drawable
-import me.saket.press.shared.editor.EditorEvent.EnterKeyPressed
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode
 import me.saket.press.shared.editor.EditorPresenter
 import me.saket.press.shared.editor.EditorPresenter.Args
 import me.saket.press.shared.editor.EditorUiEffect
 import me.saket.press.shared.editor.EditorUiEffect.CloseNote
-import me.saket.press.shared.editor.EditorUiEffect.PopulateContent
+import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.editor.EditorUiModel
 import me.saket.press.shared.subscribe
 import me.saket.press.shared.theme.DisplayUnits
@@ -45,8 +47,8 @@ import me.saket.press.shared.theme.from
 import me.saket.press.shared.uiUpdates
 import me.saket.wysiwyg.Wysiwyg
 import me.saket.wysiwyg.formatting.TextSelection
-import me.saket.wysiwyg.formatting.from
 import me.saket.wysiwyg.parser.node.HeadingLevel.H1
+import me.saket.wysiwyg.spans.WysiwygSpan
 import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.widgets.addTextChangedListener
 import press.theme.themeAware
@@ -186,9 +188,30 @@ class EditorView @AssistedInject constructor(
 
   private fun render(uiUpdate: EditorUiEffect) {
     when (uiUpdate) {
-      is PopulateContent -> editorEditText.setText(uiUpdate.content, moveCursorToEnd = uiUpdate.moveCursorToEnd)
+      is UpdateNoteText -> editorEditText.setText(uiUpdate.newText, uiUpdate.newSelection)
       is CloseNote -> onDismiss()
     }.exhaustive
+  }
+
+  private fun EditText.setText(newText: CharSequence, newSelection: TextSelection?) {
+    // Setting a new text clears any existing styling. This results
+    // in a flicker because Wysiwyg takes a split second to parse the
+    // updated content. A workaround is to retain the spans.
+    val existingSpans = text
+        .getSpans<WysiwygSpan>(0, text.length)
+        .map { Triple(it, text.getSpanStart(it), text.getSpanEnd(it)) }
+
+    setText(newText)
+
+    for ((span, start, end) in existingSpans) {
+      if (start <= text.length && end <= text.length) {
+        text.setSpan(span, start, end, SPAN_EXCLUSIVE_EXCLUSIVE)
+      }
+    }
+
+    if (newSelection != null) {
+      setSelection(newSelection.start, newSelection.end)
+    }
   }
 
   @AssistedInject.Factory
