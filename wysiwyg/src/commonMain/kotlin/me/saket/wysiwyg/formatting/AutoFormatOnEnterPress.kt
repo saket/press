@@ -21,6 +21,10 @@ object AutoFormatOnEnterPress {
     val paragraphBounds = ParagraphBounds.find(text, selection)
     val paragraph = text.substring(paragraphBounds.start, paragraphBounds.endExclusive)
 
+    if (paragraph.isBlank()) {
+      return null
+    }
+
     return formatters
         .mapNotNull { it.onEnter(text, paragraph, paragraphBounds, selection) }
         .firstOrNull()
@@ -82,7 +86,7 @@ object AutoFormatOnEnterPress {
       val paragraph = paragraph.trimStart()
 
       // Unordered list item.
-      if (paragraph[0] in "*+-" && paragraph[1].isWhitespace()) {
+      if (paragraph.length >= 2 && paragraph[0] in "*+-" && paragraph[1].isWhitespace()) {
         val isItemEmpty = paragraph.length == 2
         return if (isItemEmpty) {
           endListSyntax(text, paragraphBounds)

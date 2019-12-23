@@ -256,4 +256,20 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 """.trimMargin()
     )
   }
+
+  @Test fun `enter key on an empty paragraph`() {
+    AutoFormatOnEnterPress.onEnterTest(
+        input = """
+                |▮
+                """.trimMargin(),
+        output = null
+    )
+    AutoFormatOnEnterPress.onEnterTest(
+        input = """
+                |
+                |▮
+                """.trimMargin(),
+        output = null
+    )
+  }
 }
