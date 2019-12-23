@@ -69,6 +69,7 @@ object AutoFormatOnEnterPress {
   }
 
   private object ListContinuation : OnEnterAutoFormatter {
+    // TODO: Can this be optimized by removing regex?
     private val orderedItemRegex by lazy(NONE) { Regex("(\\d+).\\s") }
 
     @Suppress("NAME_SHADOWING")
@@ -84,9 +85,9 @@ object AutoFormatOnEnterPress {
       if (paragraph[0] in "*+-" && paragraph[1].isWhitespace()) {
         val isItemEmpty = paragraph.length == 2
         return if (isItemEmpty) {
-          undoListItem(text, paragraphBounds)
+          endListSyntax(text, paragraphBounds)
         } else {
-          continueListItem(text, selection, syntax = "${paragraph[0]} ")
+          continueListSyntax(text, selection, syntax = "${paragraph[0]} ")
         }
       }
 
@@ -98,10 +99,10 @@ object AutoFormatOnEnterPress {
           val isItemEmpty = paragraph.length == syntax.length
 
           return if (isItemEmpty) {
-            undoListItem(text, paragraphBounds)
+            endListSyntax(text, paragraphBounds)
           } else {
             val nextNumber = number.toInt().inc()
-            continueListItem(text, selection, syntax = "$nextNumber. ")
+            continueListSyntax(text, selection, syntax = "$nextNumber. ")
           }
         }
       }
@@ -109,7 +110,7 @@ object AutoFormatOnEnterPress {
       return null
     }
 
-    private fun continueListItem(text: String, selection: TextSelection, syntax: String): ApplyMarkdownSyntax {
+    private fun continueListSyntax(text: String, selection: TextSelection, syntax: String): ApplyMarkdownSyntax {
       val cursor = selection.cursorPosition
       val syntaxWithLineBreak = "\n$syntax"
       return ApplyMarkdownSyntax(
@@ -118,7 +119,7 @@ object AutoFormatOnEnterPress {
       )
     }
 
-    private fun undoListItem(text: String, paragraphBounds: ParagraphBounds): ApplyMarkdownSyntax {
+    private fun endListSyntax(text: String, paragraphBounds: ParagraphBounds): ApplyMarkdownSyntax {
       return ApplyMarkdownSyntax(
           newText = text.substring(0, paragraphBounds.start) + "\n" + text.substring(paragraphBounds.endExclusive),
           newSelection = TextSelection.cursor(paragraphBounds.start + 1)
