@@ -10,6 +10,7 @@ import com.badoo.reaktive.observable.distinctUntilChanged
 import com.badoo.reaktive.observable.filter
 import com.badoo.reaktive.observable.flatMapCompletable
 import com.badoo.reaktive.observable.map
+import com.badoo.reaktive.observable.mapNotNull
 import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observableOf
 import com.badoo.reaktive.observable.observableOfEmpty
@@ -20,6 +21,7 @@ import com.badoo.reaktive.observable.take
 import com.badoo.reaktive.observable.withLatestFrom
 import com.badoo.reaktive.scheduler.Scheduler
 import me.saket.press.data.shared.Note
+import me.saket.press.shared.editor.EditorEvent.EnterKeyPressed
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
@@ -31,8 +33,10 @@ import me.saket.press.shared.note.deletedAt
 import me.saket.press.shared.rx.mapToOptional
 import me.saket.press.shared.rx.mapToSome
 import me.saket.press.shared.rx.observableInterval
+import me.saket.press.shared.rx.withLatestFrom
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.util.Optional
+import me.saket.wysiwyg.formatting.AutoFormatOnEnterPress
 import me.saket.wysiwyg.formatting.TextSelection
 
 class EditorPresenter(
@@ -65,7 +69,8 @@ class EditorPresenter(
     return merge(
         populateExistingNoteOnStart(),
         populateNewNotePlaceholderOnStart(),
-        closeIfNoteGetsDeleted()
+        closeIfNoteGetsDeleted(),
+        autoFormatTextOnEnter(publishedEvents)
     )
   }
 
@@ -119,6 +124,20 @@ class EditorPresenter(
         .filter { it.deletedAt != null }
         .take(1)
         .map { CloseNote }
+  }
+
+  private fun autoFormatTextOnEnter(events: Observable<EditorEvent>): Observable<EditorUiEffect> {
+    val textChanges = events
+        .ofType<NoteTextChanged>()
+        .map { it.text }
+
+    val enterKeyPresses = events
+        .ofType<EnterKeyPressed>()
+        .map { it.selectionBeforeEnter }
+
+    return enterKeyPresses.withLatestFrom(textChanges)
+        .mapNotNull { (selection, text) -> AutoFormatOnEnterPress.onEnter(text, selection) }
+        .map { UpdateNoteText(it.newText, it.newSelection) }
   }
 
   private fun Observable<EditorEvent>.toggleHintText(): Observable<Optional<String>> {
