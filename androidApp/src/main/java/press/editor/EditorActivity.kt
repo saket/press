@@ -97,7 +97,8 @@ class EditorActivity : ThemeAwareActivity() {
       return Uuid.parse(intent.getStringExtra(KEY_NOTE_ID)!!)!!
     }
 
-    private fun intent(context: Context): Intent {
+    @JvmStatic
+    fun intent(context: Context): Intent {
       return Intent(context, EditorActivity::class.java).apply {
         putExtra(KEY_NOTE_ID, uuid4().toString())
       }

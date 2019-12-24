@@ -1,0 +1,15 @@
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+  <shortcut
+    android:shortcutId="add_new_note"
+    android:enabled="true"
+    android:icon="@drawable/ic_launcher_shortcut"
+    android:shortcutShortLabel="@string/shortcut_short_label"
+    android:shortcutLongLabel="@string/shortcut_long_label"
+    android:shortcutDisabledMessage="@string/shortcut_disabled">
+    <intent
+      android:action="android.intent.action.VIEW"
+      android:targetPackage="me.saket.press"
+      android:targetClass="press.IntentReceiverActivity" />
+    <categories android:name="android.shortcut.conversation" />
+  </shortcut>
+</shortcuts>
