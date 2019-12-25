@@ -16,7 +16,7 @@ import me.saket.wysiwyg.formatting.TextSelection
 //   span, which we don't want.
 interface EditorEvent {
   data class NoteTextChanged(val text: String) : EditorEvent
-  data class EnterKeyPressed(val selectionBeforeEnter: TextSelection): EditorEvent
+  data class EnterKeyPressed(val selectionBeforeEnter: TextSelection) : EditorEvent
 }
 
 data class EditorUiModel(
@@ -26,7 +26,8 @@ data class EditorUiModel(
 sealed class EditorUiEffect {
   data class UpdateNoteText(
     val newText: String,
-    val newSelection: TextSelection?
+    val newSelection: TextSelection?,
+    val retainMarkdownSpans: Boolean = false
   ) : EditorUiEffect()
 
   object CloseNote : EditorUiEffect()

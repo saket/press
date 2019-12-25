@@ -2,6 +2,9 @@ package press.widgets
 
 import android.graphics.Rect
 import android.os.Build.VERSION.SDK_INT
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.Spanned
 import android.util.TypedValue.COMPLEX_UNIT_PX
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -10,6 +13,7 @@ import android.widget.TextView
 import androidx.annotation.AttrRes
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
+import androidx.core.text.getSpans
 import androidx.core.view.children
 
 fun View.string(@StringRes stringRes: Int) = resources.getString(stringRes)
@@ -74,4 +78,18 @@ fun View.locationOnScreen(): Rect {
   val loc = IntArray(2)
   getLocationOnScreen(loc)
   return Rect(loc[0], loc[1], loc[0] + width, loc[1] + height)
+}
+
+internal inline fun <reified T : Any> Spannable.copySpansInto(into: String): CharSequence {
+  val existingSpans = getSpans<T>(0, length)
+  val newTextWithSpans = SpannableStringBuilder(into)
+
+  for (span in existingSpans) {
+    val start = getSpanStart(span)
+    val end = getSpanEnd(span)
+    if (start <= newTextWithSpans.length && end <= newTextWithSpans.length) {
+      newTextWithSpans.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+    }
+  }
+  return newTextWithSpans
 }

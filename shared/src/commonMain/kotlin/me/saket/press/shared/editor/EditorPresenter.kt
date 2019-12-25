@@ -14,6 +14,7 @@ import com.badoo.reaktive.observable.mapNotNull
 import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observableOf
 import com.badoo.reaktive.observable.observableOfEmpty
+import com.badoo.reaktive.observable.observeOn
 import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.publish
 import com.badoo.reaktive.observable.share
@@ -136,8 +137,9 @@ class EditorPresenter(
         .map { it.selectionBeforeEnter }
 
     return enterKeyPresses.withLatestFrom(textChanges)
+        .observeOn(ioScheduler)
         .mapNotNull { (selection, text) -> AutoFormatOnEnterPress.onEnter(text, selection) }
-        .map { UpdateNoteText(it.newText, it.newSelection) }
+        .map { UpdateNoteText(it.newText, it.newSelection, retainMarkdownSpans = true) }
   }
 
   private fun Observable<EditorEvent>.toggleHintText(): Observable<Optional<String>> {

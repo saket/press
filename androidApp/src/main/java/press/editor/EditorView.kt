@@ -8,6 +8,8 @@ import android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
 import android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
 import android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
 import android.text.Layout.BREAK_STRATEGY_HIGH_QUALITY
+import android.text.Spannable
+import android.text.SpannableStringBuilder
 import android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
 import android.text.style.ForegroundColorSpan
 import android.view.Gravity.TOP
@@ -15,7 +17,6 @@ import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN
-import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
@@ -46,7 +47,6 @@ import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.theme.from
 import me.saket.press.shared.uiUpdates
 import me.saket.wysiwyg.Wysiwyg
-import me.saket.wysiwyg.formatting.TextSelection
 import me.saket.wysiwyg.parser.node.HeadingLevel.H1
 import me.saket.wysiwyg.spans.WysiwygSpan
 import me.saket.wysiwyg.style.WysiwygStyle
@@ -56,8 +56,8 @@ import press.theme.themePalette
 import press.theme.themed
 import press.util.exhaustive
 import press.widgets.Truss
+import press.widgets.copySpansInto
 import press.widgets.fromOreo
-import press.widgets.setText
 import press.widgets.textColor
 import press.widgets.textSizePx
 
@@ -106,6 +106,11 @@ class EditorView @AssistedInject constructor(
     themeAware {
       textColor = it.textColorPrimary
     }
+
+    // Useful for UpdateNoteText.render()
+    setSpannableFactory(object : Spannable.Factory() {
+      override fun newSpannable(source: CharSequence) = source as Spannable
+    })
   }
 
   private val headingHintTextView = themed(TextView(context)).apply {
@@ -188,29 +193,25 @@ class EditorView @AssistedInject constructor(
 
   private fun render(uiUpdate: EditorUiEffect) {
     when (uiUpdate) {
-      is UpdateNoteText -> editorEditText.setText(uiUpdate.newText, uiUpdate.newSelection)
+      is UpdateNoteText -> uiUpdate.render()
       is CloseNote -> onDismiss()
     }.exhaustive
   }
 
-  private fun EditText.setText(newText: CharSequence, newSelection: TextSelection?) {
+  private fun UpdateNoteText.render() {
+    // This is used when the content is auto-formatted on enter press.
     // Setting a new text clears any existing styling. This results
     // in a flicker because Wysiwyg takes a split second to parse the
     // updated content. A workaround is to retain the spans.
-    val existingSpans = text
-        .getSpans<WysiwygSpan>(0, text.length)
-        .map { Triple(it, text.getSpanStart(it), text.getSpanEnd(it)) }
-
-    setText(newText)
-
-    for ((span, start, end) in existingSpans) {
-      if (start <= text.length && end <= text.length) {
-        text.setSpan(span, start, end, SPAN_EXCLUSIVE_EXCLUSIVE)
-      }
+    if (retainMarkdownSpans) {
+      val newTextWithSpans = editorEditText.text.copySpansInto<WysiwygSpan>(newText)
+      editorEditText.setText(newTextWithSpans)
+    } else {
+      editorEditText.setText(newText)
     }
 
-    if (newSelection != null) {
-      setSelection(newSelection.start, newSelection.end)
+    newSelection?.let {
+      editorEditText.setSelection(it.start, it.end)
     }
   }
 
