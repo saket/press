@@ -13,23 +13,25 @@ object EnterKeyPressListener {
   fun listen(view: EditText): Observable<EnterKeyPressed> =
     Observable.create<EnterKeyPressed> { emitter ->
       val textWatcher = object : TextWatcher {
-        private var enterPressed: Boolean = false
-        private var cursorBeforeEnter = -1
-
+        private var event: EnterKeyPressed? = null
         var isAvoidingInfiniteLoop: Boolean = false
 
-        override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
-          cursorBeforeEnter = Selection.getSelectionStart(text)
-        }
+        override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, newTextLength: Int) {}
 
-        override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
-          enterPressed = count == 1 && text[start] == '\n'
+        override fun onTextChanged(text: CharSequence, start: Int, before: Int, newTextLength: Int) {
+          val enterPressed = newTextLength == 1 && text[start] == '\n'
+          event = if (enterPressed) {
+            EnterKeyPressed(
+                textAfterEnter = text.toString(),
+                cursorAfterEnter = TextSelection.cursor(Selection.getSelectionStart(text))
+            )
+          } else null
         }
 
         override fun afterTextChanged(text: Editable) {
-          if (enterPressed && isAvoidingInfiniteLoop.not()) {
+          if (event != null && isAvoidingInfiniteLoop.not()) {
             isAvoidingInfiniteLoop = true
-            emitter.onNext(EnterKeyPressed(selectionBeforeEnter = TextSelection.cursor(cursorBeforeEnter)))
+            emitter.onNext(event!!)
             isAvoidingInfiniteLoop = false
           }
         }

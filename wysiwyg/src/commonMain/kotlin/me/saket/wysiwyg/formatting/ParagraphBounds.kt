@@ -2,7 +2,11 @@ package me.saket.wysiwyg.formatting
 
 data class ParagraphBounds(
   val start: Int,
-  val endExclusive: Int // For use with String#substring()
+  /**
+   * For use with String#substring(). Points to the
+   * line break character if any or the text length.
+   */
+  val endExclusive: Int
 ) {
 
   companion object {

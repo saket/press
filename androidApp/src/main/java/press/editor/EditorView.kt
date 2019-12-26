@@ -9,8 +9,6 @@ import android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
 import android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
 import android.text.Layout.BREAK_STRATEGY_HIGH_QUALITY
 import android.text.Spannable
-import android.text.SpannableStringBuilder
-import android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
 import android.text.style.ForegroundColorSpan
 import android.view.Gravity.TOP
 import android.view.View
@@ -22,7 +20,6 @@ import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.appcompat.widget.Toolbar
 import androidx.core.graphics.ColorUtils.blendARGB
-import androidx.core.text.getSpans
 import androidx.core.view.updatePaddingRelative
 import com.jakewharton.rxbinding3.view.detaches
 import com.jakewharton.rxbinding3.widget.textChanges
@@ -203,6 +200,7 @@ class EditorView @AssistedInject constructor(
     // Setting a new text clears any existing styling. This results
     // in a flicker because Wysiwyg takes a split second to parse the
     // updated content. A workaround is to retain the spans.
+    // TODO: apply markdown spans before sending text and get rid of this.
     if (retainMarkdownSpans) {
       val newTextWithSpans = editorEditText.text.copySpansInto<WysiwygSpan>(newText)
       editorEditText.setText(newTextWithSpans)

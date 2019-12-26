@@ -12,68 +12,90 @@ object AutoFormatOnEnterPress {
 
   private val formatters = listOf(StartFencedCodeBlock, ListContinuation)
 
-  fun onEnter(text: String, selection: TextSelection): ApplyMarkdownSyntax? {
-    if (selection.isCursor.not()) {
+  fun onEnter(textAfterEnter: String, cursorAfterEnter: TextSelection): ApplyMarkdownSyntax? {
+    if (cursorAfterEnter.isCursor.not()) {
       return null
     }
 
+    val cursorBeforeEnter = cursorAfterEnter.offsetBy(-1)
+
     // Paragraph under cursor.
-    val paragraphBounds = ParagraphBounds.find(text, selection)
-    val paragraph = text.substring(paragraphBounds.start, paragraphBounds.endExclusive)
+    val paragraphBounds = ParagraphBounds.find(textAfterEnter, cursorBeforeEnter)
+    val paragraph = textAfterEnter.substring(paragraphBounds.start, paragraphBounds.endExclusive)
 
     if (paragraph.isBlank()) {
       return null
     }
 
     return formatters
-        .mapNotNull { it.onEnter(text, paragraph, paragraphBounds, selection) }
+        .mapNotNull {
+          it.onEnter(
+              textAfterEnter,
+              paragraph,
+              paragraphBounds,
+              cursorBeforeEnter,
+              cursorAfterEnter
+          )
+        }
         .firstOrNull()
   }
 
   private interface OnEnterAutoFormatter {
     /**
-     * @param paragraph Paragraph under the cursor before enter key was pressed.
-     * @param selection cursor position before enter key was pressed.
+     * @param paragraph Paragraph on which enter key was pressed.
      */
     fun onEnter(
       text: String,
       paragraph: String,
       paragraphBounds: ParagraphBounds,
-      selection: TextSelection
+      cursorBeforeEnter: TextSelection,
+      cursorAfterEnter: TextSelection
     ): ApplyMarkdownSyntax?
   }
 
   private object StartFencedCodeBlock : OnEnterAutoFormatter {
-    val fencedCodeRegex by lazy(NONE) { Regex("```[a-z]*[\\s\\S]*?```") }
+    val fencedCodeRegex by lazy(NONE) { Regex("(```)[a-z]*[\\s\\S]*?(```)") }
 
     override fun onEnter(
       text: String,
       paragraph: String,
       paragraphBounds: ParagraphBounds,
-      selection: TextSelection
+      cursorBeforeEnter: TextSelection,
+      cursorAfterEnter: TextSelection
     ): ApplyMarkdownSyntax? {
       if (!paragraph.startsWith("```")) {
         return null
       }
 
-      val cursor = selection.cursorPosition
-      val isAlreadyInsideACodeBlock = fencedCodeRegex
-          .findAll(text)
-          .any { it.range.contains(cursor) }
+      val existingCodeBlocks = fencedCodeRegex.findAll(text)
+      val cursorPositionBeforeEnter = cursorBeforeEnter.cursorPosition
 
-      if (isAlreadyInsideACodeBlock) {
-        return null
+      for (block in existingCodeBlocks) {
+        // Check if the cursor already inside a code block.
+        if (block.range.contains(cursorPositionBeforeEnter)) {
+          return null
+        }
+
+        // Check if the cursor is placed after the closing syntax.
+        val enterPressedOnClosingLine = paragraphBounds.start < block.range.last
+            && cursorPositionBeforeEnter <= paragraphBounds.endExclusive
+
+        if (enterPressedOnClosingLine) {
+          // Cursor is on the same line as the closing
+          // marker. This isn't a new code block.
+          return null
+        }
       }
 
+      val cursorPositionAfterEnter = cursorAfterEnter.cursorPosition
       return ApplyMarkdownSyntax(
-          newText = text.substring(0, cursor) + "\n\n```" + text.substring(cursor),
-          newSelection = selection.offsetBy(1)
+          newText = text.replaceRange(cursorPositionAfterEnter, cursorPositionAfterEnter, "\n```"),
+          newSelection = cursorAfterEnter
       )
     }
   }
 
   private object ListContinuation : OnEnterAutoFormatter {
-    // TODO: Can this be optimized by removing regex?
     private val orderedItemRegex by lazy(NONE) { Regex("(\\d+).\\s") }
 
     @Suppress("NAME_SHADOWING")
@@ -81,7 +103,8 @@ object AutoFormatOnEnterPress {
       text: String,
       paragraph: String,
       paragraphBounds: ParagraphBounds,
-      selection: TextSelection
+      cursorBeforeEnter: TextSelection,
+      cursorAfterEnter: TextSelection
     ): ApplyMarkdownSyntax? {
       val paragraph = paragraph.trimStart()
 
@@ -91,7 +114,7 @@ object AutoFormatOnEnterPress {
         return if (isItemEmpty) {
           endListSyntax(text, paragraphBounds)
         } else {
-          continueListSyntax(text, selection, syntax = "${paragraph[0]} ")
+          continueListSyntax(text, cursorAfterEnter, syntax = "${paragraph[0]} ")
         }
       }
 
@@ -106,7 +129,7 @@ object AutoFormatOnEnterPress {
             endListSyntax(text, paragraphBounds)
           } else {
             val nextNumber = number.toInt().inc()
-            continueListSyntax(text, selection, syntax = "$nextNumber. ")
+            continueListSyntax(text, cursorAfterEnter, syntax = "$nextNumber. ")
           }
         }
       }
@@ -114,21 +137,29 @@ object AutoFormatOnEnterPress {
       return null
     }
 
-    private fun continueListSyntax(text: String, selection: TextSelection, syntax: String): ApplyMarkdownSyntax {
-      val cursor = selection.cursorPosition
-      val syntaxWithLineBreak = "\n$syntax"
+    private fun continueListSyntax(
+      text: String,
+      cursorAfterEnter: TextSelection,
+      syntax: String
+    ): ApplyMarkdownSyntax {
       return ApplyMarkdownSyntax(
-          newText = text.substring(0, cursor) + syntaxWithLineBreak + text.substring(cursor),
-          newSelection = selection.offsetBy(syntaxWithLineBreak.length)
+          newText = text.insert(cursorAfterEnter.cursorPosition, syntax),
+          newSelection = cursorAfterEnter.offsetBy(syntax.length)
       )
     }
 
     private fun endListSyntax(text: String, paragraphBounds: ParagraphBounds): ApplyMarkdownSyntax {
       return ApplyMarkdownSyntax(
-          newText = text.substring(0, paragraphBounds.start) + "\n" + text.substring(paragraphBounds.endExclusive),
-          newSelection = TextSelection.cursor(paragraphBounds.start + 1)
+          // Adding +1 to paragraph's end to consume the extra line break.
+          newText = text.replaceRange(paragraphBounds.start, paragraphBounds.endExclusive + 1, ""),
+          newSelection = TextSelection.cursor(paragraphBounds.start)
       )
     }
   }
+}
+
+private fun String.insert(index: Int, textToInsert: String): String {
+  // TODO: use buildString() instead.
+  return substring(0, index) + textToInsert + substring(index, length)
 }
 

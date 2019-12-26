@@ -134,11 +134,11 @@ class EditorPresenter(
 
     val enterKeyPresses = events
         .ofType<EnterKeyPressed>()
-        .map { it.selectionBeforeEnter }
+        .map { it.cursorAfterEnter }
 
     return enterKeyPresses.withLatestFrom(textChanges)
         .observeOn(ioScheduler)
-        .mapNotNull { (selection, text) -> AutoFormatOnEnterPress.onEnter(text, selection) }
+        .mapNotNull { (cursor, text) -> AutoFormatOnEnterPress.onEnter(text, cursor) }
         .map { UpdateNoteText(it.newText, it.newSelection, retainMarkdownSpans = true) }
   }
 
