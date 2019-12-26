@@ -16,6 +16,7 @@ fun fakeNote(
   content: String,
   createdAt: DateTime = clock.nowUtc(),
   updatedAt: DateTime = clock.nowUtc(),
+  archivedAt: DateTime? = null,
   deletedAt: DateTime? = null
 ): Note.Impl {
   return Note.Impl(
@@ -24,6 +25,7 @@ fun fakeNote(
       content = content,
       createdAt = createdAt,
       updatedAt = updatedAt,
+      archivedAtString = archivedAt?.let{ DateTimeAdapter.encode(it) },
       deletedAtString = deletedAt?.let{ DateTimeAdapter.encode(it) }
   )
 }

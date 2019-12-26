@@ -93,4 +93,14 @@ class RealNoteRepositoryTest : BaseDatabaeTest() {
     val savedNote = noteQueries.note(note.uuid).executeAsOne()
     assertThat(savedNote.deletedAt).isNotNull()
   }
+
+  @Test fun `mark a note as archived`() {
+    val note = fakeNote(uuid = uuid4(), content = "Jake Wharton secretly loves Flutter")
+    noteQueries.testInsert(note)
+
+    repository().markAsArchived(note.uuid).test()
+
+    val savedNote = noteQueries.note(note.uuid).executeAsOne()
+    assertThat(savedNote.archivedAt).isNotNull()
+  }
 }
