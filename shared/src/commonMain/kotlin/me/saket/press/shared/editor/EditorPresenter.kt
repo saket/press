@@ -137,7 +137,6 @@ class EditorPresenter(
         .map { it.cursorAfterEnter }
 
     return enterKeyPresses.withLatestFrom(textChanges)
-        .observeOn(ioScheduler)
         .mapNotNull { (cursor, text) -> AutoFormatOnEnterPress.onEnter(text, cursor) }
         .map { UpdateNoteText(it.newText, it.newSelection, retainMarkdownSpans = true) }
   }
