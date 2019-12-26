@@ -8,10 +8,6 @@ import android.os.Handler
 import android.os.Looper
 import java.util.concurrent.Executors
 
-actual object Platform {
-  actual val name: String = "Android"
-}
-
 actual class SingleThreadBackgroundExecutor {
   private val executor = Executors.newSingleThreadExecutor()
 
