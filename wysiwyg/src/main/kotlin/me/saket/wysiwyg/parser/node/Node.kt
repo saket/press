@@ -89,6 +89,8 @@ actual typealias OrderedList = FlexmarkOrderedList
 actual typealias BulletList = FlexmarkBulletList
 
 actual typealias ListItem = FlexmarkListItem
+actual val ListItem.openingMarker: CharSequence get() = openingMarker
+
 actual typealias OrderedListItem = FlexmarkOrderedListItem
 actual typealias BulletListItem = FlexmarkBulletListItem
 

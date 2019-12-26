@@ -57,6 +57,8 @@ expect class OrderedList : ListBlock
 expect class BulletList : ListBlock
 
 expect abstract class ListItem : Block
+expect val ListItem.openingMarker: CharSequence
+
 expect class OrderedListItem : ListItem
 expect class BulletListItem : ListItem
 

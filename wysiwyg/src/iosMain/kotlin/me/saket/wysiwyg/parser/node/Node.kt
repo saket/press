@@ -48,6 +48,8 @@ actual class OrderedList : ListBlock()
 actual class BulletList : ListBlock()
 
 actual abstract class ListItem : Block()
+actual val ListItem.openingMarker: CharSequence get() = TODO()
+
 actual class OrderedListItem : ListItem()
 actual class BulletListItem : ListItem()
 
