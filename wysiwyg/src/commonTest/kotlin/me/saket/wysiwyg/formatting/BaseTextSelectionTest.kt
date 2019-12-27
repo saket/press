@@ -2,7 +2,7 @@ package me.saket.wysiwyg.formatting
 
 abstract class BaseTextSelectionTest {
 
-  protected fun decodeSelection(text: String): ApplyMarkdownSyntax {
+  protected fun decodeSelection(text: String): Pair<String, TextSelection> {
     val markerCount = text.count { it == '▮' }
     require(markerCount in 1..2) {
       when (markerCount) {
@@ -19,7 +19,7 @@ abstract class BaseTextSelectionTest {
           end = text.indexOfLast { it == '▮' } - 1
       )
     }
-    return ApplyMarkdownSyntax(text.replace("▮", ""), selection)
+    return text.replace("▮", "") to selection
   }
 
   protected fun encodeSelection(text: String, selection: TextSelection): String {

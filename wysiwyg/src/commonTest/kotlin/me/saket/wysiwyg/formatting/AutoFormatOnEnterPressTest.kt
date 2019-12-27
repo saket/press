@@ -7,10 +7,9 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
   @Test fun `enter after fenced code syntax on the first line`() {
     AutoFormatOnEnterPress.onEnterTest(
         input = """
-                |```
-                |▮
+                |```▮
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |```
                 |▮
                 |```
@@ -22,11 +21,10 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
     AutoFormatOnEnterPress.onEnterTest(
         input = """
                 |Alfred: Shall you be taking the Batpod sir?
-                |```
-                |▮
+                |```▮
                 |Batman/Bruce Wayne: In the middle of the day Alfred?
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |Alfred: Shall you be taking the Batpod sir?
                 |```
                 |▮
@@ -40,11 +38,10 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
     AutoFormatOnEnterPress.onEnterTest(
         input = """
                 |Alfred: Shall you be taking the Batpod sir?
-                |```kotlin
-                |▮
+                |```kotlin▮
                 |Batman/Bruce Wayne: In the middle of the day Alfred?
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |Alfred: Shall you be taking the Batpod sir?
                 |```kotlin
                 |▮
@@ -63,8 +60,7 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |
                 |Alfred: Shall you be taking the Batpod sir?
                 |
-                |```kotlin
-                |▮
+                |```kotlin▮
                 |```
                 |
                 |Batman/Bruce Wayne: In the middle of the day Alfred?
@@ -73,11 +69,11 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |fun anotherCodeBlock() {}
                 |```
                 """.trimMargin(),
-        output = null
+        expect =null
     )
   }
 
-  @Test fun `enter on the same paragraph as the closing marker of fenced code syntax`() {
+  @Test fun `enter on the same line as the closing marker of fenced code syntax`() {
     AutoFormatOnEnterPress.onEnterTest(
         input = """
                 |```
@@ -87,29 +83,27 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |Alfred: Shall you be taking the Batpod sir?
                 |
                 |```kotlin
-                |```  
-                |▮
+                |```▮
                 |Batman/Bruce Wayne: In the middle of the day Alfred?
                 |
                 |```javaOmg
                 |fun anotherCodeBlock() {}
                 |```
                 """.trimMargin(),
-        output = null
+        expect =null
     )
   }
 
-  @Test fun `foo`() {
+  @Test fun `enter key after the second fenced code syntax`() {
     AutoFormatOnEnterPress.onEnterTest(
         input = """
                 |```
                 |fun someCodeBlock() {}
                 |```
                 |
-                |```
-                |▮
+                |```▮
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |```
                 |fun someCodeBlock() {}
                 |```
@@ -126,10 +120,9 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |# Shopping list
                 |- Milk
-                |- Bread
-                |▮
+                |- Bread▮
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |# Shopping list
                 |- Milk
                 |- Bread
@@ -141,10 +134,9 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |# Shopping list
                 |+ Milk
-                |+ Bread
-                |▮
+                |+ Bread▮
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |# Shopping list
                 |+ Milk
                 |+ Bread
@@ -156,10 +148,9 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |# Shopping list
                 |* Milk
-                |* Bread
-                |▮
+                |* Bread▮
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |# Shopping list
                 |* Milk
                 |* Bread
@@ -173,20 +164,18 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |# Shopping list
                 |- Milk
-                |Bread
-                |▮
+                |Bread▮
                 """.trimMargin(),
-        output = null
+        expect =null
     )
 
     AutoFormatOnEnterPress.onEnterTest(
         input = """
                 |# Shopping list
                 |+ Milk
-                |+Bread
-                |▮
+                |+Bread▮
                 """.trimMargin(),
-        output = null
+        expect =null
     )
   }
 
@@ -195,10 +184,9 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |# Shopping list
                 |1. Milk
-                |2. Bread
-                |▮
+                |2. Bread▮
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |# Shopping list
                 |1. Milk
                 |2. Bread
@@ -210,10 +198,9 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |# Shopping list
                 |199. Milk
-                |200. Bread
-                |▮
+                |200. Bread▮
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |# Shopping list
                 |199. Milk
                 |200. Bread
@@ -227,20 +214,18 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |# Shopping list
                 |1. Milk
-                |2.Bread
-                |▮
+                |2.Bread▮
                 """.trimMargin(),
-        output = null
+        expect =null
     )
 
     AutoFormatOnEnterPress.onEnterTest(
         input = """
                 |# Shopping list
                 |1. Milk
-                |2Bread
-                |▮
+                |2Bread▮
                 """.trimMargin(),
-        output = null
+        expect =null
     )
   }
 
@@ -250,12 +235,11 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |# Shopping list
                 |- Milk
                 |- Bread
-                |- 
-                |▮
+                |- ▮
                 |
                 |Some other text
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |# Shopping list
                 |- Milk
                 |- Bread
@@ -270,12 +254,11 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |# Shopping list
                 |+ Milk
                 |+ Bread
-                |+ 
-                |▮
+                |+ ▮
                 |
                 |Some other text
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |# Shopping list
                 |+ Milk
                 |+ Bread
@@ -290,12 +273,11 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |# Shopping list
                 |* Milk
                 |* Bread
-                |* 
-                |▮
+                |* ▮
                 |
                 |Some other text
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |# Shopping list
                 |* Milk
                 |* Bread
@@ -312,12 +294,11 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |# Shopping list
                 |1. Milk
                 |2. Bread
-                |3. 
-                |▮
+                |3. ▮
                 |
                 |Some other text
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |# Shopping list
                 |1. Milk
                 |2. Bread
@@ -329,19 +310,16 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
   }
 
   @Test fun `enter key on an empty unordered list item without a space`() {
-    // If it's not immediately obvious, the syntax used in this test
-    // is "-" instead of "- " which is why the expected output is null.
     AutoFormatOnEnterPress.onEnterTest(
         input = """
                 |# Shopping list
                 |- Milk
                 |- Bread
-                |-
-                |▮
+                |-▮
                 |
                 |Some other text
                 """.trimMargin(),
-        output = null
+        expect =null
     )
 
     AutoFormatOnEnterPress.onEnterTest(
@@ -349,12 +327,11 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |# Shopping list
                 |+ Milk
                 |+ Bread
-                |+
-                |▮
+                |+▮
                 |
                 |Some other text
                 """.trimMargin(),
-        output = null
+        expect =null
     )
 
     AutoFormatOnEnterPress.onEnterTest(
@@ -362,52 +339,47 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |# Shopping list
                 |* Milk
                 |* Bread
-                |*
-                |▮
+                |*▮
                 |
                 |Some other text
                 """.trimMargin(),
-        output = null
+        expect =null
     )
     AutoFormatOnEnterPress.onEnterTest(
         input = """
                 |# Shopping list
                 |1. Milk
                 |2. Bread
-                |3.
-                |▮
+                |3.▮
                 |
                 |Some other text
                 """.trimMargin(),
-        output = null
+        expect =null
     )
   }
 
   @Test fun `enter key on an empty paragraph`() {
     AutoFormatOnEnterPress.onEnterTest(
         input = """
-                |
                 |▮
                 """.trimMargin(),
-        output = null
+        expect =null
     )
     AutoFormatOnEnterPress.onEnterTest(
         input = """
                 |
-                |
                 |▮
                 """.trimMargin(),
-        output = null
+        expect =null
     )
   }
 
   @Test fun `enter key on a list item on the first line`() {
     AutoFormatOnEnterPress.onEnterTest(
         input = """
-                |-
-                |▮
+                |-▮
                 """.trimMargin(),
-        output = null
+        expect =null
     )
   }
 }

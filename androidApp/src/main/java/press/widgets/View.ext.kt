@@ -79,17 +79,3 @@ fun View.locationOnScreen(): Rect {
   getLocationOnScreen(loc)
   return Rect(loc[0], loc[1], loc[0] + width, loc[1] + height)
 }
-
-internal inline fun <reified T : Any> Spannable.copySpansInto(into: String): CharSequence {
-  val existingSpans = getSpans<T>(0, length)
-  val newTextWithSpans = SpannableStringBuilder(into)
-
-  for (span in existingSpans) {
-    val start = getSpanStart(span)
-    val end = getSpanEnd(span)
-    if (start <= newTextWithSpans.length && end <= newTextWithSpans.length) {
-      newTextWithSpans.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-    }
-  }
-  return newTextWithSpans
-}

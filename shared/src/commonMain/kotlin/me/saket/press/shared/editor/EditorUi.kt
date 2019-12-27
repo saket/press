@@ -14,9 +14,10 @@ import me.saket.wysiwyg.formatting.TextSelection
 // - Remove rich text formatting when pasting text. See `WysiwygEditText`.
 //   On Android, copying a URL will implicitly also copy its underline
 //   span, which we don't want.
+//
+// - Call AutoFormatOnEnterPress when enter key is pressed for formatting markdown.
 interface EditorEvent {
   data class NoteTextChanged(val text: String) : EditorEvent
-  data class EnterKeyPressed(val textAfterEnter: String, val cursorAfterEnter: TextSelection) : EditorEvent
 }
 
 data class EditorUiModel(
@@ -26,8 +27,7 @@ data class EditorUiModel(
 sealed class EditorUiEffect {
   data class UpdateNoteText(
     val newText: String,
-    val newSelection: TextSelection?,
-    val retainMarkdownSpans: Boolean = false
+    val newSelection: TextSelection?
   ) : EditorUiEffect()
 
   object CloseNote : EditorUiEffect()

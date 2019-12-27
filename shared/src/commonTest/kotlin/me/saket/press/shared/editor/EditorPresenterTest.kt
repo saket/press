@@ -22,7 +22,6 @@ import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.note.FakeNoteRepository
 import me.saket.wysiwyg.formatting.TextSelection
-import me.saket.wysiwyg.formatting.TextSelection.Companion
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

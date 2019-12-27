@@ -15,7 +15,7 @@ data class ParagraphBounds(
      * null if `text` is empty. Unlike functions in [String], this does not
      * return -1 for empty paragraphs. See [ParagraphBoundsTest].
      */
-    fun find(text: String, selection: TextSelection): ParagraphBounds {
+    fun find(text: CharSequence, selection: TextSelection): ParagraphBounds {
       // Begin with the assumption that this is the first paragraph
       var start = 0
       for (i in selection.start downTo 0) {

@@ -29,6 +29,7 @@ import com.squareup.inject.assisted.AssistedInject
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.press.R.drawable
+import me.saket.press.shared.editor.EditorEvent
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode
 import me.saket.press.shared.editor.EditorPresenter
@@ -45,7 +46,6 @@ import me.saket.press.shared.theme.from
 import me.saket.press.shared.uiUpdates
 import me.saket.wysiwyg.Wysiwyg
 import me.saket.wysiwyg.parser.node.HeadingLevel.H1
-import me.saket.wysiwyg.spans.WysiwygSpan
 import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.widgets.addTextChangedListener
 import press.theme.themeAware
@@ -53,7 +53,6 @@ import press.theme.themePalette
 import press.theme.themed
 import press.util.exhaustive
 import press.widgets.Truss
-import press.widgets.copySpansInto
 import press.widgets.fromOreo
 import press.widgets.textColor
 import press.widgets.textSizePx
@@ -95,19 +94,15 @@ class EditorView @AssistedInject constructor(
         TYPE_TEXT_FLAG_NO_SUGGESTIONS
     imeOptions = IME_FLAG_NO_FULLSCREEN
     movementMethod = EditorLinkMovementMethod(scrollView)
-    updatePaddingRelative(start = 16.dip, end = 16.dip, bottom = 16.dip)
+    filters += FormatMarkdownOnEnterPress(this)
     CapitalizeOnHeadingStart.capitalize(this)
+    updatePaddingRelative(start = 16.dip, end = 16.dip, bottom = 16.dip)
     fromOreo {
       importantForAutofill = IMPORTANT_FOR_AUTOFILL_NO
     }
     themeAware {
       textColor = it.textColorPrimary
     }
-
-    // Useful for UpdateNoteText.render()
-    setSpannableFactory(object : Spannable.Factory() {
-      override fun newSpannable(source: CharSequence) = source as Spannable
-    })
   }
 
   private val headingHintTextView = themed(TextView(context)).apply {
@@ -153,14 +148,11 @@ class EditorView @AssistedInject constructor(
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
 
-    val noteTextChanges = editorEditText
+    val noteTextChanges: Observable<EditorEvent> = editorEditText
         .textChanges()
         .map { NoteTextChanged(it.toString()) }
 
-    val enterKeyPresses = EnterKeyPressListener
-        .listen(editorEditText)
-
-    Observable.merge(noteTextChanges, enterKeyPresses)
+    Observable.mergeArray(noteTextChanges)
         .uiUpdates(presenter)
         .takeUntil(detaches())
         .observeOn(mainThread())
@@ -196,18 +188,7 @@ class EditorView @AssistedInject constructor(
   }
 
   private fun UpdateNoteText.render() {
-    // This is used when the content is auto-formatted on enter press.
-    // Setting a new text clears any existing styling. This results
-    // in a flicker because Wysiwyg takes a split second to parse the
-    // updated content. A workaround is to retain the spans.
-    // TODO: apply markdown spans before sending text and get rid of this.
-    if (retainMarkdownSpans) {
-      val newTextWithSpans = editorEditText.text.copySpansInto<WysiwygSpan>(newText)
-      editorEditText.setText(newTextWithSpans)
-    } else {
-      editorEditText.setText(newText)
-    }
-
+    editorEditText.setText(newText)
     newSelection?.let {
       editorEditText.setSelection(it.start, it.end)
     }
