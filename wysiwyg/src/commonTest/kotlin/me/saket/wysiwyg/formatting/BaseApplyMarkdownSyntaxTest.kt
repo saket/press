@@ -7,7 +7,7 @@ abstract class BaseApplyMarkdownSyntaxTest : BaseTextSelectionTest() {
 
   protected fun MarkdownSyntaxApplier.test(
     input: String,
-    output: String
+    expect: String
   ) {
     val (parsedText, parsedSelection) = decodeSelection(input)
     val actualFormat = apply(parsedText, parsedSelection)
@@ -21,7 +21,7 @@ abstract class BaseApplyMarkdownSyntaxTest : BaseTextSelectionTest() {
 
   protected fun AutoFormatOnEnterPress.onEnterTest(
     input: String,
-    output: String?
+    expect: String?
   ) {
     val (parsedText, parsedSelection) = decodeSelection(input)
     val actualFormat = onEnter(parsedText, parsedSelection)

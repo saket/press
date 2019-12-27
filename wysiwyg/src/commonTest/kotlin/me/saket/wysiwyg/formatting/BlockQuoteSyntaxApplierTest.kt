@@ -11,7 +11,7 @@ class BlockQuoteSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
                 |Batman/Bruce Wayne: In the middle of the day Alfred?
                 |Alfred: The Lamborghini then? Much more subtle.
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |> Alfred: Shall you be taking the Batpod sir?▮
                 |
                 |Batman/Bruce Wayne: In the middle of the day Alfred?
@@ -27,7 +27,7 @@ class BlockQuoteSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
                 |Batman/Bruce Wayne: In the middle of the day Alfred?▮
                 |Alfred: The Lamborghini then? Much more subtle.
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |Alfred: Shall you be taking the Batpod sir?
                 |
                 |> Batman/Bruce Wayne: In the middle of the day Alfred?▮
@@ -44,7 +44,7 @@ class BlockQuoteSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
                 |Batman/Bruce Wayne: In the middle of the day Alfred?
                 |Alfred: The Lamborghini then? Much more subtle.▮
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |Alfred: Shall you be taking the Batpod sir?
                 |Batman/Bruce Wayne: In the middle of the day Alfred?
                 |
@@ -61,7 +61,7 @@ class BlockQuoteSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
                 |
                 |Alfred: The Lamborghini then? Much more subtle.
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |Alfred: Shall you be taking the Batpod sir?
                 |
                 |> Batman/Bruce Wayne: In the middle of the day Alfred?▮
@@ -77,7 +77,7 @@ class BlockQuoteSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
                 |
                 |Another line.
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |Alfred: Shall you be taking the Batpod sir?
                 |Batman/Bruce Wayne: In the middle of the day Alfred?
                 |
@@ -93,7 +93,7 @@ class BlockQuoteSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |▮
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |> ▮
                 """.trimMargin()
     )
@@ -105,7 +105,7 @@ class BlockQuoteSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
                 |
                 |▮
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |
                 |> ▮
                 """.trimMargin()
@@ -117,7 +117,7 @@ class BlockQuoteSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |Tell your men they work ▮ for me now. This is my city.
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |> Tell your men they work ▮ for me now. This is my city.
                 """.trimMargin()
     )
@@ -128,7 +128,7 @@ class BlockQuoteSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |Tell your men they work for ▮me▮ now. This is my city.
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |> Tell your men they work for ▮me▮ now. This is my city.
                 """.trimMargin()
     )
@@ -139,7 +139,7 @@ class BlockQuoteSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |▮Tell your men they work for me now. This is my city.▮
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |> ▮Tell your men they work for me now. This is my city.▮
                 """.trimMargin()
     )
@@ -156,7 +156,7 @@ class BlockQuoteSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
                 |So we'll hunt him. Because he can take it. Because he's not a hero. He's a silent
                 |guardian. A watchful protector. The Dark Knight.
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |> James Gordon: ▮Batman. Batman! Why is he running dad?
                 |Gordon: Because we have to▮ chase him.
                 |
@@ -175,7 +175,7 @@ class BlockQuoteSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
                 |Tell your men they work for me now. This is my city.
                 |▮
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |Tell your men they work for me now. This is my city.
                 |
                 |> ▮
@@ -189,7 +189,7 @@ class BlockQuoteSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
                 |Tell your men they work for me now. This is my city.
                 |  ▮
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |Tell your men they work for me now. This is my city.
                 |
                 |>  ▮
@@ -202,7 +202,7 @@ class BlockQuoteSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |> Tell your men they work for me now. This is my city.▮
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |>> Tell your men they work for me now. This is my city.▮
                 """.trimMargin()
     )
@@ -210,7 +210,7 @@ class BlockQuoteSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |>> Tell your men they work for me now. This is my city.▮
                 """.trimMargin(),
-        output = """
+        expect ="""
                 |>>> Tell your men they work for me now. This is my city.▮
                 """.trimMargin()
     )
