@@ -57,6 +57,7 @@ import press.widgets.Truss
 import press.widgets.fromOreo
 import press.widgets.textColor
 import press.widgets.textSizePx
+import me.saket.press.R
 
 class EditorView @AssistedInject constructor(
   @Assisted context: Context,
@@ -77,6 +78,7 @@ class EditorView @AssistedInject constructor(
   }
 
   internal val scrollView = themed(ScrollView(context)).apply {
+    id = R.id.editor_scrollable_container
     isFillViewport = true
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
@@ -86,6 +88,7 @@ class EditorView @AssistedInject constructor(
 
   internal val editorEditText = themed(PlainTextPasteEditText(context)).apply {
     EditorUiStyles.editor.applyStyle(this)
+    id = R.id.editor_textfield
     background = null
     breakStrategy = BREAK_STRATEGY_HIGH_QUALITY
     gravity = TOP
