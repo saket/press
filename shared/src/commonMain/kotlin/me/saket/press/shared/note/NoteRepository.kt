@@ -8,7 +8,7 @@ import me.saket.press.shared.util.Optional
 
 interface NoteRepository {
   fun note(noteUuid: Uuid): Observable<Optional<Note>>
-  fun notes(includeEmptyNotes: Boolean): Observable<List<Note>>
+  fun notes(): Observable<List<Note>>
   fun create(vararg insertNotes: InsertNote): Completable
   fun update(noteUuid: Uuid, content: String): Completable
   fun markAsDeleted(noteUuid: Uuid): Completable

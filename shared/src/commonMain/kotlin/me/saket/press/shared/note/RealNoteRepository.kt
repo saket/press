@@ -31,12 +31,8 @@ internal class RealNoteRepository(
         .mapToOneOrOptional()
   }
 
-  override fun notes(includeEmptyNotes: Boolean): Observable<List<Note>> {
-    val query = when {
-      includeEmptyNotes -> noteQueries.notes()
-      else -> noteQueries.nonEmptyNotes()
-    }
-    return query
+  override fun notes(): Observable<List<Note>> {
+    return noteQueries.notes()
         .asObservable(ioScheduler)
         .mapToList()
   }

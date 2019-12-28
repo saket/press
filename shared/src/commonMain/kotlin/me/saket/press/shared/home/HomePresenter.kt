@@ -4,9 +4,11 @@ import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.ofType
+import me.saket.press.data.shared.Note
 import me.saket.press.shared.editor.EditorPresenter
-import me.saket.press.shared.home.HomeUiEffect.ComposeNewNote
+import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
+import me.saket.press.shared.home.HomeUiEffect.ComposeNewNote
 import me.saket.press.shared.note.NoteRepository
 import me.saket.press.shared.ui.Presenter
 
@@ -24,19 +26,25 @@ class HomePresenter(
   private fun Observable<HomeEvent>.openNewNoteScreen(): Observable<HomeUiEffect> =
     ofType<NewNoteClicked>().map { ComposeNewNote }
 
-  private fun populateNotes(): Observable<HomeUiModel> =
-    repository.notes(args.includeEmptyNotes).map {
-      HomeUiModel(it.map { note ->
-        val (heading, body) = SplitHeadingAndBody.split(note.content)
-
-        HomeUiModel.Note(
-            noteUuid = note.uuid,
-            adapterId = note.localId,
-            title = heading,
-            body = body
-        )
-      })
+  private fun populateNotes(): Observable<HomeUiModel> {
+    val canInclude = { note: Note ->
+      args.includeEmptyNotes || (note.content.isNotBlank() && note.content != NEW_NOTE_PLACEHOLDER)
     }
+
+    return repository.notes()
+        .map { notes -> notes.filter { canInclude(it) } }
+        .map {
+          HomeUiModel(it.map { note ->
+            val (heading, body) = SplitHeadingAndBody.split(note.content)
+            HomeUiModel.Note(
+                noteUuid = note.uuid,
+                adapterId = note.localId,
+                title = heading,
+                body = body
+            )
+          })
+        }
+  }
 
   interface Factory {
     fun create(args: Args): HomePresenter

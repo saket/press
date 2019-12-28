@@ -26,13 +26,8 @@ class FakeNoteRepository : NoteRepository {
     return observableFromFunction { findNote(noteUuid).toOptional() }
   }
 
-  override fun notes(includeEmptyNotes: Boolean): Observable<List<Note>> =
-    observableFromFunction {
-      when {
-        includeEmptyNotes -> savedNotes
-        else -> savedNotes.filter { it.content.isNotEmpty() }
-      }
-    }
+  override fun notes(): Observable<List<Note>> =
+    observableFromFunction { savedNotes }
 
   override fun create(vararg insertNotes: InsertNote): Completable {
     return completableFromFunction {

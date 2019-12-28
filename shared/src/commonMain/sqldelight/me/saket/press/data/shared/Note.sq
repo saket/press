@@ -19,12 +19,6 @@ FROM note
 WHERE deletedAtString IS NULL AND archivedAtString IS NULL
 ORDER BY updatedAt DESC;
 
-nonEmptyNotes:
-SELECT *
-FROM note
-WHERE deletedAtString IS NULL AND archivedAtString IS NULL AND content != ""
-ORDER BY updatedAt DESC;
-
 note:
 SELECT *
 FROM note

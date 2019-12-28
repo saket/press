@@ -49,28 +49,6 @@ class RealNoteRepositoryTest : BaseDatabaeTest() {
     }
   }
 
-  @Test fun `filter out empty notes if requested`() {
-    noteQueries.testInsert(fakeNote(uuid = uuid4(), content = "# Non-empty note"))
-    noteQueries.testInsert(fakeNote(uuid = uuid4(), content = ""))
-
-    val savedNotes = repository().notes(includeEmptyNotes = false)
-        .firstOrError()
-        .blockingGet()
-
-    assertThat(savedNotes).hasSize(1)
-  }
-
-  @Test fun `include empty notes if requested`() {
-    noteQueries.testInsert(fakeNote(uuid = uuid4(), content = "# Non-empty note"))
-    noteQueries.testInsert(fakeNote(uuid = uuid4(), content = ""))
-
-    val savedNotes = repository().notes(includeEmptyNotes = true)
-        .firstOrError()
-        .blockingGet()
-
-    assertThat(savedNotes).hasSize(2)
-  }
-
   @Test fun `update a note only if its content is changed`() {
     val note = fakeNote(uuid = uuid4(), content = "# Nicolas")
     noteQueries.testInsert(note)
