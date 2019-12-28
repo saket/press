@@ -8,13 +8,13 @@ import android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
 import android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
 import android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
 import android.text.Layout.BREAK_STRATEGY_HIGH_QUALITY
-import android.text.Spannable
 import android.text.style.ForegroundColorSpan
 import android.view.Gravity.TOP
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN
+import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
@@ -45,6 +45,7 @@ import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.theme.from
 import me.saket.press.shared.uiUpdates
 import me.saket.wysiwyg.Wysiwyg
+import me.saket.wysiwyg.formatting.TextSelection
 import me.saket.wysiwyg.parser.node.HeadingLevel.H1
 import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.widgets.addTextChangedListener
@@ -182,15 +183,15 @@ class EditorView @AssistedInject constructor(
 
   private fun render(uiUpdate: EditorUiEffect) {
     when (uiUpdate) {
-      is UpdateNoteText -> uiUpdate.render()
+      is UpdateNoteText -> editorEditText.setText(uiUpdate.newText, uiUpdate.newSelection)
       is CloseNote -> onDismiss()
     }.exhaustive
   }
 
-  private fun UpdateNoteText.render() {
-    editorEditText.setText(newText)
+  private fun EditText.setText(newText: CharSequence, newSelection: TextSelection?) {
+    setText(newText)
     newSelection?.let {
-      editorEditText.setSelection(it.start, it.end)
+      setSelection(it.start, it.end)
     }
   }
 
