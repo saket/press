@@ -1,7 +1,6 @@
 package press.widgets
 
 import android.view.View
-import me.saket.inboxrecyclerview.page.InterceptResult
 import me.saket.inboxrecyclerview.page.InterceptResult.IGNORED
 import me.saket.inboxrecyclerview.page.InterceptResult.INTERCEPTED
 import me.saket.inboxrecyclerview.page.OnPullToCollapseInterceptor
