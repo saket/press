@@ -6,7 +6,7 @@ buildscript {
   ext.projectVersions = [
       minSdk: 23,
       compileSdk: 29,
-      kotlin: '1.3.60',     // Keep in sync with dependencies.gradle
+      kotlin: '1.3.61',     // Keep in sync with dependencies.gradle
       sqlDelight: '1.2.1',  // keep in sync with dependencies.gradle.
   ]
 
