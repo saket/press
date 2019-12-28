@@ -8,14 +8,13 @@ import android.view.animation.PathInterpolator
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.view.doOnLayout
+import androidx.core.view.postDelayed
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.benasher44.uuid.Uuid
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.detaches
 import com.mikepenz.itemanimators.AlphaInAnimator
-import com.soywiz.klock.seconds
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
@@ -42,6 +41,7 @@ import press.theme.themeAware
 import press.theme.themed
 import press.util.exhaustive
 import press.util.heightOf
+import press.util.second
 import press.util.suspendWhile
 import press.util.throttleFirst
 import press.widgets.BackPressInterceptResult
@@ -50,10 +50,11 @@ import press.widgets.BackPressInterceptResult.BACK_PRESS_INTERCEPTED
 import press.widgets.SpacingBetweenItemsDecoration
 import press.widgets.addStateChangeCallbacks
 import press.widgets.attr
+import press.widgets.doOnNextAboutToCollapse
 import press.widgets.doOnNextCollapse
+import press.widgets.hideKeyboard
 import press.widgets.interceptPullToCollapseOnView
 import press.widgets.suspendWhileExpanded
-import kotlin.contracts.contract
 
 class HomeView @AssistedInject constructor(
   @Assisted context: Context,
@@ -74,6 +75,7 @@ class HomeView @AssistedInject constructor(
   }
 
   private val notesList = themed(InboxRecyclerView(context)).apply {
+    id = R.id.home_notes
     layoutManager = LinearLayoutManager(context)
     adapter = noteAdapter
     tintPainter = TintPainter.uncoveredArea(color = BLACK, opacity = 0.25f)
@@ -97,6 +99,7 @@ class HomeView @AssistedInject constructor(
   }
 
   private val noteEditorPage = ExpandablePageLayout(context).apply {
+    id = R.id.home_editor
     notesList.expandablePage = this
     elevation = 20f.dip
     animationInterpolator = PathInterpolator(0.5f, 0f, 0f, 1f)
@@ -111,7 +114,25 @@ class HomeView @AssistedInject constructor(
     )
   }
 
+  private var activeNote: ActiveNote? = null
+    set(note) {
+      field = note
+      if (note == null) {
+        notesList.collapse()
+      } else {
+        val editorView = editorViewFactory.create(
+            context = context,
+            openMode = ExistingNote(note.noteUuid),
+            onDismiss = notesList::collapse
+        )
+        noteEditorPage.addView(editorView)
+        noteEditorPage.doOnNextCollapse { it.removeView(editorView) }
+        noteEditorPage.pullToCollapseInterceptor = interceptPullToCollapseOnView(editorView.scrollView)
+      }
+    }
+
   init {
+    id = R.id.home_view
     setupNoteEditorPage()
   }
 
@@ -140,41 +161,42 @@ class HomeView @AssistedInject constructor(
   }
 
   override fun onSaveInstanceState(): Parcelable? {
-    return HomeViewSavedState(superState = super.onSaveInstanceState())
+    return HomeViewSavedState(
+        superState = super.onSaveInstanceState(),
+        activeNote = activeNote
+    )
   }
 
   override fun onRestoreInstanceState(state: Parcelable?) {
     require(state is HomeViewSavedState)
+
+    // InboxRecyclerView is capable of restoring its own state. We
+    // only need to ensure that the EditorView is ready to be shown.
+    activeNote = state.activeNote
+
     super.onRestoreInstanceState(state.superState)
   }
 
   private fun setupNoteEditorPage() {
-    val createEditorView = { noteUuid: Uuid ->
-      editorViewFactory.create(
-          context = context,
-          openMode = ExistingNote(noteUuid),
-          onDismiss = notesList::collapse
-      )
-    }
-
     noteAdapter.noteClicks
-        .throttleFirst(1.seconds, mainThread())
+        .throttleFirst(1.second, mainThread())
         .takeUntil(detaches())
-        .subscribe { noteModel ->
-          val editorView = createEditorView(noteModel.noteUuid)
-          noteEditorPage.addView(editorView)
-          noteEditorPage.doOnNextCollapse { it.removeView(editorView) }
-
-          val keyboardToggle = HideKeyboardOnPageCollapse(editorView.editorEditText)
-          noteEditorPage.addStateChangeCallbacks(keyboardToggle)
-          noteEditorPage.doOnNextCollapse { it.removeStateChangeCallbacks(keyboardToggle) }
-
-          noteEditorPage.pullToCollapseInterceptor = interceptPullToCollapseOnView(editorView.scrollView)
-
+        .subscribe { note ->
+          activeNote = note.toActiveNote()
           noteEditorPage.post {
-            notesList.expandItem(itemId = noteModel.adapterId)
+            notesList.expandItem(itemId = note.adapterId)
           }
         }
+
+    noteEditorPage.doOnNextCollapse {
+      activeNote = null
+    }
+
+    noteEditorPage.doOnNextAboutToCollapse { collapseAnimDuration ->
+      postDelayed(collapseAnimDuration / 2) {
+        hideKeyboard()
+      }
+    }
 
     noteEditorPage.addStateChangeCallbacks(
         ToggleFabOnPageStateChange(newNoteFab),
@@ -203,7 +225,7 @@ class HomeView @AssistedInject constructor(
 
   fun offerBackPress(): BackPressInterceptResult {
     return if (noteEditorPage.isExpandedOrExpanding) {
-      notesList.collapse()
+      activeNote = null
       BACK_PRESS_INTERCEPTED
     } else {
       BACK_PRESS_IGNORED

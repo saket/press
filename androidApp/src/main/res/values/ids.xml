@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- AppCompat already exposes an @id/home so naming this as home_view. -->
+  <item name="home_view" type="id" />
+  <item name="home_editor" type="id" />
+  <item name="home_notes" type="id" />
+</resources>

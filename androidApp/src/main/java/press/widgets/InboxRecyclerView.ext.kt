@@ -2,7 +2,6 @@ package press.widgets
 
 import android.os.Looper
 import io.reactivex.Observable
-import io.reactivex.rxkotlin.Observables
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout.PageState
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout.PageState.COLLAPSED
@@ -56,11 +55,24 @@ internal fun ExpandablePageLayout.stateChanges(): Observable<PageState> {
   }
 }
 
-internal inline fun ExpandablePageLayout.doOnNextCollapse(crossinline block: (ExpandablePageLayout) -> Unit) {
+internal inline fun ExpandablePageLayout.doOnNextCollapse(
+  crossinline block: (ExpandablePageLayout) -> Unit
+) {
   val page = this
   addStateChangeCallbacks(object : SimplePageStateChangeCallbacks() {
     override fun onPageCollapsed() {
       block(page)
+      removeStateChangeCallbacks(this)
+    }
+  })
+}
+
+internal inline fun ExpandablePageLayout.doOnNextAboutToCollapse(
+  crossinline block: (collapseAnimDuration: Long) -> Unit
+) {
+  addStateChangeCallbacks(object : SimplePageStateChangeCallbacks() {
+    override fun onPageAboutToCollapse(collapseAnimDuration: Long) {
+      block(collapseAnimDuration)
       removeStateChangeCallbacks(this)
     }
   })
