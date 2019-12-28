@@ -11,7 +11,7 @@ class HeadingSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
                 |Batman/Bruce Wayne: In the middle of the day Alfred?
                 |Alfred: The Lamborghini then? Much more subtle.
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |# Alfred: Shall you be taking the Batpod sir?▮
                 |Batman/Bruce Wayne: In the middle of the day Alfred?
                 |Alfred: The Lamborghini then? Much more subtle.
@@ -26,7 +26,7 @@ class HeadingSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
                 |Batman/Bruce Wayne: In the middle of the day Alfred?▮
                 |Alfred: The Lamborghini then? Much more subtle.
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |Alfred: Shall you be taking the Batpod sir?
                 |# Batman/Bruce Wayne: In the middle of the day Alfred?▮
                 |Alfred: The Lamborghini then? Much more subtle.
@@ -41,7 +41,7 @@ class HeadingSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
                 |Batman/Bruce Wayne: In the middle of the day Alfred?
                 |Alfred: The Lamborghini then? Much more subtle.▮
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |Alfred: Shall you be taking the Batpod sir?
                 |Batman/Bruce Wayne: In the middle of the day Alfred?
                 |# Alfred: The Lamborghini then? Much more subtle.▮
@@ -54,7 +54,7 @@ class HeadingSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |▮
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |# ▮
                 """.trimMargin()
     )
@@ -66,7 +66,7 @@ class HeadingSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
                 |
                 |▮
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |
                 |# ▮
                 """.trimMargin()
@@ -78,7 +78,7 @@ class HeadingSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |Tell your men they work ▮ for me now. This is my city.
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |# Tell your men they work ▮ for me now. This is my city.
                 """.trimMargin()
     )
@@ -89,7 +89,7 @@ class HeadingSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |Tell your men they work for ▮me▮ now. This is my city.
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |# Tell your men they work for ▮me▮ now. This is my city.
                 """.trimMargin()
     )
@@ -100,7 +100,7 @@ class HeadingSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |▮Tell your men they work for me now. This is my city.▮
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |# ▮Tell your men they work for me now. This is my city.▮
                 """.trimMargin()
     )
@@ -112,7 +112,7 @@ class HeadingSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
                 |Tell your men they work for me now. This is my city.
                 |▮
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |Tell your men they work for me now. This is my city.
                 |# ▮
                 """.trimMargin()
@@ -125,7 +125,7 @@ class HeadingSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
                 |Tell your men they work for me now. This is my city.
                 |  ▮
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |Tell your men they work for me now. This is my city.
                 |#  ▮
                 """.trimMargin()
@@ -137,7 +137,7 @@ class HeadingSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |# Tell your men they work for me now. This is my city.▮
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |## Tell your men they work for me now. This is my city.▮
                 """.trimMargin()
     )
@@ -145,7 +145,7 @@ class HeadingSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |## Tell your men they work for me now. This is my city.▮
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |### Tell your men they work for me now. This is my city.▮
                 """.trimMargin()
     )

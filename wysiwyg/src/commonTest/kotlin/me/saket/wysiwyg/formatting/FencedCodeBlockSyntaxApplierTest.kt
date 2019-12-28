@@ -11,7 +11,7 @@ class FencedCodeBlockSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
                 |John Blake: Blake sir.
                 |Gordon: You have something you wanna ask me Officer Blake?
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |```
                 |Gordon: What's your name son?▮
                 |```
@@ -28,7 +28,7 @@ class FencedCodeBlockSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
                 |John Blake: Blake sir.▮
                 |Gordon: You have something you wanna ask me Officer Blake?
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |Gordon: What's your name son?
                 |```
                 |John Blake: Blake sir.▮
@@ -45,7 +45,7 @@ class FencedCodeBlockSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
                 |John Blake: Blake sir.
                 |Gordon: You have something you wanna ask me Officer Blake?▮
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |Gordon: What's your name son?
                 |John Blake: Blake sir.
                 |```
@@ -60,7 +60,7 @@ class FencedCodeBlockSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |▮
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |```
                 |▮
                 |```
@@ -74,7 +74,7 @@ class FencedCodeBlockSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
                 |
                 |▮
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |
                 |```
                 |▮
@@ -88,7 +88,7 @@ class FencedCodeBlockSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |You have something you ▮ wanna ask me Officer Blake?
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |```
                 |You have something you ▮ wanna ask me Officer Blake?
                 |```
@@ -101,7 +101,7 @@ class FencedCodeBlockSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |You have something you wanna ▮ask me▮ Officer Blake?
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |```
                 |You have something you wanna ▮ask me▮ Officer Blake?
                 |```
@@ -114,7 +114,7 @@ class FencedCodeBlockSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |▮You have something you wanna ask me Officer Blake?▮
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |```
                 |▮You have something you wanna ask me Officer Blake?▮
                 |```
@@ -128,7 +128,7 @@ class FencedCodeBlockSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
                 |What's your name son?
                 |▮
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |What's your name son?
                 |```
                 |▮
@@ -143,7 +143,7 @@ class FencedCodeBlockSyntaxApplierTest : BaseApplyMarkdownSyntaxTest() {
                 |What's your name son?
                 |  ▮
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |What's your name son?
                 |```
                 |  ▮

@@ -9,7 +9,7 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |```▮
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |```
                 |▮
                 |```
@@ -24,7 +24,7 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |```▮
                 |Batman/Bruce Wayne: In the middle of the day Alfred?
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |Alfred: Shall you be taking the Batpod sir?
                 |```
                 |▮
@@ -41,7 +41,7 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |```kotlin▮
                 |Batman/Bruce Wayne: In the middle of the day Alfred?
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |Alfred: Shall you be taking the Batpod sir?
                 |```kotlin
                 |▮
@@ -103,7 +103,7 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |
                 |```▮
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |```
                 |fun someCodeBlock() {}
                 |```
@@ -122,7 +122,7 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |- Milk
                 |- Bread▮
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |# Shopping list
                 |- Milk
                 |- Bread
@@ -136,7 +136,7 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |+ Milk
                 |+ Bread▮
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |# Shopping list
                 |+ Milk
                 |+ Bread
@@ -150,7 +150,7 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |* Milk
                 |* Bread▮
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |# Shopping list
                 |* Milk
                 |* Bread
@@ -186,7 +186,7 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |1. Milk
                 |2. Bread▮
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |# Shopping list
                 |1. Milk
                 |2. Bread
@@ -200,7 +200,7 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |199. Milk
                 |200. Bread▮
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |# Shopping list
                 |199. Milk
                 |200. Bread
@@ -239,7 +239,7 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |
                 |Some other text
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |# Shopping list
                 |- Milk
                 |- Bread
@@ -258,7 +258,7 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |
                 |Some other text
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |# Shopping list
                 |+ Milk
                 |+ Bread
@@ -277,7 +277,7 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |
                 |Some other text
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |# Shopping list
                 |* Milk
                 |* Bread
@@ -298,7 +298,7 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |
                 |Some other text
                 """.trimMargin(),
-        expect ="""
+        expect = """
                 |# Shopping list
                 |1. Milk
                 |2. Bread
