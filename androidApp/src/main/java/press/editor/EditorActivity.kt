@@ -7,8 +7,8 @@ import android.content.Intent
 import android.graphics.Color.BLACK
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.view.View
 import androidx.annotation.DrawableRes
+import com.benasher44.uuid.Uuid
 import com.benasher44.uuid.uuid4
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.detaches
@@ -60,7 +60,7 @@ class EditorActivity : ThemeAwareActivity() {
   private fun createEditorView(): EditorView {
     return editorViewFactory.create(
         context = this@EditorActivity,
-        openMode = NewNote(uuid4()),
+        openMode = NewNote(readNoteUuid(intent)),
         onDismiss = ::dismiss
     )
   }
@@ -91,7 +91,17 @@ class EditorActivity : ThemeAwareActivity() {
   }
 
   companion object {
-    private fun intent(context: Context): Intent = Intent(context, EditorActivity::class.java)
+    private const val KEY_NOTE_ID = "press:new_note_id"
+
+    private fun readNoteUuid(intent: Intent): Uuid {
+      return Uuid.parse(intent.getStringExtra(KEY_NOTE_ID)!!)!!
+    }
+
+    private fun intent(context: Context): Intent {
+      return Intent(context, EditorActivity::class.java).apply {
+        putExtra(KEY_NOTE_ID, uuid4().toString())
+      }
+    }
 
     @JvmStatic
     fun intentWithFabTransform(
