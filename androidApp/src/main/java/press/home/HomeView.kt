@@ -3,6 +3,7 @@ package press.home
 import android.app.Activity
 import android.content.Context
 import android.graphics.Color.BLACK
+import android.os.Parcelable
 import android.view.animation.PathInterpolator
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
@@ -52,6 +53,7 @@ import press.widgets.attr
 import press.widgets.doOnNextCollapse
 import press.widgets.interceptPullToCollapseOnView
 import press.widgets.suspendWhileExpanded
+import kotlin.contracts.contract
 
 class HomeView @AssistedInject constructor(
   @Assisted context: Context,
@@ -135,6 +137,15 @@ class HomeView @AssistedInject constructor(
   override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
     super.onWindowFocusChanged(hasWindowFocus)
     windowFocusChanges.onNext(WindowFocusChanged(hasWindowFocus))
+  }
+
+  override fun onSaveInstanceState(): Parcelable? {
+    return HomeViewSavedState(superState = super.onSaveInstanceState())
+  }
+
+  override fun onRestoreInstanceState(state: Parcelable?) {
+    require(state is HomeViewSavedState)
+    super.onRestoreInstanceState(state.superState)
   }
 
   private fun setupNoteEditorPage() {
