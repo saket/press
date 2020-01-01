@@ -8,7 +8,6 @@ import com.vladsch.flexmark.util.data.MutableDataSet
 import me.saket.wysiwyg.spans.WysiwygSpan
 import me.saket.wysiwyg.widgets.EditableText
 
-@Suppress("unused")
 actual class MarkdownParser {
 
   private val parser: Parser = buildParser()

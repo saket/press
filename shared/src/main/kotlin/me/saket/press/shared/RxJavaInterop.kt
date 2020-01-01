@@ -5,11 +5,13 @@ import com.badoo.reaktive.rxjavainterop.asRxJava2
 import io.reactivex.disposables.Disposable
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.ui.UiUpdate
-import me.saket.press.shared.ui.UiUpdate.UiModel
 import me.saket.press.shared.ui.UiUpdate.UiEffect
+import me.saket.press.shared.ui.UiUpdate.UiModel
 import io.reactivex.Observable as RxJavaObservable
 
-fun <EV, M, EF> RxJavaObservable<EV>.uiUpdates(presenter: Presenter<EV, M, EF>): RxJavaObservable<UiUpdate<out M, out EF>> {
+fun <EV, M, EF> RxJavaObservable<EV>.uiUpdates(
+  presenter: Presenter<EV, M, EF>
+): RxJavaObservable<UiUpdate<out M, out EF>> {
   val events = asReaktive()
   val updates = presenter.uiUpdates(events)
   return compose { updates.asRxJava2() }

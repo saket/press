@@ -4,7 +4,7 @@ import com.benasher44.uuid.Uuid
 
 interface HomeEvent {
   object NewNoteClicked : HomeEvent
-  data class WindowFocusChanged(val hasFocus: Boolean): HomeEvent
+  data class WindowFocusChanged(val hasFocus: Boolean) : HomeEvent
 }
 
 data class HomeUiModel(val notes: List<Note>) {
@@ -17,5 +17,5 @@ data class HomeUiModel(val notes: List<Note>) {
 }
 
 sealed class HomeUiEffect {
-  object ComposeNewNote: HomeUiEffect()
+  object ComposeNewNote : HomeUiEffect()
 }

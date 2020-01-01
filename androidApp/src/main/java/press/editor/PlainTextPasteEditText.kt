@@ -8,7 +8,6 @@ import android.content.Context.CLIPBOARD_SERVICE
 import android.os.Build.VERSION.SDK_INT
 import android.text.Spanned
 import android.widget.EditText
-import androidx.appcompat.widget.AppCompatEditText
 
 /**
  * Removes rich text formatting for pasted content. On Android, copying a

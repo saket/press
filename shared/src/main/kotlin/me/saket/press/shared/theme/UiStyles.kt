@@ -8,10 +8,10 @@ import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import me.saket.press.shared.BuildConfig
 import me.saket.press.shared.R
+import me.saket.press.shared.theme.UiStyles.FontFamily.WORK_SANS
 import me.saket.press.shared.theme.UiStyles.FontVariant.BOLD
 import me.saket.press.shared.theme.UiStyles.FontVariant.ITALIC
 import me.saket.press.shared.theme.UiStyles.FontVariant.REGULAR
-import me.saket.press.shared.theme.UiStyles.FontFamily.WORK_SANS
 
 fun UiStyles.Text.applyStyle(view: TextView) {
   view.textSize = textSize

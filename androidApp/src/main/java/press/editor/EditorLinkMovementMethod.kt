@@ -3,7 +3,6 @@ package press.editor
 import android.graphics.Point
 import android.text.Selection
 import android.text.Spannable
-import android.text.method.BaseMovementMethod
 import android.text.method.MetaKeyKeyListener
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_UP

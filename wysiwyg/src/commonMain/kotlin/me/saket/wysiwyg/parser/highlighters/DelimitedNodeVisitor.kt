@@ -10,8 +10,7 @@ import me.saket.wysiwyg.parser.node.startOffset
 import me.saket.wysiwyg.spans.SpanPool
 import me.saket.wysiwyg.spans.foregroundColor
 
-abstract class DelimitedNodeVisitor<T>
-  : NodeVisitor<T> where T : Node, T : DelimitedNode {
+abstract class DelimitedNodeVisitor<T> : NodeVisitor<T> where T : Node, T : DelimitedNode {
 
   override fun visit(
     node: T,

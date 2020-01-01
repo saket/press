@@ -28,7 +28,6 @@ import com.vladsch.flexmark.ast.ListBlock as FlexmarkListBlock
 import com.vladsch.flexmark.ast.ListItem as FlexmarkListItem
 import com.vladsch.flexmark.ast.OrderedList as FlexmarkOrderedList
 import com.vladsch.flexmark.ast.OrderedListItem as FlexmarkOrderedListItem
-import com.vladsch.flexmark.ast.Paragraph as FlexmarkParagraph
 import com.vladsch.flexmark.ast.StrongEmphasis as FlexmarkStrongEmphasis
 import com.vladsch.flexmark.ast.ThematicBreak as FlexmarkThematicBreak
 import com.vladsch.flexmark.ext.gfm.strikethrough.Strikethrough as FlexmarkStrikethrough

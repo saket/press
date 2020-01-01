@@ -1,9 +1,9 @@
 package me.saket.press.shared.theme
 
+import me.saket.press.shared.theme.UiStyles.FontFamily.WORK_SANS
 import me.saket.press.shared.theme.UiStyles.FontVariant.BOLD
 import me.saket.press.shared.theme.UiStyles.FontVariant.REGULAR
 import me.saket.press.shared.theme.UiStyles.Text
-import me.saket.press.shared.theme.UiStyles.FontFamily.WORK_SANS
 
 object HomeUiStyles {
   object NoteRow {

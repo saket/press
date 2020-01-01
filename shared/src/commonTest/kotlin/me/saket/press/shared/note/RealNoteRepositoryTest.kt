@@ -1,7 +1,6 @@
 package me.saket.press.shared.note
 
 import assertk.assertThat
-import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import com.badoo.reaktive.observable.firstOrError

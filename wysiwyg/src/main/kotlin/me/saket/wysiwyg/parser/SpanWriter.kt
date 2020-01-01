@@ -1,14 +1,11 @@
 package me.saket.wysiwyg.parser
 
-import android.text.Spannable
-import android.text.SpannableString
 import android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
 import me.saket.wysiwyg.parser.node.HeadingLevel
 import me.saket.wysiwyg.spans.HeadingSpan
 import me.saket.wysiwyg.spans.WysiwygSpan
 import me.saket.wysiwyg.widgets.EditableText
 import me.saket.wysiwyg.widgets.NativeTextField
-import timber.log.Timber
 
 actual class SpanWriter actual constructor(private val textField: NativeTextField) {
 

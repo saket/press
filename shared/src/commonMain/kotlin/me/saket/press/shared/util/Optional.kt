@@ -1,4 +1,4 @@
-package me.saket.press.shared.util;
+package me.saket.press.shared.util
 
 import kotlin.jvm.JvmStatic
 import kotlin.jvm.JvmSynthetic

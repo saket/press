@@ -33,7 +33,6 @@ import me.saket.press.shared.rx.observableInterval
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.util.Optional
 import me.saket.wysiwyg.formatting.TextSelection
-import me.saket.wysiwyg.formatting.TextSelection.Companion
 
 class EditorPresenter(
   args: Args,

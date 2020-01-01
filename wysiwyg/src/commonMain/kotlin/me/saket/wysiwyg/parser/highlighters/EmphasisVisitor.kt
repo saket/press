@@ -18,4 +18,3 @@ class EmphasisVisitor : DelimitedNodeVisitor<Emphasis>() {
     super.visit(node, pool, writer)
   }
 }
-

@@ -69,7 +69,7 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |fun anotherCodeBlock() {}
                 |```
                 """.trimMargin(),
-        expect =null
+        expect = null
     )
   }
 
@@ -90,7 +90,7 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |fun anotherCodeBlock() {}
                 |```
                 """.trimMargin(),
-        expect =null
+        expect = null
     )
   }
 
@@ -166,7 +166,7 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |- Milk
                 |Bread▮
                 """.trimMargin(),
-        expect =null
+        expect = null
     )
 
     AutoFormatOnEnterPress.onEnterTest(
@@ -175,7 +175,7 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |+ Milk
                 |+Bread▮
                 """.trimMargin(),
-        expect =null
+        expect = null
     )
   }
 
@@ -216,7 +216,7 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |1. Milk
                 |2.Bread▮
                 """.trimMargin(),
-        expect =null
+        expect = null
     )
 
     AutoFormatOnEnterPress.onEnterTest(
@@ -225,7 +225,7 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |1. Milk
                 |2Bread▮
                 """.trimMargin(),
-        expect =null
+        expect = null
     )
   }
 
@@ -319,7 +319,7 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |
                 |Some other text
                 """.trimMargin(),
-        expect =null
+        expect = null
     )
 
     AutoFormatOnEnterPress.onEnterTest(
@@ -331,7 +331,7 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |
                 |Some other text
                 """.trimMargin(),
-        expect =null
+        expect = null
     )
 
     AutoFormatOnEnterPress.onEnterTest(
@@ -343,7 +343,7 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |
                 |Some other text
                 """.trimMargin(),
-        expect =null
+        expect = null
     )
     AutoFormatOnEnterPress.onEnterTest(
         input = """
@@ -354,7 +354,7 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 |
                 |Some other text
                 """.trimMargin(),
-        expect =null
+        expect = null
     )
   }
 
@@ -363,14 +363,14 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |▮
                 """.trimMargin(),
-        expect =null
+        expect = null
     )
     AutoFormatOnEnterPress.onEnterTest(
         input = """
                 |
                 |▮
                 """.trimMargin(),
-        expect =null
+        expect = null
     )
   }
 
@@ -379,7 +379,7 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
         input = """
                 |-▮
                 """.trimMargin(),
-        expect =null
+        expect = null
     )
   }
 }

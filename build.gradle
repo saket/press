@@ -37,8 +37,17 @@ allprojects {
   }
 }
 
+// TODO: can this be moved to a separate file?
 subprojects {
   apply plugin: "org.jlleitschuh.gradle.ktlint"
+
+  ktlint {
+    version = "0.36.0"
+    disabledRules = ["import-ordering", "chain-wrapping", "no-multi-spaces", "no-blank-line-before-rbrace"]
+    filter {
+      exclude { it.file.path.contains("build/") }
+    }
+  }
 }
 
 apply from: 'gradle/dependencies.gradle'

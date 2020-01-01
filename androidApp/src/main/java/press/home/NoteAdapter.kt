@@ -30,11 +30,11 @@ class NoteAdapter @Inject constructor() : ListAdapter<HomeUiModel.Note, NoteVH>(
   }
 }
 
-class NoteDiffer: DiffUtil.ItemCallback<HomeUiModel.Note>() {
-  override fun areItemsTheSame(oldItem: HomeUiModel.Note, newItem: HomeUiModel.Note)
-      = oldItem.adapterId == newItem.adapterId
-  override fun areContentsTheSame(oldItem: HomeUiModel.Note, newItem: HomeUiModel.Note)
-      = oldItem == newItem
+class NoteDiffer : DiffUtil.ItemCallback<HomeUiModel.Note>() {
+  override fun areItemsTheSame(oldItem: HomeUiModel.Note, newItem: HomeUiModel.Note) =
+    oldItem.adapterId == newItem.adapterId
+  override fun areContentsTheSame(oldItem: HomeUiModel.Note, newItem: HomeUiModel.Note) =
+    oldItem == newItem
 }
 
 class NoteVH(val view: NoteRowView) : ViewHolder(view)

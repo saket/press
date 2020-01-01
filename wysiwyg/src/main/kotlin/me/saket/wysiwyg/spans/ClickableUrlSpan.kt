@@ -1,9 +1,7 @@
 package me.saket.wysiwyg.spans
 
 import android.text.TextPaint
-import android.text.style.ClickableSpan
 import android.text.style.URLSpan
-import android.view.View
 
 class ClickableUrlSpan(
   val recycler: Recycler

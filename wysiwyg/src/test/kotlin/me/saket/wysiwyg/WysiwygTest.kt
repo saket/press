@@ -45,6 +45,5 @@ class WysiwygTest {
       |##### Heading 5
       |###### Heading 6
     """.trimMargin()
-
   }
 }

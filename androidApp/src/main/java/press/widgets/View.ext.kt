@@ -2,9 +2,6 @@ package press.widgets
 
 import android.graphics.Rect
 import android.os.Build.VERSION.SDK_INT
-import android.text.Spannable
-import android.text.SpannableStringBuilder
-import android.text.Spanned
 import android.util.TypedValue.COMPLEX_UNIT_PX
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -13,7 +10,6 @@ import android.widget.TextView
 import androidx.annotation.AttrRes
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
-import androidx.core.text.getSpans
 import androidx.core.view.children
 
 fun View.string(@StringRes stringRes: Int) = resources.getString(stringRes)

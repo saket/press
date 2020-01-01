@@ -25,7 +25,7 @@ fun fakeNote(
       content = content,
       createdAt = createdAt,
       updatedAt = updatedAt,
-      archivedAtString = archivedAt?.let{ DateTimeAdapter.encode(it) },
-      deletedAtString = deletedAt?.let{ DateTimeAdapter.encode(it) }
+      archivedAtString = archivedAt?.let { DateTimeAdapter.encode(it) },
+      deletedAtString = deletedAt?.let { DateTimeAdapter.encode(it) }
   )
 }
