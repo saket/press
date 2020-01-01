@@ -1,5 +1,3 @@
-apply from: 'gradle/dependencies.gradle'
-
 buildscript {
   // Not sure how to move these to dependencies.gradle.
   // Someone with better Gradle skills, please help?
@@ -25,6 +23,10 @@ buildscript {
   }
 }
 
+plugins {
+  id "org.jlleitschuh.gradle.ktlint" version "9.1.1" apply false
+}
+
 allprojects {
   repositories {
     google()
@@ -34,3 +36,9 @@ allprojects {
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
   }
 }
+
+subprojects {
+  apply plugin: "org.jlleitschuh.gradle.ktlint"
+}
+
+apply from: 'gradle/dependencies.gradle'
