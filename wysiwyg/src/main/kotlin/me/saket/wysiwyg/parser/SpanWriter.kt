@@ -39,13 +39,15 @@ actual class SpanWriter actual constructor(private val textField: NativeTextFiel
     clear()
 
     // TextView's layout doesn't always recalculate line heights when a
-    // LineHeightSpan is added or updated. Resetting the text is expensive,
-    // so it's done only when needed.
+    // LineHeightSpan is added or updated. Recreating the text layout is
+    // expensive, so it's done only when needed.
     if (headingSpansUpdated) {
-      val start = textField.selectionStart
-      val end = textField.selectionEnd
-      textField.text = text
-      textField.setSelection(start, end)
+      // TextView#setHint() internally leads to checkForRelayout(). This
+      // may stop working in the future, but TextView#setText() resets
+      // the keyboard. Imagine pressing '#' on the symbols screen and the
+      // keyboard resetting back to the alphabets screen. Terrible
+      // experience if you're writing an H6.
+      textField.hint = textField.hint
     }
   }
 
