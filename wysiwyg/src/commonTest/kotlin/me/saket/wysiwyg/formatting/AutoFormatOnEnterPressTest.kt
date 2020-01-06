@@ -227,6 +227,15 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
                 """.trimMargin(),
         expect = null
     )
+
+    AutoFormatOnEnterPress.onEnterTest(
+        input = """
+                |# Ingredients
+                |180 Tomatoes
+                |200 Onions▮
+                """.trimMargin(),
+        expect = null
+    )
   }
 
   @Test fun `enter key on an empty unordered list item with a space`() {

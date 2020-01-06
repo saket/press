@@ -95,7 +95,7 @@ object AutoFormatOnEnterPress {
   }
 
   private object ListContinuation : OnEnterAutoFormatter {
-    private val orderedItemRegex by lazy(NONE) { Regex("(\\d+).\\s") }
+    private val orderedItemRegex by lazy(NONE) { Regex("(\\d+)\\.\\s") }
 
     override fun onEnter(
       text: CharSequence,
