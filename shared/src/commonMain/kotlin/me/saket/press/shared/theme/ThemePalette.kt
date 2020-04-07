@@ -44,13 +44,13 @@ fun WysiwygStyle.Companion.from(palette: MarkdownPalette, displayUnits: DisplayU
       strikethroughTextColor = palette.strikethroughTextColor,
       blockQuote = BlockQuote(
           leftBorderColor = palette.blockQuoteTextColor,
-          leftBorderWidth = displayUnits.fromPixels(4).roundToInt(),
-          indentationMargin = displayUnits.fromPixels(24).roundToInt(),
+          leftBorderWidth = displayUnits.scaledPixels(4).roundToInt(),
+          indentationMargin = displayUnits.scaledPixels(24).roundToInt(),
           textColor = palette.blockQuoteTextColor
       ),
       code = Code(
           backgroundColor = palette.codeBackgroundColor,
-          codeBlockMargin = displayUnits.fromPixels(8).roundToInt()
+          codeBlockMargin = displayUnits.scaledPixels(8).roundToInt()
       ),
       heading = Heading(
           textColor = palette.headingTextColor
@@ -60,10 +60,10 @@ fun WysiwygStyle.Companion.from(palette: MarkdownPalette, displayUnits: DisplayU
           urlColor = palette.linkUrlColor
       ),
       list = WysiwygStyle.List(
-          indentationMargin = displayUnits.fromPixels(24).roundToInt()
+          indentationMargin = displayUnits.scaledPixels(24).roundToInt()
       ),
       thematicBreak = ThematicBreak(
           color = palette.thematicBreakColor,
-          height = displayUnits.fromPixels(4)
+          height = displayUnits.scaledPixels(4)
       )
   )
