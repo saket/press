@@ -97,13 +97,14 @@ object AutoFormatOnEnterPress {
   private object ListContinuation : OnEnterAutoFormatter {
     private val orderedItemRegex by lazy(NONE) { Regex("(\\d+)\\.\\s") }
 
+    @Suppress("NAME_SHADOWING")
     override fun onEnter(
       text: CharSequence,
       paragraph: CharSequence,
       paragraphBounds: ParagraphBounds,
       cursorBeforeEnter: TextSelection
     ): ReplaceNewLineWith? {
-      @Suppress("NAME_SHADOWING")
+      val paragraphMargin = paragraph.takeWhile { it.isWhitespace() }
       val paragraph = paragraph.trimStart()
 
       // Unordered list item.
@@ -112,7 +113,7 @@ object AutoFormatOnEnterPress {
         return if (isItemEmpty) {
           endListSyntax(paragraphBounds)
         } else {
-          continueListSyntax(cursorBeforeEnter, syntax = "${paragraph[0]} ")
+          continueListSyntax(cursorBeforeEnter, paragraphMargin, syntax = "${paragraph[0]} ")
         }
       }
 
@@ -127,7 +128,7 @@ object AutoFormatOnEnterPress {
             endListSyntax(paragraphBounds)
           } else {
             val nextNumber = number.toInt().inc()
-            continueListSyntax(cursorBeforeEnter, syntax = "$nextNumber. ")
+            continueListSyntax(cursorBeforeEnter, paragraphMargin, syntax = "$nextNumber. ")
           }
         }
       }
@@ -135,8 +136,12 @@ object AutoFormatOnEnterPress {
       return null
     }
 
-    private fun continueListSyntax(cursorBeforeEnter: TextSelection, syntax: String): ReplaceNewLineWith {
-      val syntaxWithLineBreak = "\n$syntax"
+    private fun continueListSyntax(
+      cursorBeforeEnter: TextSelection,
+      paragraphMargin: CharSequence,
+      syntax: String
+    ): ReplaceNewLineWith {
+      val syntaxWithLineBreak = "\n$paragraphMargin$syntax"
       return InsertLetters(
           replacement = syntaxWithLineBreak,
           newSelection = cursorBeforeEnter.offsetBy(syntaxWithLineBreak.length)

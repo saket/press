@@ -159,6 +159,58 @@ class AutoFormatOnEnterPressTest : BaseApplyMarkdownSyntaxTest() {
     )
   }
 
+  @Test fun `enter key after a valid unordered list item with margin`() {
+    AutoFormatOnEnterPress.onEnterTest(
+        input = """
+                |# Shopping list
+                |- Milk
+                |- Drinks
+                |  - Coke▮
+                """.trimMargin(),
+        expect = """
+                |# Shopping list
+                |- Milk
+                |- Drinks
+                |  - Coke
+                |  - ▮
+                """.trimMargin()
+    )
+  }
+
+  @Test fun `enter key after a valid ordered list item with margin`() {
+    AutoFormatOnEnterPress.onEnterTest(
+        input = """
+                |# Shopping list
+                |1. Milk
+                |2. Drinks
+                |  3. Coke▮
+                """.trimMargin(),
+        expect = """
+                |# Shopping list
+                |1. Milk
+                |2. Drinks
+                |  3. Coke
+                |  4. ▮
+                """.trimMargin()
+    )
+
+    AutoFormatOnEnterPress.onEnterTest(
+        input = """
+                |# Shopping list
+                |1. Milk
+                |2. Drinks
+                |  1. Coke▮
+                """.trimMargin(),
+        expect = """
+                |# Shopping list
+                |1. Milk
+                |2. Drinks
+                |  1. Coke
+                |  2. ▮
+                """.trimMargin()
+    )
+  }
+
   @Test fun `enter key after an invalid unordered list item`() {
     AutoFormatOnEnterPress.onEnterTest(
         input = """

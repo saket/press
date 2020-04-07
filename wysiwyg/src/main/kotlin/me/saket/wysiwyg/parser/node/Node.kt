@@ -37,6 +37,7 @@ import com.vladsch.flexmark.util.ast.Node as FlexmarkNode
 
 actual typealias Node = FlexmarkNode
 
+actual val Node.parent: Node? get() = parent
 actual val Node.firstChild: Node? get() = firstChild
 actual val Node.nextNode: Node? get() = next
 actual val Node.startOffset: Int get() = startOffset

@@ -1,6 +1,7 @@
 package me.saket.wysiwyg.parser.node
 
 expect abstract class Node
+expect val Node.parent: Node?
 expect val Node.firstChild: Node?
 expect val Node.nextNode: Node?
 expect val Node.startOffset: Int
