@@ -7,9 +7,8 @@ import android.text.Spannable.SPAN_INCLUSIVE_INCLUSIVE
 import android.widget.EditText
 import androidx.core.text.getSpans
 import me.saket.wysiwyg.spans.HeadingSpan
-import me.saket.wysiwyg.widgets.AfterTextChange
-import me.saket.wysiwyg.widgets.addTextChangedListener
-import press.widgets.OnSpanAdded
+import me.saket.wysiwyg.widgets.SimpleTextWatcher
+import press.widgets.SimpleSpanWatcher
 import java.lang.Character.isWhitespace
 
 /**
@@ -20,21 +19,57 @@ import java.lang.Character.isWhitespace
 object CapitalizeOnHeadingStart {
 
   fun capitalize(editText: EditText) {
-    val originalInputType = editText.inputType
+    val textChangeListener = TextChangeListener(editText)
+    editText.addTextChangedListener(textChangeListener)
+  }
 
-    val textChangeListener = { text: Spannable ->
-      val isSelectingText = editText.selectionStart != editText.selectionEnd
-      val headingSyntax = "#"
+  private class TextChangeListener(val editText: EditText) : SimpleSpanWatcher, SimpleTextWatcher {
+    private val originalInputType = editText.inputType
+    private var multipleCharactersRemoved: Boolean = false
+    private var safeToChangeInputType: Boolean = false
 
-      val forceCapitalize = if (isSelectingText.not() && text.length >= headingSyntax.length) {
+    companion object {
+      private const val headingSyntax = '#'
+    }
+
+    override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
+      // Multiple letters are an indication that the text was
+      // selected. Changing the input type here will cause any
+      // ongoing text prediction to be reset.
+      multipleCharactersRemoved = count > 1
+    }
+
+    override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
+      // Avoid changing input type if,
+      // - a character was deleted (count == 0)
+      // - a digit/symbol was inserted.
+      safeToChangeInputType = multipleCharactersRemoved.not() &&
+          (count == 0 || text[start].isLetter() || text[start].isWhitespace())
+
+      // Wysiwyg inserts spans without changing the text. Add a
+      // SpanWatcher and wait for the Markdown to be processed.
+      (text as Spannable).setSpan(this, 0, text.length, SPAN_INCLUSIVE_INCLUSIVE)
+    }
+
+    override fun onSpanAdded(text: Spannable, span: Any) {
+      if (span is HeadingSpan) {
+        onHeadingSpanAdded(text)
+      }
+    }
+
+    fun onHeadingSpanAdded(text: Spannable) {
+      if (safeToChangeInputType.not()) {
+        return
+      }
+
+      val forceCapitalize = if (safeToChangeInputType && text.length >= headingSyntax.length) {
         val cursorAt = editText.selectionEnd
-        val headingsUnderSyntax = text.getSpans<HeadingSpan>(
+        val headingsUnderSpan = text.getSpans<HeadingSpan>(
             start = cursorAt - headingSyntax.length,
             end = cursorAt
         )
-        headingsUnderSyntax.isNotEmpty()
-            && ((cursorAt >= 2 && text[cursorAt - 2] == '#' && isWhitespace(text[cursorAt - 1]))
-            || text[cursorAt - 1] == '#')
+        val atStartOfSyntax = cursorAt >= 2 && text[cursorAt - 2] == headingSyntax && isWhitespace(text[cursorAt - 1])
+        headingsUnderSpan.isNotEmpty() && atStartOfSyntax
 
       } else {
         false
@@ -52,15 +87,7 @@ object CapitalizeOnHeadingStart {
       }
     }
 
-    // Wysiwyg inserts spans without changing the text so the text changer
-    // will not get called if a heading span was added after the cursor moved.
-    val spanWatcher = OnSpanAdded { text, span ->
-      if (span is HeadingSpan) {
-        textChangeListener(text)
-      }
-    }
-    editText.addTextChangedListener(AfterTextChange { text ->
-      text.setSpan(spanWatcher, 0, text.length, SPAN_INCLUSIVE_INCLUSIVE)
-    })
+    @Suppress("unused")
+    private val Char.length: Int get() = 1
   }
 }
