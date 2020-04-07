@@ -60,7 +60,7 @@ fun WysiwygStyle.Companion.from(palette: MarkdownPalette, displayUnits: DisplayU
           urlColor = palette.linkUrlColor
       ),
       list = WysiwygStyle.List(
-          indentationMargin = displayUnits.scaledPixels(24).roundToInt()
+          indentationMargin = displayUnits.scaledPixels(8).roundToInt()
       ),
       thematicBreak = ThematicBreak(
           color = palette.thematicBreakColor,
