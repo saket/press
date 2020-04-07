@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color.TRANSPARENT
 import android.graphics.Color.WHITE
 import android.text.InputType.TYPE_CLASS_TEXT
+import android.text.InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
 import android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
 import android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
 import android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
@@ -58,12 +59,15 @@ import press.widgets.fromOreo
 import press.widgets.textColor
 import press.widgets.textSizePx
 import me.saket.press.R
+import me.saket.press.shared.editor.AutoCorrectEnabled
+import me.saket.press.shared.settings.Setting
 
 class EditorView @AssistedInject constructor(
   @Assisted context: Context,
   @Assisted openMode: EditorOpenMode,
   @Assisted private val onDismiss: () -> Unit,
-  presenterFactory: EditorPresenter.Factory
+  presenterFactory: EditorPresenter.Factory,
+  autoCorrectEnabled: Setting<AutoCorrectEnabled>
 ) : ContourLayout(context) {
 
   private val toolbar = themed(Toolbar(context)).apply {
@@ -96,6 +100,9 @@ class EditorView @AssistedInject constructor(
         TYPE_TEXT_FLAG_CAP_SENTENCES or
         TYPE_TEXT_FLAG_MULTI_LINE or
         TYPE_TEXT_FLAG_NO_SUGGESTIONS
+    if (autoCorrectEnabled.get().enabled) {
+      inputType = inputType or TYPE_TEXT_FLAG_AUTO_CORRECT
+    }
     imeOptions = IME_FLAG_NO_FULLSCREEN
     movementMethod = EditorLinkMovementMethod(scrollView)
     filters += FormatMarkdownOnEnterPress(this)
