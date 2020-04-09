@@ -26,5 +26,7 @@
       android:name="press.editor.EditorActivity"
       android:theme="@style/AppTheme.TransparentWindow"
       android:windowSoftInputMode="adjustResize" />
+
+    <activity android:name="press.ShortcutReceiverActivity" />
   </application>
 </manifest>
