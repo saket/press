@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+  <shortcut
+    android:shortcutId="new_note"
+    android:enabled="true"
+    android:icon="@drawable/ic_note_add_black_24dp"
+    android:shortcutShortLabel="@string/shortcut_new_note_label">
+    <intent
+      android:action="android.intent.action.VIEW"
+      android:targetPackage="me.saket.press"
+      android:targetClass="press.ShortcutReceiverActivity" />
+  </shortcut>
+</shortcuts>
