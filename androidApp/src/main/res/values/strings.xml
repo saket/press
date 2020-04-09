@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Press</string>
+
+    <string name="shortcut_new_note_label">Create note</string>
 </resources>
