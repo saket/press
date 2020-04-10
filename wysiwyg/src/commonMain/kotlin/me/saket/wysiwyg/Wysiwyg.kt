@@ -6,19 +6,19 @@ import me.saket.wysiwyg.parser.highlighters.RootNodeHighlighter
 import me.saket.wysiwyg.spans.SpanPool
 import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.widgets.AfterTextChange
+import me.saket.wysiwyg.widgets.EditableText
 import me.saket.wysiwyg.widgets.NativeTextField
 import me.saket.wysiwyg.widgets.text
 
 class Wysiwyg(
   private val textField: NativeTextField,
-  style: WysiwygStyle
+  style: WysiwygStyle,
+  private val bgExecutor: Executor = SingleThreadBackgroundExecutor(),
+  private val uiExecutor: Executor = UiThreadExecutor
 ) {
 
   private val parser = MarkdownParser()
   private val spanPool = SpanPool(style)
-
-  private val bgExecutor = SingleThreadBackgroundExecutor()
-  private val uiExecutor = UiThreadExecutor
   private val spanWriter = SpanWriter(textField)
 
   fun syntaxHighlighter() = AfterTextChange { text ->

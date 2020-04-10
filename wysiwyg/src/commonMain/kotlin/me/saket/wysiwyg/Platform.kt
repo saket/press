@@ -1,9 +1,8 @@
 package me.saket.wysiwyg
 
-expect class SingleThreadBackgroundExecutor() {
-  fun <R> enqueue(runnable: () -> R)
-}
-
-expect object UiThreadExecutor {
+interface Executor {
   fun enqueue(runnable: () -> Unit)
 }
+
+expect class SingleThreadBackgroundExecutor(): Executor
+expect object UiThreadExecutor: Executor

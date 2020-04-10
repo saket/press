@@ -2,14 +2,14 @@
 
 package me.saket.wysiwyg
 
-actual class SingleThreadBackgroundExecutor {
-  actual fun <R> enqueue(runnable: () -> R) {
+actual class SingleThreadBackgroundExecutor : Executor {
+  override fun enqueue(runnable: () -> Unit) {
     TODO()
   }
 }
 
-actual object UiThreadExecutor {
-  actual fun enqueue(runnable: () -> Unit) {
+actual object UiThreadExecutor : Executor {
+  override fun enqueue(runnable: () -> Unit) {
     TODO()
   }
 }
