@@ -1,6 +1,5 @@
 package me.saket.press.shared.note
 
-import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.settings.customTypeSetting
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
