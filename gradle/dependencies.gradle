@@ -18,7 +18,8 @@ buildscript {
       androidXTest: '1.2.0',
       androidXTestJUnit: '1.1.2-alpha02',
       betterLinkMovementMethod: '2.2.0',
-      multiplatformUuid: '0.0.6'
+      multiplatformUuid: '0.0.6',
+      paparazzi: '0.5.0-SNAPSHOT'
   ]
 
   ext.deps = [
@@ -158,6 +159,7 @@ buildscript {
           'common': "co.touchlab.assertk:assertk:0.22-SNAPSHOT",
           'opentest4j': "org.opentest4j:opentest4j:1.1.1"
       ],
-      'betterLinkMovementMethod': "me.saket:better-link-movement-method:$versions.betterLinkMovementMethod"
+      'betterLinkMovementMethod': "me.saket:better-link-movement-method:$versions.betterLinkMovementMethod",
+      'paparazzi': "app.cash.paparazzi:paparazzi:$versions.paparazzi"
   ]
 }

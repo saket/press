@@ -58,9 +58,14 @@ class EditorActivity : ThemeAwareActivity() {
   }
 
   private fun createEditorView(): EditorView {
+    if (!intent.hasExtra(KEY_NOTE_ID)) {
+      intent = intent.putExtra(KEY_NOTE_ID, uuid4().toString())
+    }
+    val noteUuid = Uuid.parse(intent.getStringExtra(KEY_NOTE_ID)!!)!!
+
     return editorViewFactory.create(
         context = this@EditorActivity,
-        openMode = NewNote(readNoteUuid(intent)),
+        openMode = NewNote(noteUuid),
         onDismiss = ::dismiss
     )
   }

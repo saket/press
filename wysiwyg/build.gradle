@@ -58,6 +58,7 @@ kotlin {
       dependencies {
         implementation kotlin('test')
         implementation kotlin('test-junit')
+        implementation deps.paparazzi
       }
     }
     iosMain {}
