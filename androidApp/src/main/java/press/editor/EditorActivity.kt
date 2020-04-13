@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
+import android.content.Intent.EXTRA_TEXT
 import android.graphics.Color.BLACK
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -50,7 +51,7 @@ class EditorActivity : ThemeAwareActivity() {
     Observable.timer(delayFocus, MILLISECONDS, mainThread())
         .takeUntil(editorView.detaches())
         .subscribe {
-          if (intent.hasExtra(Intent.EXTRA_TEXT).not()) {
+          if (intent.hasExtra(EXTRA_TEXT).not()) {
             editorView.editorEditText.showKeyboard()
           }
         }
@@ -61,7 +62,7 @@ class EditorActivity : ThemeAwareActivity() {
   }
 
   private fun createEditorView(): EditorView {
-    val note = intent.getStringExtra(Intent.EXTRA_TEXT).orEmpty()
+    val note = intent.getStringExtra(EXTRA_TEXT)
 
     return editorViewFactory.create(
         context = this@EditorActivity,
@@ -102,9 +103,12 @@ class EditorActivity : ThemeAwareActivity() {
       return uuidFrom(intent.getStringExtra(KEY_NOTE_ID)!!)
     }
 
-    fun intent(context: Context): Intent {
+    fun intent(context: Context, preFilledNote: String? = null): Intent {
       return Intent(context, EditorActivity::class.java).apply {
         putExtra(KEY_NOTE_ID, uuid4().toString())
+        if (preFilledNote != null) {
+          putExtra(EXTRA_TEXT, preFilledNote)
+        }
       }
     }
 
