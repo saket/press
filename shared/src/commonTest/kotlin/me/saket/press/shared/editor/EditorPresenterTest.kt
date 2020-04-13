@@ -169,7 +169,7 @@ class EditorPresenterTest {
         }
   }
 
-  @Test fun `populate new note's content on start`() {
+  @Test fun `populate new note's content with placeholder on start`() {
     presenter(NewNote(noteUuid))
         .uiEffects()
         .test()
@@ -178,6 +178,22 @@ class EditorPresenterTest {
               UpdateNoteText(
                   newText = NEW_NOTE_PLACEHOLDER,
                   newSelection = TextSelection.cursor(NEW_NOTE_PLACEHOLDER.length)
+              )
+          )
+          assertNotError()
+        }
+  }
+
+  @Test fun `populate new note's content with note on start`() {
+    val note = "Hello, World!"
+    presenter(NewNote(noteUuid, note))
+        .uiEffects(events)
+        .test()
+        .apply {
+          assertValue(
+              UpdateNoteText(
+                  newText = note,
+                  newSelection = null
               )
           )
           assertNotError()
