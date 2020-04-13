@@ -50,7 +50,9 @@ class EditorActivity : ThemeAwareActivity() {
     Observable.timer(delayFocus, MILLISECONDS, mainThread())
         .takeUntil(editorView.detaches())
         .subscribe {
-          editorView.editorEditText.showKeyboard()
+          if (intent.hasExtra(Intent.EXTRA_TEXT).not()) {
+            editorView.editorEditText.showKeyboard()
+          }
         }
   }
 
@@ -59,9 +61,11 @@ class EditorActivity : ThemeAwareActivity() {
   }
 
   private fun createEditorView(): EditorView {
+    val note = intent.getStringExtra(Intent.EXTRA_TEXT).orEmpty()
+
     return editorViewFactory.create(
         context = this@EditorActivity,
-        openMode = NewNote(readNoteUuid(intent)),
+        openMode = NewNote(readNoteUuid(intent), note),
         onDismiss = ::dismiss
     )
   }
