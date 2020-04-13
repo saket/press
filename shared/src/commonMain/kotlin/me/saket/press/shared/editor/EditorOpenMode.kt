@@ -7,6 +7,6 @@ sealed class EditorOpenMode {
   // for discouraging usages to depend on it. The placeholder
   // uuid may or may not have been inserted into DB yet.
 
-  data class NewNote(val placeholderUuid: Uuid) : EditorOpenMode()
+  data class NewNote(val placeholderUuid: Uuid, val preFilledNote: String? = null) : EditorOpenMode()
   data class ExistingNote(val noteUuid: Uuid) : EditorOpenMode()
 }

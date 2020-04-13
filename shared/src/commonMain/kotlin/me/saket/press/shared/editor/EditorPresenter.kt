@@ -81,7 +81,11 @@ class EditorPresenter(
         .take(1)
         .flatMapCompletable { (existingNote) ->
           when (existingNote) {
-            null -> noteRepository.create(newOrExistingId, NEW_NOTE_PLACEHOLDER)
+            null -> {
+              val note = openMode as? NewNote
+              val content = note?.preFilledNote ?: NEW_NOTE_PLACEHOLDER
+              noteRepository.create(newOrExistingId, content)
+            }
             else -> completableOfEmpty()
           }
         }
