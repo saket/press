@@ -1,12 +1,5 @@
 buildscript {
-  // Not sure how to move these to dependencies.gradle.
-  // Someone with better Gradle skills, please help?
-  ext.projectVersions = [
-      minSdk: 23,
-      compileSdk: 29,
-      kotlin: '1.3.71',     // Keep in sync with dependencies.gradle
-      sqlDelight: '1.3.0',  // keep in sync with dependencies.gradle.
-  ]
+  apply from: 'gradle/dependencies.gradle'
 
   repositories {
     google()
@@ -18,8 +11,8 @@ buildscript {
 
   dependencies {
     classpath 'com.android.tools.build:gradle:3.6.3'
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$projectVersions.kotlin"
-    classpath "com.squareup.sqldelight:gradle-plugin:$projectVersions.sqlDelight"
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
+    classpath "com.squareup.sqldelight:gradle-plugin:$versions.sqlDelight"
   }
 }
 
