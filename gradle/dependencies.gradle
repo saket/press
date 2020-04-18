@@ -19,7 +19,8 @@ buildscript {
       androidXTestJUnit: '1.1.2-alpha02',
       betterLinkMovementMethod: '2.2.0',
       multiplatformUuid: '0.1.0',
-      stately: '1.0.2'
+      stately: '1.0.2',
+      assertK: '0.22'
   ]
 
   ext.deps = [
@@ -157,7 +158,7 @@ buildscript {
       ],
       'robolectric': "org.robolectric:robolectric:4.3.1",
       'assertK': [
-          'common': "co.touchlab.assertk:assertk:0.22-SNAPSHOT",
+          'common': "com.willowtreeapps.assertk:assertk:$versions.assertK",
           'opentest4j': "org.opentest4j:opentest4j:1.1.1"
       ],
       'betterLinkMovementMethod': "me.saket:better-link-movement-method:$versions.betterLinkMovementMethod"
