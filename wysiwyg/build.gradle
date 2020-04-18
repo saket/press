@@ -17,15 +17,23 @@ android {
 version = 0.1
 
 kotlin {
-  android("android")
+  targets {
+    fromPreset(presets.android, 'android')
+    fromPreset(presets.macosX64, 'macos')
 
-  def buildForDevice = project.findProperty("device")?.toBoolean() ?: false
-  def iosTarget = (buildForDevice) ? iosArm64('ios') : iosX64('ios')
-  iosTarget.binaries {
-    framework {
-      // Disable bitcode embedding for the simulator build.
-      if (!buildForDevice) {
-        embedBitcode("disable")
+    def buildForDevice = project.findProperty("device")?.toBoolean() ?: false
+    def iosTarget = (buildForDevice) ? presets.iosArm64 : presets.iosX64
+
+    fromPreset(iosTarget, "ios") {
+      binaries {
+        framework {
+          baseName = "shared"
+
+          // Disable bitcode embedding for the simulator build.
+          if (!buildForDevice) {
+            embedBitcode("disable")
+          }
+        }
       }
     }
   }
@@ -60,6 +68,8 @@ kotlin {
         implementation kotlin('test-junit')
       }
     }
+    macosMain {}
+    macosTest {}
     iosMain {}
     iosTest {}
 
