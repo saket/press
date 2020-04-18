@@ -3,7 +3,6 @@ package me.saket.press.shared.note
 import com.badoo.reaktive.completable.subscribe
 import com.badoo.reaktive.completable.subscribeOn
 import com.badoo.reaktive.scheduler.Scheduler
-import com.benasher44.uuid.Uuid
 import com.benasher44.uuid.uuidFrom
 import me.saket.press.shared.settings.Setting
 
