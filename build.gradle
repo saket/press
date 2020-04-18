@@ -4,8 +4,8 @@ buildscript {
   ext.projectVersions = [
       minSdk: 23,
       compileSdk: 29,
-      kotlin: '1.3.61',     // Keep in sync with dependencies.gradle
-      sqlDelight: '1.2.1',  // keep in sync with dependencies.gradle.
+      kotlin: '1.3.71',     // Keep in sync with dependencies.gradle
+      sqlDelight: '1.3.0',  // keep in sync with dependencies.gradle.
   ]
 
   repositories {
@@ -17,7 +17,7 @@ buildscript {
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:3.5.2'
+    classpath 'com.android.tools.build:gradle:3.6.3'
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$projectVersions.kotlin"
     classpath "com.squareup.sqldelight:gradle-plugin:$projectVersions.sqlDelight"
   }
@@ -34,6 +34,12 @@ allprojects {
     jcenter()
     maven { url 'https://dl.bintray.com/badoo/maven' }
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    maven {
+      url 'https://dl.bintray.com/touchlabpublic/kotlin'
+      content {
+        includeGroup 'org.koin'
+      }
+    }
   }
 }
 

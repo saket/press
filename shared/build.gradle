@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-apply plugin: 'org.jetbrains.kotlin.multiplatform'
+apply plugin: 'kotlin-multiplatform'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: "com.squareup.sqldelight"
 
@@ -38,13 +38,13 @@ kotlin {
     commonMain {
       dependencies {
         implementation project(':wysiwyg')
-        implementation kotlin('stdlib-common')
         implementation deps.reaktive.core.common
         implementation deps.koin.core.common
         implementation deps.multiplatformUuid
         implementation deps.klock.common
         implementation deps.sqlDelight.runtime.common
         implementation deps.stately
+        implementation deps.statelyConcurrency
         implementation deps.multiplatformSettings.core
       }
     }
@@ -81,7 +81,7 @@ kotlin {
     }
     iosMain {
       dependencies {
-        implementation deps.sqlDelight.driver.iOS
+        implementation deps.sqlDelight.driver.native
       }
     }
     iosTest {}
@@ -113,7 +113,7 @@ task copyFramework {
   }
 }
 
-task iosTest {
+task checkiOS {
   def device = project.findProperty("iosDevice")?.toString() ?: "iPhone 8"
   dependsOn 'linkDebugTestIos'
   group = JavaBasePlugin.VERIFICATION_GROUP
@@ -126,4 +126,4 @@ task iosTest {
     }
   }
 }
-tasks.check.dependsOn iosTest
+tasks.check.dependsOn checkiOS

@@ -2,23 +2,24 @@ buildscript {
   ext.versions = [
       dagger: '2.25.2',
       butterKnife: '8.8.1',
-      kotlin: '1.3.61',     // Keep in sync with build.gradle
-      sqlDelight: '1.2.1',  // Keep in sync with build.gradle
+      kotlin: '1.3.71',     // Keep in sync with build.gradle
+      sqlDelight: '1.3.0',  // Keep in sync with build.gradle
       moshi: '1.9.2',
       persistence: '2.0.0',
       okhttp: '4.0.1',
       squareInject: '0.5.2',
       coroutines: '1.3.2',
       flexmark: '0.50.26',
-      reaktive: '1.1.4',
-      koin: '2.1.7-mp',
+      reaktive: '1.1.12',
+      koin: '3.0.0-alpha-9',
       flipper: '0.23.5',
-      klock: '1.8.0',
-      multiplatformSettings: '0.4.1',
+      klock: '1.9.1',
+      multiplatformSettings: '0.5.1',
       androidXTest: '1.2.0',
       androidXTestJUnit: '1.1.2-alpha02',
       betterLinkMovementMethod: '2.2.0',
-      multiplatformUuid: '0.0.6'
+      multiplatformUuid: '0.1.0',
+      stately: '1.0.2'
   ]
 
   ext.deps = [
@@ -66,7 +67,7 @@ buildscript {
           ],
           'driver': [
               'android': "com.squareup.sqldelight:android-driver:${versions.sqlDelight}",
-              'iOS': "com.squareup.sqldelight:ios-driver:${versions.sqlDelight}",
+              'native': "com.squareup.sqldelight:native-driver:${versions.sqlDelight}"
           ],
           'rx2': "com.squareup.sqldelight:rxjava2-extensions:${versions.sqlDelight}",
           'paging': "com.squareup.sqldelight:android-paging-extensions:${versions.sqlDelight}",
@@ -125,10 +126,10 @@ buildscript {
       ],
       'koin': [
           'core': [
-              'common': "co.touchlab:koin-core:$versions.koin",
-              'jvm': "co.touchlab:koin-core-jvm:$versions.koin",
-              'ios64': "co.touchlab:koin-core-iosarm64:$versions.koin",
-              'ios32': "co.touchlab:koin-core-iosarm32:$versions.koin"
+              'common': "org.koin:koin-core:$versions.koin",
+              'jvm': "org.koin:koin-core-jvm:$versions.koin",
+              'ios64': "org.koin:koin-core-iosarm64:$versions.koin",
+              'ios32': "org.koin:koin-core-iosarm32:$versions.koin"
           ]
       ],
       'multiplatformUuid': "com.benasher44:uuid:$versions.multiplatformUuid",
@@ -137,8 +138,9 @@ buildscript {
           'jvm': "com.soywiz.korlibs.klock:klock-jvm:$versions.klock",
           'android': "com.soywiz.korlibs.klock:klock-android:$versions.klock",
       ],
-      'stately': "co.touchlab:stately:0.9.4",
-      'statelyCollections': "co.touchlab:stately-collections:0.9.4",
+      'stately': "co.touchlab:stately-common:$versions.stately",
+      'statelyCollections': "co.touchlab:stately-collections:$versions.stately",
+      'statelyConcurrency': "co.touchlab:stately-concurrency:$versions.stately",
       'flipper': [
           'debug': [
               'core': "com.facebook.flipper:flipper:$versions.flipper",
