@@ -10,6 +10,7 @@ import android.os.Bundle
 import androidx.annotation.DrawableRes
 import com.benasher44.uuid.Uuid
 import com.benasher44.uuid.uuid4
+import com.benasher44.uuid.uuidFrom
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.detaches
 import io.reactivex.Observable
@@ -94,7 +95,7 @@ class EditorActivity : ThemeAwareActivity() {
     private const val KEY_NOTE_ID = "press:new_note_id"
 
     private fun readNoteUuid(intent: Intent): Uuid {
-      return Uuid.parse(intent.getStringExtra(KEY_NOTE_ID)!!)!!
+      return uuidFrom(intent.getStringExtra(KEY_NOTE_ID)!!)
     }
 
     fun intent(context: Context): Intent {
