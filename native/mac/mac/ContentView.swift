@@ -7,10 +7,11 @@
 //
 
 import SwiftUI
+import shared
 
 struct ContentView: View {
   var body: some View {
-    Text("Hello World")
+    Text("Hello \(Platform().name)!")
       .frame(maxWidth: .infinity, maxHeight: .infinity)
   }
 }

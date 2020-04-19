@@ -12,28 +12,20 @@ Press was created as a proof-of-concept for exploring Kotlin Multiplatform, as w
 
 - Android: https://play.google.com/store/apps/details?id=me.saket.press
 
-- macOS: work in progress
+- macOS: *work in progress*
 
 - iOS: TODO
 
-### Building the projects
-
-#### Android app
-Press is primarily developed on [IntelliJ IDEA](https://www.jetbrains.com/idea/). If you're new to Android, importing the project on IntelliJ IDEA *should* walk you through all the steps needed for running the app. Please feel free to [ask](https://github.com/saket/press/issues/new) if that's not the case.  
-
-#### macOS app
-Press uses SwiftUI so you'll need macOS Catalina or higher. You can run the project by importing `native/mac` into Xcode through `native/mac/mac.xcworkspace`. 
-
-In case you run into `Undefined symbols...` errors related to `sqlite`, you might have to manually enable linking of sqlite by adding `-lsqlite3` to your project's linker flags ([instructions](https://stackoverflow.com/questions/35313249/xcode-where-can-i-set-this-linker-flag-v)). In most cases, [SQLDelight](https://github.com/cashapp/sqldelight) should handle this for you automatically.
+### Documentation
+- [Building the projects](documentation/building.md)
+- Architecture design records
+  - [Overview of the UI architecture](documentation/architecture.md)
+  - [Why Press uses custom Views for screens](documentation/screens_as_custom_views.md)
+  - [Dependency injection with respect to shared code](documentation/dependency_injection.md)
+  - [Testing and debugging shared code](documentation/testing.md)
 
 ### Contributing
 Press is a barebones app right now and there are many improvements to make. The first steps would be setting up the iOS app, followed by macOS. Take a look at the [open issues](https://github.com/saket/Press/issues) and feel free to pick something up.
-
-**Architecture design records**
-- [Overview of the UI architecture](documentation/architecture.md)
-- [Why Press uses custom Views for screens](documentation/screens_as_custom_views.md)
-- [Dependency injection with respect to shared code](documentation/dependency_injection.md)
-- [Testing and debugging shared code](documentation/testing.md)
 
 ### License
 ```
