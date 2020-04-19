@@ -1,9 +1,9 @@
 package me.saket.wysiwyg.formatting
 
+import me.saket.wysiwyg.atomicLazy
 import me.saket.wysiwyg.formatting.ReplaceNewLineWith.DeleteLetters
 import me.saket.wysiwyg.formatting.ReplaceNewLineWith.InsertLetters
 import me.saket.wysiwyg.util.isDigit
-import kotlin.LazyThreadSafetyMode.NONE
 
 object AutoFormatOnEnterPress {
 
@@ -55,7 +55,7 @@ object AutoFormatOnEnterPress {
   }
 
   private object StartFencedCodeBlock : OnEnterAutoFormatter {
-    val fencedCodeRegex by lazy(NONE) { Regex("(```)[a-z]*[\\s\\S]*?(```)") }
+    val fencedCodeRegex by atomicLazy { Regex("(```)[a-z]*[\\s\\S]*?(```)") }
 
     override fun onEnter(
       text: CharSequence,
@@ -95,7 +95,7 @@ object AutoFormatOnEnterPress {
   }
 
   private object ListContinuation : OnEnterAutoFormatter {
-    private val orderedItemRegex by lazy(NONE) { Regex("(\\d+)\\.\\s") }
+    private val orderedItemRegex by atomicLazy { Regex("(\\d+)\\.\\s") }
 
     @Suppress("NAME_SHADOWING")
     override fun onEnter(
