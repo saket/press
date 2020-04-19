@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'org.jetbrains.kotlin.multiplatform'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: "org.jetbrains.kotlin.native.cocoapods"
 
 android {
   compileSdkVersion versions.compileSdk
@@ -13,22 +14,21 @@ android {
   }
 }
 
-// Not sure, but probably used by CocoaPods.
-version = 0.1
-
 kotlin {
   targets {
     fromPreset(presets.android, 'android')
-    fromPreset(presets.macosX64, 'macos')
+    fromPreset(presets.macosX64, 'macos') {
+      binaries {
+        framework('wysiwyg')
+      }
+    }
 
     def buildForDevice = project.findProperty("device")?.toBoolean() ?: false
     def iosTarget = (buildForDevice) ? presets.iosArm64 : presets.iosX64
 
     fromPreset(iosTarget, "ios") {
       binaries {
-        framework {
-          baseName = "shared"
-
+        framework('wysiwyg') {
           // Disable bitcode embedding for the simulator build.
           if (!buildForDevice) {
             embedBitcode("disable")
@@ -81,20 +81,10 @@ kotlin {
   }
 }
 
-dependencies {}
-
-task copyFramework {
-  def buildType = project.findProperty("kotlin.build.type") ?: "DEBUG"
-  dependsOn "link${buildType.toLowerCase().capitalize()}FrameworkIos"
-
-  doLast {
-    def srcFile = kotlin.targets.ios.binaries.getFramework(buildType).outputFile
-    def targetDir = getProperty("configuration.build.dir")
-    copy {
-      from srcFile.parent
-      into targetDir
-      include 'wysiwyg.framework/**'
-      include 'wysiwyg.framework.dSYM'
-    }
-  }
+kotlin.cocoapods {
+  summary = "A cross-platform markdown parser"
+  homepage = "https://github.com/saket/press/tree/master/wysiwyg"
 }
+version = 1.0 // also used by cocoapods plugin.
+
+dependencies {}
