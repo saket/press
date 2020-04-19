@@ -12,7 +12,7 @@
 		09F1A2052446CE9B00D038A9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 09F1A2042446CE9B00D038A9 /* Assets.xcassets */; };
 		09F1A2082446CE9B00D038A9 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 09F1A2072446CE9B00D038A9 /* Preview Assets.xcassets */; };
 		09F1A20B2446CE9B00D038A9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 09F1A2092446CE9B00D038A9 /* Main.storyboard */; };
-		6DB959223B5F4D5F5AAC6178 /* Pods_mac.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17DB45AD722DB7E36BBC43E7 /* Pods_mac.framework */; };
+		E9DAF6D2C3D0A1F1D75A5AB1 /* Pods_mac.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CF76B24AB4ACDF361DE370A9 /* Pods_mac.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,9 +24,9 @@
 		09F1A20A2446CE9B00D038A9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		09F1A20C2446CE9B00D038A9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		09F1A20D2446CE9B00D038A9 /* mac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = mac.entitlements; sourceTree = "<group>"; };
-		17DB45AD722DB7E36BBC43E7 /* Pods_mac.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_mac.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5CEBE819EF748ACA146C79AE /* Pods-mac.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-mac.release.xcconfig"; path = "Target Support Files/Pods-mac/Pods-mac.release.xcconfig"; sourceTree = "<group>"; };
 		C1F16A1D5CC1D5FCAD6BD133 /* Pods-mac.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-mac.debug.xcconfig"; path = "Target Support Files/Pods-mac/Pods-mac.debug.xcconfig"; sourceTree = "<group>"; };
+		CF76B24AB4ACDF361DE370A9 /* Pods_mac.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_mac.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -34,7 +34,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6DB959223B5F4D5F5AAC6178 /* Pods_mac.framework in Frameworks */,
+				E9DAF6D2C3D0A1F1D75A5AB1 /* Pods_mac.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -84,7 +84,7 @@
 		3CD78A7F2DAEF8CFD5E42BF2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				17DB45AD722DB7E36BBC43E7 /* Pods_mac.framework */,
+				CF76B24AB4ACDF361DE370A9 /* Pods_mac.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -95,7 +95,6 @@
 				C1F16A1D5CC1D5FCAD6BD133 /* Pods-mac.debug.xcconfig */,
 				5CEBE819EF748ACA146C79AE /* Pods-mac.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -344,6 +343,14 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15.3;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-l\"c++\"",
+					"-framework",
+					"\"shared\"",
+					"-lsqlite3",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = me.saket.press;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -366,6 +373,14 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15.3;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-l\"c++\"",
+					"-framework",
+					"\"shared\"",
+					"-lsqlite3",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = me.saket.press;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
