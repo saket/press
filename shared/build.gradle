@@ -23,7 +23,10 @@ kotlin {
     fromPreset(presets.android, 'android')
     fromPreset(presets.macosX64, 'macos') {
       binaries {
-        framework('shared')
+        framework('shared') {
+          isStatic = false
+          linkerOpts.add("-lsqlite3")
+        }
       }
     }
 
@@ -33,6 +36,9 @@ kotlin {
     fromPreset(iosTarget, "ios") {
       binaries {
         framework('shared') {
+          isStatic = false
+          linkerOpts.add("-lsqlite3")
+
           // Disable bitcode embedding for the simulator build.
           if (!buildForDevice) {
             embedBitcode("disable")
