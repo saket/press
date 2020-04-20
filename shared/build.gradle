@@ -20,10 +20,11 @@ sqldelight {
 
 kotlin {
   targets {
-    fromPreset(presets.android, 'android')
-    fromPreset(presets.macosX64, 'macos') {
+    fromPreset(presets.android, "android")
+    fromPreset(presets.macosX64, "macos") {
+      compilations.main.kotlinOptions.freeCompilerArgs += "-Xobjc-generics"
       binaries {
-        framework('shared') {
+        framework("shared") {
           isStatic = false
           linkerOpts.add("-lsqlite3")
         }
@@ -35,7 +36,8 @@ kotlin {
 
     fromPreset(iosTarget, "ios") {
       binaries {
-        framework('shared') {
+        compilations.main.kotlinOptions.freeCompilerArgs += "-Xobjc-generics"
+        framework("shared") {
           isStatic = false
           linkerOpts.add("-lsqlite3")
 

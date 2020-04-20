@@ -16,10 +16,10 @@ android {
 
 kotlin {
   targets {
-    fromPreset(presets.android, 'android')
-    fromPreset(presets.macosX64, 'macos') {
+    fromPreset(presets.android, "android")
+    fromPreset(presets.macosX64, "macos") {
       binaries {
-        framework('wysiwyg')
+        framework("wysiwyg")
       }
     }
 
@@ -28,7 +28,7 @@ kotlin {
 
     fromPreset(iosTarget, "ios") {
       binaries {
-        framework('wysiwyg') {
+        framework("wysiwyg") {
           // Disable bitcode embedding for the simulator build.
           if (!buildForDevice) {
             embedBitcode("disable")
