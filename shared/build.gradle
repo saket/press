@@ -23,11 +23,9 @@ kotlin {
     fromPreset(presets.android, "android")
     fromPreset(presets.macosX64, "macos") {
       compilations.main.kotlinOptions.freeCompilerArgs += "-Xobjc-generics"
-      binaries {
-        framework("shared") {
-          isStatic = false
-          linkerOpts.add("-lsqlite3")
-        }
+      [binaries.getFramework('debug'), binaries.getFramework('release')].each {
+        it.isStatic = false
+        it.linkerOpts.add("-lsqlite3")
       }
     }
 
@@ -35,16 +33,14 @@ kotlin {
     def iosTarget = (buildForDevice) ? presets.iosArm64 : presets.iosX64
 
     fromPreset(iosTarget, "ios") {
-      binaries {
-        compilations.main.kotlinOptions.freeCompilerArgs += "-Xobjc-generics"
-        framework("shared") {
-          isStatic = false
-          linkerOpts.add("-lsqlite3")
+      compilations.main.kotlinOptions.freeCompilerArgs += "-Xobjc-generics"
+      [binaries.getFramework('debug'), binaries.getFramework('release')].each {
+        it.isStatic = false
+        it.linkerOpts.add("-lsqlite3")
 
-          // Disable bitcode embedding for the simulator build.
-          if (!buildForDevice) {
-            embedBitcode("disable")
-          }
+        // Disable bitcode embedding for the simulator build.
+        if (!buildForDevice) {
+          it.embedBitcode("disable")
         }
       }
     }
@@ -53,6 +49,7 @@ kotlin {
   sourceSets {
     commonMain {
       dependencies {
+        implementation kotlin('stdlib-common')
         implementation project(':wysiwyg')
         implementation deps.reaktive.core.common
         implementation deps.koin.core.common
