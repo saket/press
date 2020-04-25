@@ -12,6 +12,5 @@ subprojects {
     filter {
       exclude { it.file.path.contains("build/") }
     }
-    additionalEditorconfigFile = rootProject.file("quality/.editorconfig")
   }
 }
