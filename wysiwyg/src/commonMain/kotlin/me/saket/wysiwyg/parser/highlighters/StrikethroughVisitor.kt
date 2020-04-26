@@ -2,7 +2,9 @@ package me.saket.wysiwyg.parser.highlighters
 
 import me.saket.wysiwyg.parser.SpanWriter
 import me.saket.wysiwyg.parser.node.Strikethrough
+import me.saket.wysiwyg.parser.node.closingMarker
 import me.saket.wysiwyg.parser.node.endOffset
+import me.saket.wysiwyg.parser.node.openingMarker
 import me.saket.wysiwyg.parser.node.startOffset
 
 class StrikethroughVisitor : DelimitedNodeVisitor<Strikethrough>() {
@@ -15,10 +17,11 @@ class StrikethroughVisitor : DelimitedNodeVisitor<Strikethrough>() {
         from = node.startOffset,
         to = node.endOffset
     )
+
     writer.addForegroundColor(
         color = writer.style.strikethroughTextColor,
-        from = node.startOffset,
-        to = node.endOffset
+        from = node.startOffset + node.openingMarker.length,
+        to = node.endOffset - node.closingMarker.length
     )
     super.visit(node, writer)
   }
