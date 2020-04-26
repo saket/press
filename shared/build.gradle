@@ -53,6 +53,7 @@ kotlin {
   sourceSets {
     commonMain {
       dependencies {
+        implementation kotlin('stdlib-common')
         implementation project(':wysiwyg')
         implementation deps.reaktive.core.common
         implementation deps.koin.core.common
