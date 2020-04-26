@@ -18,7 +18,6 @@ import kotlin.test.Test
 class HomePresenterTest {
 
   private val noteRepository = FakeNoteRepository()
-  private val events = publishSubject<HomeEvent>()
 
   private fun presenter(includeEmptyNotes: Boolean = true) = HomePresenter(
       args = Args(includeEmptyNotes),
@@ -36,7 +35,7 @@ class HomePresenterTest {
     )
 
     val noteModel = presenter()
-        .uiModels(events)
+        .uiModels()
         .test()
         .values[0]
         .notes
@@ -59,7 +58,7 @@ class HomePresenterTest {
     )
 
     presenter(includeEmptyNotes = false)
-        .uiModels(events)
+        .uiModels()
         .test()
         .apply {
           val titleAndBodies = values[0].notes.map { it.title to it.body }
@@ -75,7 +74,7 @@ class HomePresenterTest {
     )
 
     presenter(includeEmptyNotes = true)
-        .uiModels(events)
+        .uiModels()
         .test()
         .apply {
           val titleAndBodies = values[0].notes.map { it.title to it.body }
@@ -88,9 +87,11 @@ class HomePresenterTest {
   }
 
   @Test fun `open new note screen when new note is clicked`() {
-    presenter().uiEffects(events)
+    val presenter = presenter()
+
+    presenter.uiEffects()
         .test()
-        .also { events.onNext(NewNoteClicked) }
+        .also { presenter.dispatch(NewNoteClicked) }
         .assertValue(ComposeNewNote)
   }
 }

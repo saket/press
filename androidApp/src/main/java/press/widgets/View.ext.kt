@@ -2,6 +2,8 @@ package press.widgets
 
 import android.graphics.Rect
 import android.os.Build.VERSION.SDK_INT
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.TypedValue.COMPLEX_UNIT_PX
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -11,6 +13,7 @@ import androidx.annotation.AttrRes
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
+import me.saket.wysiwyg.widgets.SimpleTextWatcher
 
 fun View.string(@StringRes stringRes: Int) = resources.getString(stringRes)
 
@@ -74,4 +77,10 @@ fun View.locationOnScreen(): Rect {
   val loc = IntArray(2)
   getLocationOnScreen(loc)
   return Rect(loc[0], loc[1], loc[0] + width, loc[1] + height)
+}
+
+inline fun EditText.doOnTextChange(crossinline action: (Editable) -> Unit) {
+  addTextChangedListener(object : SimpleTextWatcher {
+    override fun afterTextChanged(text: Editable) = action(text)
+  })
 }

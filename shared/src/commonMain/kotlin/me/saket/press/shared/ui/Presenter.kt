@@ -1,12 +1,8 @@
 package me.saket.press.shared.ui
 
 import com.badoo.reaktive.observable.Observable
-import com.badoo.reaktive.observable.map
-import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observableOfEmpty
-import com.badoo.reaktive.observable.publish
-import me.saket.press.shared.ui.UiUpdate.UiModel
-import me.saket.press.shared.ui.UiUpdate.UiEffect
+import com.badoo.reaktive.subject.publish.PublishSubject
 
 /**
  * @param [Event] UI events being performed by the user.
@@ -15,20 +11,18 @@ import me.saket.press.shared.ui.UiUpdate.UiEffect
  *                 model. For e.g., updating a text field just once, showing a toast or
  *                 navigating to a new screen.
  */
-interface Presenter<Event, Model, Effect> {
+abstract class Presenter<Event, Model, Effect> {
 
-  fun uiModels(publishedEvents: Observable<Event>): Observable<Model>
+  private val viewEvents = PublishSubject<Event>()
+  protected fun viewEvents(): Observable<Event> = viewEvents
 
-  fun uiEffects(publishedEvents: Observable<Event>): Observable<Effect> = observableOfEmpty()
-
-  fun uiUpdates(events: Observable<Event>): Observable<UiUpdate<out Model, out Effect>> {
-    return events.publish { publishedEvents ->
-      merge(
-          uiModels(publishedEvents).map(::UiModel),
-          uiEffects(publishedEvents).map(::UiEffect)
-      )
-    }
+  fun dispatch(viewEvent: Event) {
+    viewEvents.onNext(viewEvent)
   }
+
+  abstract fun uiModels(): Observable<Model>
+
+  open fun uiEffects(): Observable<Effect> = observableOfEmpty()
 }
 
 sealed class UiUpdate<Model, Effect> {

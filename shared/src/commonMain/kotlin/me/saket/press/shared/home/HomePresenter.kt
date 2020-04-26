@@ -15,13 +15,13 @@ import me.saket.press.shared.ui.Presenter
 class HomePresenter(
   private val args: Args,
   private val repository: NoteRepository
-) : Presenter<HomeEvent, HomeUiModel, HomeUiEffect> {
+) : Presenter<HomeEvent, HomeUiModel, HomeUiEffect>() {
 
-  override fun uiModels(publishedEvents: Observable<HomeEvent>) =
+  override fun uiModels() =
     merge(populateNotes())
 
-  override fun uiEffects(publishedEvents: Observable<HomeEvent>) =
-    publishedEvents.openNewNoteScreen()
+  override fun uiEffects() =
+      viewEvents().openNewNoteScreen()
 
   private fun Observable<HomeEvent>.openNewNoteScreen(): Observable<HomeUiEffect> =
     ofType<NewNoteClicked>().map { ComposeNewNote }

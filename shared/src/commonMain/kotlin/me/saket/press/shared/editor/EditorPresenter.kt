@@ -41,15 +41,16 @@ class EditorPresenter(
   private val computationScheduler: Scheduler,
   private val strings: Editor,
   private val config: EditorConfig
-) : Presenter<EditorEvent, EditorUiModel, EditorUiEffect> {
+) : Presenter<EditorEvent, EditorUiModel, EditorUiEffect>() {
 
   private val openMode = args.openMode
 
   // replayingShare() would have been better.
   private val noteStream = createOrFetchNote().share()
 
-  override fun uiModels(publishedEvents: Observable<EditorEvent>): Observable<EditorUiModel> {
-    return publishedEvents.publish { sharedEvents ->
+  override fun uiModels(): Observable<EditorUiModel> {
+    // todo: is publish needed anymore?
+    return viewEvents().publish { sharedEvents ->
       val uiModels = sharedEvents
           .toggleHintText()
           .map { (hint) -> EditorUiModel(hintText = hint) }
@@ -60,7 +61,7 @@ class EditorPresenter(
     }
   }
 
-  override fun uiEffects(publishedEvents: Observable<EditorEvent>): Observable<EditorUiEffect> {
+  override fun uiEffects(): Observable<EditorUiEffect> {
     return merge(
         populateExistingNoteOnStart(),
         closeIfNoteGetsDeleted()

@@ -33,8 +33,9 @@ import me.saket.press.shared.home.HomePresenter.Args
 import me.saket.press.shared.home.HomeUiEffect
 import me.saket.press.shared.home.HomeUiEffect.ComposeNewNote
 import me.saket.press.shared.home.HomeUiModel
-import me.saket.press.shared.subscribe
-import me.saket.press.shared.uiUpdates
+import me.saket.press.shared.ui.UiUpdate
+import me.saket.press.shared.ui.subscribe
+import me.saket.press.shared.ui.uiUpdates
 import press.editor.EditorActivity
 import press.editor.EditorView
 import press.theme.themeAware
@@ -139,13 +140,13 @@ class HomeView @AssistedInject constructor(
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
 
-    val newNoteClicks = newNoteFab
-        .clicks()
-        .map<HomeEvent> { NewNoteClicked }
-
     val presenter = presenter.create(Args(includeEmptyNotes = false))
 
-    newNoteClicks.uiUpdates(presenter)
+    newNoteFab.setOnClickListener {
+      presenter.dispatch(NewNoteClicked)
+    }
+
+    presenter.uiUpdates()
         // These two suspend calls skip updates while an
         // existing note or the new-note screen is open.
         .suspendWhileExpanded(noteEditorPage)

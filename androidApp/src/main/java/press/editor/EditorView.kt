@@ -23,14 +23,13 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.graphics.ColorUtils.blendARGB
 import androidx.core.view.updatePaddingRelative
 import com.jakewharton.rxbinding3.view.detaches
-import com.jakewharton.rxbinding3.widget.textChanges
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
-import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import me.saket.press.R
 import me.saket.press.R.drawable
-import me.saket.press.shared.editor.EditorEvent
+import me.saket.press.shared.editor.AutoCorrectEnabled
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode
 import me.saket.press.shared.editor.EditorPresenter
@@ -39,12 +38,13 @@ import me.saket.press.shared.editor.EditorUiEffect
 import me.saket.press.shared.editor.EditorUiEffect.CloseNote
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.editor.EditorUiModel
-import me.saket.press.shared.subscribe
+import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.theme.DisplayUnits
 import me.saket.press.shared.theme.EditorUiStyles
 import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.theme.from
-import me.saket.press.shared.uiUpdates
+import me.saket.press.shared.ui.subscribe
+import me.saket.press.shared.ui.uiUpdates
 import me.saket.wysiwyg.Wysiwyg
 import me.saket.wysiwyg.formatting.TextSelection
 import me.saket.wysiwyg.parser.node.HeadingLevel.H1
@@ -55,12 +55,10 @@ import press.theme.themePalette
 import press.theme.themed
 import press.util.exhaustive
 import press.widgets.Truss
+import press.widgets.doOnTextChange
 import press.widgets.fromOreo
 import press.widgets.textColor
 import press.widgets.textSizePx
-import me.saket.press.R
-import me.saket.press.shared.editor.AutoCorrectEnabled
-import me.saket.press.shared.settings.Setting
 
 class EditorView @AssistedInject constructor(
   @Assisted context: Context,
@@ -159,12 +157,11 @@ class EditorView @AssistedInject constructor(
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
 
-    val noteTextChanges: Observable<EditorEvent> = editorEditText
-        .textChanges()
-        .map { NoteTextChanged(it.toString()) }
+    editorEditText.doOnTextChange {
+      presenter.dispatch(NoteTextChanged(it.toString()))
+    }
 
-    Observable.mergeArray(noteTextChanges)
-        .uiUpdates(presenter)
+    presenter.uiUpdates()
         .takeUntil(detaches())
         .observeOn(mainThread())
         .subscribe(models = ::render, effects = ::render)

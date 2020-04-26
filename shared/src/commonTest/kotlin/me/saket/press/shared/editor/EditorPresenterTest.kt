@@ -4,7 +4,6 @@ import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
-import com.badoo.reaktive.subject.publish.publishSubject
 import com.badoo.reaktive.test.base.assertNotError
 import com.badoo.reaktive.test.observable.assertValue
 import com.badoo.reaktive.test.observable.test
@@ -37,8 +36,6 @@ class EditorPresenterTest {
       editUrl = "Edit"
   )
 
-  private val events = publishSubject<EditorEvent>()
-
   private fun presenter(openMode: EditorOpenMode): EditorPresenter {
     return EditorPresenter(
         args = Args(openMode),
@@ -54,7 +51,7 @@ class EditorPresenterTest {
     assertThat(repository.savedNotes).hasSize(0)
 
     val observer = presenter(NewNote(noteUuid))
-        .uiModels(events)
+        .uiModels()
         .test()
 
     repository.savedNotes.single().let {
@@ -70,21 +67,22 @@ class EditorPresenterTest {
         content = "# "
     )
 
-    val observer = presenter(NewNote(noteUuid))
-        .uiModels(events)
+    val presenter = presenter(NewNote(noteUuid))
+    val observer = presenter
+        .uiModels()
         .test()
 
     val savedNote = { repository.savedNotes.single { it.uuid == noteUuid } }
 
-    events.onNext(NoteTextChanged("# Ghost Rider"))
+    presenter.dispatch(NoteTextChanged("# Ghost Rider"))
     testScheduler.timer.advanceBy(config.autoSaveEvery.millisecondsLong)
     assertThat(savedNote().content).isEqualTo("# Ghost Rider")
 
-    events.onNext(NoteTextChanged("# Ghost"))
+    presenter.dispatch(NoteTextChanged("# Ghost"))
     testScheduler.timer.advanceBy(config.autoSaveEvery.millisecondsLong)
     assertThat(savedNote().content).isEqualTo("# Ghost")
 
-    events.onNext(NoteTextChanged("# Ghost"))
+    presenter.dispatch(NoteTextChanged("# Ghost"))
     testScheduler.timer.advanceBy(config.autoSaveEvery.millisecondsLong)
     assertThat(repository.updateCount).isEqualTo(2)
 
@@ -95,7 +93,7 @@ class EditorPresenterTest {
     repository.savedNotes += fakeNote(uuid = noteUuid, content = "Nicolas")
 
     val observer = presenter(ExistingNote(noteUuid))
-        .uiModels(events)
+        .uiModels()
         .test()
 
     repository.savedNotes.single().let {
@@ -134,15 +132,16 @@ class EditorPresenterTest {
   }
 
   @Test fun `show hint text until the text is changed`() {
-    val uiModels = presenter(NewNote(noteUuid))
-        .uiModels(events)
+    val presenter = presenter(NewNote(noteUuid))
+    val uiModels = presenter
+        .uiModels()
         .test()
 
-    events.onNext(NoteTextChanged(NEW_NOTE_PLACEHOLDER))
-    events.onNext(NoteTextChanged(""))
-    events.onNext(NoteTextChanged(NEW_NOTE_PLACEHOLDER))
-    events.onNext(NoteTextChanged("  $NEW_NOTE_PLACEHOLDER"))
-    events.onNext(NoteTextChanged("$NEW_NOTE_PLACEHOLDER  "))
+    presenter.dispatch(NoteTextChanged(NEW_NOTE_PLACEHOLDER))
+    presenter.dispatch(NoteTextChanged(""))
+    presenter.dispatch(NoteTextChanged(NEW_NOTE_PLACEHOLDER))
+    presenter.dispatch(NoteTextChanged("  $NEW_NOTE_PLACEHOLDER"))
+    presenter.dispatch(NoteTextChanged("$NEW_NOTE_PLACEHOLDER  "))
 
     val randomlySelectedHint = uiModels.values[0].hintText
 
@@ -162,7 +161,7 @@ class EditorPresenterTest {
     )
 
     presenter(ExistingNote(noteUuid))
-        .uiEffects(events)
+        .uiEffects()
         .test()
         .apply {
           assertValue(UpdateNoteText("Nicolas Cage favorite dialogues", newSelection = null))
@@ -172,7 +171,7 @@ class EditorPresenterTest {
 
   @Test fun `populate new note's content on start`() {
     presenter(NewNote(noteUuid))
-        .uiEffects(events)
+        .uiEffects()
         .test()
         .apply {
           assertValue(
