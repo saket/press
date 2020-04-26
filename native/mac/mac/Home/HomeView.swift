@@ -16,21 +16,24 @@ class ObservablePlatform : ObservableObject {
 }
 
 struct HomeView: View {
+  let presenterFactory: HomePresenterFactory
   @State private var platform = ObservablePlatform()
-  
+
   var body: some View {
     return Text("Hello \(platform.name)!")
       .frame(maxWidth: .infinity, maxHeight: .infinity)
   }
-  
-  init() {
+
+  init(presenterFactory: HomePresenterFactory) {
+    self.presenterFactory = presenterFactory
+
     // Inlining this function here fails with an error because
     // updateName() is capturing "self" in a closure, but which
     // isn't allowed in structs, not sure why. Gotta figure out
     // a better way.
     updateName()
   }
-  
+
   func updateName() {
     TestPresenter()
       .platformNameWrapper()
@@ -40,8 +43,9 @@ struct HomeView: View {
   }
 }
 
-struct HomeView_Previews: PreviewProvider {
-  static var previews: some View {
-    HomeView()
-  }
-}
+// TODO(saket): can this be made to work by creating fake presenters?
+//struct HomeView_Previews: PreviewProvider {
+//  static var previews: some View {
+//    HomeView()
+//  }
+//}

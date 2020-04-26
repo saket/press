@@ -9,17 +9,17 @@
 import Cocoa
 import SwiftUI
 import shared
+import Swinject
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
   var window: NSWindow!
+  lazy var component = createAppComponent()
 
   func applicationDidFinishLaunching(_ aNotification: Notification) {
-    SharedAppComponent().initialize()
-
     // Create the SwiftUI view that provides the window contents.
-    let contentView = HomeView()
+    let contentView = component.resolve(HomeView.self)!
 
     // Create the window and set the content view.
     window = NSWindow(
@@ -34,5 +34,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
   func applicationWillTerminate(_ aNotification: Notification) {
     // Insert code here to tear down your application
+  }
+
+  // Sets up dependency injection for the app. I'm using the
+  // term "component" to keep them consistent with the shared
+  // Kotlin and Android code.
+  func createAppComponent() -> Resolver {
+    SharedAppComponent().initialize()
+    return Assembler([
+      HomeComponent()
+    ]).resolver
   }
 }
