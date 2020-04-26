@@ -4,7 +4,7 @@ import me.saket.press.shared.settings.customTypeSetting
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
-internal object SharedNoteComponent {
+internal class SharedNoteComponent {
   val module = module {
     single<NoteRepository> {
       RealNoteRepository(

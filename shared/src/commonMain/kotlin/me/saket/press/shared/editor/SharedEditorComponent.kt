@@ -9,7 +9,7 @@ import org.koin.core.parameter.parametersOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
-object SharedEditorComponent {
+class SharedEditorComponent {
 
   val module = module {
     factory { (args: EditorPresenter.Args) ->
@@ -33,9 +33,14 @@ object SharedEditorComponent {
     }
   }
 
-  fun editorConfig() = EditorConfig(autoSaveEvery = 5.seconds)
+  companion object {
+    fun editorConfig(): EditorConfig =
+      EditorConfig(autoSaveEvery = 5.seconds)
 
-  fun presenter(args: EditorPresenter.Args): EditorPresenter = koin { parametersOf(args) }
+    fun presenter(args: EditorPresenter.Args): EditorPresenter =
+      koin { parametersOf(args) }
 
-  fun autoCorrectEnabled(): Setting<AutoCorrectEnabled> = koin(named("autocorrect"))
+    fun autoCorrectEnabled(): Setting<AutoCorrectEnabled> =
+      koin(named("autocorrect"))
+  }
 }

@@ -8,7 +8,7 @@ import me.saket.press.data.shared.Note
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
-internal object SharedDatabaseComponent {
+internal class SharedDatabaseComponent {
   val module = module {
     single { get<SqlDriver>().createPressDatabase() }
     single { get<PressDatabase>().noteQueries }
