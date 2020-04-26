@@ -1,5 +1,7 @@
 package me.saket.press.shared.theme
 
+import me.saket.wysiwyg.style.parseColor
+
 val COLOR_WHITE = "#FFFFFF".parseColor()
 val COLOR_TUNA = "#353846".parseColor()
 val COLOR_BLACK_ROCK = "#2F323F".parseColor()

@@ -1,4 +1,4 @@
-package me.saket.press.shared.theme
+package me.saket.wysiwyg.style
 
 /**
  * Copied from Android's Color.parseColor().
