@@ -11,7 +11,10 @@
   "summary": "A cross-platform markdown editor",
   "static_framework": true,
   "vendored_frameworks": "build/cocoapods/framework/shared.framework",
-  "libraries": "c++",
+  "libraries": [
+    "c++",
+    "sqlite3"
+  ],
   "module_name": "shared_umbrella",
   "pod_target_xcconfig": {
     "KOTLIN_TARGET[sdk=iphonesimulator*]": "ios_x64",

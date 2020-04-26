@@ -9,10 +9,8 @@ Pod::Spec.new do |spec|
 
     spec.static_framework         = true
     spec.vendored_frameworks      = "build/cocoapods/framework/shared.framework"
-    spec.libraries                = "c++"
+    spec.libraries                = "c++", 'sqlite3'
     spec.module_name              = "#{spec.name}_umbrella"
-
-            
 
     spec.pod_target_xcconfig = {
         'KOTLIN_TARGET[sdk=iphonesimulator*]' => 'ios_x64',

@@ -361,7 +361,6 @@
 					"-l\"c++\"",
 					"-framework",
 					"\"shared\"",
-					"-lsqlite3",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = me.saket.press;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -391,7 +390,6 @@
 					"-l\"c++\"",
 					"-framework",
 					"\"shared\"",
-					"-lsqlite3",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = me.saket.press;
 				PRODUCT_NAME = "$(TARGET_NAME)";
