@@ -1,9 +1,9 @@
-use_frameworks!
+source 'https://github.com/CocoaPods/Specs.git'
 
 platform :osx, '10.15.3'
-
-install! 'cocoapods', :deterministic_uuids => false
+use_frameworks!
 
 target 'mac' do
   pod 'shared', :path => '../../shared'
+  pod 'Swinject'
 end
