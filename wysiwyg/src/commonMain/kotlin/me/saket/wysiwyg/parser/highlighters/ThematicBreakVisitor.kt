@@ -41,4 +41,3 @@ class ThematicBreakVisitor : NodeVisitor<ThematicBreak> {
     private const val FOUR_ASTERISKS_HORIZONTAL_RULE = "****"
   }
 }
-

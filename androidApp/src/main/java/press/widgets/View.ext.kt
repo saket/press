@@ -3,7 +3,6 @@ package press.widgets
 import android.graphics.Rect
 import android.os.Build.VERSION.SDK_INT
 import android.text.Editable
-import android.text.TextWatcher
 import android.util.TypedValue.COMPLEX_UNIT_PX
 import android.view.View
 import android.view.inputmethod.InputMethodManager

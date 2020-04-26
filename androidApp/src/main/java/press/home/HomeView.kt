@@ -12,7 +12,6 @@ import androidx.core.view.postDelayed
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.detaches
 import com.mikepenz.itemanimators.AlphaInAnimator
 import com.squareup.contour.ContourLayout
@@ -25,7 +24,6 @@ import me.saket.inboxrecyclerview.dimming.TintPainter
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.R
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
-import me.saket.press.shared.home.HomeEvent
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomeEvent.WindowFocusChanged
 import me.saket.press.shared.home.HomePresenter
@@ -33,7 +31,6 @@ import me.saket.press.shared.home.HomePresenter.Args
 import me.saket.press.shared.home.HomeUiEffect
 import me.saket.press.shared.home.HomeUiEffect.ComposeNewNote
 import me.saket.press.shared.home.HomeUiModel
-import me.saket.press.shared.ui.UiUpdate
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import press.editor.EditorActivity

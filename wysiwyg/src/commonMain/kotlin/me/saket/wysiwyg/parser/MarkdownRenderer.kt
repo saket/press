@@ -27,4 +27,4 @@ abstract class MarkdownRenderer(val style: WysiwygStyle) {
   abstract fun addThematicBreak(syntax: String, from: Int, to: Int)
 }
 
-expect class RealMarkdownRenderer(style: WysiwygStyle, textField: NativeTextField): MarkdownRenderer
+expect class RealMarkdownRenderer(style: WysiwygStyle, textField: NativeTextField) : MarkdownRenderer

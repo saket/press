@@ -4,7 +4,6 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Paint.FontMetricsInt
 import android.text.TextPaint
-import android.text.style.CharacterStyle
 import android.text.style.LineBackgroundSpan
 import me.saket.wysiwyg.style.WysiwygStyle
 

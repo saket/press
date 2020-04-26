@@ -5,7 +5,10 @@ import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.widgets.EditableText
 import me.saket.wysiwyg.widgets.NativeTextField
 
-actual class RealMarkdownRenderer actual constructor(style: WysiwygStyle, textField: NativeTextField): MarkdownRenderer(style) {
+actual class RealMarkdownRenderer actual constructor(
+  style: WysiwygStyle,
+  textField: NativeTextField
+) : MarkdownRenderer(style) {
   override fun renderTo(text: EditableText): Unit = TODO()
   override fun clear(): Unit = TODO()
   override fun addForegroundColor(color: Int, from: Int, to: Int): Unit = TODO()
