@@ -8,6 +8,7 @@
 
 import Cocoa
 import SwiftUI
+import shared
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -15,6 +16,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   var window: NSWindow!
   
   func applicationDidFinishLaunching(_ aNotification: Notification) {
+    SharedAppComponent.initialize()
+    
     // Create the SwiftUI view that provides the window contents.
     let contentView = HomeView()
     
