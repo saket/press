@@ -1,6 +1,6 @@
 package me.saket.wysiwyg.parser.highlighters
 
-import me.saket.wysiwyg.parser.SpanWriter
+import me.saket.wysiwyg.parser.MarkdownRenderer
 import me.saket.wysiwyg.parser.node.Heading
 import me.saket.wysiwyg.parser.node.endOffset
 import me.saket.wysiwyg.parser.node.headingLevel
@@ -31,20 +31,20 @@ class HeadingVisitor : SyntaxHighlighter<Heading> {
     object : NodeVisitor<Heading> {
       override fun visit(
         node: Heading,
-        writer: SpanWriter
+        renderer: MarkdownRenderer
       ) {
-        writer.addHeading(
+        renderer.addHeading(
           level = node.headingLevel,
           from = node.startOffset,
           to = node.endOffset
       )
-      writer.addForegroundColor(
-            color = writer.style.syntaxColor,
+      renderer.addForegroundColor(
+            color = renderer.style.syntaxColor,
             from = node.startOffset,
           to = node.startOffset + node.openingMarker.length
       )
-      writer.addForegroundColor(
-            color = writer.style.heading.textColor,
+      renderer.addForegroundColor(
+            color = renderer.style.heading.textColor,
             from = node.startOffset + node.openingMarker.length,
           to = node.endOffset
       )

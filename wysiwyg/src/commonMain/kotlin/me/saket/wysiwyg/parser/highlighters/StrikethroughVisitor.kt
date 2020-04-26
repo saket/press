@@ -1,6 +1,6 @@
 package me.saket.wysiwyg.parser.highlighters
 
-import me.saket.wysiwyg.parser.SpanWriter
+import me.saket.wysiwyg.parser.MarkdownRenderer
 import me.saket.wysiwyg.parser.node.Strikethrough
 import me.saket.wysiwyg.parser.node.closingMarker
 import me.saket.wysiwyg.parser.node.endOffset
@@ -11,18 +11,18 @@ class StrikethroughVisitor : DelimitedNodeVisitor<Strikethrough>() {
 
   override fun visit(
     node: Strikethrough,
-    writer: SpanWriter
+    renderer: MarkdownRenderer
   ) {
-    writer.addStrikethrough(
+    renderer.addStrikethrough(
         from = node.startOffset,
         to = node.endOffset
     )
 
-    writer.addForegroundColor(
-        color = writer.style.strikethroughTextColor,
+    renderer.addForegroundColor(
+        color = renderer.style.strikethroughTextColor,
         from = node.startOffset + node.openingMarker.length,
         to = node.endOffset - node.closingMarker.length
     )
-    super.visit(node, writer)
+    super.visit(node, renderer)
   }
 }

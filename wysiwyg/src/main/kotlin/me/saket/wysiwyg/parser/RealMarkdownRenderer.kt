@@ -21,17 +21,17 @@ import me.saket.wysiwyg.widgets.NativeTextField
 
 typealias LineNumber = Int
 
-actual class RealSpanWriter actual constructor(
+actual class RealMarkdownRenderer actual constructor(
   style: WysiwygStyle,
   private val textField: NativeTextField
-) : SpanWriter(style) {
+) : MarkdownRenderer(style) {
 
   private val spanPool = SpanPool()
   private val queuedSpans = mutableListOf<Triple<Any, Int, Int>>()
   private val newHeadings = mutableSetOf<Pair<LineNumber, HeadingLevel>>()
   private val lastHeadings = mutableSetOf<Pair<LineNumber, HeadingLevel>>()
 
-  override fun writeTo(text: EditableText) {
+  override fun renderTo(text: EditableText) {
     for ((span, start) in queuedSpans) {
       if (span is HeadingSpan) {
         newHeadings.add(textField.layout.getLineForOffset(start) to span.level)

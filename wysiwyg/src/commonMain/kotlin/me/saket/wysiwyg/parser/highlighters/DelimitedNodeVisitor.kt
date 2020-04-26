@@ -1,6 +1,6 @@
 package me.saket.wysiwyg.parser.highlighters
 
-import me.saket.wysiwyg.parser.SpanWriter
+import me.saket.wysiwyg.parser.MarkdownRenderer
 import me.saket.wysiwyg.parser.node.DelimitedNode
 import me.saket.wysiwyg.parser.node.Node
 import me.saket.wysiwyg.parser.node.closingMarker
@@ -12,21 +12,21 @@ abstract class DelimitedNodeVisitor<T> : NodeVisitor<T> where T : Node, T : Deli
 
   override fun visit(
     node: T,
-    writer: SpanWriter
+    renderer: MarkdownRenderer
   ) {
-    highlightOpeningSyntax(node.openingMarker, node.startOffset, writer)
-    highlightClosingSyntax(node.closingMarker, node.endOffset, writer)
+    highlightOpeningSyntax(node.openingMarker, node.startOffset, renderer)
+    highlightClosingSyntax(node.closingMarker, node.endOffset, renderer)
   }
 
   companion object {
     fun highlightOpeningSyntax(
       openingMarker: CharSequence,
       startOffset: Int,
-      writer: SpanWriter
+      renderer: MarkdownRenderer
     ) {
       if (openingMarker.isNotEmpty()) {
-        writer.addForegroundColor(
-            color = writer.style.syntaxColor,
+        renderer.addForegroundColor(
+            color = renderer.style.syntaxColor,
             from = startOffset,
             to = startOffset + openingMarker.length
         )
@@ -36,11 +36,11 @@ abstract class DelimitedNodeVisitor<T> : NodeVisitor<T> where T : Node, T : Deli
     fun highlightClosingSyntax(
       closingMarker: CharSequence,
       endOffset: Int,
-      writer: SpanWriter
+      renderer: MarkdownRenderer
     ) {
       if (closingMarker.isNotEmpty()) {
-        writer.addForegroundColor(
-            color = writer.style.syntaxColor,
+        renderer.addForegroundColor(
+            color = renderer.style.syntaxColor,
             from = endOffset - closingMarker.length,
             to = endOffset
         )

@@ -1,6 +1,6 @@
 package me.saket.wysiwyg.parser.highlighters
 
-import me.saket.wysiwyg.parser.SpanWriter
+import me.saket.wysiwyg.parser.MarkdownRenderer
 import me.saket.wysiwyg.parser.node.ThematicBreak
 import me.saket.wysiwyg.parser.node.chars
 import me.saket.wysiwyg.parser.node.endOffset
@@ -10,10 +10,10 @@ class ThematicBreakVisitor : NodeVisitor<ThematicBreak> {
 
   override fun visit(
     node: ThematicBreak,
-    writer: SpanWriter
+    renderer: MarkdownRenderer
   ) {
-    writer.addForegroundColor(
-        color = writer.style.syntaxColor,
+    renderer.addForegroundColor(
+        color = renderer.style.syntaxColor,
         from = node.startOffset,
         to = node.endOffset
     )
@@ -30,7 +30,7 @@ class ThematicBreakVisitor : NodeVisitor<ThematicBreak> {
 
     // Flexmark (Android) maintains a mutable String, which isn't a good idea to cache.
     val immutableSyntax = thematicBreakSyntax.toString()
-    writer.addThematicBreak(
+    renderer.addThematicBreak(
         syntax = immutableSyntax,
         from = node.startOffset,
         to = node.endOffset

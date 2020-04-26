@@ -1,7 +1,7 @@
 package me.saket.wysiwyg
 
 import me.saket.wysiwyg.parser.MarkdownParser
-import me.saket.wysiwyg.parser.RealSpanWriter
+import me.saket.wysiwyg.parser.RealMarkdownRenderer
 import me.saket.wysiwyg.parser.highlighters.RootNodeHighlighter
 import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.widgets.AfterTextChange
@@ -14,9 +14,9 @@ class Wysiwyg(
 ) {
 
   private val parser = MarkdownParser()
+  private val renderer = RealMarkdownRenderer(style, textField)
   private val bgExecutor = SingleThreadBackgroundExecutor()
   private val uiExecutor = UiThreadExecutor
-  private val spanWriter = RealSpanWriter(style, textField)
 
   fun syntaxHighlighter() = AfterTextChange { text ->
     val immutableText = text.toString()
@@ -25,8 +25,8 @@ class Wysiwyg(
     bgExecutor.enqueue {
       val rootNode = parser.parseSpans(immutableText)
 
-      spanWriter.clear()
-      RootNodeHighlighter.visit(rootNode, spanWriter)
+      renderer.clear()
+      RootNodeHighlighter.visit(rootNode, renderer)
 
       uiExecutor.enqueue {
         // Because the text is parsed in background, it is possible
@@ -36,7 +36,7 @@ class Wysiwyg(
         if (isStale.not()) {
           suspendTextChangesAndRun {
             parser.removeSpans(text)
-            spanWriter.writeTo(text)
+            renderer.renderTo(text)
           }
         }
       }

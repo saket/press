@@ -5,8 +5,8 @@ import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.widgets.EditableText
 import me.saket.wysiwyg.widgets.NativeTextField
 
-actual class RealSpanWriter actual constructor(style: WysiwygStyle, textField: NativeTextField): SpanWriter(style) {
-  override fun writeTo(text: EditableText): Unit = TODO()
+actual class RealMarkdownRenderer actual constructor(style: WysiwygStyle, textField: NativeTextField): MarkdownRenderer(style) {
+  override fun renderTo(text: EditableText): Unit = TODO()
   override fun clear(): Unit = TODO()
   override fun addForegroundColor(color: Int, from: Int, to: Int): Unit = TODO()
   override fun addItalics(from: Int, to: Int): Unit = TODO()

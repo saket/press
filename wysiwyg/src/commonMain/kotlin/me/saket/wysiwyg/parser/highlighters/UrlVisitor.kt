@@ -1,6 +1,6 @@
 package me.saket.wysiwyg.parser.highlighters
 
-import me.saket.wysiwyg.parser.SpanWriter
+import me.saket.wysiwyg.parser.MarkdownRenderer
 import me.saket.wysiwyg.parser.node.Url
 import me.saket.wysiwyg.parser.node.endOffset
 import me.saket.wysiwyg.parser.node.startOffset
@@ -10,14 +10,14 @@ class UrlVisitor : NodeVisitor<Url> {
 
   override fun visit(
     node: Url,
-    writer: SpanWriter
+    renderer: MarkdownRenderer
   ) {
-    writer.addForegroundColor(
-        color = writer.style.link.urlColor,
+    renderer.addForegroundColor(
+        color = renderer.style.link.urlColor,
         from = node.startOffset,
         to = node.endOffset
     )
-    writer.addClickableUrl(
+    renderer.addClickableUrl(
         url = node.url.toString(),
         from = node.startOffset,
         to = node.endOffset

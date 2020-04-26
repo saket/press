@@ -1,6 +1,6 @@
 package me.saket.wysiwyg.parser.highlighters
 
-import me.saket.wysiwyg.parser.SpanWriter
+import me.saket.wysiwyg.parser.MarkdownRenderer
 import me.saket.wysiwyg.parser.node.Node
 
 interface SyntaxHighlighter<in T : Node> {
@@ -11,14 +11,14 @@ interface NodeVisitor<in T : Node> {
 
   fun visit(
     node: T,
-    writer: SpanWriter
+    renderer: MarkdownRenderer
   )
 
   companion object {
     val EMPTY = object : NodeVisitor<Node> {
       override fun visit(
         node: Node,
-        writer: SpanWriter
+        renderer: MarkdownRenderer
       ) = Unit
 
       override fun toString() = "Empty node visitor"
