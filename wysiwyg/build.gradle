@@ -17,22 +17,17 @@ android {
 kotlin {
   targets {
     fromPreset(presets.android, "android")
-    fromPreset(presets.macosX64, "macos") {
-      binaries {
-        framework("wysiwyg")
-      }
-    }
+    fromPreset(presets.macosX64, "macos")
 
     def buildForDevice = project.findProperty("device")?.toBoolean() ?: false
     def iosTarget = (buildForDevice) ? presets.iosArm64 : presets.iosX64
 
     fromPreset(iosTarget, "ios") {
-      binaries {
-        framework("wysiwyg") {
-          // Disable bitcode embedding for the simulator build.
-          if (!buildForDevice) {
-            embedBitcode("disable")
-          }
+      compilations.main.kotlinOptions.freeCompilerArgs += "-Xobjc-generics"
+      [binaries.getFramework('debug'), binaries.getFramework('release')].each {
+        // Disable bitcode embedding for the simulator build.
+        if (!buildForDevice) {
+          it.embedBitcode("disable")
         }
       }
     }
@@ -54,7 +49,6 @@ kotlin {
     }
     androidMain {
       dependencies {
-        implementation kotlin('stdlib')
         implementation deps.androidx.appCompat
         implementation deps.flexmark.core
         implementation deps.flexmark.strikethrough
