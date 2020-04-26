@@ -43,12 +43,12 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		09A2BA1B244D05FE004CA7A5 /* home */ = {
+		09A2BA1B244D05FE004CA7A5 /* Home */ = {
 			isa = PBXGroup;
 			children = (
 				09F1A2022446CE9A00D038A9 /* HomeView.swift */,
 			);
-			path = home;
+			path = Home;
 			sourceTree = "<group>";
 		};
 		09F1A1F42446CE9A00D038A9 = {
@@ -73,7 +73,7 @@
 		09F1A1FF2446CE9A00D038A9 /* mac */ = {
 			isa = PBXGroup;
 			children = (
-				09A2BA1B244D05FE004CA7A5 /* home */,
+				09A2BA1B244D05FE004CA7A5 /* Home */,
 				09F1A2002446CE9A00D038A9 /* AppDelegate.swift */,
 				09F1A2042446CE9B00D038A9 /* Assets.xcassets */,
 				09F1A2092446CE9B00D038A9 /* Main.storyboard */,
