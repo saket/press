@@ -1,4 +1,4 @@
-# Used for ktlint. Remaining configs are defined in the code-style.
+# Used for ktlint. Remaining configs for kotlin sources are defined in the code-style.
 [*.{kt, kts}]
 indent_size = 2
 ij_continuation_indent_size = 4
