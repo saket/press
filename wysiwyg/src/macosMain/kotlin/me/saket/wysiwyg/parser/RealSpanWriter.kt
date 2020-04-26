@@ -1,7 +1,6 @@
 package me.saket.wysiwyg.parser
 
 import me.saket.wysiwyg.parser.node.HeadingLevel
-import me.saket.wysiwyg.spans.WysiwygSpan
 import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.widgets.EditableText
 import me.saket.wysiwyg.widgets.NativeTextField
