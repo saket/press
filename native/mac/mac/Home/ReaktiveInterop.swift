@@ -13,7 +13,7 @@ import shared
 class ReaktiveInterop {
 
   static func asPublisher<T: AnyObject>(
-    reaktive: ReaktiveObservableWrapper<T>
+    _ reaktive: ReaktiveObservableWrapper<T>
   ) -> AnyPublisher<T, ReaktiveError> {
     return ReaktivePublisher(upstream: reaktive).eraseToAnyPublisher()
   }
@@ -35,7 +35,7 @@ class ReaktivePublisher<T: AnyObject>: Publisher {
   }
 }
 
-struct ReaktiveError: Error {
+public struct ReaktiveError: Error {
   let throwable: KotlinThrowable
 }
 
