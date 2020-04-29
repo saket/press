@@ -184,18 +184,13 @@ class EditorPresenterTest {
         }
   }
 
-  @Test fun `populate new note's content with note on start`() {
+  @Test fun `populate new note's content with pre-filled note on start`() {
     val note = "Hello, World!"
     presenter(NewNote(noteUuid, note))
         .uiEffects(events)
         .test()
         .apply {
-          assertValue(
-              UpdateNoteText(
-                  newText = note,
-                  newSelection = null
-              )
-          )
+          assertValue(UpdateNoteText(newText = note, newSelection = null))
           assertNotError()
         }
   }

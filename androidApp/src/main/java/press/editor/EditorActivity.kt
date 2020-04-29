@@ -46,15 +46,15 @@ class EditorActivity : ThemeAwareActivity() {
       FabTransform.applyActivityTransition(this, editorView)
     }
 
-    // The cursor doesn't show up when a shared element transition is used :/
-    val delayFocus = if (hasTransition) FabTransform.ANIM_DURATION_MILLIS else 0
-    Observable.timer(delayFocus, MILLISECONDS, mainThread())
-        .takeUntil(editorView.detaches())
-        .subscribe {
-          if (intent.hasExtra(EXTRA_TEXT).not()) {
+    if (readPreFilledNote(intent).isBlank()) {
+      // The cursor doesn't show up when a shared element transition is used :/
+      val delayFocus = if (hasTransition) FabTransform.ANIM_DURATION_MILLIS else 0
+      Observable.timer(delayFocus, MILLISECONDS, mainThread())
+          .takeUntil(editorView.detaches())
+          .subscribe {
             editorView.editorEditText.showKeyboard()
           }
-        }
+    }
   }
 
   override fun onBackPressed() {
@@ -62,11 +62,9 @@ class EditorActivity : ThemeAwareActivity() {
   }
 
   private fun createEditorView(): EditorView {
-    val note = intent.getStringExtra(EXTRA_TEXT)
-
     return editorViewFactory.create(
         context = this@EditorActivity,
-        openMode = NewNote(readNoteUuid(intent), note),
+        openMode = NewNote(readNoteUuid(intent), readPreFilledNote(intent)),
         onDismiss = ::dismiss
     )
   }
@@ -103,9 +101,14 @@ class EditorActivity : ThemeAwareActivity() {
       return uuidFrom(intent.getStringExtra(KEY_NOTE_ID)!!)
     }
 
+    private fun readPreFilledNote(intent: Intent): String {
+      return intent.getStringExtra(EXTRA_TEXT)!!
+    }
+
     fun intent(context: Context, preFilledNote: String? = null): Intent {
       return Intent(context, EditorActivity::class.java).apply {
         putExtra(KEY_NOTE_ID, uuid4().toString())
+
         if (preFilledNote != null) {
           putExtra(EXTRA_TEXT, preFilledNote)
         }

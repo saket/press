@@ -1,5 +1,6 @@
 package press
 
+import android.content.Intent
 import android.content.Intent.EXTRA_TEXT
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -9,8 +10,11 @@ class ShortcutReceiverActivity : AppCompatActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    // Text received from android.intent.action.SEND
-    val preFilledNote = intent.getStringExtra(EXTRA_TEXT)
+
+    val preFilledNote = when (intent.action) {
+      Intent.ACTION_SEND -> intent.getStringExtra(EXTRA_TEXT)
+      else -> null
+    }
     startActivity(EditorActivity.intent(this, preFilledNote))
     finish()
   }

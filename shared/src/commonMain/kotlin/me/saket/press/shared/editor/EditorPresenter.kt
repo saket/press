@@ -32,6 +32,7 @@ import me.saket.press.shared.rx.mapToSome
 import me.saket.press.shared.rx.observableInterval
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.util.Optional
+import me.saket.press.shared.util.filterNone
 import me.saket.wysiwyg.formatting.TextSelection
 
 class EditorPresenter(
@@ -74,22 +75,22 @@ class EditorPresenter(
       is ExistingNote -> openMode.noteUuid
     }
 
-    // This function can get called multiple times. Don't create a
-    // new note everytime. If the note was deleted on another device,
-    // continue updating it.
-    val createIfNeeded = noteRepository
-        .note(newOrExistingId)
-        .take(1)
-        .flatMapCompletable { (existingNote) ->
-          when (existingNote) {
-            null -> {
-              val note = openMode as? NewNote
-              val content = note?.preFilledNote ?: NEW_NOTE_PLACEHOLDER
-              noteRepository.create(newOrExistingId, content)
-            }
-            else -> completableOfEmpty()
+    val createIfNeeded = if (openMode is NewNote) {
+      // This function can get called multiple times if it's re-subscribed.
+      // Create a new note only if one doesn't exist already.
+      noteRepository
+          .note(newOrExistingId)
+          .take(1)
+          .filterNone()
+          .flatMapCompletable {
+            val content = openMode.preFilledNote ?: NEW_NOTE_PLACEHOLDER
+            noteRepository.create(newOrExistingId, content)
           }
-        }
+    } else {
+      // If the note gets deleted on another device (that is, deletedAt != null),
+      // Press will continue updating the same note.
+      completableOfEmpty()
+    }
 
     return createIfNeeded
         .andThen(noteRepository.note(newOrExistingId))
