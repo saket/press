@@ -12,44 +12,45 @@ import shared
 
 // SwiftUI doesn't allow mutation of @State objects directly.
 // Wrapping it inside an observable object does the trick.
-//class ObservableHomeUiModel: ObservableObject {
-//  @Published var model: HomeUiModel = HomeUiModel(notes: [])
-//}
+class ObservableHomeUiModel: ObservableObject {
+  @Published var model: HomeUiModel = HomeUiModel(notes: [])
+}
 
 struct HomeView: View {
   // todo: offer default viewmodel from somewhere else?
-  //@State private var model = ObservableHomeUiModel()
+  @ObservedObject private var model = ObservableHomeUiModel()
   private var cancelable: AnyCancellable? = nil
-  private var cancelable2: AnyCancellable? = nil
-  private var disposable: ReaktiveDisposable? = nil
 
   var body: some View {
-    return Text("Hello macOS!")
+    let noteTitles = model.model.notes
+      .map { note in "- \(note.title)" }
+      .joined(separator: "\n")
+
+    return Text("Notes: \n\(noteTitles)")
       .frame(maxWidth: .infinity, maxHeight: .infinity)
       .onDisappear {
         self.cancelable?.cancel()
-        self.cancelable2?.cancel()
-        self.disposable?.dispose()
       }
   }
 
   init(presenterFactory: HomePresenterFactory) {
+    let args = HomePresenter.Args(includeEmptyNotes: true)
+    let presenter = presenterFactory.create(args: args)
+
     // Inlining this function here fails with an error because
     // updateName() is capturing "self" in a closure, but which
     // isn't allowed in structs, not sure why. Gotta figure out
     // a better way.
-    //disposable = subscribeToUiModels(presenterFactory)
+    cancelable = streamUiModels(presenter)
+  }
 
-    let stream = TestPresenter().streamWithAsyncValues()
-
-    print("HomeView: Subscribing to stream")
-    cancelable = ReaktiveInterop.asPublisher(reaktive: stream)
-      //.subscribe(on: RunLoop.main)
+  private func streamUiModels(_ presenter: HomePresenter) -> AnyCancellable {
+    return ReaktiveInterop
+      .asPublisher(reaktive: presenter.uiModels())
       .receive(on: DispatchQueue.main)
-      .sink(receiveCompletion: { completion in
-        print("HomeView: Publisher completed on thread \(Thread.current.threadName)")
-      }, receiveValue: { string in
-        print("HomeView: Publisher emitted: \(string) on thread \(Thread.current.threadName)")
+      .sink(receiveCompletion: { _ in }, receiveValue: { model in
+        print("Received models: \(model)")
+        self.model.model = model
       })
   }
 }
@@ -60,16 +61,3 @@ struct HomeView: View {
 //    HomeView()
 //  }
 //}
-
-extension Thread {
-  var threadName: String {
-    if let currentOperationQueue = OperationQueue.current?.name {
-      return "OperationQueue: \(currentOperationQueue)"
-    } else if let underlyingDispatchQueue = OperationQueue.current?.underlyingQueue?.label {
-      return "DispatchQueue: \(underlyingDispatchQueue)"
-    } else {
-      let name = __dispatch_queue_get_label(nil)
-      return String(cString: name, encoding: .utf8) ?? Thread.current.description
-    }
-  }
-}

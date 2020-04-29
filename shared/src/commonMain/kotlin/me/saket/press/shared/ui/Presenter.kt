@@ -1,7 +1,9 @@
 package me.saket.press.shared.ui
 
 import com.badoo.reaktive.observable.Observable
+import com.badoo.reaktive.observable.ObservableWrapper
 import com.badoo.reaktive.observable.observableOfEmpty
+import com.badoo.reaktive.observable.wrap
 import com.badoo.reaktive.subject.publish.PublishSubject
 
 /**
@@ -20,9 +22,9 @@ abstract class Presenter<Event, Model, Effect> {
     viewEvents.onNext(viewEvent)
   }
 
-  abstract fun uiModels(): Observable<Model>
+  abstract fun uiModels(): ObservableWrapper<Model>
 
-  open fun uiEffects(): Observable<Effect> = observableOfEmpty()
+  open fun uiEffects(): ObservableWrapper<Effect> = observableOfEmpty<Effect>().wrap()
 }
 
 sealed class UiUpdate<Model, Effect> {

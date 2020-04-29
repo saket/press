@@ -6,6 +6,7 @@ import com.badoo.reaktive.completable.completableOfEmpty
 import com.badoo.reaktive.completable.subscribe
 import com.badoo.reaktive.completable.subscribeOn
 import com.badoo.reaktive.observable.Observable
+import com.badoo.reaktive.observable.ObservableWrapper
 import com.badoo.reaktive.observable.distinctUntilChanged
 import com.badoo.reaktive.observable.filter
 import com.badoo.reaktive.observable.flatMapCompletable
@@ -17,6 +18,7 @@ import com.badoo.reaktive.observable.publish
 import com.badoo.reaktive.observable.share
 import com.badoo.reaktive.observable.take
 import com.badoo.reaktive.observable.withLatestFrom
+import com.badoo.reaktive.observable.wrap
 import com.badoo.reaktive.scheduler.Scheduler
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
@@ -49,7 +51,7 @@ class EditorPresenter(
   // replayingShare() would have been better.
   private val noteStream = createOrFetchNote().share()
 
-  override fun uiModels(): Observable<EditorUiModel> {
+  override fun uiModels(): ObservableWrapper<EditorUiModel> {
     // todo: is publish needed anymore?
     return viewEvents().publish { sharedEvents ->
       val uiModels = sharedEvents
@@ -59,14 +61,14 @@ class EditorPresenter(
       val autoSave = sharedEvents.autoSaveContent()
 
       merge(uiModels, autoSave)
-    }
+    }.wrap()
   }
 
-  override fun uiEffects(): Observable<EditorUiEffect> {
+  override fun uiEffects(): ObservableWrapper<EditorUiEffect> {
     return merge(
         populateExistingNoteOnStart(),
         closeIfNoteGetsDeleted()
-    )
+    ).wrap()
   }
 
   private fun createOrFetchNote(): Observable<Note> {

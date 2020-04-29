@@ -4,6 +4,7 @@ import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.ofType
+import com.badoo.reaktive.observable.wrap
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.editor.EditorPresenter
 import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
@@ -18,10 +19,10 @@ class HomePresenter(
 ) : Presenter<HomeEvent, HomeUiModel, HomeUiEffect>() {
 
   override fun uiModels() =
-    merge(populateNotes())
+    merge(populateNotes()).wrap()
 
   override fun uiEffects() =
-      viewEvents().openNewNoteScreen()
+    viewEvents().openNewNoteScreen().wrap()
 
   private fun Observable<HomeEvent>.openNewNoteScreen(): Observable<HomeUiEffect> =
     ofType<NewNoteClicked>().map { ComposeNewNote }
