@@ -51,6 +51,9 @@ class EditorPresenter(
   // replayingShare() would have been better.
   private val noteStream = createOrFetchNote().share()
 
+  override fun defaultUiModel() =
+    EditorUiModel(hintText = null)
+
   override fun uiModels(): ObservableWrapper<EditorUiModel> {
     // todo: is publish needed anymore?
     return viewEvents().publish { sharedEvents ->

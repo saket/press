@@ -18,6 +18,9 @@ class HomePresenter(
   private val repository: NoteRepository
 ) : Presenter<HomeEvent, HomeUiModel, HomeUiEffect>() {
 
+  override fun defaultUiModel() =
+    HomeUiModel(notes = emptyList())
+
   override fun uiModels() =
     merge(populateNotes()).wrap()
 

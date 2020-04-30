@@ -22,6 +22,12 @@ abstract class Presenter<Event, Model, Effect> {
     viewEvents.onNext(viewEvent)
   }
 
+  /**
+   * Used only by SwiftUI right now. Rendering of Android
+   * layouts are delayed until [uiModels] emits a value.
+   */
+  abstract fun defaultUiModel(): Model
+
   abstract fun uiModels(): ObservableWrapper<Model>
 
   open fun uiEffects(): ObservableWrapper<Effect> = observableOfEmpty<Effect>().wrap()

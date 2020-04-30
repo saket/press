@@ -12,7 +12,7 @@ import shared
 
 struct HomeView: View {
   private let presenter: HomePresenter
-  @State private var model: HomeUiModel = HomeUiModel(notes: [])
+  @State private var model: HomeUiModel
 
   var body: some View {
     let noteTitles = model.notes
@@ -29,6 +29,7 @@ struct HomeView: View {
   init(presenterFactory: HomePresenterFactory) {
     let args = HomePresenter.Args(includeEmptyNotes: true)
     presenter = presenterFactory.create(args: args)
+    _model = State(initialValue: presenter.defaultUiModel())
   }
 }
 
