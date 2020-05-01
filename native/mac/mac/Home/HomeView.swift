@@ -17,17 +17,7 @@ struct HomeView: View {
   var body: some View {
     List {
       ForEach(model.notes) { (note: HomeUiModel.Note) in
-        VStack(alignment: .leading, spacing: 8) {
-          Text(note.title)
-            .lineLimit(1)
-            .truncationMode(.tail)
-            .frame(maxWidth: .infinity, alignment: .leading)
-
-          Text(note.body)
-            .lineLimit(2)
-            .truncationMode(.tail)
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }.padding(8)
+        NoteRowView(note: note)
       }
     }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
