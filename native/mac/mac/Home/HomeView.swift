@@ -15,11 +15,21 @@ struct HomeView: View {
   @State private var model: HomeUiModel
 
   var body: some View {
-    let noteTitles = model.notes
-      .map { note in "- \(note.title)" }
-      .joined(separator: "\n")
+    List {
+      ForEach(model.notes) { (note: HomeUiModel.Note) in
+        VStack(alignment: .leading, spacing: 8) {
+          Text(note.title)
+            .lineLimit(1)
+            .truncationMode(.tail)
+            .frame(maxWidth: .infinity, alignment: .leading)
 
-    return Text("Notes: \n\(noteTitles)")
+          Text(note.body)
+            .lineLimit(2)
+            .truncationMode(.tail)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }.padding(8)
+      }
+    }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
       .onReceive(presenter.uiModels()) { model in
         self.model = model
@@ -30,6 +40,12 @@ struct HomeView: View {
     let args = HomePresenter.Args(includeEmptyNotes: true)
     presenter = presenterFactory.create(args: args)
     _model = State(initialValue: presenter.defaultUiModel())
+  }
+}
+
+extension HomeUiModel.Note: Identifiable {
+  public var id: Int64 {
+    self.adapterId
   }
 }
 
