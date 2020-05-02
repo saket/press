@@ -34,6 +34,7 @@ struct HomeView: View {
   }
 }
 
+// Needed by ForEach.
 extension HomeUiModel.Note: Identifiable {
   public var id: Int64 {
     self.adapterId

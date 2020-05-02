@@ -17,6 +17,8 @@ extension View {
     let publisher = ReaktiveInterop.asPublisher(reaktive)
       .removeDuplicates()
       .receive(on: DispatchQueue.main)
+//      .breakpointOnError()
+//      .print()
       .assertNoFailure()
     return onReceive(publisher, perform: perform)
   }
