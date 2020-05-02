@@ -10,25 +10,27 @@ import Cocoa
 import SwiftUI
 import shared
 import Swinject
+import Combine
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
   var window: NSWindow!
-  lazy var component = createAppComponent()
+  var component: Resolver!
 
   func applicationDidFinishLaunching(_ aNotification: Notification) {
-    // Create the SwiftUI view that provides the window contents.
-    let contentView = component.resolve(HomeView.self)!
+    component = createAppComponent()
 
-    // Create the window and set the content view.
+    let homeView = component.resolve(HomeView.self)!
+      .environmentObject(component.resolve(AppTheme.self)!)
+
     window = NSWindow(
       contentRect: NSRect(x: 0, y: 0, width: 480, height: 300),
       styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
       backing: .buffered, defer: false)
     window.center()
     window.setFrameAutosaveName("Main Window")
-    window.contentView = NSHostingView(rootView: contentView)
+    window.contentView = NSHostingView(rootView: homeView)
     window.makeKeyAndOrderFront(nil)
   }
 
@@ -42,7 +44,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   func createAppComponent() -> Resolver {
     SharedAppComponent().initialize()
     return Assembler([
-      HomeComponent()
+      HomeComponent(),
+      ThemeComponent()
     ]).resolver
   }
 }

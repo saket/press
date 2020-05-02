@@ -11,8 +11,9 @@ import SwiftUI
 import shared
 
 struct HomeView: View {
-  private let presenter: HomePresenter
-  @State private var model: HomeUiModel
+  let presenter: HomePresenter
+  @State var model: HomeUiModel
+  @EnvironmentObject var theme: AppTheme
 
   var body: some View {
     List {

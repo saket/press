@@ -9,6 +9,7 @@ import shared
 
 struct NoteRowView: View {
   let note: HomeUiModel.Note
+  @EnvironmentObject var theme: AppTheme
 
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
