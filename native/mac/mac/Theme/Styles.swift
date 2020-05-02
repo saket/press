@@ -20,8 +20,10 @@ struct TextStyleModifier: ViewModifier {
 
   func body(content: Content) -> some View {
     let lineLimit = style.maxLines?.intValue ?? Int.max
+    let fontName = resolveFontName(style.font)
 
     return content
+      .font(.custom(fontName, size: CGFloat(style.textSize)))
       .lineLimit(lineLimit)
       .truncationMode(.tail)
   }

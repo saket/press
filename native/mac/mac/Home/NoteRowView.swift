@@ -17,7 +17,7 @@ struct NoteRowView: View {
     VStack(alignment: .leading, spacing: 8) {
       Text(note.title)
         .style(style.title)
-        .foregroundColor(theme.palette.textColorPrimary)
+        .foregroundColor(theme.palette.textColorHeading)
         .frame(maxWidth: .infinity, alignment: .leading)
 
       Text(note.body)
