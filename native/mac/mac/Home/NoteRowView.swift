@@ -16,11 +16,13 @@ struct NoteRowView: View {
       Text(note.title)
         .lineLimit(1)
         .truncationMode(.tail)
+        .foregroundColor(theme.palette.textColorPrimary)
         .frame(maxWidth: .infinity, alignment: .leading)
 
       Text(note.body)
         .lineLimit(2)
         .truncationMode(.tail)
+        .foregroundColor(theme.palette.textColorSecondary)
         .frame(maxWidth: .infinity, alignment: .leading)
     }.padding(8)
   }
