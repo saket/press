@@ -21,8 +21,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   func applicationDidFinishLaunching(_ aNotification: Notification) {
     component = createAppComponent()
 
-    let homeView = component.resolve(HomeView.self)!
-      .environmentObject(component.resolve(AppTheme.self)!)
+    let theme = component.resolve(AppTheme.self)!
+    let homeView = component.resolve(HomeView.self)!.environmentObject(theme)
 
     window = NSWindow(
       contentRect: NSRect(x: 0, y: 0, width: 480, height: 300),
@@ -32,6 +32,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     window.setFrameAutosaveName("Main Window")
     window.contentView = NSHostingView(rootView: homeView)
     window.makeKeyAndOrderFront(nil)
+
+    window.backgroundColor = NSColor(theme.palette.window.backgroundColor)
+    window.titlebarAppearsTransparent = true
+    window.isMovableByWindowBackground = true   // Dragging is difficult without the toolbar.
   }
 
   func applicationWillTerminate(_ aNotification: Notification) {

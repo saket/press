@@ -16,11 +16,12 @@ struct HomeView: View {
   @EnvironmentObject var theme: AppTheme
 
   var body: some View {
-    List {
+    ScrollView {
       ForEach(model.notes) { (note: HomeUiModel.Note) in
         NoteRowView(note: note)
       }
     }
+      .padding(.top, 8)
       .frame(maxWidth: .infinity, maxHeight: .infinity)
       .onReceive(presenter.uiModels()) { model in
         self.model = model
