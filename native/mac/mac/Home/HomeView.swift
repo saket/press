@@ -16,7 +16,7 @@ struct HomeView: View {
   @EnvironmentObject var theme: AppTheme
 
   var body: some View {
-    ScrollView {
+    List {
       ForEach(model.notes) { (note: HomeUiModel.Note) in
         NoteRowView(note: note)
       }
@@ -39,6 +39,19 @@ struct HomeView: View {
 extension HomeUiModel.Note: Identifiable {
   public var id: Int64 {
     self.adapterId
+  }
+}
+
+// List on macOS uses an opaque background with no option for
+// removing/changing it. listRowBackground() doesn't work either.
+// This workaround works because List is backed by NSTableView
+// on macOS.
+extension NSTableView {
+  open override func viewDidMoveToWindow() {
+    super.viewDidMoveToWindow()
+
+    backgroundColor = .clear
+    enclosingScrollView!.drawsBackground = false
   }
 }
 
