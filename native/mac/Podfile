@@ -5,5 +5,5 @@ use_frameworks!
 
 target 'mac' do
   pod 'shared', :path => '../../shared'
-  pod 'Swinject'
+  pod 'Swinject', '~> 2.7.1'
 end
