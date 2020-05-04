@@ -18,6 +18,8 @@
 		68245362D98E405F72FEF39B /* Styles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6824583FB2B0D4ACB7E04264 /* Styles.swift */; };
 		6824536F62456A2DDBE03888 /* HomeModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6824576FF84E6FB1A4DCD687 /* HomeModule.swift */; };
 		6824538615A33D2CDFE25228 /* NoteRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68245D3AE821EF111631D024 /* NoteRowView.swift */; };
+		682454A503F6C6BCAB06785F /* EditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68245B77AEE0217659B737A3 /* EditorView.swift */; };
+		682457452F7742C49D50D434 /* NoteListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68245D7BADDF29F0F093D1FC /* NoteListView.swift */; };
 		68245994BFB065737ACADA8E /* ThemeComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 682450C434D6DF5CDFD94C54 /* ThemeComponent.swift */; };
 		682459AB6E57AEA655BCCEFC /* Subscribe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 682456EDD68D23B449C594C0 /* Subscribe.swift */; };
 		68245B53AFE872799BC4B55A /* Colors.ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 682457325354777EDC79E432 /* Colors.ext.swift */; };
@@ -47,7 +49,9 @@
 		6824576FF84E6FB1A4DCD687 /* HomeModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeModule.swift; sourceTree = "<group>"; };
 		6824583FB2B0D4ACB7E04264 /* Styles.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Styles.swift; sourceTree = "<group>"; };
 		68245B4009EAC6F3DC881BB3 /* .editorconfig */ = {isa = PBXFileReference; lastKnownFileType = file.editorconfig; path = .editorconfig; sourceTree = "<group>"; };
+		68245B77AEE0217659B737A3 /* EditorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditorView.swift; sourceTree = "<group>"; };
 		68245D3AE821EF111631D024 /* NoteRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NoteRowView.swift; sourceTree = "<group>"; };
+		68245D7BADDF29F0F093D1FC /* NoteListView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NoteListView.swift; sourceTree = "<group>"; };
 		68245FC40D1F420ACE44EE95 /* AppTheme.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 		C1F16A1D5CC1D5FCAD6BD133 /* Pods-mac.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-mac.debug.xcconfig"; path = "Target Support Files/Pods-mac/Pods-mac.debug.xcconfig"; sourceTree = "<group>"; };
 		CF76B24AB4ACDF361DE370A9 /* Pods_mac.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_mac.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -91,6 +95,7 @@
 				09F1A2022446CE9A00D038A9 /* HomeView.swift */,
 				6824576FF84E6FB1A4DCD687 /* HomeModule.swift */,
 				68245D3AE821EF111631D024 /* NoteRowView.swift */,
+				68245D7BADDF29F0F093D1FC /* NoteListView.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -126,6 +131,7 @@
 				09F1A20D2446CE9B00D038A9 /* mac.entitlements */,
 				09F1A2062446CE9B00D038A9 /* Preview Content */,
 				68245339D019FA4E0DBDC824 /* Theme */,
+				6824549571F3E4C1D14C4F62 /* Editor */,
 			);
 			path = mac;
 			sourceTree = "<group>";
@@ -156,6 +162,14 @@
 				6824583FB2B0D4ACB7E04264 /* Styles.swift */,
 			);
 			path = Theme;
+			sourceTree = "<group>";
+		};
+		6824549571F3E4C1D14C4F62 /* Editor */ = {
+			isa = PBXGroup;
+			children = (
+				68245B77AEE0217659B737A3 /* EditorView.swift */,
+			);
+			path = Editor;
 			sourceTree = "<group>";
 		};
 		75F86506E15DCD6A21EB356F /* Pods */ = {
@@ -296,6 +310,8 @@
 				68245B53AFE872799BC4B55A /* Colors.ext.swift in Sources */,
 				68245362D98E405F72FEF39B /* Styles.swift in Sources */,
 				682459AB6E57AEA655BCCEFC /* Subscribe.swift in Sources */,
+				682454A503F6C6BCAB06785F /* EditorView.swift in Sources */,
+				682457452F7742C49D50D434 /* NoteListView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
