@@ -19,7 +19,7 @@ class ReaktiveInterop {
   }
 }
 
-class ReaktivePublisher<T: AnyObject>: Publisher {
+private class ReaktivePublisher<T: AnyObject>: Publisher {
   typealias Output = T
   typealias Failure = ReaktiveError
 
@@ -39,7 +39,7 @@ public struct ReaktiveError: Error {
   let throwable: KotlinThrowable
 }
 
-class ReaktiveSubscription<U: AnyObject, D: Subscriber>: Subscription
+private class ReaktiveSubscription<U: AnyObject, D: Subscriber>: Subscription
   where D.Failure == ReaktiveError, D.Input == U {
 
   private var disposable: ReaktiveDisposable? = nil
