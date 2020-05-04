@@ -9,12 +9,12 @@ import shared
 import SwiftUI
 
 struct EditorView: View {
-
   @EnvironmentObject var theme: AppTheme
+  @State var editorText: String = ""
 
   var body: some View {
-    return ZStack {
+    ZStack {
       Color(theme.palette.window.editorBackgroundColor)
-    }
+    }.frame(maxWidth: 750)
   }
 }

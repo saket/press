@@ -25,7 +25,7 @@ class PressApp: NSObject, NSApplicationDelegate {
     let homeView = HomeView().environmentObject(theme)
 
     window = NSWindow(
-      contentRect: NSRect(origin: CGPoint(x: 0, y: 0), size: IdealDimensions.window),
+      contentRect: NSRect(origin: CGPoint(x: 0, y: 0), size: Dimensions.window),
       styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
       backing: .buffered, defer: false)
     window.center()

@@ -9,6 +9,9 @@ extension View {
   @inlinable func foregroundColor(_ argb: Int32) -> some View {
     return foregroundColor(Color(argb))
   }
+  @inlinable func background(_ argb: Int32) -> some View {
+    return background(Color(argb))
+  }
 }
 
 public extension Color {

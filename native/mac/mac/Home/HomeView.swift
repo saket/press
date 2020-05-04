@@ -12,18 +12,20 @@ import shared
 
 struct HomeView: View {
   @EnvironmentObject var theme: AppTheme
+  private let notesWidth = Dimensions.noteListWidth
+  private let editorWidth = Dimensions.editorWidth
 
   var body: some View {
-    let notesWidth = IdealDimensions.noteListWidth
-    let editorWidth = IdealDimensions.editorWidth
-
-    return NavigationView {
+    NavigationView {
       NoteListView()
         .frame(minWidth: 224, idealWidth: notesWidth, maxWidth: 508, maxHeight: .infinity)
+        .padding(.top, 1) // A non-zero padding automatically pushes it down the titlebar ¯\_(ツ)_/¯
+
       EditorView()
         .frame(minWidth: 350, idealWidth: editorWidth, maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.top, -Dimensions.windowTitleBarHeight)
     }
-      .padding(.top, 8) // Space to let the user drag the window because the title is hidden.
+      .padding(.top, -Dimensions.windowTitleBarHeight)  // Would be nice to not hardcode this.
       .navigationViewStyle(DoubleColumnNavigationViewStyle())
       .frame(maxWidth: .infinity, maxHeight: .infinity)
   }
