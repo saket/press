@@ -8,18 +8,13 @@ import Combine
 import SwiftUI
 import shared
 
-extension View {
-
-  public func onReceive<T>(
-    _ reaktive: ReaktiveObservableWrapper<T>,
-    perform: @escaping (T) -> Void
-  ) -> some View where T: Equatable {
-    let publisher = ReaktiveInterop.asPublisher(reaktive)
-      .removeDuplicates()
-      .receive(on: DispatchQueue.main)
-//      .breakpointOnError()
-//      .print()
-      .assertNoFailure()
-    return onReceive(publisher, perform: perform)
-  }
-}
+//extension View {
+//
+//  public func onReceive<T>(
+//    _ reaktive: ReaktiveObservableWrapper<T>,
+//    perform: @escaping (T) -> Void
+//  ) -> some View where T: Equatable {
+//    let publisher = asPublisher(reaktive)
+//    return onReceive(publisher, perform: perform)
+//  }
+//}

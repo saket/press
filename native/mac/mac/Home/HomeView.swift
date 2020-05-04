@@ -11,9 +11,11 @@ import SwiftUI
 import shared
 
 struct HomeView: View {
-  let presenter: HomePresenter
-  @State var model: HomeUiModel
   @EnvironmentObject var theme: AppTheme
+
+  let presenter: HomePresenter
+  let uiModels: AnyPublisher<HomeUiModel, Never>
+  @State var model: HomeUiModel
 
   var body: some View {
     List {
@@ -23,7 +25,7 @@ struct HomeView: View {
     }
       .padding(.top, 8)
       .frame(maxWidth: .infinity, maxHeight: .infinity)
-      .onReceive(presenter.uiModels()) { model in
+      .onReceive(uiModels) { model in
         self.model = model
       }
   }
@@ -32,6 +34,12 @@ struct HomeView: View {
     let args = HomePresenter.Args(includeEmptyNotes: true)
     presenter = presenterFactory.create(args: args)
     _model = State(initialValue: presenter.defaultUiModel())
+
+    uiModels = ReaktiveInterop.asPublisher(presenter.uiModels())
+      .receive(on: RunLoop.main)
+      .print()
+      .assertNoFailure()
+      .eraseToAnyPublisher()
   }
 }
 
