@@ -16,6 +16,5 @@ struct EditorView: View {
     return ZStack {
       Color(theme.palette.window.editorBackgroundColor)
     }
-      .frame(minWidth: 200, maxWidth: .infinity, maxHeight: .infinity)
   }
 }

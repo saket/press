@@ -26,6 +26,7 @@
 		68245D291151EC32EFFB6E16 /* .editorconfig in Resources */ = {isa = PBXBuildFile; fileRef = 68245B4009EAC6F3DC881BB3 /* .editorconfig */; };
 		68245DC0CBA1DA9735DA7BC8 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68245FC40D1F420ACE44EE95 /* AppTheme.swift */; };
 		68245DE64B25E36210AEF363 /* ReaktiveInterop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 682456748007595F009374DA /* ReaktiveInterop.swift */; };
+		68245F3AFBBD17967374C605 /* IdealDimensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 682451887E2788E182C27481 /* IdealDimensions.swift */; };
 		E9DAF6D2C3D0A1F1D75A5AB1 /* Pods_mac.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CF76B24AB4ACDF361DE370A9 /* Pods_mac.framework */; };
 /* End PBXBuildFile section */
 
@@ -43,6 +44,7 @@
 		09F1A20D2446CE9B00D038A9 /* mac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = mac.entitlements; sourceTree = "<group>"; };
 		5CEBE819EF748ACA146C79AE /* Pods-mac.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-mac.release.xcconfig"; path = "Target Support Files/Pods-mac/Pods-mac.release.xcconfig"; sourceTree = "<group>"; };
 		682450C434D6DF5CDFD94C54 /* ThemeComponent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThemeComponent.swift; sourceTree = "<group>"; };
+		682451887E2788E182C27481 /* IdealDimensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IdealDimensions.swift; sourceTree = "<group>"; };
 		682456748007595F009374DA /* ReaktiveInterop.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReaktiveInterop.swift; sourceTree = "<group>"; };
 		682456EDD68D23B449C594C0 /* Subscribe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Subscribe.swift; sourceTree = "<group>"; };
 		682457325354777EDC79E432 /* Colors.ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Colors.ext.swift; sourceTree = "<group>"; };
@@ -160,6 +162,7 @@
 				68245FC40D1F420ACE44EE95 /* AppTheme.swift */,
 				682457325354777EDC79E432 /* Colors.ext.swift */,
 				6824583FB2B0D4ACB7E04264 /* Styles.swift */,
+				682451887E2788E182C27481 /* IdealDimensions.swift */,
 			);
 			path = Theme;
 			sourceTree = "<group>";
@@ -312,6 +315,7 @@
 				682459AB6E57AEA655BCCEFC /* Subscribe.swift in Sources */,
 				682454A503F6C6BCAB06785F /* EditorView.swift in Sources */,
 				682457452F7742C49D50D434 /* NoteListView.swift in Sources */,
+				68245F3AFBBD17967374C605 /* IdealDimensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -14,12 +14,17 @@ struct HomeView: View {
   @EnvironmentObject var theme: AppTheme
 
   var body: some View {
-    NavigationView {
+    let notesWidth = IdealDimensions.noteListWidth
+    let editorWidth = IdealDimensions.editorWidth
+
+    return NavigationView {
       NoteListView()
+        .frame(minWidth: 224, idealWidth: notesWidth, maxWidth: 508, maxHeight: .infinity)
       EditorView()
+        .frame(minWidth: 350, idealWidth: editorWidth, maxWidth: .infinity, maxHeight: .infinity)
     }
-      .navigationViewStyle(DoubleColumnNavigationViewStyle())
       .padding(.top, 8) // Space to let the user drag the window because the title is hidden.
+      .navigationViewStyle(DoubleColumnNavigationViewStyle())
       .frame(maxWidth: .infinity, maxHeight: .infinity)
   }
 }
