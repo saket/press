@@ -16,13 +16,13 @@ import Combine
 class AppDelegate: NSObject, NSApplicationDelegate {
 
   var window: NSWindow!
-  var component: Resolver!
+  static var component: Resolver!
 
   func applicationDidFinishLaunching(_ aNotification: Notification) {
-    component = createAppComponent()
+    AppDelegate.component = createAppComponent()
 
-    let theme = component.resolve(AppTheme.self)!
-    let homeView = component.resolve(HomeView.self)!.environmentObject(theme)
+    let theme = AppDelegate.component.resolve(AppTheme.self)!
+    let homeView = HomeView().environmentObject(theme)
 
     window = NSWindow(
       contentRect: NSRect(x: 0, y: 0, width: 480, height: 300),
@@ -40,6 +40,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
   func applicationWillTerminate(_ aNotification: Notification) {
     // Insert code here to tear down your application
+    AppDelegate.component = nil
   }
 
   // Sets up dependency injection for the app. I'm using the

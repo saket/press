@@ -8,7 +8,7 @@ import SwiftUI
 import shared
 import Swinject
 
-struct NoteListView : View {
+struct NoteListView: View {
   private let presenter: HomePresenter
 
   var body: some View {
@@ -21,7 +21,8 @@ struct NoteListView : View {
     }
   }
 
-  init(_ presenterFactory: HomePresenterFactory) {
+  init() {
+    let presenterFactory = AppDelegate.component.resolve(HomePresenterFactory.self)!
     let args = HomePresenter.Args(includeEmptyNotes: true)
     presenter = presenterFactory.create(args: args)
   }

@@ -10,10 +10,6 @@ import shared
 class HomeComponent: Assembly {
 
   func assemble(container: Container) {
-    container.register(HomeView.self) { r in
-      HomeView(presenterFactory: r.resolve(HomePresenterFactory.self)!)
-    }
-
     container.register(HomePresenterFactory.self) { r in
       class Factory: HomePresenterFactory {
         func create(args: HomePresenter.Args) -> HomePresenter {

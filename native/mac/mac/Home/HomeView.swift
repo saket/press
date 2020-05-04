@@ -11,12 +11,11 @@ import SwiftUI
 import shared
 
 struct HomeView: View {
-  let presenterFactory: HomePresenterFactory
   @EnvironmentObject var theme: AppTheme
 
   var body: some View {
     NavigationView {
-      NoteListView(presenterFactory)
+      NoteListView()
       EditorView()
     }
       .navigationViewStyle(DoubleColumnNavigationViewStyle())
