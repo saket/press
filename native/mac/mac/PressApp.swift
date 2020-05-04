@@ -13,15 +13,15 @@ import Swinject
 import Combine
 
 @NSApplicationMain
-class AppDelegate: NSObject, NSApplicationDelegate {
+class PressApp: NSObject, NSApplicationDelegate {
 
   var window: NSWindow!
   static var component: Resolver!
 
   func applicationDidFinishLaunching(_ aNotification: Notification) {
-    AppDelegate.component = createAppComponent()
+    PressApp.component = createAppComponent()
 
-    let theme = AppDelegate.component.resolve(AppTheme.self)!
+    let theme = PressApp.component.resolve(AppTheme.self)!
     let homeView = HomeView().environmentObject(theme)
 
     window = NSWindow(
@@ -40,7 +40,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
   func applicationWillTerminate(_ aNotification: Notification) {
     // Insert code here to tear down your application
-    AppDelegate.component = nil
+    PressApp.component = nil
   }
 
   // Sets up dependency injection for the app. I'm using the

@@ -22,7 +22,7 @@ struct NoteListView: View {
   }
 
   init() {
-    let presenterFactory = AppDelegate.component.resolve(HomePresenterFactory.self)!
+    let presenterFactory = PressApp.component.resolve(HomePresenterFactory.self)!
     let args = HomePresenter.Args(includeEmptyNotes: true)
     presenter = presenterFactory.create(args: args)
   }
