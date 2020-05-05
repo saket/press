@@ -15,7 +15,7 @@
 		09F1A2052446CE9B00D038A9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 09F1A2042446CE9B00D038A9 /* Assets.xcassets */; };
 		09F1A2082446CE9B00D038A9 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 09F1A2072446CE9B00D038A9 /* Preview Assets.xcassets */; };
 		09F1A20B2446CE9B00D038A9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 09F1A2092446CE9B00D038A9 /* Main.storyboard */; };
-		6824507E2F5F7BB1D0937C06 /* MultiLineTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6824537B63E1B6DD3CC05D27 /* MultiLineTextField.swift */; };
+		6824507E2F5F7BB1D0937C06 /* MacEditorTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6824537B63E1B6DD3CC05D27 /* MacEditorTextField.swift */; };
 		68245362D98E405F72FEF39B /* Styles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6824583FB2B0D4ACB7E04264 /* Styles.swift */; };
 		6824536F62456A2DDBE03888 /* HomeModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6824576FF84E6FB1A4DCD687 /* HomeModule.swift */; };
 		6824538615A33D2CDFE25228 /* NoteRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68245D3AE821EF111631D024 /* NoteRowView.swift */; };
@@ -46,7 +46,7 @@
 		5CEBE819EF748ACA146C79AE /* Pods-mac.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-mac.release.xcconfig"; path = "Target Support Files/Pods-mac/Pods-mac.release.xcconfig"; sourceTree = "<group>"; };
 		682450C434D6DF5CDFD94C54 /* ThemeComponent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThemeComponent.swift; sourceTree = "<group>"; };
 		682451887E2788E182C27481 /* Dimensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dimensions.swift; sourceTree = "<group>"; };
-		6824537B63E1B6DD3CC05D27 /* MultiLineTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultiLineTextField.swift; sourceTree = "<group>"; };
+		6824537B63E1B6DD3CC05D27 /* MacEditorTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MacEditorTextField.swift; sourceTree = "<group>"; };
 		682456748007595F009374DA /* ReaktiveInterop.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReaktiveInterop.swift; sourceTree = "<group>"; };
 		682456EDD68D23B449C594C0 /* Subscribe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Subscribe.swift; sourceTree = "<group>"; };
 		682457325354777EDC79E432 /* Colors.ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Colors.ext.swift; sourceTree = "<group>"; };
@@ -181,7 +181,7 @@
 		68245D0CD2CBB7C7B42A546C /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				6824537B63E1B6DD3CC05D27 /* MultiLineTextField.swift */,
+				6824537B63E1B6DD3CC05D27 /* MacEditorTextField.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -327,7 +327,7 @@
 				682454A503F6C6BCAB06785F /* EditorView.swift in Sources */,
 				682457452F7742C49D50D434 /* NoteListView.swift in Sources */,
 				68245F3AFBBD17967374C605 /* Dimensions.swift in Sources */,
-				6824507E2F5F7BB1D0937C06 /* MultiLineTextField.swift in Sources */,
+				6824507E2F5F7BB1D0937C06 /* MacEditorTextField.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
