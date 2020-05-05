@@ -8,22 +8,24 @@ import Foundation
 import SwiftUI
 import shared
 
-// A convenience pass-through View to hide away the
-// verbosity of subscribing to a presenter's streams.
-struct Subscribe<Content, EV, M, EF>: View
-  where Content: View, EV: AnyObject, M: AnyObject, EF: AnyObject {
-
-  // todo: think of a better name.
-  typealias ContentBuilder = (_ model: M, _ effects: AnyPublisher<EF, Never>) -> Content
+/// A convenience pass-through View to hide away the
+/// verbosity of subscribing to a presenter's streams.
+struct Subscribe<Content, Event, Model, Effect>: View
+  where Content: View, Event: AnyObject, Model: AnyObject, Effect: AnyObject {
 
   private let content: ContentBuilder
+  typealias ContentBuilder = (_ model: Model, _ effects: AnyPublisher<Effect, Never>) -> Content
 
-  @State var currentModel: M
-  private let uiModels: AnyPublisher<M, Never>
-  private let uiEffects: AnyPublisher<EF, Never>
+  // It's important to keep these streams here as properties instead
+  // of creating them in the body to avoid them from getting deallocated.
+  // If they get deallocated, SwiftUI refreshes this View, causing an
+  // infinite loop where the streams get subscribed-to and canceled forever.
+  private let uiModels: AnyPublisher<Model, Never>
+  private let uiEffects: AnyPublisher<Effect, Never>
+  @State var currentModel: Model
 
   public init(
-    _ presenter: Presenter<EV, M, EF>,
+    _ presenter: Presenter<Event, Model, Effect>,
     @ViewBuilder content: @escaping ContentBuilder
   ) {
     self.content = content
@@ -42,6 +44,7 @@ struct Subscribe<Content, EV, M, EF>: View
 
   var body: some View {
     content(currentModel, uiEffects)
+      // SwiftUI will manage the lifecycle of this models stream.
       .onReceive(uiModels) { model in
         self.currentModel = model
       }

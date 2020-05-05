@@ -1,7 +1,4 @@
 //
-//  ContentView.swift
-//  mac
-//
 //  Created by Saket Narayan on 4/15/20.
 //  Copyright © 2020 Saket Narayan. All rights reserved.
 //

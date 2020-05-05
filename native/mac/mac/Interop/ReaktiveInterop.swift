@@ -7,9 +7,11 @@ import Foundation
 import Combine
 import shared
 
-// My terrible attempt at creating a bridge between Reaktive <> Combine. I'm pretty sure this
-// doesn't respect back-pressure and might come back to bite me in the future. A better impl
-// could be made by following: https://github.com/CombineCommunity/RxCombine/.
+/// Adapts Reaktive streams as Combine streams so that they can be used with SwiftUI.
+/// Back-pressure isn't supported, but that isn't needed in the UI layer anyway.
+/// See Subscribe.swift for usage.
+///
+/// Copied from: https://github.com/CombineCommunity/RxCombine/.
 class ReaktiveInterop {
 
   static func asPublisher<T: AnyObject>(
