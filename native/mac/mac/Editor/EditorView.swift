@@ -9,24 +9,19 @@ import shared
 import SwiftUI
 
 struct EditorView: View {
-  @State var editorText: String = ""
-
   @EnvironmentObject var theme: AppTheme
+  @State var editorText: String = ""
 
   var body: some View {
     ZStack {
       Color(theme.palette.window.editorBackgroundColor)
-      MultiLineTextField(text: self.$editorText)
-        .style(EditorUiStyles().editor)
-        .padding(.all, 20)
+
+      MultiLineTextField(text: $editorText) { view in
+        view.isRichText = false
+        view.applyStyle(EditorUiStyles().editor)
+        view.setPaddings(horizontal: 25, vertical: 35)
+      }
     }
       .frame(maxWidth: 750)
-  }
-}
-
-// Swap out the impl. when an official multi-line TextView is released by SwiftUI.
-func MultiLineTextField(text: Binding<String>) -> some View {
-  return MacEditorTextField(text: text) { view in
-    view.isRichText = false
   }
 }

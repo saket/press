@@ -3,7 +3,7 @@ import SwiftUI
 
 /// Copied from:
 /// https://gist.github.com/unnamedd/6e8c3fbc806b8deb60fa65d6b9affab0
-struct MacEditorTextField: NSViewRepresentable {
+internal struct MultiLineTextField: NSViewRepresentable {
   @Binding var text: String
 
   let onSetup: (NSTextView) -> Void
@@ -42,7 +42,7 @@ private struct TextProperties {
 struct MacEditorTextView_Previews: PreviewProvider {
   static var previews: some View {
     Group {
-      MacEditorTextField(text: .constant("{ \n    planets { \n        name \n    }\n}"))
+      MultiLineTextField(text: .constant("{ \n    planets { \n        name \n    }\n}"))
         .environment(\.colorScheme, .dark)
         .previewDisplayName("Dark Mode")
     }
@@ -50,12 +50,12 @@ struct MacEditorTextView_Previews: PreviewProvider {
 }
 #endif
 
-extension MacEditorTextField {
+extension MultiLineTextField {
   class Coordinator: NSObject, NSTextViewDelegate {
-    var parent: MacEditorTextField
+    var parent: MultiLineTextField
     var selectedRanges: [NSValue] = []
 
-    init(_ parent: MacEditorTextField) {
+    init(_ parent: MultiLineTextField) {
       self.parent = parent
     }
 
@@ -143,7 +143,7 @@ final class CustomTextView: NSView {
     textView.minSize = NSSize(width: 0, height: contentSize.height)
     textView.textColor = NSColor.labelColor
     textView.backgroundColor = .clear
-
+    onSetupTextView(textView)
     return textView
   }()
 

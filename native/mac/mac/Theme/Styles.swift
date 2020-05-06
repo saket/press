@@ -13,6 +13,20 @@ extension View {
   }
 }
 
+extension NSTextView {
+  func applyStyle(_ style: UiStyles.Text) {
+    if (style.maxLines != nil) {
+      fatalError("Unsupported")
+    }
+
+    self.defaultParagraphStyle = NSMutableParagraphStyle().apply {
+      $0.lineSpacing = CGFloat(style.lineSpacing)
+    }
+    let fontName = style.resolveFontName()
+    self.font = NSFont(name: fontName, size: CGFloat(style.textSize))
+  }
+}
+
 // PSA: AppCode fails to identify ViewModifier's content
 // type: https://youtrack.jetbrains.com/issue/OC-20058.
 struct TextStyleModifier: ViewModifier {
@@ -20,27 +34,32 @@ struct TextStyleModifier: ViewModifier {
 
   func body(content: Content) -> some View {
     let lineLimit = style.maxLines?.intValue ?? Int.max
-    let fontName = resolveFontName(style.font)
-    let lineHeight = style.lineSpacingMultiplier * style.textSize
-    let lineSpacing = lineHeight - style.textSize
+    let fontName = style.resolveFontName()
 
     return content
       .font(.custom(fontName, size: CGFloat(style.textSize)))
-      .lineSpacing(CGFloat(lineSpacing))
+      .lineSpacing(CGFloat(style.lineSpacing))
       .lineLimit(lineLimit)
       .truncationMode(.tail)
   }
+}
 
-  private func resolveFontName(_ font: UiStyles.Font) -> String {
-    switch (style.font.family) {
+extension UiStyles.Text {
+  var lineSpacing: Int {
+    let lineHeight = lineSpacingMultiplier * textSize
+    return Int(lineHeight - textSize)
+  }
+
+  func resolveFontName() -> String {
+    switch (font.family) {
     case .workSans:
-      switch style.font.variant {
+      switch font.variant {
       case .regular: return "WorkSans-Regular"
       case .bold: return "WorkSans-Bold"
       case .italic: return "WorkSans-Italic"
-      default: fatalError("Unexpected font variant: \(style.font.variant) for \(style.font.family)")
+      default: fatalError("Unexpected font variant: \(font.variant) for \(font.family)")
       }
-    default: fatalError("Unexpected font family: \(style.font.family)")
+    default: fatalError("Unexpected font family: \(font.family)")
     }
   }
 }
