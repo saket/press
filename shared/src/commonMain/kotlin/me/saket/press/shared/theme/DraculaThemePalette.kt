@@ -33,5 +33,6 @@ object DraculaThemePalette : ThemePalette(
     textColorHeading = COLOR_SPRING_GREEN,
     textColorPrimary = COLOR_WHITE,
     textColorSecondary = COLOR_GHOST,
+    textColorHint = "#97999F".parseColor(),
     fabColor = COLOR_ANAKIWA
 )

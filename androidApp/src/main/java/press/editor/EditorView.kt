@@ -117,7 +117,7 @@ class EditorView @AssistedInject constructor(
   private val headingHintTextView = themed(TextView(context)).apply {
     textSizePx = editorEditText.textSize
     themeAware {
-      textColor = blendARGB(it.window.backgroundColor, WHITE, 0.50f)
+      textColor = it.textColorHint
     }
     applyLayout(
         x = leftTo { scrollView.left() + editorEditText.paddingStart }

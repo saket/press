@@ -18,6 +18,7 @@ abstract class ThemePalette(
   val textColorHeading: Int,
   val textColorPrimary: Int,
   val textColorSecondary: Int,
+  val textColorHint: Int,
   val fabColor: Int
 )
 
