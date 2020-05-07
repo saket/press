@@ -4,9 +4,9 @@ import assertk.assertThat
 import assertk.assertions.containsOnly
 import com.badoo.reaktive.test.observable.assertValue
 import com.badoo.reaktive.test.observable.test
-import com.benasher44.uuid.uuid4
 import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
 import me.saket.press.shared.fakedata.fakeNote
+import me.saket.press.shared.generateUuid
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomePresenter.Args
 import me.saket.press.shared.home.HomeUiEffect.ComposeNewNote
@@ -24,7 +24,7 @@ class HomePresenterTest {
   )
 
   @Test fun `populate notes on creation`() {
-    val noteUuid = uuid4()
+    val noteUuid = generateUuid()
     noteRepository.savedNotes += listOf(
         fakeNote(
             uuid = noteUuid,
@@ -51,9 +51,9 @@ class HomePresenterTest {
 
   @Test fun `filter out empty notes if requested`() {
     noteRepository.savedNotes += listOf(
-        fakeNote(uuid = uuid4(), content = "# Non-empty note"),
-        fakeNote(uuid = uuid4(), content = NEW_NOTE_PLACEHOLDER),
-        fakeNote(uuid = uuid4(), content = "")
+        fakeNote(uuid = generateUuid(), content = "# Non-empty note"),
+        fakeNote(uuid = generateUuid(), content = NEW_NOTE_PLACEHOLDER),
+        fakeNote(uuid = generateUuid(), content = "")
     )
 
     presenter(includeEmptyNotes = false)
@@ -67,9 +67,9 @@ class HomePresenterTest {
 
   @Test fun `include empty notes if requested`() {
     noteRepository.savedNotes += listOf(
-        fakeNote(uuid = uuid4(), content = "# Non-empty note"),
-        fakeNote(uuid = uuid4(), content = NEW_NOTE_PLACEHOLDER),
-        fakeNote(uuid = uuid4(), content = "")
+        fakeNote(uuid = generateUuid(), content = "# Non-empty note"),
+        fakeNote(uuid = generateUuid(), content = NEW_NOTE_PLACEHOLDER),
+        fakeNote(uuid = generateUuid(), content = "")
     )
 
     presenter(includeEmptyNotes = true)

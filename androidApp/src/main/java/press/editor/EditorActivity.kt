@@ -30,6 +30,7 @@ import press.widgets.showKeyboard
 import java.util.concurrent.TimeUnit.MILLISECONDS
 import javax.inject.Inject
 import kotlin.LazyThreadSafetyMode.NONE
+import me.saket.press.shared.generateUuid
 
 class EditorActivity : ThemeAwareActivity() {
 
@@ -107,7 +108,7 @@ class EditorActivity : ThemeAwareActivity() {
 
     fun intent(context: Context, preFilledNote: String? = null): Intent {
       return Intent(context, EditorActivity::class.java).apply {
-        putExtra(KEY_NOTE_ID, uuid4().toString())
+        putExtra(KEY_NOTE_ID, generateUuid().toString())
 
         if (preFilledNote != null) {
           putExtra(EXTRA_TEXT, preFilledNote)

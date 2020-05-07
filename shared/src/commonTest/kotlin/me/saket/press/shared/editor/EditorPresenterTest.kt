@@ -8,7 +8,6 @@ import com.badoo.reaktive.test.base.assertNotError
 import com.badoo.reaktive.test.observable.assertValue
 import com.badoo.reaktive.test.observable.test
 import com.badoo.reaktive.test.scheduler.TestScheduler
-import com.benasher44.uuid.uuid4
 import com.soywiz.klock.seconds
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
@@ -17,6 +16,7 @@ import me.saket.press.shared.editor.EditorPresenter.Args
 import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.fakedata.fakeNote
+import me.saket.press.shared.generateUuid
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.note.FakeNoteRepository
 import me.saket.wysiwyg.formatting.TextSelection
@@ -26,7 +26,7 @@ import kotlin.test.assertTrue
 
 class EditorPresenterTest {
 
-  private val noteUuid = uuid4()
+  private val noteUuid = generateUuid()
   private val repository = FakeNoteRepository()
   private val testScheduler = TestScheduler()
   private val config = EditorConfig(autoSaveEvery = 5.seconds)
