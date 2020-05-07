@@ -13,15 +13,21 @@ struct EditorView: View {
   @State var editorText: String = ""
 
   var body: some View {
-    ZStack {
+    ZStack(alignment: .topLeading) {
       Color(theme.palette.window.editorBackgroundColor)
 
       MultiLineTextField(text: $editorText) { view in
+        view.textColor = NSColor(self.theme.palette.textColorPrimary)
         view.isRichText = false
         view.applyStyle(EditorUiStyles().editor)
         view.setPaddings(horizontal: 25, vertical: 35)
       }
-    }
-      .frame(maxWidth: 750)
+
+      Text("Placeholder text")
+        .style(EditorUiStyles().editor)
+        .offset(x: 25, y: 35)
+        .foregroundColor(theme.palette.textColorHint)
+
+    }.frame(maxWidth: 750)
   }
 }
