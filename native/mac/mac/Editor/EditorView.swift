@@ -10,24 +10,61 @@ import SwiftUI
 
 struct EditorView: View {
   @EnvironmentObject var theme: AppTheme
+  @Subscribable var presenter: EditorPresenter
   @State var editorText: String = ""
 
   var body: some View {
-    ZStack(alignment: .topLeading) {
-      Color(theme.palette.window.editorBackgroundColor)
+    // TODO: Can the @State and this be combined?
+    let editorTextChanges = listen($editorText) {
+      self.presenter.dispatch(event: EditorEventNoteTextChanged(text: $0))
+    }
 
-      MultiLineTextField(text: $editorText) { view in
-        view.textColor = NSColor(self.theme.palette.textColorPrimary)
-        view.isRichText = false
-        view.applyStyle(EditorUiStyles().editor)
-        view.setPaddings(horizontal: 25, vertical: 35)
+    return Subscribe($presenter) { model, effects in
+      ZStack(alignment: .topLeading) {
+        Color(self.theme.palette.window.editorBackgroundColor)
+
+        MultiLineTextField(text: editorTextChanges, onSetup: { view in
+          view.textColor = NSColor(self.theme.palette.textColorPrimary)
+          view.isRichText = false
+          view.applyStyle(EditorUiStyles().editor)
+          view.setPaddings(horizontal: 25, vertical: 35)
+        })
+
+        // Hint text for the heading.
+        Text(model.hintText ?? "")
+          .style(EditorUiStyles().editor)
+          .offset(x: 25, y: 35)
+          .foregroundColor(self.theme.palette.textColorHint)
       }
-
-      Text("Placeholder text")
-        .style(EditorUiStyles().editor)
-        .offset(x: 25, y: 35)
-        .foregroundColor(theme.palette.textColorHint)
-
+        .onReceive(effects.updateNoteText()) {
+          // todo: consume effect.newSelection.
+          self.editorText = $0.newText
+        }
+        .onDisappear {
+          self.presenter.saveEditorContentOnExit(content: self.editorText)
+        }
     }.frame(maxWidth: 750)
+  }
+
+  init() {
+    let presenterFactory = PressApp.component.resolve(EditorPresenterFactory.self)!
+    let openMode = EditorOpenMode.NewNote(placeholderUuid: PlatformKt.generateUuid(), preFilledNote: "")
+    _presenter = .init(presenterFactory.create(args_: EditorPresenter.Args(openMode: openMode)))
+  }
+
+  func listen<T>(_ binding: Binding<T>, listener: @escaping (T) -> Void) -> Binding<T> {
+    listener(binding.wrappedValue)  // Initial value.
+    return Binding<T>(get: {
+      binding.wrappedValue
+    }, set: {
+      binding.wrappedValue = $0
+      listener($0)
+    })
+  }
+}
+
+extension Publisher {
+  func updateNoteText() -> AnyPublisher<EditorUiEffect.UpdateNoteText, Never> {
+    return ofType(EditorUiEffect.UpdateNoteText.self)
   }
 }
