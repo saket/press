@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 /// La-kotlin style scope functions.
 protocol ScopeFunc {}
@@ -17,3 +18,13 @@ extension ScopeFunc {
   }
 }
 extension NSObject: ScopeFunc {}
+
+extension View {
+  @inline(__always) func apply(_ block: (_ it: Self) -> ()) -> Self {
+    block(self)
+    return self
+  }
+  @inline(__always) func with<R>(_ block: (Self) -> R) -> R {
+    return block(self)
+  }
+}
