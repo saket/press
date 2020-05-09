@@ -18,8 +18,8 @@ abstract class Presenter<Event, Model, Effect> {
   private val viewEvents = PublishSubject<Event>()
   protected fun viewEvents(): Observable<Event> = viewEvents
 
-  fun dispatch(viewEvent: Event) {
-    viewEvents.onNext(viewEvent)
+  fun dispatch(event: Event) {
+    viewEvents.onNext(event)
   }
 
   /**
