@@ -9,12 +9,14 @@ import shared
 
 struct HomeView: View {
   @EnvironmentObject var theme: AppTheme
+  @State var selectedNoteId: UuidUuid? = nil
+
   private let notesWidth = Dimensions.noteListWidth
   private let editorWidth = Dimensions.editorWidth
 
   var body: some View {
     NavigationView {
-      NoteListView()
+      NoteListView(selection: $selectedNoteId)
         .frame(minWidth: 224, idealWidth: notesWidth, maxWidth: 508, maxHeight: .infinity)
         .padding(.top, 1) // A non-zero padding automatically pushes it down the titlebar ¯\_(ツ)_/¯
 

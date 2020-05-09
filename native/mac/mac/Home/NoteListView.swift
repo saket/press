@@ -10,21 +10,24 @@ import Swinject
 
 struct NoteListView: View {
   @Subscribable var presenter: HomePresenter
+  @Binding var selectedNoteId: UuidUuid?
 
   var body: some View {
     Subscribe($presenter) { model, _ in
-      List {
+      List(selection: self.$selectedNoteId) {
         ForEach(model.notes) { note in
-          NoteRowView(note: note)
+          NoteRowView(note: note).tag(note.noteUuid)
         }
       }
     }
   }
 
-  init() {
+  init(selection: Binding<UuidUuid?>) {
+    self._selectedNoteId = selection
+
     let presenterFactory = PressApp.component.resolve(HomePresenterFactory.self)!
     let args = HomePresenter.Args(includeEmptyNotes: true)
-    _presenter = .init(presenterFactory.create(args: args))
+    self._presenter = .init(presenterFactory.create(args: args))
   }
 }
 
