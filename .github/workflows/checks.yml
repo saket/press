@@ -1,6 +1,10 @@
-name: CI
+name: "Checks and static analysis"
 
 on:
+  # Every day at 23:00.
+  schedule:
+    - cron: '* 23 * * *'
+  # For every PR.
   pull_request:
     branches:
       - master
