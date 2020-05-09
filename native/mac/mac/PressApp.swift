@@ -48,8 +48,9 @@ class PressApp: NSObject, NSApplicationDelegate {
   func createAppComponent() -> Resolver {
     SharedAppComponent().initialize()
     return Assembler([
+      ThemeComponent(),
       HomeComponent(),
-      ThemeComponent()
+      EditorComponent()
     ]).resolver
   }
 }
