@@ -40,7 +40,7 @@
 		095CC78A245DE57800EF2963 /* work_sans_regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = work_sans_regular.ttf; path = ../../../../shared/src/main/res/font/work_sans_regular.ttf; sourceTree = "<group>"; };
 		095CC78B245DE57800EF2963 /* work_sans_bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = work_sans_bold.ttf; path = ../../../../shared/src/main/res/font/work_sans_bold.ttf; sourceTree = "<group>"; };
 		095CC78C245DE57800EF2963 /* work_sans_italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = work_sans_italic.ttf; path = ../../../../shared/src/main/res/font/work_sans_italic.ttf; sourceTree = "<group>"; };
-		09F1A1FD2446CE9A00D038A9 /* mac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		09F1A1FD2446CE9A00D038A9 /* Press.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Press.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		09F1A2002446CE9A00D038A9 /* PressApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PressApp.swift; sourceTree = "<group>"; };
 		09F1A2022446CE9A00D038A9 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		09F1A2042446CE9B00D038A9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -127,7 +127,7 @@
 		09F1A1FE2446CE9A00D038A9 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				09F1A1FD2446CE9A00D038A9 /* mac.app */,
+				09F1A1FD2446CE9A00D038A9 /* Press.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -219,9 +219,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		09F1A1FC2446CE9A00D038A9 /* mac */ = {
+		09F1A1FC2446CE9A00D038A9 /* Press */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 09F1A2102446CE9B00D038A9 /* Build configuration list for PBXNativeTarget "mac" */;
+			buildConfigurationList = 09F1A2102446CE9B00D038A9 /* Build configuration list for PBXNativeTarget "Press" */;
 			buildPhases = (
 				C9389239384445E78365E04E /* [CP] Check Pods Manifest.lock */,
 				09F1A1F92446CE9A00D038A9 /* Sources */,
@@ -233,9 +233,9 @@
 			);
 			dependencies = (
 			);
-			name = mac;
+			name = Press;
 			productName = mac;
-			productReference = 09F1A1FD2446CE9A00D038A9 /* mac.app */;
+			productReference = 09F1A1FD2446CE9A00D038A9 /* Press.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -266,7 +266,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				09F1A1FC2446CE9A00D038A9 /* mac */,
+				09F1A1FC2446CE9A00D038A9 /* Press */,
 			);
 		};
 /* End PBXProject section */
@@ -553,7 +553,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		09F1A2102446CE9B00D038A9 /* Build configuration list for PBXNativeTarget "mac" */ = {
+		09F1A2102446CE9B00D038A9 /* Build configuration list for PBXNativeTarget "Press" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				09F1A2112446CE9B00D038A9 /* Debug */,
