@@ -9,10 +9,10 @@ import shared
 import Swinject
 
 struct NoteListView: View {
-  private let presenter: HomePresenter
+  @Subscribable var presenter: HomePresenter
 
   var body: some View {
-    Subscribe(presenter) { model, _ in
+    Subscribe($presenter) { model, _ in
       List {
         ForEach(model.notes) { note in
           NoteRowView(note: note)
@@ -24,7 +24,7 @@ struct NoteListView: View {
   init() {
     let presenterFactory = PressApp.component.resolve(HomePresenterFactory.self)!
     let args = HomePresenter.Args(includeEmptyNotes: true)
-    presenter = presenterFactory.create(args: args)
+    _presenter = .init(presenterFactory.create(args: args))
   }
 }
 
