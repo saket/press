@@ -28,7 +28,7 @@
 
 ####
 # Xcode temporary files that should never be committed
-# 
+#
 # NB: NIB/XIB files still exist even on Storyboard projects, so we want this...
 *~.nib
 
@@ -108,3 +108,8 @@ xcuserdata/
 # We're using source-control, so this is a "feature" that we do not want!
 
 *.moved-aside
+
+## AppCode files. Exclude everything but the code-style.
+.idea/*
+!.idea/codeStyles/
+!.idea/dictionaries/
