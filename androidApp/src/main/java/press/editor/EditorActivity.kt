@@ -10,7 +10,6 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import androidx.annotation.DrawableRes
 import com.benasher44.uuid.Uuid
-import com.benasher44.uuid.uuid4
 import com.benasher44.uuid.uuidFrom
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.detaches
@@ -19,6 +18,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.StandaloneExpandablePageLayout
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
+import me.saket.press.shared.generateUuid
 import press.App
 import press.animation.FabTransform
 import press.util.withOpacity
@@ -30,7 +30,6 @@ import press.widgets.showKeyboard
 import java.util.concurrent.TimeUnit.MILLISECONDS
 import javax.inject.Inject
 import kotlin.LazyThreadSafetyMode.NONE
-import me.saket.press.shared.generateUuid
 
 class EditorActivity : ThemeAwareActivity() {
 

@@ -2,7 +2,6 @@ package press.editor
 
 import android.content.Context
 import android.graphics.Color.TRANSPARENT
-import android.graphics.Color.WHITE
 import android.text.InputType.TYPE_CLASS_TEXT
 import android.text.InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
 import android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
@@ -20,7 +19,6 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.appcompat.widget.Toolbar
-import androidx.core.graphics.ColorUtils.blendARGB
 import androidx.core.view.updatePaddingRelative
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
