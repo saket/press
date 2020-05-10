@@ -15,8 +15,7 @@ struct NoteListView: View {
   var body: some View {
     Subscribe($presenter) { model, _ in
       List(selection: self.$selectedNoteId) {
-        ForEach(model.notes) { note in
-          NoteRowView(note: note).tag(note.noteUuid)
+        ForEach(model.notes, id: \.adapterId) { (note: HomeUiModel.Note) in
         }.removeListMargins()
       }
     }
@@ -28,13 +27,6 @@ struct NoteListView: View {
     let presenterFactory = PressApp.component.resolve(HomePresenterFactory.self)!
     let args = HomePresenter.Args(includeEmptyNotes: true)
     self._presenter = .init(presenterFactory.create(args: args))
-  }
-}
-
-// Needed by ForEach.
-extension HomeUiModel.Note: Identifiable {
-  public var id: Int64 {
-    self.adapterId
   }
 }
 
