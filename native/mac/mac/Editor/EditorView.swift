@@ -21,8 +21,6 @@ struct EditorView: View {
 
     return Subscribe($presenter) { model, effects in
       ZStack(alignment: .topLeading) {
-        Color(self.theme.palette.window.editorBackgroundColor)
-
         MultiLineTextField(text: editorTextChanges, onSetup: { view in
           view.textColor = NSColor(self.theme.palette.textColorPrimary)
           view.isRichText = false
@@ -46,9 +44,8 @@ struct EditorView: View {
     }.frame(maxWidth: 750)
   }
 
-  init() {
+  init(openMode: EditorOpenMode) {
     let presenterFactory = PressApp.component.resolve(EditorPresenterFactory.self)!
-    let openMode = EditorOpenMode.NewNote(placeholderUuid: PlatformKt.generateUuid(), preFilledNote: "")
     _presenter = .init(presenterFactory.create(args_: EditorPresenter.Args(openMode: openMode)))
   }
 

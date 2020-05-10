@@ -20,7 +20,13 @@ struct HomeView: View {
         .frame(minWidth: 224, idealWidth: notesWidth, maxWidth: 508, maxHeight: .infinity)
         .padding(.top, 1) // A non-zero padding automatically pushes it down the titlebar ¯\_(ツ)_/¯
 
-      EditorView()
+      ZStack {
+        Color(self.theme.palette.window.editorBackgroundColor)
+
+        if (selectedNoteId != nil) {
+          EditorView(openMode: EditorOpenMode.ExistingNote(noteUuid: selectedNoteId!))
+        }
+      }
         .frame(minWidth: 350, idealWidth: editorWidth, maxWidth: .infinity, maxHeight: .infinity)
         .padding(.top, -Dimensions.windowTitleBarHeight)
     }
