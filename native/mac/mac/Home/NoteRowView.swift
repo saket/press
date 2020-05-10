@@ -24,6 +24,6 @@ struct NoteRowView: View {
         .style(style.body)
         .foregroundColor(theme.palette.textColorSecondary)
         .frame(maxWidth: .infinity, alignment: .leading)
-    }.padding(8)
+    }.padding(16)
   }
 }

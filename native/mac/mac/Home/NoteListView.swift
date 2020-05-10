@@ -17,7 +17,7 @@ struct NoteListView: View {
       List(selection: self.$selectedNoteId) {
         ForEach(model.notes) { note in
           NoteRowView(note: note).tag(note.noteUuid)
-        }
+        }.removeListMargins()
       }
     }
   }
@@ -48,5 +48,12 @@ extension NSTableView {
 
     backgroundColor = .clear
     enclosingScrollView?.drawsBackground = false
+
+extension View {
+  /// SwiftUI has additional spacing around list items on macOS
+  /// with option for removing them. Using negative margins until
+  /// this is fixed.
+  func removeListMargins() -> some View {
+    return padding(.horizontal, -8).padding(.vertical, -4)
   }
 }
