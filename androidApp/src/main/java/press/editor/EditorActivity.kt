@@ -46,7 +46,7 @@ class EditorActivity : ThemeAwareActivity() {
       FabTransform.applyActivityTransition(this, editorView)
     }
 
-    if (readPreFilledNote(intent).isBlank()) {
+    if (readPreFilledNote(intent).isNullOrBlank()) {
       // The cursor doesn't show up when a shared element transition is used :/
       val delayFocus = if (hasTransition) FabTransform.ANIM_DURATION_MILLIS else 0
       Observable.timer(delayFocus, MILLISECONDS, mainThread())
@@ -101,8 +101,8 @@ class EditorActivity : ThemeAwareActivity() {
       return uuidFrom(intent.getStringExtra(KEY_NOTE_ID)!!)
     }
 
-    private fun readPreFilledNote(intent: Intent): String {
-      return intent.getStringExtra(EXTRA_TEXT)!!
+    private fun readPreFilledNote(intent: Intent): String? {
+      return intent.getStringExtra(EXTRA_TEXT)
     }
 
     fun intent(context: Context, preFilledNote: String? = null): Intent {
