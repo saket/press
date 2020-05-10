@@ -9,6 +9,7 @@ import shared
 import Swinject
 
 struct NoteListView: View {
+  @EnvironmentObject var theme: AppTheme
   @Subscribable var presenter: HomePresenter
   @Binding var selectedNoteId: UuidUuid?
 
@@ -16,6 +17,9 @@ struct NoteListView: View {
     Subscribe($presenter) { model, _ in
       List(selection: self.$selectedNoteId) {
         ForEach(model.notes, id: \.adapterId) { (note: HomeUiModel.Note) in
+          NoteRowView(note: note)
+            .tag(note.noteUuid)
+            .background(self.listSelectionColor(note))
         }.removeListMargins()
       }
     }
@@ -27,6 +31,14 @@ struct NoteListView: View {
     let presenterFactory = PressApp.component.resolve(HomePresenterFactory.self)!
     let args = HomePresenter.Args(includeEmptyNotes: true)
     self._presenter = .init(presenterFactory.create(args: args))
+  }
+
+  func listSelectionColor(_ note: HomeUiModel.Note) -> Color {
+    if (selectedNoteId == note.noteUuid) {
+      return Color(theme.palette.window.editorBackgroundColor)
+    } else {
+      return Color.clear
+    }
   }
 }
 
@@ -40,6 +52,12 @@ extension NSTableView {
 
     backgroundColor = .clear
     enclosingScrollView?.drawsBackground = false
+
+    /// SwiftUI doesn't offer any way to set highlight
+    /// colors so we draw them manually instead.
+    selectionHighlightStyle = .none
+  }
+}
 
 extension View {
   /// SwiftUI has additional spacing around list items on macOS

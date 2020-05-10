@@ -8,10 +8,10 @@ import SwiftUI
 import shared
 
 struct NoteRowView: View {
-  let note: HomeUiModel.Note
-
   @EnvironmentObject var theme: AppTheme
-  let style = HomeUiStyles.NoteRow()
+  private let style = HomeUiStyles.NoteRow()
+
+  let note: HomeUiModel.Note
 
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {

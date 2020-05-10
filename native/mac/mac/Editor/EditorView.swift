@@ -10,6 +10,8 @@ import SwiftUI
 
 struct EditorView: View {
   @EnvironmentObject var theme: AppTheme
+  private let style = EditorUiStyles().editor
+
   @Subscribable var presenter: EditorPresenter
   @State var editorText: String = ""
 
@@ -24,13 +26,13 @@ struct EditorView: View {
         MultiLineTextField(text: editorTextChanges, onSetup: { view in
           view.textColor = NSColor(self.theme.palette.textColorPrimary)
           view.isRichText = false
-          view.applyStyle(EditorUiStyles().editor)
+          view.applyStyle(self.style)
           view.setPaddings(horizontal: 25, vertical: 35)
         })
 
         // Hint text for the heading.
         Text(model.hintText ?? "")
-          .style(EditorUiStyles().editor)
+          .style(self.style)
           .offset(x: 25, y: 35)
           .foregroundColor(self.theme.palette.textColorHint)
       }
