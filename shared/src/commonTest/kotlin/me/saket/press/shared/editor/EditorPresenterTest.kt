@@ -128,7 +128,7 @@ class EditorPresenterTest {
     presenter.saveEditorContentOnExit("")
 
     val deletedNote = repository.savedNotes.last()
-    assertThat(deletedNote.deletedAtString).isNotNull()
+    assertThat(deletedNote.archivedAtString).isNotNull()
   }
 
   @Test fun `show hint text until the text is changed`() {

@@ -174,7 +174,7 @@ class EditorPresenter(
         .mapToSome()
         .flatMapCompletable { note ->
           when {
-            shouldDelete -> noteRepository.markAsDeleted(note.uuid)
+            shouldDelete -> noteRepository.markAsArchived(note.uuid)
             else -> noteRepository.update(note.uuid, content)
           }
         }
