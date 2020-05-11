@@ -52,8 +52,9 @@ struct Subscribe<Content, EV, M, EF>: View
 }
 
 /// Provides transparent access to a presenter in Views while also offering
-/// an easy way to use the presenter with `Subscribe`. The Type parameters
-/// look ugly, but usages should never see them.
+/// an easy way to use the presenter with `Subscribe`. Without this, Views
+/// will have to hold onto both the presenter and PresenterStreams. The Type
+/// parameters look ugly, but usages should never see them.
 @propertyWrapper struct Subscribable<EV, M, EF, P: Presenter<EV, M, EF>>
   where EV: AnyObject, M: AnyObject, EF: AnyObject {
 
@@ -69,7 +70,7 @@ struct Subscribe<Content, EV, M, EF>: View
 /// Container for presenter streams which can't be kept inside `Subscribe`,
 /// because Views get recreated on every state update causing the streams
 /// to get disposed and re-subscribed.
-public class PresenterStreams<Event, Model, Effect>: ObservableObject
+public struct PresenterStreams<Event, Model, Effect>
   where Event: AnyObject, Model: AnyObject, Effect: AnyObject {
 
   public let presenter: Presenter<Event, Model, Effect>
@@ -82,11 +83,17 @@ public class PresenterStreams<Event, Model, Effect>: ObservableObject
     self.uiModels = ReaktiveInterop.asPublisher(presenter.uiModels())
       .receive(on: RunLoop.main)
       .assertNoFailure()
+      .shareReplay(bufferSize: 1)
+      .makeConnectable()
+      .autoconnect()
       .eraseToAnyPublisher()
 
     self.uiEffects = ReaktiveInterop.asPublisher(presenter.uiEffects())
       .receive(on: RunLoop.main)
       .assertNoFailure()
+      .shareReplay(bufferSize: 1)
+      .makeConnectable()
+      .autoconnect()
       .eraseToAnyPublisher()
   }
 }
