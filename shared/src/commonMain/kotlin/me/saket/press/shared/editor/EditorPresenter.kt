@@ -15,7 +15,8 @@ import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observableOfEmpty
 import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.publish
-import com.badoo.reaktive.observable.share
+import com.badoo.reaktive.observable.refCount
+import com.badoo.reaktive.observable.replay
 import com.badoo.reaktive.observable.take
 import com.badoo.reaktive.observable.withLatestFrom
 import com.badoo.reaktive.observable.wrap
@@ -47,9 +48,7 @@ class EditorPresenter(
 ) : Presenter<EditorEvent, EditorUiModel, EditorUiEffect>() {
 
   private val openMode = args.openMode
-
-  // replayingShare() would have been better.
-  private val noteStream = createOrFetchNote().share()
+  private val noteStream = createOrFetchNote().replay(1).refCount()
 
   override fun defaultUiModel() =
     EditorUiModel(hintText = null)
