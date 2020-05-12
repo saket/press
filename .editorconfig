@@ -4,3 +4,6 @@ indent_size = 2
 ij_continuation_indent_size = 4
 insert_final_newline = true
 max_line_length = 120
+
+[*.xml]
+insert_final_newline = true
