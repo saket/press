@@ -6,7 +6,7 @@ import com.benasher44.uuid.uuidFrom
 import com.squareup.sqldelight.ColumnAdapter
 
 // Inline class would have been nice if Kotlin multi-platform supported it.
-class NoteId(val value: Uuid) {
+data class NoteId(val value: Uuid) {
   class Adapter : ColumnAdapter<NoteId, String> {
     override fun decode(databaseValue: String) = NoteId(uuidFrom(databaseValue))
     override fun encode(value: NoteId) = value.value.toString()
