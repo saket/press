@@ -70,30 +70,37 @@ struct Subscribe<Content, EV, M, EF>: View
 /// Container for presenter streams which can't be kept inside `Subscribe`,
 /// because Views get recreated on every state update causing the streams
 /// to get disposed and re-subscribed.
-public struct PresenterStreams<Event, Model, Effect>
-  where Event: AnyObject, Model: AnyObject, Effect: AnyObject {
+public class PresenterStreams<EV: AnyObject, M: AnyObject, EF: AnyObject> {
 
-  public let presenter: Presenter<Event, Model, Effect>
-  public let uiModels: AnyPublisher<Model, Never>
-  public let uiEffects: AnyPublisher<Effect, Never>
+  public let presenter: Presenter<EV, M, EF>
+  public let uiModels: AnyPublisher<M, Never>
+  public let uiEffects: AnyPublisher<EF, Never>
+  private var effectsCancellable: AnyCancellable
 
-  init(_ presenter: Presenter<Event, Model, Effect>) {
+  init(_ presenter: Presenter<EV, M, EF>) {
     self.presenter = presenter
 
     self.uiModels = ReaktiveInterop.asPublisher(presenter.uiModels())
       .receive(on: RunLoop.main)
       .assertNoFailure()
       .shareReplay(bufferSize: 1)
-      .makeConnectable()
-      .autoconnect()
       .eraseToAnyPublisher()
 
-    self.uiEffects = ReaktiveInterop.asPublisher(presenter.uiEffects())
+    /// It is unfortunate to use a subject here, when
+    /// share().autoConnect() should have worked instead.
+    let uiEffectsSubject = PassthroughSubject<EF, Never>()
+    self.uiEffects = uiEffectsSubject.eraseToAnyPublisher()
+
+    self.effectsCancellable = ReaktiveInterop.asPublisher(presenter.uiEffects())
       .receive(on: RunLoop.main)
       .assertNoFailure()
-      .shareReplay(bufferSize: 1)
-      .makeConnectable()
-      .autoconnect()
       .eraseToAnyPublisher()
+      .sink { ef in
+        uiEffectsSubject.send(ef)
+      }
+  }
+
+  deinit {
+    effectsCancellable.cancel()
   }
 }

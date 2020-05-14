@@ -14,7 +14,6 @@ import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observableOfEmpty
 import com.badoo.reaktive.observable.ofType
-import com.badoo.reaktive.observable.publish
 import com.badoo.reaktive.observable.refCount
 import com.badoo.reaktive.observable.replay
 import com.badoo.reaktive.observable.take
@@ -39,7 +38,7 @@ import me.saket.press.shared.util.filterNone
 import me.saket.wysiwyg.formatting.TextSelection
 
 class EditorPresenter(
-  args: Args,
+  val args: Args,
   private val noteRepository: NoteRepository,
   private val ioScheduler: Scheduler,
   private val computationScheduler: Scheduler,
@@ -54,16 +53,13 @@ class EditorPresenter(
     EditorUiModel(hintText = null)
 
   override fun uiModels(): ObservableWrapper<EditorUiModel> {
-    // todo: is publish needed anymore?
-    return viewEvents().publish { sharedEvents ->
-      val uiModels = sharedEvents
-          .toggleHintText()
-          .map { (hint) -> EditorUiModel(hintText = hint) }
+    val uiModels = viewEvents()
+        .toggleHintText()
+        .map { (hint) -> EditorUiModel(hintText = hint) }
 
-      val autoSave = sharedEvents.autoSaveContent()
+    val autoSave = viewEvents().autoSaveContent()
 
-      merge(uiModels, autoSave)
-    }.wrap()
+    return merge(uiModels, autoSave).wrap()
   }
 
   override fun uiEffects(): ObservableWrapper<EditorUiEffect> {
@@ -150,8 +146,8 @@ class EditorPresenter(
         .andThen(observableOfEmpty())
   }
 
-  fun saveEditorContentOnExit(content: CharSequence) {
-    updateOrDeleteNote(content.toString())
+  fun saveEditorContentOnExit(content: String) {
+    updateOrDeleteNote(content)
         .subscribeOn(ioScheduler)
         .subscribe()
   }

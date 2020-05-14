@@ -12,24 +12,19 @@ struct EditorView: View {
   @EnvironmentObject var theme: AppTheme
   private let style = EditorUiStyles().editor
 
+  private let openMode: EditorOpenMode
   @Subscribable var presenter: EditorPresenter
-  @State var editorText: String = ""
+  @ObservedObject var editorText: Listenable<String>
 
   var body: some View {
-    // TODO: Can the @State and this be combined?
-    let editorTextChanges = listen($editorText) {
-      self.presenter.dispatch(event: EditorEventNoteTextChanged(text: $0))
-    }
-
-    return Subscribe($presenter) { model, effects in
+    Subscribe($presenter) { model, effects in
       ZStack(alignment: .topLeading) {
-        MultiLineTextField(text: editorTextChanges, onSetup: { view in
+        MultiLineTextField(text: self.$editorText.value, onSetup: { view in
           view.textColor = NSColor(self.theme.palette.textColorPrimary)
           view.isRichText = false
           view.applyStyle(self.style)
           view.setPaddings(horizontal: 25, vertical: 35)
         })
-
         // Hint text for the heading.
         Text(model.hintText ?? "")
           .style(self.style)
@@ -37,28 +32,33 @@ struct EditorView: View {
           .foregroundColor(self.theme.palette.textColorHint)
       }
         .onReceive(effects.updateNoteText()) {
-          // todo: consume effect.newSelection.
-          self.editorText = $0.newText
+          // TODO: consume effect.newSelection.
+          self.editorText.value = $0.newText
         }
         .onDisappear {
-          self.presenter.saveEditorContentOnExit(content: self.editorText)
+          /// TODO: this is dangerous. Saving the editor content before it's
+          /// populated from the DB will cause it to get overridden.
+          self.presenter.saveEditorContentOnExit(content: self.editorText.value)
         }
-    }.frame(maxWidth: 750)
+    }
+      .frame(maxWidth: 750)
+      /// This is extremely important. If the same View is used for showing
+      /// different types of data (different notes in this case), SwiftUI
+      /// needs to be able to distinguish them in order to give them _separate
+      /// lifecycle_.
+      .id(openMode)
   }
 
   init(openMode: EditorOpenMode) {
-    let presenterFactory = PressApp.component.resolve(EditorPresenterFactory.self)!
-    _presenter = .init(presenterFactory.create(args_: EditorPresenter.Args(openMode: openMode)))
-  }
+    self.openMode = openMode
 
-  func listen<T>(_ binding: Binding<T>, listener: @escaping (T) -> Void) -> Binding<T> {
-    listener(binding.wrappedValue)  // Initial value.
-    return Binding<T>(get: {
-      binding.wrappedValue
-    }, set: {
-      binding.wrappedValue = $0
-      listener($0)
-    })
+    let factory = PressApp.component.resolve(EditorPresenterFactory.self)!
+    let presenter = factory.create(args_: EditorPresenter.Args(openMode: openMode))
+
+    self._presenter = .init(presenter)
+    self.editorText = Listenable(initial: "") {
+      presenter.dispatch(event: EditorEventNoteTextChanged(text: $0))
+    }
   }
 }
 
