@@ -42,6 +42,11 @@ class PressApp: NSObject, NSApplicationDelegate {
     PressApp.component = nil
   }
 
+  func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+    // Leftover apps are annoying.
+    true
+  }
+
   // Sets up dependency injection for the app. I'm using the
   // term "component" to keep it consistent with the shared
   // Kotlin and Android code.
