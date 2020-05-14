@@ -11,6 +11,6 @@
 #endif
 
 
-FOUNDATION_EXPORT double Pods_macVersionNumber;
-FOUNDATION_EXPORT const unsigned char Pods_macVersionString[];
+FOUNDATION_EXPORT double Pods_PressVersionNumber;
+FOUNDATION_EXPORT const unsigned char Pods_PressVersionString[];
 

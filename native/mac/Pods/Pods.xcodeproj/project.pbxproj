@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -23,15 +23,15 @@
 		0320BF6A9F60413E4CF1E8CFF0E5B6A4 /* Swinject.h in Headers */ = {isa = PBXBuildFile; fileRef = 2534A2332EC2928B34D1BF864B2BA341 /* Swinject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		050C568E3BA73173980F463DFB08778B /* ServiceEntry.TypeForwarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BD3E46B08B43532597DFC9825A52BD4 /* ServiceEntry.TypeForwarding.swift */; };
 		0B4C5F38682EE4ABBA0A406C5B45897C /* GraphIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77EE97B7B2F80A849EE0FBBA25031129 /* GraphIdentifier.swift */; };
-		0F79FECEF598AAF60773E9BC1A7A5332 /* Pods-mac-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 4536BF717989BEA75249A8EE6346A667 /* Pods-mac-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		12015E8F1145CB5D99F0D9BF5AD0F3A1 /* ObjectScope.Standard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA62609A4B83BEE5CACF6B144B1245C6 /* ObjectScope.Standard.swift */; };
 		1D66FD7BED1FC46A46F33E685CB1ADA4 /* ServiceEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BB8112D90444327849585ED3FA07AFF /* ServiceEntry.swift */; };
 		2BE6C561983E03729CCF1405B3F7FBA8 /* ObjectScope.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22995AA48610556B9777665DDF3B8229 /* ObjectScope.swift */; };
 		2DD5198D3A7F3176CB395B0610B1E480 /* SynchronizedResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F820558A4A3CDCA1C8E132F9644224 /* SynchronizedResolver.swift */; };
 		2EE54EC7ECDA42C13C4F48916BFDB12C /* DebugHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C978EB077E5FE411426E5798253F94D4 /* DebugHelper.swift */; };
 		303039803386B5BFD467902899141CD2 /* ServiceKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84110A524FB66D87E75670267827BD8F /* ServiceKey.swift */; };
+		3F3BD00C79E50C0BD48DE28DF2F25814 /* Pods-Press-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 77E44FA31AF8F15FAA1100162021459A /* Pods-Press-dummy.m */; };
 		410D90F0983E136B023488FD8C4031D6 /* InstanceWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93D61FDCC1A37DABC6532F8FB4CB8D43 /* InstanceWrapper.swift */; };
-		4BA193B1F49936C6F52CBAFC3A88FE0B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F940C819049CFF8741C0F5E3E075E607 /* Cocoa.framework */; };
+		44D8D75E5791B5BCE1B92110C097679B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F940C819049CFF8741C0F5E3E075E607 /* Cocoa.framework */; };
 		4C4218248134D49CD349F0BC5AD11EDC /* UnavailableItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = 749F4AC3431688388EB876C11FE9034A /* UnavailableItems.swift */; };
 		5474FB639FA51C1899E1DBE4979AF188 /* InstanceStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326F12E23C66E1CCCD220EAA5F8A2827 /* InstanceStorage.swift */; };
 		5E6093189222761DABCF0ABB836CBD3F /* Resolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB94F2399462C48C014C9477075457F /* Resolver.swift */; };
@@ -47,20 +47,20 @@
 		B03463759CFDAE9D9412A87358AB2A83 /* Container.TypeForwarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = C823C8E60C956CF9EA92868A3BD89DA0 /* Container.TypeForwarding.swift */; };
 		B8761276C959268E69BE09250B9524BE /* Container.swift in Sources */ = {isa = PBXBuildFile; fileRef = 402B936132AB4F73CFAFD5BD6C04FB02 /* Container.swift */; };
 		BFE213244C740D20A8299107F05430F8 /* Behavior.swift in Sources */ = {isa = PBXBuildFile; fileRef = D90F26846634F9E8B1141F178DF010A5 /* Behavior.swift */; };
+		C61223DB0BA4B65D597F7CC0DE8EE551 /* Pods-Press-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 60633BA0BF873843B6DFFEE7FE71B008 /* Pods-Press-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CA3F0FC49C8C96F986BC4B7E0EDEA044 /* Swinject-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AB5C574FAFEAD16EC369BE76BC8B08B /* Swinject-dummy.m */; };
-		DE6A5A867403218CD667E86927EE2556 /* Pods-mac-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = A98C08983521D243E38542F35A3BC6D2 /* Pods-mac-dummy.m */; };
 		E186B7C4EE38640DE8A407D3ADA3E743 /* Container.Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4F6234A51DF4F20BB2A343E78B22E17 /* Container.Logging.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		CA54C143D757642C978CFBCC0E68B1A9 /* PBXContainerItemProxy */ = {
+		B39197BCC143DF2E0D6F3046FF01B3CC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 8777C9F6889E59EFFD631D80AEE9048B;
 			remoteInfo = shared;
 		};
-		CC0B1BF7A0D56A66055C3735A59593B2 /* PBXContainerItemProxy */ = {
+		F4393164EF240346A2E6B005732C82A0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
 			proxyType = 1;
@@ -71,26 +71,29 @@
 
 /* Begin PBXFileReference section */
 		01F820558A4A3CDCA1C8E132F9644224 /* SynchronizedResolver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SynchronizedResolver.swift; path = Sources/SynchronizedResolver.swift; sourceTree = "<group>"; };
-		0B8EB18FE75D54FC68DA4E0C12272B4A /* Pods-mac.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-mac.debug.xcconfig"; sourceTree = "<group>"; };
+		05A203BAA785FD7503AD8BEEA5690986 /* Pods-Press.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-Press.modulemap"; sourceTree = "<group>"; };
 		103F339676BDE62DF5DCF8F376D32380 /* Container.Arguments.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Container.Arguments.swift; path = Sources/Container.Arguments.swift; sourceTree = "<group>"; };
-		1224CF56BA24F495357E183E69B6CC78 /* Pods-mac-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-mac-acknowledgements.markdown"; sourceTree = "<group>"; };
+		1A5D1B4EB6E4B9E4E912E3A416D397C8 /* Pods-Press-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-Press-frameworks.sh"; sourceTree = "<group>"; };
+		2105860EC8797447650D031D2DDD5C41 /* Pods_Press.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = Pods_Press.framework; path = "Pods-Press.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
 		22995AA48610556B9777665DDF3B8229 /* ObjectScope.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ObjectScope.swift; path = Sources/ObjectScope.swift; sourceTree = "<group>"; };
 		2534A2332EC2928B34D1BF864B2BA341 /* Swinject.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Swinject.h; path = Sources/Swinject.h; sourceTree = "<group>"; };
 		326F12E23C66E1CCCD220EAA5F8A2827 /* InstanceStorage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InstanceStorage.swift; path = Sources/InstanceStorage.swift; sourceTree = "<group>"; };
-		33A13C79A3CAADF462437AA2D5F46B2D /* Pods-mac-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-mac-frameworks.sh"; sourceTree = "<group>"; };
 		3BD3E46B08B43532597DFC9825A52BD4 /* ServiceEntry.TypeForwarding.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ServiceEntry.TypeForwarding.swift; path = Sources/ServiceEntry.TypeForwarding.swift; sourceTree = "<group>"; };
-		3DB489591D1657F3D09D02D61A0204C2 /* Pods-mac.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-mac.modulemap"; sourceTree = "<group>"; };
 		402B936132AB4F73CFAFD5BD6C04FB02 /* Container.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Container.swift; path = Sources/Container.swift; sourceTree = "<group>"; };
 		41AB5AA0A785CC5654B214425F506900 /* FunctionType.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FunctionType.swift; path = Sources/FunctionType.swift; sourceTree = "<group>"; };
-		4536BF717989BEA75249A8EE6346A667 /* Pods-mac-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-mac-umbrella.h"; sourceTree = "<group>"; };
+		46BF45F57DB8ED5F495AF3538641CC10 /* Pods-Press.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Press.debug.xcconfig"; sourceTree = "<group>"; };
 		4BB8112D90444327849585ED3FA07AFF /* ServiceEntry.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ServiceEntry.swift; path = Sources/ServiceEntry.swift; sourceTree = "<group>"; };
+		54C9A97255F2087F56C02372B7E05DAC /* Pods-Press-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Press-Info.plist"; sourceTree = "<group>"; };
+		5613F4A94A58F1E2108FE6DEA3BD3D8B /* Pods-Press.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Press.release.xcconfig"; sourceTree = "<group>"; };
 		59AA54FDF1E0B576C4FCFDF8F1906E13 /* Swinject-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Swinject-prefix.pch"; sourceTree = "<group>"; };
 		5BDA1BF53DAE0969369A63D5F52A89CC /* shared.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = shared.framework; path = build/cocoapods/framework/shared.framework; sourceTree = "<group>"; };
 		5D6DEE0A697C133636D2B1B9E23B8603 /* SynchronizedResolver.Arguments.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SynchronizedResolver.Arguments.swift; path = Sources/SynchronizedResolver.Arguments.swift; sourceTree = "<group>"; };
-		6C8A95FE03FA101BE496CCC817E61A74 /* Pods-mac.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-mac.release.xcconfig"; sourceTree = "<group>"; };
+		60633BA0BF873843B6DFFEE7FE71B008 /* Pods-Press-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Press-umbrella.h"; sourceTree = "<group>"; };
 		749F4AC3431688388EB876C11FE9034A /* UnavailableItems.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UnavailableItems.swift; path = Sources/UnavailableItems.swift; sourceTree = "<group>"; };
 		777549F8211BBDE23B5A316C906335B8 /* SpinLock.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SpinLock.swift; path = Sources/SpinLock.swift; sourceTree = "<group>"; };
+		77E44FA31AF8F15FAA1100162021459A /* Pods-Press-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-Press-dummy.m"; sourceTree = "<group>"; };
 		77EE97B7B2F80A849EE0FBBA25031129 /* GraphIdentifier.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GraphIdentifier.swift; path = Sources/GraphIdentifier.swift; sourceTree = "<group>"; };
+		78DB31DBABB6CBD0075CDF17D5DE4787 /* Pods-Press-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Press-acknowledgements.plist"; sourceTree = "<group>"; };
 		7AB94F2399462C48C014C9477075457F /* Resolver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Resolver.swift; path = Sources/Resolver.swift; sourceTree = "<group>"; };
 		84110A524FB66D87E75670267827BD8F /* ServiceKey.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ServiceKey.swift; path = Sources/ServiceKey.swift; sourceTree = "<group>"; };
 		86A4DAA76BE8F1E514D336388431C224 /* Assembly.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Assembly.swift; path = Sources/Assembly.swift; sourceTree = "<group>"; };
@@ -102,14 +105,12 @@
 		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		A09968FBC4A289F8035D7176D2DE0F24 /* Swinject.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Swinject.release.xcconfig; sourceTree = "<group>"; };
 		A4F6234A51DF4F20BB2A343E78B22E17 /* Container.Logging.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Container.Logging.swift; path = Sources/Container.Logging.swift; sourceTree = "<group>"; };
-		A98C08983521D243E38542F35A3BC6D2 /* Pods-mac-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-mac-dummy.m"; sourceTree = "<group>"; };
 		AFA050F624BE659321EA42B90A781DC0 /* _Resolver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = _Resolver.swift; path = Sources/_Resolver.swift; sourceTree = "<group>"; };
 		BE471E91498033021155E60E5DA88606 /* shared.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; path = shared.podspec; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
-		C0D55DE1E746890F01C4F2A55A1CC530 /* Pods_mac.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = Pods_mac.framework; path = "Pods-mac.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C823C8E60C956CF9EA92868A3BD89DA0 /* Container.TypeForwarding.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Container.TypeForwarding.swift; path = Sources/Container.TypeForwarding.swift; sourceTree = "<group>"; };
 		C978EB077E5FE411426E5798253F94D4 /* DebugHelper.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DebugHelper.swift; path = Sources/DebugHelper.swift; sourceTree = "<group>"; };
-		C983EFF8C81FB962D0FF3ACCEA4E57D2 /* Pods-mac-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-mac-acknowledgements.plist"; sourceTree = "<group>"; };
 		D3F6286BD189090F8430A13015CA5B9E /* Swinject-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Swinject-Info.plist"; sourceTree = "<group>"; };
+		D4B5072BE19563368AC9FA7E5B10380C /* Pods-Press-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-Press-acknowledgements.markdown"; sourceTree = "<group>"; };
 		D90F26846634F9E8B1141F178DF010A5 /* Behavior.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Behavior.swift; path = Sources/Behavior.swift; sourceTree = "<group>"; };
 		DAB5698E430A0A9CF5D471C3F9C0E954 /* Swinject.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Swinject.debug.xcconfig; sourceTree = "<group>"; };
 		DBE89B64C6FEA885C5B1B656B148C9A2 /* shared.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = shared.debug.xcconfig; sourceTree = "<group>"; };
@@ -117,23 +118,22 @@
 		F940C819049CFF8741C0F5E3E075E607 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		FA62609A4B83BEE5CACF6B144B1245C6 /* ObjectScope.Standard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ObjectScope.Standard.swift; path = Sources/ObjectScope.Standard.swift; sourceTree = "<group>"; };
 		FBE6D86442ED768D6EF982BD51FD6310 /* shared.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = shared.release.xcconfig; sourceTree = "<group>"; };
-		FEADBF38AB0B2B9B5EF5560ABFBA893D /* Pods-mac-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-mac-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		8638702CEC80690F77845B6F2AED4A85 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4BA193B1F49936C6F52CBAFC3A88FE0B /* Cocoa.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		921F4C405F0DC27F2AE44FE706FC80E8 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				6139236F1E6F367EA321E01B703E183E /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FEE830654B08F37D22D8D87FEE86B947 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				44D8D75E5791B5BCE1B92110C097679B /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -150,12 +150,37 @@
 			path = "../native/mac/Pods/Target Support Files/shared";
 			sourceTree = "<group>";
 		};
+		0C09DD5CB235435113E38CC1BC7E1D79 /* Targets Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				1D83FA3EB77626B3860E6F992674DB2E /* Pods-Press */,
+			);
+			name = "Targets Support Files";
+			sourceTree = "<group>";
+		};
 		134B6A36E2FE3B1321F9F07A8EE06CDB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
 				EE0CBF93A2BAE8DA8A608CF6B7FE24B3 /* Swinject */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		1D83FA3EB77626B3860E6F992674DB2E /* Pods-Press */ = {
+			isa = PBXGroup;
+			children = (
+				05A203BAA785FD7503AD8BEEA5690986 /* Pods-Press.modulemap */,
+				D4B5072BE19563368AC9FA7E5B10380C /* Pods-Press-acknowledgements.markdown */,
+				78DB31DBABB6CBD0075CDF17D5DE4787 /* Pods-Press-acknowledgements.plist */,
+				77E44FA31AF8F15FAA1100162021459A /* Pods-Press-dummy.m */,
+				1A5D1B4EB6E4B9E4E912E3A416D397C8 /* Pods-Press-frameworks.sh */,
+				54C9A97255F2087F56C02372B7E05DAC /* Pods-Press-Info.plist */,
+				60633BA0BF873843B6DFFEE7FE71B008 /* Pods-Press-umbrella.h */,
+				46BF45F57DB8ED5F495AF3538641CC10 /* Pods-Press.debug.xcconfig */,
+				5613F4A94A58F1E2108FE6DEA3BD3D8B /* Pods-Press.release.xcconfig */,
+			);
+			name = "Pods-Press";
+			path = "Target Support Files/Pods-Press";
 			sourceTree = "<group>";
 		};
 		72856161601E91BE9F489FB0E9AA390F /* Development Pods */ = {
@@ -175,6 +200,15 @@
 			);
 			name = shared;
 			path = ../../../shared;
+			sourceTree = "<group>";
+		};
+		93F4D3CFCC44C36B50C5CB869CBA1A93 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2105860EC8797447650D031D2DDD5C41 /* Pods_Press.framework */,
+				8ACA110EF3B35B3FCC08297B3799D9AD /* Swinject.framework */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		BB8E740A8289AA27FA89227243132872 /* Pod */ = {
@@ -200,8 +234,8 @@
 				72856161601E91BE9F489FB0E9AA390F /* Development Pods */,
 				E0A1E60606E0BF6E2E10F1F01350DFE8 /* Frameworks */,
 				134B6A36E2FE3B1321F9F07A8EE06CDB /* Pods */,
-				F4262B3697E90C5173CAF5E15F58F862 /* Products */,
-				F436768F6B3608EF9AA8F266DA96EF20 /* Targets Support Files */,
+				93F4D3CFCC44C36B50C5CB869CBA1A93 /* Products */,
+				0C09DD5CB235435113E38CC1BC7E1D79 /* Targets Support Files */,
 			);
 			sourceTree = "<group>";
 		};
@@ -218,23 +252,6 @@
 			);
 			name = "Support Files";
 			path = "../Target Support Files/Swinject";
-			sourceTree = "<group>";
-		};
-		D7A598259997AB53047B65D2ABE49FA3 /* Pods-mac */ = {
-			isa = PBXGroup;
-			children = (
-				3DB489591D1657F3D09D02D61A0204C2 /* Pods-mac.modulemap */,
-				1224CF56BA24F495357E183E69B6CC78 /* Pods-mac-acknowledgements.markdown */,
-				C983EFF8C81FB962D0FF3ACCEA4E57D2 /* Pods-mac-acknowledgements.plist */,
-				A98C08983521D243E38542F35A3BC6D2 /* Pods-mac-dummy.m */,
-				33A13C79A3CAADF462437AA2D5F46B2D /* Pods-mac-frameworks.sh */,
-				FEADBF38AB0B2B9B5EF5560ABFBA893D /* Pods-mac-Info.plist */,
-				4536BF717989BEA75249A8EE6346A667 /* Pods-mac-umbrella.h */,
-				0B8EB18FE75D54FC68DA4E0C12272B4A /* Pods-mac.debug.xcconfig */,
-				6C8A95FE03FA101BE496CCC817E61A74 /* Pods-mac.release.xcconfig */,
-			);
-			name = "Pods-mac";
-			path = "Target Support Files/Pods-mac";
 			sourceTree = "<group>";
 		};
 		E0A1E60606E0BF6E2E10F1F01350DFE8 /* Frameworks */ = {
@@ -286,31 +303,14 @@
 			path = Swinject;
 			sourceTree = "<group>";
 		};
-		F4262B3697E90C5173CAF5E15F58F862 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				C0D55DE1E746890F01C4F2A55A1CC530 /* Pods_mac.framework */,
-				8ACA110EF3B35B3FCC08297B3799D9AD /* Swinject.framework */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F436768F6B3608EF9AA8F266DA96EF20 /* Targets Support Files */ = {
-			isa = PBXGroup;
-			children = (
-				D7A598259997AB53047B65D2ABE49FA3 /* Pods-mac */,
-			);
-			name = "Targets Support Files";
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
-		BCDD7D93CF52FEDED5EB68B6F12AF60A /* Headers */ = {
+		6EE008E88BC4134C6099832F924AF740 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0F79FECEF598AAF60773E9BC1A7A5332 /* Pods-mac-umbrella.h in Headers */,
+				C61223DB0BA4B65D597F7CC0DE8EE551 /* Pods-Press-umbrella.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -344,24 +344,24 @@
 			productReference = 8ACA110EF3B35B3FCC08297B3799D9AD /* Swinject.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		88885ED65F004323034C5BBC1D9C4D10 /* Pods-mac */ = {
+		4B3397D8DB4258F80760967BF0566EDB /* Pods-Press */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 491A297BACE0C16E3D7B91E7D62A648E /* Build configuration list for PBXNativeTarget "Pods-mac" */;
+			buildConfigurationList = 4DAAA816A753C69E58921466E2130688 /* Build configuration list for PBXNativeTarget "Pods-Press" */;
 			buildPhases = (
-				BCDD7D93CF52FEDED5EB68B6F12AF60A /* Headers */,
-				55EE9F88A3F16289EC2352DA0883F83C /* Sources */,
-				8638702CEC80690F77845B6F2AED4A85 /* Frameworks */,
-				49A4357BFABA515CAD628DABE629CF6A /* Resources */,
+				6EE008E88BC4134C6099832F924AF740 /* Headers */,
+				5BDA16A6762216CD6C4920588A58160E /* Sources */,
+				FEE830654B08F37D22D8D87FEE86B947 /* Frameworks */,
+				2D4E0B7A9E2C392943BABC873B1816CB /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				27A080A61BBE633B2F6BFF240D5E021A /* PBXTargetDependency */,
-				C726CB07F179DF6BE3C39270522A4F61 /* PBXTargetDependency */,
+				6D7CF6AFAC15ABE6EAE2AC9558DFE567 /* PBXTargetDependency */,
+				52B5CA7BEED5FC512EEC5D91FE84F479 /* PBXTargetDependency */,
 			);
-			name = "Pods-mac";
-			productName = "Pods-mac";
-			productReference = C0D55DE1E746890F01C4F2A55A1CC530 /* Pods_mac.framework */;
+			name = "Pods-Press";
+			productName = "Pods-Press";
+			productReference = 2105860EC8797447650D031D2DDD5C41 /* Pods_Press.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -374,7 +374,7 @@
 				LastUpgradeCheck = 1100;
 			};
 			buildConfigurationList = 4821239608C13582E20E6DA73FD5F1F9 /* Build configuration list for PBXProject "Pods" */;
-			compatibilityVersion = "Xcode 9.3";
+			compatibilityVersion = "Xcode 10.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -382,11 +382,11 @@
 				Base,
 			);
 			mainGroup = CF1408CF629C7361332E53B88F7BD30C;
-			productRefGroup = F4262B3697E90C5173CAF5E15F58F862 /* Products */;
+			productRefGroup = 93F4D3CFCC44C36B50C5CB869CBA1A93 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				88885ED65F004323034C5BBC1D9C4D10 /* Pods-mac */,
+				4B3397D8DB4258F80760967BF0566EDB /* Pods-Press */,
 				8777C9F6889E59EFFD631D80AEE9048B /* shared */,
 				46065AF968A5A92D450BB21F7F24367D /* Swinject */,
 			);
@@ -394,14 +394,14 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		39AE1935A8F1FFAF3EA86A36F1F7BA23 /* Resources */ = {
+		2D4E0B7A9E2C392943BABC873B1816CB /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		49A4357BFABA515CAD628DABE629CF6A /* Resources */ = {
+		39AE1935A8F1FFAF3EA86A36F1F7BA23 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -424,11 +424,11 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		55EE9F88A3F16289EC2352DA0883F83C /* Sources */ = {
+		5BDA16A6762216CD6C4920588A58160E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE6A5A867403218CD667E86927EE2556 /* Pods-mac-dummy.m in Sources */,
+				3F3BD00C79E50C0BD48DE28DF2F25814 /* Pods-Press-dummy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -466,17 +466,17 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		27A080A61BBE633B2F6BFF240D5E021A /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = Swinject;
-			target = 46065AF968A5A92D450BB21F7F24367D /* Swinject */;
-			targetProxy = CC0B1BF7A0D56A66055C3735A59593B2 /* PBXContainerItemProxy */;
-		};
-		C726CB07F179DF6BE3C39270522A4F61 /* PBXTargetDependency */ = {
+		52B5CA7BEED5FC512EEC5D91FE84F479 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = shared;
 			target = 8777C9F6889E59EFFD631D80AEE9048B /* shared */;
-			targetProxy = CA54C143D757642C978CFBCC0E68B1A9 /* PBXContainerItemProxy */;
+			targetProxy = B39197BCC143DF2E0D6F3046FF01B3CC /* PBXContainerItemProxy */;
+		};
+		6D7CF6AFAC15ABE6EAE2AC9558DFE567 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Swinject;
+			target = 46065AF968A5A92D450BB21F7F24367D /* Swinject */;
+			targetProxy = F4393164EF240346A2E6B005732C82A0 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -623,9 +623,9 @@
 			};
 			name = Debug;
 		};
-		8BFE555151CB57B95CBC9EFA1B9E1430 /* Release */ = {
+		61C694C907A9E8B47AA857349A490246 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 6C8A95FE03FA101BE496CCC817E61A74 /* Pods-mac.release.xcconfig */;
+			baseConfigurationReference = 5613F4A94A58F1E2108FE6DEA3BD3D8B /* Pods-Press.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
@@ -641,7 +641,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				FRAMEWORK_VERSION = A;
-				INFOPLIST_FILE = "Target Support Files/Pods-mac/Pods-mac-Info.plist";
+				INFOPLIST_FILE = "Target Support Files/Pods-Press/Pods-Press-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -650,7 +650,7 @@
 				);
 				MACH_O_TYPE = staticlib;
 				MACOSX_DEPLOYMENT_TARGET = 10.15.3;
-				MODULEMAP_FILE = "Target Support Files/Pods-mac/Pods-mac.modulemap";
+				MODULEMAP_FILE = "Target Support Files/Pods-Press/Pods-Press.modulemap";
 				OTHER_LDFLAGS = "";
 				OTHER_LIBTOOLFLAGS = "";
 				PODS_ROOT = "$(SRCROOT)";
@@ -662,46 +662,6 @@
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Release;
-		};
-		8DEE91D1EBED8415437A0D47A66B3028 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0B8EB18FE75D54FC68DA4E0C12272B4A /* Pods-mac.debug.xcconfig */;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_IDENTITY = "";
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_VERSION = A;
-				INFOPLIST_FILE = "Target Support Files/Pods-mac/Pods-mac-Info.plist";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MACH_O_TYPE = staticlib;
-				MACOSX_DEPLOYMENT_TARGET = 10.15.3;
-				MODULEMAP_FILE = "Target Support Files/Pods-mac/Pods-mac.modulemap";
-				OTHER_LDFLAGS = "";
-				OTHER_LIBTOOLFLAGS = "";
-				PODS_ROOT = "$(SRCROOT)";
-				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				SDKROOT = macosx;
-				SKIP_INSTALL = YES;
-				VERSIONING_SYSTEM = "apple-generic";
-				VERSION_INFO_PREFIX = "";
-			};
-			name = Debug;
 		};
 		94F4DEE70D5DFB4AB12362C9E9B6B8FD /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -736,6 +696,46 @@
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
 				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		968F960F9EA5B1619483195D2157EF4E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 46BF45F57DB8ED5F495AF3538641CC10 /* Pods-Press.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = "Target Support Files/Pods-Press/Pods-Press-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACH_O_TYPE = staticlib;
+				MACOSX_DEPLOYMENT_TARGET = 10.15.3;
+				MODULEMAP_FILE = "Target Support Files/Pods-Press/Pods-Press.modulemap";
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -809,11 +809,11 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		491A297BACE0C16E3D7B91E7D62A648E /* Build configuration list for PBXNativeTarget "Pods-mac" */ = {
+		4DAAA816A753C69E58921466E2130688 /* Build configuration list for PBXNativeTarget "Pods-Press" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				8DEE91D1EBED8415437A0D47A66B3028 /* Debug */,
-				8BFE555151CB57B95CBC9EFA1B9E1430 /* Release */,
+				968F960F9EA5B1619483195D2157EF4E /* Debug */,
+				61C694C907A9E8B47AA857349A490246 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

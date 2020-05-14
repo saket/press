@@ -1,0 +1,6 @@
+framework module Pods_Press {
+  umbrella header "Pods-Press-umbrella.h"
+
+  export *
+  module * { export * }
+}
