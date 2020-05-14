@@ -43,9 +43,9 @@ struct Subscribe<Content, EV, M, EF>: View
   }
 
   var body: some View {
-    content(currentModel, streams.uiEffects)
+    content(currentModel, streams.effects)
       // onReceive() will manage the lifecycle of this stream.
-      .onReceive(streams.uiModels) { model in
+      .onReceive(streams.models) { model in
         self.currentModel = model
       }
   }
@@ -71,16 +71,15 @@ struct Subscribe<Content, EV, M, EF>: View
 /// because Views get recreated on every state update causing the streams
 /// to get disposed and re-subscribed.
 public class PresenterStreams<EV: AnyObject, M: AnyObject, EF: AnyObject> {
-
   public let presenter: Presenter<EV, M, EF>
-  public let uiModels: AnyPublisher<M, Never>
-  public let uiEffects: AnyPublisher<EF, Never>
+  public let models: AnyPublisher<M, Never>
+  public let effects: AnyPublisher<EF, Never>
   private var effectsCancellable: AnyCancellable
 
   init(_ presenter: Presenter<EV, M, EF>) {
     self.presenter = presenter
 
-    self.uiModels = ReaktiveInterop.asPublisher(presenter.uiModels())
+    self.models = ReaktiveInterop.asPublisher(presenter.uiModels())
       .receive(on: RunLoop.main)
       .assertNoFailure()
       .shareReplay(bufferSize: 1)
@@ -88,15 +87,15 @@ public class PresenterStreams<EV: AnyObject, M: AnyObject, EF: AnyObject> {
 
     /// It is unfortunate to use a subject here, when
     /// share().autoConnect() should have worked instead.
-    let uiEffectsSubject = PassthroughSubject<EF, Never>()
-    self.uiEffects = uiEffectsSubject.eraseToAnyPublisher()
+    let effectsSubject = PassthroughSubject<EF, Never>()
+    self.effects = effectsSubject.eraseToAnyPublisher()
 
     self.effectsCancellable = ReaktiveInterop.asPublisher(presenter.uiEffects())
       .receive(on: RunLoop.main)
       .assertNoFailure()
       .eraseToAnyPublisher()
       .sink { ef in
-        uiEffectsSubject.send(ef)
+        effectsSubject.send(ef)
       }
   }
 
