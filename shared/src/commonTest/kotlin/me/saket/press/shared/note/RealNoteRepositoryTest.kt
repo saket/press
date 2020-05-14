@@ -11,8 +11,8 @@ import com.soywiz.klock.seconds
 import me.saket.press.shared.AndroidJUnit4
 import me.saket.press.shared.RunWith
 import me.saket.press.shared.db.BaseDatabaeTest
+import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakedata.fakeNote
-import me.saket.press.shared.generateUuid
 import me.saket.press.shared.time.FakeClock
 import me.saket.press.shared.util.filterSome
 import kotlin.test.Test
@@ -30,17 +30,17 @@ class RealNoteRepositoryTest : BaseDatabaeTest() {
   )
 
   @Test fun `create inserts note correctly`() {
-    val noteUuid = generateUuid()
+    val noteId = NoteId.generate()
     val content = "Nicolas Cage is a national treasure"
-    noteQueries.testInsert(fakeNote(uuid = noteUuid, content = content))
+    noteQueries.testInsert(fakeNote(noteId = noteId, content = content))
 
-    val savedNote = repository().note(noteUuid)
+    val savedNote = repository().note(noteId)
         .filterSome()
         .firstOrError()
         .blockingGet()
 
     savedNote.let {
-      assertThat(it.uuid).isEqualTo(noteUuid)
+      assertThat(it.uuid).isEqualTo(noteId)
       assertThat(it.content).isEqualTo(content)
       assertThat(it.createdAt).isEqualTo(clock.nowUtc())
       assertThat(it.updatedAt).isEqualTo(clock.nowUtc())
@@ -49,7 +49,7 @@ class RealNoteRepositoryTest : BaseDatabaeTest() {
   }
 
   @Test fun `update a note only if its content is changed`() {
-    val note = fakeNote(uuid = generateUuid(), content = "# Nicolas")
+    val note = fakeNote(noteId = NoteId.generate(), content = "# Nicolas")
     noteQueries.testInsert(note)
     val savedNote = { noteQueries.note(note.uuid).executeAsOne() }
 
@@ -62,7 +62,7 @@ class RealNoteRepositoryTest : BaseDatabaeTest() {
   }
 
   @Test fun `mark a note as deleted`() {
-    val note = fakeNote(uuid = generateUuid(), content = "# Nicolas Cage")
+    val note = fakeNote(noteId = NoteId.generate(), content = "# Nicolas Cage")
     noteQueries.testInsert(note)
 
     repository().markAsDeleted(note.uuid).test()
@@ -72,7 +72,7 @@ class RealNoteRepositoryTest : BaseDatabaeTest() {
   }
 
   @Test fun `mark a note as archived`() {
-    val note = fakeNote(uuid = generateUuid(), content = "Jake Wharton secretly loves Flutter")
+    val note = fakeNote(noteId = NoteId.generate(), content = "Jake Wharton secretly loves Flutter")
     noteQueries.testInsert(note)
 
     repository().markAsArchived(note.uuid).test()

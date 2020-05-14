@@ -1,9 +1,9 @@
-import com.benasher44.uuid.Uuid;
 import com.soywiz.klock.DateTime;
+import me.saket.press.shared.db.NoteId;
 
 CREATE TABLE note (
   localId INTEGER PRIMARY KEY AUTOINCREMENT,
-  uuid TEXT AS Uuid NOT NULL,
+  uuid TEXT AS NoteId NOT NULL,
   content TEXT NOT NULL,
   createdAt TEXT AS DateTime NOT NULL,
   updatedAt TEXT AS DateTime NOT NULL,

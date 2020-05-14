@@ -11,21 +11,21 @@ import Swinject
 struct NoteListView: View {
   @EnvironmentObject var theme: AppTheme
   @Subscribable var presenter: HomePresenter
-  @Binding var selectedNoteId: UuidUuid?
+  @Binding var selectedNoteId: NoteId?
 
   var body: some View {
     Subscribe($presenter) { model, _ in
       List(selection: self.$selectedNoteId) {
         ForEach(model.notes, id: \.adapterId) { (note: HomeUiModel.Note) in
           NoteRowView(note: note)
-            .tag(note.noteUuid)
+            .tag(note.noteId)
             .background(self.listSelectionColor(note))
         }.removeListMargins()
       }
     }
   }
 
-  init(selection: Binding<UuidUuid?>) {
+  init(selection: Binding<NoteId?>) {
     self._selectedNoteId = selection
 
     let presenterFactory = PressApp.component.resolve(HomePresenterFactory.self)!
@@ -34,7 +34,7 @@ struct NoteListView: View {
   }
 
   func listSelectionColor(_ note: HomeUiModel.Note) -> Color {
-    if (selectedNoteId == note.noteUuid) {
+    if (selectedNoteId == note.noteId) {
       return Color(theme.palette.window.editorBackgroundColor)
     } else {
       return Color.clear

@@ -1,6 +1,6 @@
 package me.saket.press.shared.home
 
-import com.benasher44.uuid.Uuid
+import me.saket.press.shared.db.NoteId
 
 interface HomeEvent {
   object NewNoteClicked : HomeEvent
@@ -9,7 +9,7 @@ interface HomeEvent {
 
 data class HomeUiModel(val notes: List<Note>) {
   data class Note(
-    val noteUuid: Uuid,
+    val noteId: NoteId,
     val adapterId: Long,
     val title: String,
     val body: String

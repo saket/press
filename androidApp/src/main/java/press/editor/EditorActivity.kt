@@ -9,7 +9,6 @@ import android.graphics.Color.BLACK
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import androidx.annotation.DrawableRes
-import com.benasher44.uuid.Uuid
 import com.benasher44.uuid.uuidFrom
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.detaches
@@ -17,8 +16,8 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.StandaloneExpandablePageLayout
+import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
-import me.saket.press.shared.generateUuid
 import press.App
 import press.animation.FabTransform
 import press.util.withOpacity
@@ -64,7 +63,7 @@ class EditorActivity : ThemeAwareActivity() {
   private fun createEditorView(): EditorView {
     return editorViewFactory.create(
         context = this@EditorActivity,
-        openMode = NewNote(readNoteUuid(intent), readPreFilledNote(intent)),
+        openMode = NewNote(readNoteId(intent), readPreFilledNote(intent)),
         onDismiss = ::dismiss
     )
   }
@@ -97,8 +96,8 @@ class EditorActivity : ThemeAwareActivity() {
   companion object {
     private const val KEY_NOTE_ID = "press:new_note_id"
 
-    private fun readNoteUuid(intent: Intent): Uuid {
-      return uuidFrom(intent.getStringExtra(KEY_NOTE_ID)!!)
+    private fun readNoteId(intent: Intent): NoteId {
+      return NoteId(uuidFrom(intent.getStringExtra(KEY_NOTE_ID)!!))
     }
 
     private fun readPreFilledNote(intent: Intent): String? {
@@ -107,7 +106,7 @@ class EditorActivity : ThemeAwareActivity() {
 
     fun intent(context: Context, preFilledNote: String? = null): Intent {
       return Intent(context, EditorActivity::class.java).apply {
-        putExtra(KEY_NOTE_ID, generateUuid().toString())
+        putExtra(KEY_NOTE_ID, NoteId.generate().value.toString())
 
         if (preFilledNote != null) {
           putExtra(EXTRA_TEXT, preFilledNote)

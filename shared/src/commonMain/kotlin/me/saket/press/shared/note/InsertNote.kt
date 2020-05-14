@@ -1,5 +1,5 @@
 package me.saket.press.shared.note
 
-import com.benasher44.uuid.Uuid
+import me.saket.press.shared.db.NoteId
 
-data class InsertNote internal constructor(val uuid: Uuid, val content: String)
+data class InsertNote internal constructor(val id: NoteId, val content: String)

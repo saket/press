@@ -71,8 +71,8 @@ class EditorPresenter(
 
   private fun createOrFetchNote(): Observable<Note> {
     val newOrExistingId = when (openMode) {
-      is NewNote -> openMode.placeholderUuid
-      is ExistingNote -> openMode.noteUuid
+      is NewNote -> openMode.placeholderId
+      is ExistingNote -> openMode.noteId
     }
 
     val createIfNeeded = if (openMode is NewNote) {
@@ -157,8 +157,8 @@ class EditorPresenter(
     val shouldDelete = content.isBlank() || trimmedContent == NEW_NOTE_PLACEHOLDER.trim()
 
     val noteId = when (openMode) {
-      is NewNote -> openMode.placeholderUuid
-      is ExistingNote -> openMode.noteUuid
+      is NewNote -> openMode.placeholderId
+      is ExistingNote -> openMode.noteId
     }
 
     // For reasons I don't understand, noteStream doesn't get re-subscribed

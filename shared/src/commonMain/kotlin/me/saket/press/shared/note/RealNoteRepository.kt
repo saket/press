@@ -8,10 +8,10 @@ import com.badoo.reaktive.observable.filter
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.take
 import com.badoo.reaktive.scheduler.Scheduler
-import com.benasher44.uuid.Uuid
 import me.saket.press.data.shared.Note
 import me.saket.press.data.shared.NoteQueries
 import me.saket.press.shared.db.DateTimeAdapter
+import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.rx.asObservable
 import me.saket.press.shared.rx.mapToList
 import me.saket.press.shared.rx.mapToOneOrOptional
@@ -25,8 +25,8 @@ internal class RealNoteRepository(
   private val clock: Clock
 ) : NoteRepository {
 
-  override fun note(noteUuid: Uuid): Observable<Optional<Note>> {
-    return noteQueries.note(noteUuid)
+  override fun note(id: NoteId): Observable<Optional<Note>> {
+    return noteQueries.note(id)
         .asObservable(ioScheduler)
         .mapToOneOrOptional()
   }
@@ -43,7 +43,7 @@ internal class RealNoteRepository(
         for (note in insertNotes) {
           noteQueries.insert(
               localId = null,
-              uuid = note.uuid,
+              uuid = note.id,
               content = note.content,
               createdAt = clock.nowUtc(),
               updatedAt = clock.nowUtc(),
@@ -55,14 +55,14 @@ internal class RealNoteRepository(
     }
   }
 
-  override fun update(noteUuid: Uuid, content: String): Completable {
-    return note(noteUuid)
+  override fun update(id: NoteId, content: String): Completable {
+    return note(id)
         .take(1)
         .mapToSome()
         .filter { note -> note.content.trim() != content.trim() }
         .map {
           noteQueries.updateContent(
-              uuid = noteUuid,
+              uuid = id,
               content = content,
               updatedAt = clock.nowUtc()
           )
@@ -70,19 +70,19 @@ internal class RealNoteRepository(
         .asCompletable()
   }
 
-  override fun markAsDeleted(noteUuid: Uuid): Completable {
+  override fun markAsDeleted(id: NoteId): Completable {
     return completableFromFunction {
       noteQueries.markAsDeleted(
-          uuid = noteUuid,
+          uuid = id,
           deletedAtString = DateTimeAdapter.encode(clock.nowUtc())
       )
     }
   }
 
-  override fun markAsArchived(noteUuid: Uuid): Completable {
+  override fun markAsArchived(id: NoteId): Completable {
     return completableFromFunction {
       noteQueries.markAsArchived(
-          uuid = noteUuid,
+          uuid = id,
           archivedAtString = DateTimeAdapter.encode(clock.nowUtc())
       )
     }

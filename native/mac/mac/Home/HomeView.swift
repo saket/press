@@ -9,7 +9,7 @@ import shared
 
 struct HomeView: View {
   @EnvironmentObject var theme: AppTheme
-  @State var selectedNoteId: UuidUuid? = nil
+  @State var selectedNoteId: NoteId? = nil
 
   private let notesWidth = Dimensions.noteListWidth
   private let editorWidth = Dimensions.editorWidth
@@ -24,7 +24,7 @@ struct HomeView: View {
         Color(self.theme.palette.window.editorBackgroundColor)
 
         if (selectedNoteId != nil) {
-          EditorView(openMode: EditorOpenMode.ExistingNote(noteUuid: selectedNoteId!))
+          EditorView(openMode: EditorOpenMode.ExistingNote(noteId: selectedNoteId!))
         }
       }
         .frame(minWidth: 350, idealWidth: editorWidth, maxWidth: .infinity, maxHeight: .infinity)

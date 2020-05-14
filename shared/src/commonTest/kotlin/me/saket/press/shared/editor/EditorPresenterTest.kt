@@ -9,6 +9,7 @@ import com.badoo.reaktive.test.observable.assertValue
 import com.badoo.reaktive.test.observable.test
 import com.badoo.reaktive.test.scheduler.TestScheduler
 import com.soywiz.klock.seconds
+import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
@@ -16,7 +17,6 @@ import me.saket.press.shared.editor.EditorPresenter.Args
 import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.fakedata.fakeNote
-import me.saket.press.shared.generateUuid
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.note.FakeNoteRepository
 import me.saket.wysiwyg.formatting.TextSelection
@@ -26,7 +26,7 @@ import kotlin.test.assertTrue
 
 class EditorPresenterTest {
 
-  private val noteUuid = generateUuid()
+  private val noteId = NoteId.generate()
   private val repository = FakeNoteRepository()
   private val testScheduler = TestScheduler()
   private val config = EditorConfig(autoSaveEvery = 5.seconds)
@@ -50,12 +50,12 @@ class EditorPresenterTest {
   @Test fun `blank note is created on start when a new note is opened`() {
     assertThat(repository.savedNotes).hasSize(0)
 
-    val observer = presenter(NewNote(noteUuid))
+    val observer = presenter(NewNote(noteId))
         .uiModels()
         .test()
 
     repository.savedNotes.single().let {
-      assertThat(it.uuid).isEqualTo(noteUuid)
+      assertThat(it.uuid).isEqualTo(noteId)
       assertThat(it.content).isEqualTo(NEW_NOTE_PLACEHOLDER)
     }
     observer.assertNotError()
@@ -63,16 +63,16 @@ class EditorPresenterTest {
 
   @Test fun `auto-save note at regular intervals`() {
     repository.savedNotes += fakeNote(
-        uuid = noteUuid,
+        noteId = noteId,
         content = "# "
     )
 
-    val presenter = presenter(NewNote(noteUuid))
+    val presenter = presenter(NewNote(noteId))
     val observer = presenter
         .uiModels()
         .test()
 
-    val savedNote = { repository.savedNotes.single { it.uuid == noteUuid } }
+    val savedNote = { repository.savedNotes.single { it.uuid == noteId } }
 
     presenter.dispatch(NoteTextChanged("# Ghost Rider"))
     testScheduler.timer.advanceBy(config.autoSaveEvery.millisecondsLong)
@@ -90,14 +90,14 @@ class EditorPresenterTest {
   }
 
   @Test fun `blank note is not created on start when an existing note is opened`() {
-    repository.savedNotes += fakeNote(uuid = noteUuid, content = "Nicolas")
+    repository.savedNotes += fakeNote(noteId = noteId, content = "Nicolas")
 
-    val observer = presenter(ExistingNote(noteUuid))
+    val observer = presenter(ExistingNote(noteId))
         .uiModels()
         .test()
 
     repository.savedNotes.single().let {
-      assertThat(it.uuid).isEqualTo(noteUuid)
+      assertThat(it.uuid).isEqualTo(noteId)
       assertThat(it.content).isEqualTo("Nicolas")
     }
     observer.assertNotError()
@@ -105,11 +105,11 @@ class EditorPresenterTest {
 
   @Test fun `updating an existing note on exit when its content is non-blank`() {
     repository.savedNotes += fakeNote(
-        uuid = noteUuid,
+        noteId = noteId,
         content = "Existing note"
     )
 
-    val presenter = presenter(NewNote(noteUuid))
+    val presenter = presenter(NewNote(noteId))
     presenter.saveEditorContentOnExit("Updated note")
 
     val savedNote = repository.savedNotes.last()
@@ -118,11 +118,11 @@ class EditorPresenterTest {
 
   @Test fun `deleting an existing note on exit when its content is blank`() {
     repository.savedNotes += fakeNote(
-        uuid = noteUuid,
+        noteId = noteId,
         content = "Existing note"
     )
 
-    val presenter = presenter(NewNote(noteUuid))
+    val presenter = presenter(NewNote(noteId))
     presenter.saveEditorContentOnExit("  \n ")
     presenter.saveEditorContentOnExit("  ")
     presenter.saveEditorContentOnExit("")
@@ -132,7 +132,7 @@ class EditorPresenterTest {
   }
 
   @Test fun `show hint text until the text is changed`() {
-    val presenter = presenter(NewNote(noteUuid))
+    val presenter = presenter(NewNote(noteId))
     val uiModels = presenter
         .uiModels()
         .test()
@@ -156,11 +156,11 @@ class EditorPresenterTest {
 
   @Test fun `populate existing note's content on start`() {
     repository.savedNotes += fakeNote(
-        uuid = noteUuid,
+        noteId = noteId,
         content = "Nicolas Cage favorite dialogues"
     )
 
-    presenter(ExistingNote(noteUuid))
+    presenter(ExistingNote(noteId))
         .uiEffects()
         .test()
         .apply {
@@ -170,7 +170,7 @@ class EditorPresenterTest {
   }
 
   @Test fun `populate new note's content with placeholder on start`() {
-    presenter(NewNote(noteUuid))
+    presenter(NewNote(noteId))
         .uiEffects()
         .test()
         .apply {
@@ -186,7 +186,7 @@ class EditorPresenterTest {
 
   @Test fun `populate new note's content with pre-filled note on start`() {
     val note = "Hello, World!"
-    presenter(NewNote(noteUuid, note))
+    presenter(NewNote(noteId, note))
         .uiEffects()
         .test()
         .apply {

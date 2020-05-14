@@ -4,6 +4,7 @@ import com.badoo.reaktive.completable.subscribe
 import com.badoo.reaktive.completable.subscribeOn
 import com.badoo.reaktive.scheduler.Scheduler
 import com.benasher44.uuid.uuidFrom
+import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.settings.Setting
 
 data class PrePopulatedNotesInserted(val inserted: Boolean)
@@ -20,7 +21,7 @@ class PrePopulatedNotes(
    * that they get merged and not duplicated when notes are synced between multiple devices.
    */
   private val WELCOME = InsertNote(
-      uuid = uuidFrom("e731d56f-8db6-4351-a05e-8df27d5086f0"),
+      id = NoteId(uuidFrom("e731d56f-8db6-4351-a05e-8df27d5086f0")),
       content = """
       |# Welcome to Press
       |Press is a *wysiwyg* writer for crafting notes. It uses markdown for styling and formatting text with a beautiful inline preview. If you’re new to markdown, check out the next note for tips and tricks.
@@ -34,7 +35,7 @@ class PrePopulatedNotes(
   )
 
   private val MARKDOWN_GUIDE = InsertNote(
-      uuid = uuidFrom("8f4192fd-38cf-4c15-8ac7-028d15fe5fc3"),
+      id = NoteId(uuidFrom("8f4192fd-38cf-4c15-8ac7-028d15fe5fc3")),
       content = """
       |# Markdown guide
       |Press understands standard markdown syntaxes, including: **bold**, *italic*, ~~strikethrough~~, and many more:

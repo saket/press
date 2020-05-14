@@ -41,7 +41,7 @@ class HomePresenter(
           HomeUiModel(it.map { note ->
             val (heading, body) = SplitHeadingAndBody.split(note.content)
             HomeUiModel.Note(
-                noteUuid = note.uuid,
+                noteId = note.uuid,
                 adapterId = note.localId,
                 title = heading,
                 body = body

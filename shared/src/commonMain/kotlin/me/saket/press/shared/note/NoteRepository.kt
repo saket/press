@@ -2,19 +2,19 @@ package me.saket.press.shared.note
 
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.observable.Observable
-import com.benasher44.uuid.Uuid
 import me.saket.press.data.shared.Note
+import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.util.Optional
 
 interface NoteRepository {
-  fun note(noteUuid: Uuid): Observable<Optional<Note>>
+  fun note(id: NoteId): Observable<Optional<Note>>
   fun notes(): Observable<List<Note>>
   fun create(vararg insertNotes: InsertNote): Completable
-  fun update(noteUuid: Uuid, content: String): Completable
-  fun markAsDeleted(noteUuid: Uuid): Completable
-  fun markAsArchived(noteUuid: Uuid): Completable
+  fun update(id: NoteId, content: String): Completable
+  fun markAsDeleted(id: NoteId): Completable
+  fun markAsArchived(id: NoteId): Completable
 
-  fun create(noteUuid: Uuid, content: String): Completable {
-    return create(InsertNote(noteUuid, content))
+  fun create(id: NoteId, content: String): Completable {
+    return create(InsertNote(id, content))
   }
 }

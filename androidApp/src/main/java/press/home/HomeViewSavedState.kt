@@ -1,11 +1,11 @@
 package press.home
 
 import android.os.Parcelable
-import com.benasher44.uuid.Uuid
 import kotlinx.android.parcel.Parcelize
 import kotlinx.android.parcel.WriteWith
+import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.home.HomeUiModel
-import press.db.UuidParceler
+import press.db.NoteIdParceler
 
 @Parcelize
 data class HomeViewSavedState(
@@ -15,8 +15,8 @@ data class HomeViewSavedState(
 
 @Parcelize
 data class ActiveNote(
-  val noteUuid: @WriteWith<UuidParceler> Uuid,
+  val noteId: @WriteWith<NoteIdParceler> NoteId,
   val adapterId: Long
 ) : Parcelable
 
-fun HomeUiModel.Note.toActiveNote() = ActiveNote(noteUuid, adapterId)
+fun HomeUiModel.Note.toActiveNote() = ActiveNote(noteId, adapterId)

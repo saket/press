@@ -120,7 +120,7 @@ class HomeView @AssistedInject constructor(
       } else {
         val editorView = editorViewFactory.create(
             context = context,
-            openMode = ExistingNote(note.noteUuid),
+            openMode = ExistingNote(note.noteId),
             onDismiss = notesList::collapse
         )
         noteEditorPage.addView(editorView)

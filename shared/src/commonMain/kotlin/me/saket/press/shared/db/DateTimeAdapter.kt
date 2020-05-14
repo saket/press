@@ -5,9 +5,7 @@ import com.soywiz.klock.DateTime
 import com.soywiz.klock.parse
 import com.squareup.sqldelight.ColumnAdapter
 
-/**
- * For UTC date times.
- */
+/** For UTC date times. */
 object DateTimeAdapter : ColumnAdapter<DateTime, String> {
 
   override fun decode(databaseValue: String): DateTime =

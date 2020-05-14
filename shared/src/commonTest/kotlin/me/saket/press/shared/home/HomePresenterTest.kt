@@ -4,9 +4,9 @@ import assertk.assertThat
 import assertk.assertions.containsOnly
 import com.badoo.reaktive.test.observable.assertValue
 import com.badoo.reaktive.test.observable.test
+import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
 import me.saket.press.shared.fakedata.fakeNote
-import me.saket.press.shared.generateUuid
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomePresenter.Args
 import me.saket.press.shared.home.HomeUiEffect.ComposeNewNote
@@ -24,10 +24,10 @@ class HomePresenterTest {
   )
 
   @Test fun `populate notes on creation`() {
-    val noteUuid = generateUuid()
+    val noteId = NoteId.generate()
     noteRepository.savedNotes += listOf(
         fakeNote(
-            uuid = noteUuid,
+            noteId = noteId,
             localId = -1L,
             content = "# Nicolas Cage\nOur national treasure"
         )
@@ -41,7 +41,7 @@ class HomePresenterTest {
 
     assertThat(noteModel).containsOnly(
         Note(
-            noteUuid = noteUuid,
+            noteId = noteId,
             adapterId = -1L,
             title = "Nicolas Cage",
             body = "Our national treasure"
@@ -51,9 +51,9 @@ class HomePresenterTest {
 
   @Test fun `filter out empty notes if requested`() {
     noteRepository.savedNotes += listOf(
-        fakeNote(uuid = generateUuid(), content = "# Non-empty note"),
-        fakeNote(uuid = generateUuid(), content = NEW_NOTE_PLACEHOLDER),
-        fakeNote(uuid = generateUuid(), content = "")
+        fakeNote(noteId = NoteId.generate(), content = "# Non-empty note"),
+        fakeNote(noteId = NoteId.generate(), content = NEW_NOTE_PLACEHOLDER),
+        fakeNote(noteId = NoteId.generate(), content = "")
     )
 
     presenter(includeEmptyNotes = false)
@@ -67,9 +67,9 @@ class HomePresenterTest {
 
   @Test fun `include empty notes if requested`() {
     noteRepository.savedNotes += listOf(
-        fakeNote(uuid = generateUuid(), content = "# Non-empty note"),
-        fakeNote(uuid = generateUuid(), content = NEW_NOTE_PLACEHOLDER),
-        fakeNote(uuid = generateUuid(), content = "")
+        fakeNote(noteId = NoteId.generate(), content = "# Non-empty note"),
+        fakeNote(noteId = NoteId.generate(), content = NEW_NOTE_PLACEHOLDER),
+        fakeNote(noteId = NoteId.generate(), content = "")
     )
 
     presenter(includeEmptyNotes = true)

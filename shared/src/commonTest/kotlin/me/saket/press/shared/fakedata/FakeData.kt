@@ -1,10 +1,9 @@
 package me.saket.press.shared.fakedata
 
-import com.benasher44.uuid.Uuid
 import com.soywiz.klock.DateTime
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.DateTimeAdapter
-import me.saket.press.shared.generateUuid
+import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.time.FakeClock
 import kotlin.random.Random
 
@@ -12,7 +11,7 @@ private val clock = FakeClock()
 
 fun fakeNote(
   localId: Long = Random.Default.nextLong(),
-  uuid: Uuid = generateUuid(),
+  noteId: NoteId = NoteId.generate(),
   content: String,
   createdAt: DateTime = clock.nowUtc(),
   updatedAt: DateTime = clock.nowUtc(),
@@ -21,7 +20,7 @@ fun fakeNote(
 ): Note.Impl {
   return Note.Impl(
       localId = localId,
-      uuid = uuid,
+      uuid = noteId,
       content = content,
       createdAt = createdAt,
       updatedAt = updatedAt,

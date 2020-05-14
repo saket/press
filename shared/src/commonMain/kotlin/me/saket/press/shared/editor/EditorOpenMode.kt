@@ -1,12 +1,12 @@
 package me.saket.press.shared.editor
 
-import com.benasher44.uuid.Uuid
+import me.saket.press.shared.db.NoteId
 
 sealed class EditorOpenMode {
   // The base type intentionally does not have an abstract uuid
   // for discouraging usages to depend on it. The placeholder
-  // uuid may or may not have been inserted into DB yet.
+  // id may or may not have been inserted into DB yet.
 
-  data class NewNote(val placeholderUuid: Uuid, val preFilledNote: String? = null) : EditorOpenMode()
-  data class ExistingNote(val noteUuid: Uuid) : EditorOpenMode()
+  data class NewNote(val placeholderId: NoteId, val preFilledNote: String? = null) : EditorOpenMode()
+  data class ExistingNote(val noteId: NoteId) : EditorOpenMode()
 }
