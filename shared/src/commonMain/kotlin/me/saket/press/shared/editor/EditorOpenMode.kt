@@ -9,4 +9,9 @@ sealed class EditorOpenMode {
 
   data class NewNote(val placeholderId: NoteId, val preFilledNote: String? = null) : EditorOpenMode()
   data class ExistingNote(val noteId: NoteId) : EditorOpenMode()
+
+  fun showKeyboardOnStart() = when (this) {
+    is NewNote -> preFilledNote.isNullOrBlank() || preFilledNote == EditorPresenter.NEW_NOTE_PLACEHOLDER
+    is ExistingNote -> false
+  }
 }

@@ -17,9 +17,12 @@ import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.StandaloneExpandablePageLayout
 import me.saket.press.shared.db.NoteId
+import me.saket.press.shared.editor.EditorOpenMode
+import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import press.App
 import press.animation.FabTransform
+import press.util.exhaustive
 import press.util.withOpacity
 import press.widgets.ThemeAwareActivity
 import press.widgets.dp
@@ -34,6 +37,7 @@ class EditorActivity : ThemeAwareActivity() {
 
   @field:Inject lateinit var editorViewFactory: EditorView.Factory
   private val editorView: EditorView by lazy(NONE) { createEditorView() }
+  private val openMode: EditorOpenMode by lazy(NONE) { readOpenMode(intent) }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     App.component.inject(this)
@@ -45,7 +49,7 @@ class EditorActivity : ThemeAwareActivity() {
       FabTransform.applyActivityTransition(this, editorView)
     }
 
-    if (readPreFilledNote(intent).isNullOrBlank()) {
+    if (openMode.showKeyboardOnStart()) {
       // The cursor doesn't show up when a shared element transition is used :/
       val delayFocus = if (hasTransition) FabTransform.ANIM_DURATION_MILLIS else 0
       Observable.timer(delayFocus, MILLISECONDS, mainThread())
@@ -63,7 +67,7 @@ class EditorActivity : ThemeAwareActivity() {
   private fun createEditorView(): EditorView {
     return editorViewFactory.create(
         context = this@EditorActivity,
-        openMode = NewNote(readNoteId(intent), readPreFilledNote(intent)),
+        openMode = openMode,
         onDismiss = ::dismiss
     )
   }
@@ -94,33 +98,44 @@ class EditorActivity : ThemeAwareActivity() {
   }
 
   companion object {
-    private const val KEY_NOTE_ID = "press:new_note_id"
+    // TODO: store EditorOpenMode in the intent directly instead.
+    private const val EXTRA_IS_NEW_NOTE = "press:is_new_note"
+    private const val EXTRA_NOTE_ID = "press:new_note_id"
 
-    private fun readNoteId(intent: Intent): NoteId {
-      return NoteId(uuidFrom(intent.getStringExtra(KEY_NOTE_ID)!!))
+    private fun readOpenMode(intent: Intent): EditorOpenMode {
+      val noteId = NoteId(uuidFrom(intent.getStringExtra(EXTRA_NOTE_ID)!!))
+      return if (intent.getBooleanExtra(EXTRA_IS_NEW_NOTE, true)) {
+        NewNote(noteId, preFilledNote = intent.getStringExtra(EXTRA_TEXT))
+      } else {
+        ExistingNote(noteId)
+      }
     }
 
-    private fun readPreFilledNote(intent: Intent): String? {
-      return intent.getStringExtra(EXTRA_TEXT)
-    }
-
-    fun intent(context: Context, preFilledNote: String? = null): Intent {
+    fun intent(
+      context: Context,
+      openMode: EditorOpenMode = NewNote(NoteId.generate(), preFilledNote = null)
+    ): Intent {
       return Intent(context, EditorActivity::class.java).apply {
-        putExtra(KEY_NOTE_ID, NoteId.generate().value.toString())
-
-        if (preFilledNote != null) {
-          putExtra(EXTRA_TEXT, preFilledNote)
-        }
+        when (openMode) {
+          is NewNote -> {
+            putExtra(EXTRA_NOTE_ID, openMode.placeholderId.value.toString())
+            putExtra(EXTRA_TEXT, openMode.preFilledNote)
+          }
+          is ExistingNote -> {
+            putExtra(EXTRA_NOTE_ID, openMode.noteId.value.toString())
+          }
+        }.exhaustive
       }
     }
 
     @JvmStatic
     fun intentWithFabTransform(
       activity: Activity,
+      openMode: EditorOpenMode,
       fab: FloatingActionButton,
       @DrawableRes fabIconRes: Int
     ): Pair<Intent, ActivityOptions> {
-      val intent = intent(activity)
+      val intent = intent(activity, openMode)
       val options = FabTransform.createOptions(activity, intent, fab, fabIconRes)
       return intent to options
     }

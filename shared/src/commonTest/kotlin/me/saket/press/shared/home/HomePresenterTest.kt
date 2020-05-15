@@ -2,9 +2,13 @@ package me.saket.press.shared.home
 
 import assertk.assertThat
 import assertk.assertions.containsOnly
+import assertk.assertions.isEmpty
+import assertk.assertions.isNotEmpty
+import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.test.observable.assertValue
 import com.badoo.reaktive.test.observable.test
 import me.saket.press.shared.db.NoteId
+import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
@@ -88,9 +92,16 @@ class HomePresenterTest {
   @Test fun `open new note screen when new note is clicked`() {
     val presenter = presenter()
 
-    presenter.uiEffects()
+    val effects = presenter.uiEffects()
+        .ofType<ComposeNewNote>()
         .test()
-        .also { presenter.dispatch(NewNoteClicked) }
-        .assertValue(ComposeNewNote)
+
+    assertThat(noteRepository.savedNotes).isEmpty()
+
+    presenter.dispatch(NewNoteClicked)
+
+    assertThat(noteRepository.savedNotes).isNotEmpty()
+    val savedNoteId = noteRepository.savedNotes.single().uuid
+    effects.assertValue(ComposeNewNote(ExistingNote(noteId = savedNoteId)))
   }
 }

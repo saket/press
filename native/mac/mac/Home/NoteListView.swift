@@ -10,12 +10,12 @@ import Swinject
 
 struct NoteListView: View {
   @EnvironmentObject var theme: AppTheme
-  @Subscribable var presenter: HomePresenter
-  @Binding var selectedNoteId: NoteId?
+  @Binding var selection: NoteId?
+  let model: HomeUiModel
 
   var body: some View {
-    Subscribe($presenter) { model, _ in
-      List(selection: self.$selectedNoteId) {
+    VStack(alignment: .leading) {
+      List(selection: $selection) {
         ForEach(model.notes, id: \.adapterId) { (note: HomeUiModel.Note) in
           NoteRowView(note: note)
             .tag(note.noteId)
@@ -25,16 +25,13 @@ struct NoteListView: View {
     }
   }
 
-  init(selection: Binding<NoteId?>) {
-    self._selectedNoteId = selection
-
-    let presenterFactory = PressApp.component.resolve(HomePresenterFactory.self)!
-    let args = HomePresenter.Args(includeEmptyNotes: true)
-    self._presenter = .init(presenterFactory.create(args: args))
+  init(model: HomeUiModel, selection: Binding<NoteId?>) {
+    self.model = model
+    self._selection = selection
   }
 
   func listSelectionColor(_ note: HomeUiModel.Note) -> Color {
-    if (selectedNoteId == note.noteId) {
+    if (selection == note.noteId) {
       return Color(theme.palette.window.editorBackgroundColor)
     } else {
       return Color.clear

@@ -1,6 +1,7 @@
 package me.saket.press.shared.home
 
 import me.saket.press.shared.db.NoteId
+import me.saket.press.shared.editor.EditorOpenMode
 
 interface HomeEvent {
   object NewNoteClicked : HomeEvent
@@ -17,5 +18,5 @@ data class HomeUiModel(val notes: List<Note>) {
 }
 
 sealed class HomeUiEffect {
-  object ComposeNewNote : HomeUiEffect()
+  data class ComposeNewNote(val openMode: EditorOpenMode) : HomeUiEffect()
 }

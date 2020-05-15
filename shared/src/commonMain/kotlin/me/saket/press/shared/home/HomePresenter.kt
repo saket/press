@@ -1,11 +1,16 @@
 package me.saket.press.shared.home
 
+import com.badoo.reaktive.completable.andThen
 import com.badoo.reaktive.observable.Observable
+import com.badoo.reaktive.observable.flatMap
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
+import com.badoo.reaktive.observable.observableOf
 import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.wrap
 import me.saket.press.data.shared.Note
+import me.saket.press.shared.db.NoteId
+import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorPresenter
 import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
@@ -28,7 +33,12 @@ class HomePresenter(
     viewEvents().openNewNoteScreen().wrap()
 
   private fun Observable<HomeEvent>.openNewNoteScreen(): Observable<HomeUiEffect> =
-    ofType<NewNoteClicked>().map { ComposeNewNote }
+    ofType<NewNoteClicked>().flatMap {
+      val newNoteId = NoteId.generate()
+      repository
+          .create(newNoteId, NEW_NOTE_PLACEHOLDER)
+          .andThen(observableOf(ComposeNewNote(ExistingNote(newNoteId))))
+    }
 
   private fun populateNotes(): Observable<HomeUiModel> {
     val canInclude = { note: Note ->

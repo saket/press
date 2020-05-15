@@ -23,6 +23,7 @@ import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.dimming.TintPainter
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.R
+import me.saket.press.shared.editor.EditorOpenMode
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomeEvent.WindowFocusChanged
@@ -208,13 +209,14 @@ class HomeView @AssistedInject constructor(
 
   private fun render(effect: HomeUiEffect) {
     when (effect) {
-      ComposeNewNote -> openNewNoteScreen()
+      is ComposeNewNote -> openNewNoteScreen(effect.openMode)
     }.exhaustive
   }
 
-  private fun openNewNoteScreen() {
+  private fun openNewNoteScreen(openMode: EditorOpenMode) {
     val (intent, options) = EditorActivity.intentWithFabTransform(
         activity = activity,
+        openMode = openMode,
         fab = newNoteFab,
         fabIconRes = R.drawable.ic_note_add_24dp
     )

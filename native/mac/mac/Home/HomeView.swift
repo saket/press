@@ -9,30 +9,39 @@ import shared
 
 struct HomeView: View {
   @EnvironmentObject var theme: AppTheme
-  @State var selectedNoteId: NoteId? = nil
-
-  private let notesWidth = Dimensions.noteListWidth
-  private let editorWidth = Dimensions.editorWidth
+  @Subscribable var presenter: HomePresenter
+  @State var selectedNote: NoteId? = nil
 
   var body: some View {
-    NavigationView {
-      NoteListView(selection: $selectedNoteId)
-        .frame(minWidth: 224, idealWidth: notesWidth, maxWidth: 508, maxHeight: .infinity)
-        .padding(.top, 1) // A non-zero padding automatically pushes it down the titlebar ¯\_(ツ)_/¯
+    let notesWidth = Dimensions.noteListWidth
+    let editorWidth = Dimensions.editorWidth
 
-      ZStack {
-        Color(self.theme.palette.window.editorBackgroundColor)
+    return Subscribe($presenter) { model, _ in
+      NavigationView {
+        NoteListView(model: model, selection: self.$selectedNote)
+          .frame(minWidth: 224, idealWidth: notesWidth, maxWidth: 508, maxHeight: .infinity)
+          .padding(.top, 1) // A non-zero padding automatically pushes it down the titlebar ¯\_(ツ)_/¯
 
-        if (selectedNoteId != nil) {
-          EditorView(openMode: EditorOpenMode.ExistingNote(noteId: selectedNoteId!))
+        ZStack {
+          Color(self.theme.palette.window.editorBackgroundColor)
+
+          if (self.selectedNote != nil) {
+            EditorView(openMode: EditorOpenMode.ExistingNote(noteId: self.selectedNote!))
+          }
         }
+          .frame(minWidth: 350, idealWidth: editorWidth, maxWidth: .infinity, maxHeight: .infinity)
+          .padding(.top, -Dimensions.windowTitleBarHeight)
       }
-        .frame(minWidth: 350, idealWidth: editorWidth, maxWidth: .infinity, maxHeight: .infinity)
-        .padding(.top, -Dimensions.windowTitleBarHeight)
     }
       .padding(.top, -Dimensions.windowTitleBarHeight)  // Would be nice to not hardcode this.
       .navigationViewStyle(DoubleColumnNavigationViewStyle())
       .frame(maxWidth: .infinity, maxHeight: .infinity)
+  }
+
+  init() {
+    let presenterFactory = PressApp.component.resolve(HomePresenterFactory.self)!
+    let args = HomePresenter.Args(includeEmptyNotes: true)
+    self._presenter = .init(presenterFactory.create(args: args))
   }
 }
 
