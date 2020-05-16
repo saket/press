@@ -1,2 +1,3 @@
 ${PODS_ROOT}/Target Support Files/Pods-Press/Pods-Press-frameworks.sh
+${BUILT_PRODUCTS_DIR}/HotKey/HotKey.framework
 ${BUILT_PRODUCTS_DIR}/Swinject/Swinject.framework
