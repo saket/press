@@ -3,6 +3,7 @@ package me.saket.press.shared.di
 import me.saket.press.shared.db.SharedDatabaseComponent
 import me.saket.press.shared.editor.SharedEditorComponent
 import me.saket.press.shared.home.SharedHomeComponent
+import me.saket.press.shared.keyboard.SharedKeyboardComponent
 import me.saket.press.shared.localization.SharedLocalizationComponent
 import me.saket.press.shared.note.PrePopulatedNotes
 import me.saket.press.shared.note.SharedNoteComponent
@@ -22,6 +23,7 @@ abstract class BaseSharedAppComponent {
               SharedDatabaseComponent().module,
               SharedTimeComponent().module,
               SharedLocalizationComponent().module,
+              SharedKeyboardComponent().module,
               platform.asKoinModule()
           )
       )

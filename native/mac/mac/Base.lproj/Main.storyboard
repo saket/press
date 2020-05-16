@@ -60,7 +60,7 @@
                                     <items>
                                         <menuItem title="New note" keyEquivalent="n" id="Was-JA-tGl">
                                             <connections>
-                                                <action selector="newDocument:" target="Ady-hI-5gd" id="4Si-XN-c54"/>
+                                                <action selector="handleShortcut:" target="Ady-hI-5gd" id="IGz-Wb-CLx"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="m54-Is-iLE"/>

@@ -8,9 +8,8 @@ import Swinject
 import shared
 
 class HomeComponent: Assembly {
-
   func assemble(container: Container) {
-    container.register(HomePresenterFactory.self) { r in
+    container.register(HomePresenterFactory.self) { _ in
       class Factory: HomePresenterFactory {
         func create(args: HomePresenter.Args) -> HomePresenter {
           SharedHomeComponent.Companion().presenter(args: args)

@@ -9,7 +9,6 @@ import shared
 import Combine
 
 class ThemeComponent: Assembly {
-
   func assemble(container: Container) {
     container.register(AppTheme.self) { _ in
       AppTheme(palette: DraculaThemePalette())

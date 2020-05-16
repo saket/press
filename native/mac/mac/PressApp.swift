@@ -43,19 +43,26 @@ class PressApp: NSObject, NSApplicationDelegate {
   }
 
   func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
-    // Leftover apps are annoying.
+    /// Leftover windows are annoying.
     true
   }
 
-  // Sets up dependency injection for the app. I'm using the
-  // term "component" to keep it consistent with the shared
-  // Kotlin and Android code.
+  @IBAction func handleShortcut(_ shortcut: NSMenuItem) {
+    /// Some presenter will handle this event.
+    let shortcuts = PressApp.component.resolve(KeyboardShortcuts.self)!
+    shortcuts.broadcast(event: KeyboardShortcutEvent.from(shortcut: shortcut))
+  }
+
+  /// Sets up dependency injection for the app. I'm using the
+  /// term "component" to keep it consistent with the shared
+  /// Kotlin and Android code.
   func createAppComponent() -> Resolver {
     SharedAppComponent().initialize()
     return Assembler([
       ThemeComponent(),
       HomeComponent(),
-      EditorComponent()
+      EditorComponent(),
+      KeyboardShortcutsComponent()
     ]).resolver
   }
 }

@@ -8,7 +8,6 @@ import Swinject
 import shared
 
 class EditorComponent: Assembly {
-
   func assemble(container: Container) {
     container.register(EditorPresenterFactory.self) { r in
       class Factory : EditorPresenterFactory {
