@@ -1,7 +1,7 @@
 package me.saket.press.shared.home
 
 import me.saket.press.shared.db.NoteId
-import me.saket.press.shared.editor.EditorOpenMode
+import me.saket.press.shared.editor.EditorPresenter
 
 interface HomeEvent {
   object NewNoteClicked : HomeEvent
@@ -18,5 +18,10 @@ data class HomeUiModel(val notes: List<Note>) {
 }
 
 sealed class HomeUiEffect {
-  data class ComposeNewNote(val openMode: EditorOpenMode) : HomeUiEffect()
+  /**
+   * @param noteId ID of empty note that should be shown in a
+   * new screen. Although [EditorPresenter] is capable of starting
+   * without any ID, this is easier to consume from SwiftUI.
+   */
+  data class ComposeNewNote(val noteId: NoteId) : HomeUiEffect()
 }

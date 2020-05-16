@@ -2,6 +2,7 @@ package me.saket.press.shared.rx
 
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.map
+import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observableInterval
 import com.badoo.reaktive.observable.withLatestFrom
 import com.badoo.reaktive.scheduler.Scheduler
@@ -23,4 +24,8 @@ internal fun observableInterval(interval: TimeSpan, scheduler: Scheduler): Obser
 
 internal fun <T, O> Observable<T>.withLatestFrom(other: Observable<O>): Observable<Pair<T, O>> {
   return withLatestFrom(other, ::Pair)
+}
+
+internal fun <T> Observable<T>.mergeWith(other: Observable<T>): Observable<T> {
+  return merge(this, other)
 }

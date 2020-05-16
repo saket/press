@@ -8,24 +8,29 @@ import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.test.observable.assertValue
 import com.badoo.reaktive.test.observable.test
 import me.saket.press.shared.db.NoteId
-import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomePresenter.Args
 import me.saket.press.shared.home.HomeUiEffect.ComposeNewNote
 import me.saket.press.shared.home.HomeUiModel.Note
+import me.saket.press.shared.keyboard.KeyboardShortcuts
+import me.saket.press.shared.keyboard.RealKeyboardShortcuts
 import me.saket.press.shared.note.FakeNoteRepository
 import kotlin.test.Test
 
 class HomePresenterTest {
 
   private val noteRepository = FakeNoteRepository()
+  private val keyboardShortcuts = RealKeyboardShortcuts()
 
-  private fun presenter(includeEmptyNotes: Boolean = true) = HomePresenter(
-      args = Args(includeEmptyNotes),
-      repository = noteRepository
-  )
+  private fun presenter(includeEmptyNotes: Boolean = true): HomePresenter {
+    return HomePresenter(
+        args = Args(includeEmptyNotes),
+        repository = noteRepository,
+        keyboardShortcuts = keyboardShortcuts
+    )
+  }
 
   @Test fun `populate notes on creation`() {
     val noteId = NoteId.generate()
@@ -102,6 +107,17 @@ class HomePresenterTest {
 
     assertThat(noteRepository.savedNotes).isNotEmpty()
     val savedNoteId = noteRepository.savedNotes.single().uuid
-    effects.assertValue(ComposeNewNote(ExistingNote(noteId = savedNoteId)))
+    effects.assertValue(ComposeNewNote(noteId = savedNoteId))
+  }
+
+  @Test fun `open new note screen on new-note keyboard shortcut`() {
+    val effects = presenter().uiEffects()
+        .ofType<ComposeNewNote>()
+        .test()
+
+    keyboardShortcuts.broadcast(KeyboardShortcuts.newNote)
+
+    val savedNoteId = noteRepository.savedNotes.single().uuid
+    effects.assertValue(ComposeNewNote(noteId = savedNoteId))
   }
 }

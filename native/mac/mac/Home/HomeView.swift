@@ -16,7 +16,7 @@ struct HomeView: View {
     let notesWidth = Dimensions.noteListWidth
     let editorWidth = Dimensions.editorWidth
 
-    return Subscribe($presenter) { model, _ in
+    return Subscribe($presenter) { model, effects in
       NavigationView {
         NoteListView(model: model, selection: self.$selectedNote)
           .frame(minWidth: 224, idealWidth: notesWidth, maxWidth: 508, maxHeight: .infinity)
@@ -32,6 +32,9 @@ struct HomeView: View {
           .frame(minWidth: 350, idealWidth: editorWidth, maxWidth: .infinity, maxHeight: .infinity)
           .padding(.top, -Dimensions.windowTitleBarHeight)
       }
+      .onReceive(effects.composeNewNote()) { event in
+        self.selectedNote = event.noteId
+      }
     }
       .padding(.top, -Dimensions.windowTitleBarHeight)  // Would be nice to not hardcode this.
       .navigationViewStyle(DoubleColumnNavigationViewStyle())
@@ -42,6 +45,12 @@ struct HomeView: View {
     let presenterFactory = PressApp.component.resolve(HomePresenterFactory.self)!
     let args = HomePresenter.Args(includeEmptyNotes: true)
     self._presenter = .init(presenterFactory.create(args: args))
+  }
+}
+
+extension Publisher {
+  func composeNewNote() -> AnyPublisher<HomeUiEffect.ComposeNewNote, Never> {
+    return ofType(HomeUiEffect.ComposeNewNote.self)
   }
 }
 

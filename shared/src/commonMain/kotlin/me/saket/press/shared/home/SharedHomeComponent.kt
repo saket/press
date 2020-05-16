@@ -7,7 +7,7 @@ import org.koin.dsl.module
 class SharedHomeComponent {
 
   val module = module {
-    factory { (args: HomePresenter.Args) -> HomePresenter(args, get()) }
+    factory { (args: HomePresenter.Args) -> HomePresenter(args, get(), get()) }
   }
 
   companion object {

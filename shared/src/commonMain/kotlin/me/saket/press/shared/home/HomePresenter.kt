@@ -10,17 +10,20 @@ import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.wrap
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.NoteId
-import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorPresenter
 import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomeUiEffect.ComposeNewNote
+import me.saket.press.shared.keyboard.KeyboardShortcuts
+import me.saket.press.shared.keyboard.KeyboardShortcuts.Companion.newNote
 import me.saket.press.shared.note.NoteRepository
+import me.saket.press.shared.rx.mergeWith
 import me.saket.press.shared.ui.Presenter
 
 class HomePresenter(
   private val args: Args,
-  private val repository: NoteRepository
+  private val repository: NoteRepository,
+  private val keyboardShortcuts: KeyboardShortcuts
 ) : Presenter<HomeEvent, HomeUiModel, HomeUiEffect>() {
 
   override fun defaultUiModel() =
@@ -32,13 +35,16 @@ class HomePresenter(
   override fun uiEffects() =
     viewEvents().openNewNoteScreen().wrap()
 
-  private fun Observable<HomeEvent>.openNewNoteScreen(): Observable<HomeUiEffect> =
-    ofType<NewNoteClicked>().flatMap {
-      val newNoteId = NoteId.generate()
-      repository
-          .create(newNoteId, NEW_NOTE_PLACEHOLDER)
-          .andThen(observableOf(ComposeNewNote(ExistingNote(newNoteId))))
-    }
+  private fun Observable<HomeEvent>.openNewNoteScreen(): Observable<HomeUiEffect> {
+    return ofType<NewNoteClicked>()
+        .mergeWith(keyboardShortcuts.listen(newNote))
+        .flatMap {
+          val newNoteId = NoteId.generate()
+          repository
+              .create(newNoteId, NEW_NOTE_PLACEHOLDER)
+              .andThen(observableOf(ComposeNewNote(newNoteId)))
+        }
+  }
 
   private fun populateNotes(): Observable<HomeUiModel> {
     val canInclude = { note: Note ->
