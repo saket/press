@@ -7,27 +7,35 @@ import Foundation
 import SwiftUI
 import shared
 import Swinject
+import Combine
 
 struct NoteListView: View {
   @EnvironmentObject var theme: AppTheme
+  @Subscribable var presenter: HomePresenter
   @Binding var selection: NoteId?
-  let model: HomeUiModel
 
   var body: some View {
-    VStack(alignment: .leading) {
-      List(selection: $selection) {
-        ForEach(model.notes, id: \.adapterId) { (note: HomeUiModel.Note) in
-          NoteRowView(note: note)
-            .tag(note.noteId)
-            .background(self.listSelectionColor(note))
-        }.removeListMargins()
+    Subscribe($presenter) { model, effects in
+      VStack(alignment: .leading) {
+        List(selection: self.$selection) {
+          ForEach(model.notes, id: \.adapterId) { (note: HomeUiModel.Note) in
+            NoteRowView(note: note)
+              .tag(note.noteId)
+              .background(self.listSelectionColor(note))
+          }.removeListMargins()
+        }
+      }.onReceive(effects.composeNewNote()) { event in
+        self.selection = event.noteId
       }
     }
   }
 
-  init(model: HomeUiModel, selection: Binding<NoteId?>) {
-    self.model = model
+  init(selection: Binding<NoteId?>) {
     self._selection = selection
+
+    let presenterFactory = PressApp.component.resolve(HomePresenterFactory.self)!
+    let args = HomePresenter.Args(includeEmptyNotes: true)
+    self._presenter = .init(presenterFactory.create(args: args))
   }
 
   func listSelectionColor(_ note: HomeUiModel.Note) -> Color {
@@ -36,6 +44,12 @@ struct NoteListView: View {
     } else {
       return Color.clear
     }
+  }
+}
+
+extension Publisher {
+  func composeNewNote() -> AnyPublisher<HomeUiEffect.ComposeNewNote, Never> {
+    return ofType(HomeUiEffect.ComposeNewNote.self)
   }
 }
 
