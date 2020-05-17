@@ -24,8 +24,15 @@ struct HomeView: View {
     let editorWidth = Dimensions.editorWidth
 
     return NavigationView {
-      Subscribe($presenter) { model, effects in
-        NoteListView(model, selection: self.$selectedNote)
+      Subscribe($presenter) { (model: HomeUiModel, effects) in
+        Group {
+          /// SwiftUI doesn't offer a way to skip animation when showing
+          /// Views *for the first time* so skip laying the Views altogether
+          /// until we have something to show.
+          if (!model.notes.isEmpty) {
+            NoteListView(model, selection: self.$selectedNote)
+          }
+        }
           .frame(minWidth: 224, idealWidth: notesWidth, maxWidth: 508, maxHeight: .infinity)
           .padding(.top, 1) // A non-zero padding automatically pushes it down the titlebar ¯\_(ツ)_/¯
           .onReceive(effects.composeNewNote()) { event in

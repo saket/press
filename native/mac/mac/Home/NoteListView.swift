@@ -15,15 +15,15 @@ struct NoteListView: View {
   let model: HomeUiModel
 
   var body: some View {
-    VStack(alignment: .leading) {
-      List(selection: self.$selection) {
-        ForEach(model.notes, id: \.adapterId) { (note: HomeUiModel.Note) in
-          NoteRowView(note: note)
-            .tag(note.noteId)
-            .background(self.listSelectionColor(note))
-        }.removeListMargins()
+    List(selection: self.$selection) {
+      ForEach(model.notes, id: \.adapterId) { (note: HomeUiModel.Note) in
+        NoteRowView(note: note)
+          .tag(note.noteId)
+          .background(self.listSelectionColor(note))
       }
-    }
+        .removeListMargins()
+        .animation(nil) // Avoid animating content (including background) changes.
+    }.animation(.easeIn, value: model)
   }
 
   init(_ model: HomeUiModel, selection: Binding<NoteId?>) {
