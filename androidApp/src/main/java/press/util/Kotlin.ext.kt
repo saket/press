@@ -1,4 +1,4 @@
 package press.util
 
 // Necessary evil :/
-val Any.exhaustive: Unit get() = this
+val Any.exhaustive: Any get() = this
