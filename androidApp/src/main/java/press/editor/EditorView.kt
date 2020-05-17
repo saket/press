@@ -122,7 +122,10 @@ class EditorView @AssistedInject constructor(
     )
   }
 
-  private val presenter = presenterFactory.create(Args(openMode))
+  private val presenter = presenterFactory.create(Args(
+      openMode = openMode,
+      archiveEmptyNoteOnExit = true
+  ))
 
   init {
     scrollView.addView(editorEditText, MATCH_PARENT, WRAP_CONTENT)

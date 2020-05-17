@@ -26,6 +26,7 @@ import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorUiEffect.CloseNote
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
+import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.localization.Strings.Editor
 import me.saket.press.shared.note.NoteRepository
 import me.saket.press.shared.note.deletedAt
@@ -147,14 +148,15 @@ class EditorPresenter(
   }
 
   fun saveEditorContentOnExit(content: String) {
-    updateOrDeleteNote(content)
+    updateOrArchiveNote(content)
         .subscribeOn(ioScheduler)
         .subscribe()
   }
 
-  private fun updateOrDeleteNote(content: String): Completable {
+  private fun updateOrArchiveNote(content: String): Completable {
     val trimmedContent = content.trim()
-    val shouldDelete = content.isBlank() || trimmedContent == NEW_NOTE_PLACEHOLDER.trim()
+    val shouldArchive = args.archiveEmptyNoteOnExit
+        && (content.isBlank() || trimmedContent == NEW_NOTE_PLACEHOLDER.trim())
 
     val noteId = when (openMode) {
       is NewNote -> openMode.placeholderId
@@ -168,10 +170,11 @@ class EditorPresenter(
         .take(1)
         .mapToSome()
         .flatMapCompletable { note ->
-          when {
-            shouldDelete -> noteRepository.markAsArchived(note.uuid)
-            else -> noteRepository.update(note.uuid, content)
+          val maybeArchive = when {
+            shouldArchive -> noteRepository.markAsArchived(note.uuid)
+            else -> completableOfEmpty()
           }
+          noteRepository.update(note.uuid, content).andThen(maybeArchive)
         }
   }
 
@@ -179,7 +182,14 @@ class EditorPresenter(
     fun create(args: Args): EditorPresenter
   }
 
-  data class Args(val openMode: EditorOpenMode)
+  data class Args(
+    val openMode: EditorOpenMode,
+
+    /**
+     * Should be kept in sync with [HomePresenter.Args.includeEmptyNotes].
+     */
+    val archiveEmptyNoteOnExit: Boolean
+  )
 
   companion object {
     const val NEW_NOTE_PLACEHOLDER = "# "

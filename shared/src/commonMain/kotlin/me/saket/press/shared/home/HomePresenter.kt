@@ -70,11 +70,6 @@ class HomePresenter(
     fun create(args: Args): HomePresenter
   }
 
-  /**
-   * Adding or removing arguments to [HomePresenter] is a lot of effort because multiple
-   * DI graphs are involved. Using Dagger with AssistedInjection everywhere would have
-   * been nice.
-   */
   data class Args(
     /**
      * [EditorPresenter] creates a new note as soon as the editor screen is opened,
@@ -82,6 +77,8 @@ class HomePresenter(
      * This flag ensures that doesn't happen by ignoring empty notes when its set to
      * false. In the future, this can be set to true for multi-pane layouts on desktop
      * or tablets.
+     *
+     * Should be kept in sync with [EditorPresenter.Args.archiveEmptyNoteOnExit].
      */
     val includeEmptyNotes: Boolean
   )

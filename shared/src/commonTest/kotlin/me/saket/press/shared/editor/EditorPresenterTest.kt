@@ -25,7 +25,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class EditorPresenterTest {
-
   private val noteId = NoteId.generate()
   private val repository = FakeNoteRepository()
   private val testScheduler = TestScheduler()
@@ -36,9 +35,12 @@ class EditorPresenterTest {
       editUrl = "Edit"
   )
 
-  private fun presenter(openMode: EditorOpenMode): EditorPresenter {
+  private fun presenter(
+    openMode: EditorOpenMode,
+    archiveEmptyNoteOnExit: Boolean = true
+  ): EditorPresenter {
     return EditorPresenter(
-        args = Args(openMode),
+        args = Args(openMode, archiveEmptyNoteOnExit),
         noteRepository = repository,
         ioScheduler = TestScheduler(),
         computationScheduler = testScheduler,
@@ -116,19 +118,34 @@ class EditorPresenterTest {
     assertEquals("Updated note", savedNote.content)
   }
 
-  @Test fun `deleting an existing note on exit when its content is blank`() {
+  @Test fun `archive blank note on exit when enabled`() {
     repository.savedNotes += fakeNote(
         noteId = noteId,
         content = "Existing note"
     )
 
-    val presenter = presenter(NewNote(noteId))
+    val presenter = presenter(ExistingNote(noteId), archiveEmptyNoteOnExit = true)
     presenter.saveEditorContentOnExit("  \n ")
     presenter.saveEditorContentOnExit("  ")
     presenter.saveEditorContentOnExit("")
 
-    val deletedNote = repository.savedNotes.last()
-    assertThat(deletedNote.archivedAtString).isNotNull()
+    val archivedNote = repository.savedNotes.last()
+    assertThat(archivedNote.content).isEqualTo("")
+    assertThat(archivedNote.archivedAtString).isNotNull()
+  }
+
+  @Test fun `avoid archiving blank note on exit when disabled`() {
+    repository.savedNotes += fakeNote(
+        noteId = noteId,
+        content = "Existing note"
+    )
+
+    val presenter = presenter(ExistingNote(noteId), archiveEmptyNoteOnExit = false)
+    presenter.saveEditorContentOnExit("")
+
+    val archivedNote = repository.savedNotes.last()
+    assertThat(archivedNote.content).isEqualTo("")
+    assertThat(archivedNote.archivedAtString).isNull()
   }
 
   @Test fun `show hint text until the text is changed`() {

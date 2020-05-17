@@ -56,7 +56,8 @@ struct EditorView: View {
     self.openMode = openMode
 
     let factory = PressApp.component.resolve(EditorPresenterFactory.self)!
-    let presenter = factory.create(args_: EditorPresenter.Args(openMode: openMode))
+    let args = EditorPresenter.Args(openMode: openMode, archiveEmptyNoteOnExit: false)
+    let presenter = factory.create(args_: args)
 
     self._presenter = .init(presenter)
     self.editorText = Listenable(initial: "") {
