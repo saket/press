@@ -21,7 +21,7 @@ import kotlin.test.Test
 class RealNoteRepositoryTest : BaseDatabaeTest() {
 
   private val clock = FakeClock()
-  private val noteQueries get() = database().noteQueries
+  private val noteQueries get() = database.noteQueries
 
   private fun repository() = RealNoteRepository(
       noteQueries = noteQueries,

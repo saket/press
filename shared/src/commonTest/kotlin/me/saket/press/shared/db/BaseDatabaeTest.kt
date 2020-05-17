@@ -3,7 +3,6 @@ package me.saket.press.shared.db
 import com.squareup.sqldelight.db.SqlDriver
 import me.saket.press.PressDatabase
 import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
 
 expect fun inMemorySqlDriver(): SqlDriver
 
@@ -14,25 +13,8 @@ expect fun inMemorySqlDriver(): SqlDriver
  */
 open class BaseDatabaeTest {
 
-  private lateinit var sqlDriver: SqlDriver
-  private lateinit var _database: PressDatabase
-
-  fun database(): PressDatabase {
-    if (::_database.isInitialized) {
-      return _database
-    } else {
-      throw IllegalStateException(
-          "Test database isn't created because @BeforeTest hasn't been " +
-              "called yet. Avoid storing the database as a class property."
-      )
-    }
-  }
-
-  @BeforeTest
-  fun initDb() {
-    sqlDriver = inMemorySqlDriver()
-    _database = sqlDriver.createPressDatabase()
-  }
+  private val sqlDriver: SqlDriver = inMemorySqlDriver()
+  protected val database: PressDatabase = sqlDriver.createPressDatabase()
 
   @AfterTest
   fun closeDb() {
