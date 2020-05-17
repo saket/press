@@ -11,18 +11,30 @@ struct HomeView: View {
   @EnvironmentObject var theme: AppTheme
   @State var selectedNote: NoteId? = nil
 
+  /// The home presenter must be kept here instead of NoteListView to
+  /// avoid creating a new presenter instance everytime the body is
+  /// updated. Creating new presenters should be alright in theory
+  /// because they don't maintain any local state, but sometimes they
+  /// emit immediately on subscription and that's dangerous if it
+  /// happens everytime the View is re-rendered.
+  @Subscribable var presenter: HomePresenter
+
   var body: some View {
     let notesWidth = Dimensions.noteListWidth
     let editorWidth = Dimensions.editorWidth
 
     return NavigationView {
-      NoteListView(selection: self.$selectedNote)
-        .frame(minWidth: 224, idealWidth: notesWidth, maxWidth: 508, maxHeight: .infinity)
-        .padding(.top, 1) // A non-zero padding automatically pushes it down the titlebar ¯\_(ツ)_/¯
+      Subscribe($presenter) { model, effects in
+        NoteListView(model, selection: self.$selectedNote)
+          .frame(minWidth: 224, idealWidth: notesWidth, maxWidth: 508, maxHeight: .infinity)
+          .padding(.top, 1) // A non-zero padding automatically pushes it down the titlebar ¯\_(ツ)_/¯
+          .onReceive(effects.composeNewNote()) { event in
+            self.selectedNote = event.noteId
+          }
+      }
 
       ZStack {
         Color(self.theme.palette.window.editorBackgroundColor)
-
         if (self.selectedNote != nil) {
           EditorView(openMode: EditorOpenMode.ExistingNote(noteId: self.selectedNote!))
         }
@@ -34,12 +46,10 @@ struct HomeView: View {
       .navigationViewStyle(DoubleColumnNavigationViewStyle())
       .frame(maxWidth: .infinity, maxHeight: .infinity)
   }
+
+  init() {
+    let presenterFactory = PressApp.component.resolve(HomePresenterFactory.self)!
+    let args = HomePresenter.Args(includeEmptyNotes: true)
+    self._presenter = .init(presenterFactory.create(args: args))
+  }
 }
-
-
-// TODO(saket): can this be made to work by creating a fake presenter?
-//struct HomeView_Previews: PreviewProvider {
-//  static var previews: some View {
-//    HomeView()
-//  }
-//}

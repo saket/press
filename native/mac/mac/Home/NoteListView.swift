@@ -11,31 +11,24 @@ import Combine
 
 struct NoteListView: View {
   @EnvironmentObject var theme: AppTheme
-  @Subscribable var presenter: HomePresenter
   @Binding var selection: NoteId?
+  let model: HomeUiModel
 
   var body: some View {
-    Subscribe($presenter) { model, effects in
-      VStack(alignment: .leading) {
-        List(selection: self.$selection) {
-          ForEach(model.notes, id: \.adapterId) { (note: HomeUiModel.Note) in
-            NoteRowView(note: note)
-              .tag(note.noteId)
-              .background(self.listSelectionColor(note))
-          }.removeListMargins()
-        }
-      }.onReceive(effects.composeNewNote()) { event in
-        self.selection = event.noteId
+    VStack(alignment: .leading) {
+      List(selection: self.$selection) {
+        ForEach(model.notes, id: \.adapterId) { (note: HomeUiModel.Note) in
+          NoteRowView(note: note)
+            .tag(note.noteId)
+            .background(self.listSelectionColor(note))
+        }.removeListMargins()
       }
     }
   }
 
-  init(selection: Binding<NoteId?>) {
+  init(_ model: HomeUiModel, selection: Binding<NoteId?>) {
+    self.model = model
     self._selection = selection
-
-    let presenterFactory = PressApp.component.resolve(HomePresenterFactory.self)!
-    let args = HomePresenter.Args(includeEmptyNotes: true)
-    self._presenter = .init(presenterFactory.create(args: args))
   }
 
   func listSelectionColor(_ note: HomeUiModel.Note) -> Color {
