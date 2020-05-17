@@ -29,7 +29,7 @@ class RealNoteRepositoryTest : BaseDatabaeTest() {
       clock = clock
   )
 
-  @Test fun `create inserts note correctly`() {
+  @Test fun `insert a note correctly`() {
     val noteId = NoteId.generate()
     val content = "Nicolas Cage is a national treasure"
     noteQueries.testInsert(fakeNote(noteId = noteId, content = content))
@@ -72,7 +72,7 @@ class RealNoteRepositoryTest : BaseDatabaeTest() {
   }
 
   @Test fun `mark a note as archived`() {
-    val note = fakeNote(noteId = NoteId.generate(), content = "Jake Wharton secretly loves Flutter")
+    val note = fakeNote(noteId = NoteId.generate(), content = "# A national treasure")
     noteQueries.testInsert(note)
 
     repository().markAsArchived(note.uuid).test()
