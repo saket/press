@@ -17,19 +17,22 @@ struct EditorView: View {
   @ObservedObject var editorText: Listenable<String>
 
   var body: some View {
-    Subscribe($presenter) { model, effects in
+    return Subscribe($presenter) { (model: EditorUiModel, effects) in
       ZStack(alignment: .topLeading) {
+        // Hint text for the heading.
+        if (model.hintText != nil) {
+          Text(model.hintText!)
+            .style(self.style)
+            .offset(x: 25, y: 35)
+            .foregroundColor(self.theme.palette.textColorHint)
+        }
+
         MultiLineTextField(text: self.$editorText.value, onSetup: { view in
           view.textColor = NSColor(self.theme.palette.textColorPrimary)
           view.isRichText = false
           view.applyStyle(self.style)
           view.setPaddings(horizontal: 25, vertical: 35)
         })
-        // Hint text for the heading.
-        Text(model.hintText ?? "")
-          .style(self.style)
-          .offset(x: 25, y: 35)
-          .foregroundColor(self.theme.palette.textColorHint)
       }
         .onReceive(effects.updateNoteText()) {
           // TODO: consume effect.newSelection.

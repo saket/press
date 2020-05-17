@@ -1,14 +1,12 @@
 package press.editor
 
 import android.content.Context
-import android.graphics.Color.TRANSPARENT
 import android.text.InputType.TYPE_CLASS_TEXT
 import android.text.InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
 import android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
 import android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
 import android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
 import android.text.Layout.BREAK_STRATEGY_HIGH_QUALITY
-import android.text.style.ForegroundColorSpan
 import android.view.Gravity.TOP
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -177,10 +175,7 @@ class EditorView @AssistedInject constructor(
       headingHintTextView.visibility = View.VISIBLE
       headingHintTextView.text = Truss()
           .pushSpan(EditorHeadingHintSpan(H1))
-          .pushSpan(ForegroundColorSpan(TRANSPARENT))
-          .append("# ")
-          .popSpan()
-          .append(model.hintText ?: "")
+          .append(model.hintText!!)
           .popSpan()
           .build()
     }

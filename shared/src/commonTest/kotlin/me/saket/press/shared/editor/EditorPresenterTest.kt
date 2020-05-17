@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
+import assertk.assertions.isNull
 import com.badoo.reaktive.test.base.assertNotError
 import com.badoo.reaktive.test.observable.assertValue
 import com.badoo.reaktive.test.observable.test
@@ -22,7 +23,6 @@ import me.saket.press.shared.note.FakeNoteRepository
 import me.saket.wysiwyg.formatting.TextSelection
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class EditorPresenterTest {
 
@@ -31,7 +31,7 @@ class EditorPresenterTest {
   private val testScheduler = TestScheduler()
   private val config = EditorConfig(autoSaveEvery = 5.seconds)
   private val strings = Strings.Editor(
-      newNoteHints = listOf("New note heading hint #1", "New note heading hint #2"),
+      newNoteHints = listOf("New note heading hint"),
       openUrl = "Open",
       editUrl = "Edit"
   )
@@ -137,19 +137,22 @@ class EditorPresenterTest {
         .uiModels()
         .test()
 
+    val hintText = { uiModels.values.last().hintText }
+
     presenter.dispatch(NoteTextChanged(NEW_NOTE_PLACEHOLDER))
+    assertThat(hintText()).isEqualTo("# New note heading hint")
+
     presenter.dispatch(NoteTextChanged(""))
+    assertThat(hintText()).isNull()
+
     presenter.dispatch(NoteTextChanged(NEW_NOTE_PLACEHOLDER))
+    assertThat(hintText()).isEqualTo("# New note heading hint")
+
     presenter.dispatch(NoteTextChanged("  $NEW_NOTE_PLACEHOLDER"))
+    assertThat(hintText()).isNull()
+
     presenter.dispatch(NoteTextChanged("$NEW_NOTE_PLACEHOLDER  "))
-
-    val randomlySelectedHint = uiModels.values[0].hintText
-
-    assertTrue(randomlySelectedHint in strings.newNoteHints)
-    assertEquals(null, uiModels.values[1].hintText)
-    assertEquals(randomlySelectedHint, uiModels.values[2].hintText)
-    assertEquals(null, uiModels.values[3].hintText)
-    assertEquals(randomlySelectedHint, uiModels.values[4].hintText)
+    assertThat(hintText()).isEqualTo("# New note heading hint")
 
     uiModels.assertNotError()
   }

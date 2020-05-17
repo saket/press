@@ -126,7 +126,7 @@ class EditorPresenter(
         .distinctUntilChanged()
         .mapToOptional { (text) ->
           when {
-            text.trimEnd() == NEW_NOTE_PLACEHOLDER.trim() -> randomHint
+            text.trimEnd() == NEW_NOTE_PLACEHOLDER.trim() -> "# $randomHint"
             else -> null
           }
         }
