@@ -7,4 +7,5 @@ target 'Press' do
   pod 'shared', :path => '../../shared'
   pod 'Swinject', '~> 2.7.1'
   pod 'HotKey'
+  pod "Introspect"
 end
