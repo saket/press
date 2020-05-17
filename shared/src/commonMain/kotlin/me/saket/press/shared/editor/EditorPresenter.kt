@@ -182,6 +182,6 @@ class EditorPresenter(
   data class Args(val openMode: EditorOpenMode)
 
   companion object {
-    internal const val NEW_NOTE_PLACEHOLDER = "# "
+    const val NEW_NOTE_PLACEHOLDER = "# "
   }
 }

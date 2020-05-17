@@ -6,6 +6,7 @@ import android.text.Spannable
 import android.text.Spannable.SPAN_INCLUSIVE_INCLUSIVE
 import android.widget.EditText
 import androidx.core.text.getSpans
+import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
 import me.saket.wysiwyg.spans.HeadingSpan
 import me.saket.wysiwyg.widgets.SimpleTextWatcher
 import press.widgets.SimpleSpanWatcher
@@ -43,8 +44,9 @@ object CapitalizeOnHeadingStart {
       // Avoid changing input type if,
       // - a character was deleted (count == 0)
       // - a digit/symbol was inserted.
-      safeToChangeInputType = multipleCharactersRemoved.not() &&
-          (count == 0 || text[start].isLetter() || text[start].isWhitespace())
+      safeToChangeInputType = text.toString() == NEW_NOTE_PLACEHOLDER
+          || multipleCharactersRemoved.not()
+          && (count == 0 || text[start].isLetter() || text[start].isWhitespace())
 
       // Wysiwyg inserts spans without changing the text. Add a
       // SpanWatcher and wait for the Markdown to be processed.
