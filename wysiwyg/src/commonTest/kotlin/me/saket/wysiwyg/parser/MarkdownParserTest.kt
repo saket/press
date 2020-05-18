@@ -5,6 +5,7 @@ import assertk.assertions.isEqualTo
 import me.saket.wysiwyg.parser.highlighters.RootNodeHighlighter
 import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.style.parseColor
+import kotlin.test.Test
 
 class MarkdownParserTest {
 
@@ -12,7 +13,7 @@ class MarkdownParserTest {
   private val writer = FakeMarkdownRenderer(style)
   private val parser = MarkdownParser()
 
-  /*@Test*/ fun bold() {
+  @Test fun bold() {
     parseAndCompare(
         input = """
                 |It's not who you are underneath. 

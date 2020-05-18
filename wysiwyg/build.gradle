@@ -17,7 +17,17 @@ android {
 kotlin {
   targets {
     fromPreset(presets.android, "android")
-    fromPreset(presets.macosX64, "macos")
+    fromPreset(presets.macosX64, "macos") {
+      compilations.main.cinterops {
+        cmark {
+          compilerOpts "-I./src/nativeInterop/cinterop"
+        }
+      }
+
+      binaries {
+        executable()
+      }
+    }
 
     def buildForDevice = project.findProperty("device")?.toBoolean() ?: false
     def iosTarget = (buildForDevice) ? presets.iosArm64 : presets.iosX64

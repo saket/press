@@ -1,0 +1,8 @@
+headers = cmark.h
+package = cmark
+compilerOpts.osx = -I/usr/local/include
+linkerOpts.osx = -lcmark -L/usr/local/lib -L/usr/local/include
+
+# Include the static library as part of the generated klib.
+staticLibraries = libcmark.a
+libraryPaths = /usr/local/lib
