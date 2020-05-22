@@ -4,10 +4,6 @@ import me.saket.wysiwyg.parser.MarkdownRenderer
 import me.saket.wysiwyg.parser.highlighters.DelimitedNodeVisitor.Companion.highlightClosingSyntax
 import me.saket.wysiwyg.parser.highlighters.DelimitedNodeVisitor.Companion.highlightOpeningSyntax
 import me.saket.wysiwyg.parser.node.FencedCodeBlock
-import me.saket.wysiwyg.parser.node.closingMarker
-import me.saket.wysiwyg.parser.node.endOffset
-import me.saket.wysiwyg.parser.node.openingMarker
-import me.saket.wysiwyg.parser.node.startOffset
 
 class FencedCodeBlockVisitor : SyntaxHighlighter<FencedCodeBlock> {
 

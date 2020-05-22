@@ -2,11 +2,6 @@ package me.saket.wysiwyg.parser.highlighters
 
 import me.saket.wysiwyg.parser.MarkdownRenderer
 import me.saket.wysiwyg.parser.node.Heading
-import me.saket.wysiwyg.parser.node.endOffset
-import me.saket.wysiwyg.parser.node.headingLevel
-import me.saket.wysiwyg.parser.node.isAtxHeading
-import me.saket.wysiwyg.parser.node.openingMarker
-import me.saket.wysiwyg.parser.node.startOffset
 
 @Suppress("SpellCheckingInspection")
 class HeadingVisitor : SyntaxHighlighter<Heading> {

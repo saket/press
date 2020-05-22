@@ -2,9 +2,6 @@ package me.saket.wysiwyg.parser.highlighters
 
 import me.saket.wysiwyg.parser.MarkdownRenderer
 import me.saket.wysiwyg.parser.node.ThematicBreak
-import me.saket.wysiwyg.parser.node.chars
-import me.saket.wysiwyg.parser.node.endOffset
-import me.saket.wysiwyg.parser.node.startOffset
 
 class ThematicBreakVisitor : NodeVisitor<ThematicBreak> {
 

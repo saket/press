@@ -2,10 +2,6 @@ package me.saket.wysiwyg.parser.highlighters
 
 import me.saket.wysiwyg.parser.MarkdownRenderer
 import me.saket.wysiwyg.parser.node.LinkWithTitle
-import me.saket.wysiwyg.parser.node.endOffset
-import me.saket.wysiwyg.parser.node.startOffset
-import me.saket.wysiwyg.parser.node.text
-import me.saket.wysiwyg.parser.node.url
 
 class LinkWithTitleVisitor : NodeVisitor<LinkWithTitle> {
 

@@ -12,17 +12,16 @@ actual class MarkdownParser {
     println("Parsed document: $document")
 
     val iterator: CPointer<cmark_iter>? = cmark_iter_new(root = document)
-    var eventType: cmark_event_type
 
     while (true) {
-      eventType = cmark_iter_next(iterator)
+      val eventType: cmark_event_type = cmark_iter_next(iterator)
       if (eventType == cmark_event_type.CMARK_EVENT_DONE) {
         break
       }
 
       val node: CPointer<cmark_node>? = cmark_iter_get_node(iterator)
       val nodeType: CPointer<ByteVarOf<Byte>> = cmark_node_get_type_string(node)!!
-      println("Node: ${nodeType.toKString()}")
+      println("nodeType: ${nodeType.toKString()}")
       cmark_node_free(node)
     }
 

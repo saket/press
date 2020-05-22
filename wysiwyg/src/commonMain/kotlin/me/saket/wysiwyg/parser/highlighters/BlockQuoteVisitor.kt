@@ -3,9 +3,6 @@ package me.saket.wysiwyg.parser.highlighters
 import me.saket.wysiwyg.parser.MarkdownRenderer
 import me.saket.wysiwyg.parser.node.BlockQuote
 import me.saket.wysiwyg.parser.node.Node
-import me.saket.wysiwyg.parser.node.endOffset
-import me.saket.wysiwyg.parser.node.parent
-import me.saket.wysiwyg.parser.node.startOffset
 
 class BlockQuoteVisitor : NodeVisitor<BlockQuote> {
 

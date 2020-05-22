@@ -4,8 +4,6 @@ import me.saket.wysiwyg.parser.MarkdownRenderer
 import me.saket.wysiwyg.parser.node.BulletList
 import me.saket.wysiwyg.parser.node.ListBlock
 import me.saket.wysiwyg.parser.node.OrderedList
-import me.saket.wysiwyg.parser.node.endOffset
-import me.saket.wysiwyg.parser.node.startOffset
 
 class OrderedListVisitor : ListBlockVisitor<OrderedList>()
 class BulletListVisitor : ListBlockVisitor<BulletList>()

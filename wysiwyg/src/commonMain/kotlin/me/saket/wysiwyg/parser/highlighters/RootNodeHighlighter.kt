@@ -4,9 +4,6 @@ import me.saket.wysiwyg.parser.MarkdownRenderer
 import me.saket.wysiwyg.parser.node.ListBlock
 import me.saket.wysiwyg.parser.node.ListItem
 import me.saket.wysiwyg.parser.node.Node
-import me.saket.wysiwyg.parser.node.firstChild
-import me.saket.wysiwyg.parser.node.nextNode
-import me.saket.wysiwyg.parser.node.parent
 
 object RootNodeHighlighter : NodeVisitor<Node> {
 

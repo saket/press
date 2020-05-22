@@ -35,80 +35,77 @@ import com.vladsch.flexmark.util.ast.Block as FlexmarkBlock
 import com.vladsch.flexmark.util.ast.ContentNode as FlexmarkContentNode
 import com.vladsch.flexmark.util.ast.Node as FlexmarkNode
 
-actual typealias Node = FlexmarkNode
+//actual typealias Node = FlexmarkNode
+//actual val Node.parent: Node? get() = parent
+//actual val Node.firstChild: Node? get() = firstChild
+//actual val Node.nextNode: Node? get() = next
+//actual val Node.startOffset: Int get() = startOffset
+//actual val Node.endOffset: Int get() = endOffset
 
-actual val Node.parent: Node? get() = parent
-actual val Node.firstChild: Node? get() = firstChild
-actual val Node.nextNode: Node? get() = next
-actual val Node.startOffset: Int get() = startOffset
-actual val Node.endOffset: Int get() = endOffset
+//actual typealias DelimitedNode = FlexmarkDelimitedNode
+//actual val DelimitedNode.openingMarker: CharSequence get() = openingMarker
+//actual val DelimitedNode.closingMarker: CharSequence get() = closingMarker
+//actual typealias DelimitedNodeImpl = FlexmarkDelimitedNodeImpl
 
-actual typealias DelimitedNode = FlexmarkDelimitedNode
+//actual typealias Emphasis = FlexmarkEmphasis
 
-actual val DelimitedNode.openingMarker: CharSequence get() = openingMarker
-actual val DelimitedNode.closingMarker: CharSequence get() = closingMarker
-
-actual typealias DelimitedNodeImpl = FlexmarkDelimitedNodeImpl
-
-actual typealias Emphasis = FlexmarkEmphasis
-
-actual typealias StrongEmphasis = FlexmarkStrongEmphasis
-
-actual typealias LinkNodeBase = FlexmarkLinkNodeBase
-actual typealias LinkNode = FlexmarkLinkNode
-actual typealias InlineLinkNode = FlexmarkInlineLinkNode
-actual typealias DelimitedLinkNode = FlexmarkDelimitedLinkNode
-
-actual typealias LinkWithTitle = FlexmarkLink
-
-actual val LinkWithTitle.text: CharSequence get() = text
-actual val LinkWithTitle.url: CharSequence get() = url
-
-actual typealias Url = FlexmarkAutoLink
-actual val Url.url: CharSequence get() = url
-
-actual typealias Strikethrough = FlexmarkStrikethrough
-
-actual typealias Code = FlexmarkCode
-
-actual typealias ContentNode = FlexmarkContentNode
-actual typealias Block = FlexmarkBlock
-actual typealias IndentedCodeBlock = FlexmarkIndentedCodeBlock
-
-actual typealias FencedCodeBlock = FlexmarkFencedCodeBlock
-
-actual val FencedCodeBlock.openingMarker: CharSequence get() = openingMarker
-actual val FencedCodeBlock.closingMarker: CharSequence get() = closingMarker
-
-actual typealias BlockQuote = FlexmarkBlockQuote
-
-actual val BlockQuote.parent: Node? get() = parent
-
-actual typealias ListBlock = FlexmarkListBlock
-actual typealias OrderedList = FlexmarkOrderedList
-actual typealias BulletList = FlexmarkBulletList
-
-actual typealias ListItem = FlexmarkListItem
-actual val ListItem.openingMarker: CharSequence get() = openingMarker
-
-actual typealias OrderedListItem = FlexmarkOrderedListItem
-actual typealias BulletListItem = FlexmarkBulletListItem
-
-actual typealias ThematicBreak = FlexmarkThematicBreak
-
-actual val ThematicBreak.chars: CharSequence get() = chars
-
-actual typealias Heading = FlexmarkHeading
-
-actual val Heading.headingLevel: HeadingLevel
-  get() = when (level) {
-    1 -> H1
-    2 -> H2
-    3 -> H3
-    4 -> H4
-    5 -> H5
-    6 -> H6
-    else -> throw AssertionError("Unknown headingLevel: $level")
-  }
-actual val Heading.isAtxHeading: Boolean get() = isAtxHeading
-actual val Heading.openingMarker: CharSequence get() = openingMarker
+//actual typealias StrongEmphasis = FlexmarkStrongEmphasis
+//
+//actual typealias LinkNodeBase = FlexmarkLinkNodeBase
+//actual typealias LinkNode = FlexmarkLinkNode
+//actual typealias InlineLinkNode = FlexmarkInlineLinkNode
+//actual typealias DelimitedLinkNode = FlexmarkDelimitedLinkNode
+//
+//actual typealias LinkWithTitle = FlexmarkLink
+//
+//actual val LinkWithTitle.text: CharSequence get() = text
+//actual val LinkWithTitle.url: CharSequence get() = url
+//
+//actual typealias Url = FlexmarkAutoLink
+//actual val Url.url: CharSequence get() = url
+//
+//actual typealias Strikethrough = FlexmarkStrikethrough
+//
+//actual typealias Code = FlexmarkCode
+//
+//actual typealias ContentNode = FlexmarkContentNode
+//actual typealias Block = FlexmarkBlock
+//actual typealias IndentedCodeBlock = FlexmarkIndentedCodeBlock
+//
+//actual typealias FencedCodeBlock = FlexmarkFencedCodeBlock
+//
+//actual val FencedCodeBlock.openingMarker: CharSequence get() = openingMarker
+//actual val FencedCodeBlock.closingMarker: CharSequence get() = closingMarker
+//
+//actual typealias BlockQuote = FlexmarkBlockQuote
+//
+//actual val BlockQuote.parent: Node? get() = parent
+//
+//actual typealias ListBlock = FlexmarkListBlock
+//actual typealias OrderedList = FlexmarkOrderedList
+//actual typealias BulletList = FlexmarkBulletList
+//
+//actual typealias ListItem = FlexmarkListItem
+//actual val ListItem.openingMarker: CharSequence get() = openingMarker
+//
+//actual typealias OrderedListItem = FlexmarkOrderedListItem
+//actual typealias BulletListItem = FlexmarkBulletListItem
+//
+//actual typealias ThematicBreak = FlexmarkThematicBreak
+//
+//actual val ThematicBreak.chars: CharSequence get() = chars
+//
+//actual typealias Heading = FlexmarkHeading
+//
+//actual val Heading.headingLevel: HeadingLevel
+//  get() = when (level) {
+//    1 -> H1
+//    2 -> H2
+//    3 -> H3
+//    4 -> H4
+//    5 -> H5
+//    6 -> H6
+//    else -> throw AssertionError("Unknown headingLevel: $level")
+//  }
+//actual val Heading.isAtxHeading: Boolean get() = isAtxHeading
+//actual val Heading.openingMarker: CharSequence get() = openingMarker

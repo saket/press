@@ -1,82 +1,135 @@
 package me.saket.wysiwyg.parser.node
 
-expect abstract class Node
-expect val Node.parent: Node?
-expect val Node.firstChild: Node?
-expect val Node.nextNode: Node?
-expect val Node.startOffset: Int
-expect val Node.endOffset: Int
+interface Node {
+  val parent: Node?
+  val firstChild: Node?
+  val nextNode: Node?
+  val startOffset: Int
+  val endOffset: Int
+}
 
-expect interface DelimitedNode
-expect val DelimitedNode.openingMarker: CharSequence
-expect val DelimitedNode.closingMarker: CharSequence
+//expect abstract class Node
+//expect val Node.parent: Node?
+//expect val Node.firstChild: Node?
+//expect val Node.nextNode: Node?
+//expect val Node.startOffset: Int
+//expect val Node.endOffset: Int
+
+interface DelimitedNode : Node {
+  val openingMarker: CharSequence
+  val closingMarker: CharSequence
+}
+
+//expect interface DelimitedNode
+//expect val DelimitedNode.openingMarker: CharSequence
+//expect val DelimitedNode.closingMarker: CharSequence
+
+interface Emphasis : DelimitedNode
+interface StrongEmphasis : DelimitedNode
 
 // https://youtrack.jetbrains.net/issue/KT-20641
-expect abstract class DelimitedNodeImpl : Node, DelimitedNode
+//expect abstract class DelimitedNodeImpl : Node, DelimitedNode
+//expect class Emphasis : DelimitedNodeImpl
+//expect class StrongEmphasis : DelimitedNodeImpl
 
-expect class Emphasis : DelimitedNodeImpl
-
-expect class StrongEmphasis : DelimitedNodeImpl
+interface InlineLinkNode : Node
+interface DelimitedLinkNode : Node
 
 // https://youtrack.jetbrains.net/issue/KT-20641
-expect abstract class LinkNodeBase : Node
-expect abstract class LinkNode : LinkNodeBase
-expect abstract class InlineLinkNode : LinkNode
-expect open class DelimitedLinkNode : LinkNode
+//expect abstract class LinkNodeBase : Node
+//expect abstract class LinkNode : LinkNodeBase
+//expect abstract class InlineLinkNode : LinkNode
+//expect open class DelimitedLinkNode : LinkNode
 
 /**
  * [title](http://example.com)
  */
-expect class LinkWithTitle : InlineLinkNode
-expect val LinkWithTitle.text: CharSequence
-expect val LinkWithTitle.url: CharSequence
+interface LinkWithTitle : InlineLinkNode {
+  val text: CharSequence
+  val url: CharSequence
+}
+
+//expect class LinkWithTitle : InlineLinkNode
+//expect val LinkWithTitle.text: CharSequence
+//expect val LinkWithTitle.url: CharSequence
 
 /**
  * http://example.com
  */
-expect class Url : DelimitedLinkNode
-expect val Url.url: CharSequence
+interface Url : DelimitedLinkNode {
+  val url: CharSequence
+}
 
-expect class Strikethrough : Node, DelimitedNode
+//expect class Url : DelimitedLinkNode
+//expect val Url.url: CharSequence
 
-expect class Code : DelimitedNodeImpl
+interface Strikethrough : DelimitedNode
+
+//expect class Strikethrough : Node, DelimitedNode
+
+interface Code : DelimitedNode
+
+//expect class Code : DelimitedNodeImpl
+
+interface IndentedCodeBlock : Node
+interface FencedCodeBlock : DelimitedNode
 
 // https://youtrack.jetbrains.net/issue/KT-20641
-expect abstract class ContentNode : Node
-expect abstract class Block : ContentNode
-expect class IndentedCodeBlock : Block
+//expect abstract class ContentNode : Node
+//expect abstract class Block : ContentNode
+//expect class IndentedCodeBlock : Block
 
-expect class FencedCodeBlock : Block
-expect val FencedCodeBlock.openingMarker: CharSequence
-expect val FencedCodeBlock.closingMarker: CharSequence
+//expect class FencedCodeBlock : Block
+//expect val FencedCodeBlock.openingMarker: CharSequence
+//expect val FencedCodeBlock.closingMarker: CharSequence
 
-expect class BlockQuote : Block
-expect val BlockQuote.parent: Node?
+interface BlockQuote : Node
 
-expect abstract class ListBlock : Block
-expect class OrderedList : ListBlock
-expect class BulletList : ListBlock
+//expect class BlockQuote : Block
+//expect val BlockQuote.parent: Node?
 
-expect abstract class ListItem : Block
-expect val ListItem.openingMarker: CharSequence
+interface ListBlock : Node
+interface OrderedList : ListBlock
+interface BulletList : ListBlock
 
-expect class OrderedListItem : ListItem
-expect class BulletListItem : ListItem
+//expect abstract class ListBlock : Block
+//expect class OrderedList : ListBlock
+//expect class BulletList : ListBlock
 
-expect class ThematicBreak : Block
-expect val ThematicBreak.chars: CharSequence
+interface ListItem : Node {
+  val openingMarker: CharSequence
+}
+interface OrderedListItem : ListItem
+interface BulletListItem : ListItem
 
-expect class Heading : Block
-/**
- * Setext-style headers are "underlined" using "=" for H1
- * and "-" for H2. For example:
- *
- * This is an H1
- * =============
- *
- * This is an H2
- * -------------
- */
-expect val Heading.isAtxHeading: Boolean
-expect val Heading.headingLevel: HeadingLevel
-expect val Heading.openingMarker: CharSequence
+//expect abstract class ListItem : Block
+
+//expect val ListItem.openingMarker: CharSequence
+
+//expect class OrderedListItem : ListItem
+//expect class BulletListItem : ListItem
+
+interface ThematicBreak: Node {
+  val chars: CharSequence
+}
+
+//expect class ThematicBreak : Block
+//expect val ThematicBreak.chars: CharSequence
+
+interface Heading: Node {
+  /**
+   * Setext-style headers are "underlined" using "=" for H1
+   * and "-" for H2. For example:
+   *
+   * This is an H1
+   * =============
+   *
+   * This is an H2
+   * -------------
+   */
+  val isAtxHeading: Boolean
+  val headingLevel: HeadingLevel
+  val openingMarker: CharSequence
+}
+
+//expect class Heading : Block

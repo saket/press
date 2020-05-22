@@ -3,10 +3,6 @@ package me.saket.wysiwyg.parser.highlighters
 import me.saket.wysiwyg.parser.MarkdownRenderer
 import me.saket.wysiwyg.parser.node.DelimitedNode
 import me.saket.wysiwyg.parser.node.Node
-import me.saket.wysiwyg.parser.node.closingMarker
-import me.saket.wysiwyg.parser.node.endOffset
-import me.saket.wysiwyg.parser.node.openingMarker
-import me.saket.wysiwyg.parser.node.startOffset
 
 abstract class DelimitedNodeVisitor<T> : NodeVisitor<T> where T : Node, T : DelimitedNode {
 

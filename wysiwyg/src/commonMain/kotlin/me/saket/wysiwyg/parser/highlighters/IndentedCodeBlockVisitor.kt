@@ -2,8 +2,6 @@ package me.saket.wysiwyg.parser.highlighters
 
 import me.saket.wysiwyg.parser.MarkdownRenderer
 import me.saket.wysiwyg.parser.node.IndentedCodeBlock
-import me.saket.wysiwyg.parser.node.endOffset
-import me.saket.wysiwyg.parser.node.startOffset
 
 /**
  * TODO: Don't think Press supports indented code blocks. Verify and remove this.

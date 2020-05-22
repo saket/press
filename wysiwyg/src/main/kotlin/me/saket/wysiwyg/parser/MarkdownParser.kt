@@ -3,8 +3,8 @@ package me.saket.wysiwyg.parser
 import com.vladsch.flexmark.ext.autolink.AutolinkExtension
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension
 import com.vladsch.flexmark.parser.Parser
-import com.vladsch.flexmark.util.ast.Node
 import com.vladsch.flexmark.util.data.MutableDataSet
+import me.saket.wysiwyg.parser.node.Node
 import me.saket.wysiwyg.spans.WysiwygSpan
 import me.saket.wysiwyg.widgets.EditableText
 
@@ -13,7 +13,8 @@ actual class MarkdownParser {
   private val parser: Parser = buildParser()
 
   actual fun parseSpans(text: String): Node {
-    return parser.parse(text)
+    //return parser.parse(text)
+    TODO()
   }
 
   actual fun removeSpans(text: EditableText) {
