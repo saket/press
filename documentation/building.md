@@ -14,3 +14,10 @@ Although being the official IDE, Xcode isn't very good in comparison to IntelliJ
 2. AppCode fails to resolve type parameter in a `ViewModifier`: https://youtrack.jetbrains.com/issue/OC-20058.
 
 3. Swift Package Dependencies aren't supported, but support for it is supposed to be released soon. In the meantime, a workaround is mentioned here: https://youtrack.jetbrains.com/issue/OC-19012. Press doesn't use SPM so this not an issue _yet_. 
+
+#### API Keys
+Press uses GitHub for syncing notes with a git repository. If you wish, you can [register](https://github.com/settings/applications/new) your own GitHub app and add its client secret key to `shared/secrets.properties`:
+
+```groovy
+github_client_secret=...
+```

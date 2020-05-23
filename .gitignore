@@ -48,7 +48,8 @@ captures/
 !/.idea/codeStyles
 !/.idea/dictionaries
 
-# Keystore files
+# Secrets
+/shared/secrets.properties
 *.jks
 
 # Eclipse project files

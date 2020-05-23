@@ -2,11 +2,12 @@ plugins {
   id 'org.jetbrains.kotlin.plugin.serialization' version '1.3.70'
 }
 
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-multiplatform'
-apply plugin: 'kotlin-android-extensions'
+apply plugin: "com.android.library"
+apply plugin: "kotlin-multiplatform"
+apply plugin: "kotlin-android-extensions"
 apply plugin: "com.squareup.sqldelight"
 apply plugin: "org.jetbrains.kotlin.native.cocoapods"
+apply plugin: "com.codingfeline.buildkonfig"
 
 android {
   compileSdkVersion versions.compileSdk
@@ -143,6 +144,16 @@ kotlin.cocoapods {
 version = 1.0 // also used by cocoapods plugin.
 
 dependencies {}
+
+buildkonfig {
+  Properties secrets = new Properties()
+  secrets.load(new FileInputStream(new File('shared/secrets.properties')))
+
+  packageName = "me.saket.press.shared"
+  defaultConfigs {
+    buildConfigField "String", "GITHUB_CLIENT_SECRET", secrets["github_client_secret"] ?: "nicolas_cage"
+  }
+}
 
 task checkiOS {
   def device = project.findProperty("iosDevice")?.toString() ?: "iPhone 8"
