@@ -1,3 +1,7 @@
+plugins {
+  id 'org.jetbrains.kotlin.plugin.serialization' version '1.3.70'
+}
+
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-multiplatform'
 apply plugin: 'kotlin-android-extensions'
@@ -56,6 +60,7 @@ kotlin {
         implementation kotlin('stdlib-common')
         implementation project(':wysiwyg')
         implementation deps.reaktive.core.common
+        implementation deps.reaktive.interop.coroutines
         implementation deps.koin.core.common
         implementation deps.multiplatformUuid
         implementation deps.klock.common
@@ -63,6 +68,10 @@ kotlin {
         implementation deps.stately
         implementation deps.statelyConcurrency
         implementation deps.multiplatformSettings.core
+        implementation deps.ktor.client.common
+        implementation deps.ktor.kotlinxSerialization.common
+        implementation deps.ktor.logger.common
+        implementation deps.kotlinxSerialization.common
       }
     }
     commonTest {
@@ -84,8 +93,12 @@ kotlin {
         implementation deps.androidx.preferences
         implementation deps.timber
         implementation deps.rx2.core
-        implementation deps.reaktive.interop.android
+        implementation deps.reaktive.interop.rxJava2
         implementation deps.sqlDelight.driver.android
+        implementation deps.ktor.client.okHttp
+        implementation deps.ktor.kotlinxSerialization.jvm
+        implementation deps.kotlinxSerialization.jvm
+        implementation deps.ktor.logger.jvm
       }
     }
     androidTest {
@@ -99,6 +112,11 @@ kotlin {
     macosMain {
       dependencies {
         implementation deps.sqlDelight.driver.native
+        implementation deps.ktor.client.native
+        implementation deps.ktor.client.curl
+        implementation deps.ktor.kotlinxSerialization.native
+        implementation deps.kotlinxSerialization.native
+        implementation deps.ktor.logger.native
       }
     }
     macosTest {}

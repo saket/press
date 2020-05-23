@@ -23,7 +23,9 @@ buildscript {
       multiplatformUuid: '0.1.0',
       stately: '1.0.2',
       assertK: '0.22',
-      contour: '0.1.6'
+      contour: '0.1.6',
+      ktor: '1.3.1',
+      kotlinxSerialization: '0.20.0',
   ]
 
   ext.deps = [
@@ -126,7 +128,8 @@ buildscript {
               'utils': "com.badoo.reaktive:utils:$versions.reaktive"
           ],
           'interop': [
-              'android': "com.badoo.reaktive:rxjava2-interop:$versions.reaktive"
+              'rxJava2': "com.badoo.reaktive:rxjava2-interop:$versions.reaktive",
+              'coroutines': "com.badoo.reaktive:coroutines-interop:$versions.reaktive"
           ]
       ],
       'koin': [
@@ -165,6 +168,29 @@ buildscript {
           'common': "com.willowtreeapps.assertk:assertk:$versions.assertK",
           'opentest4j': "org.opentest4j:opentest4j:1.1.1"
       ],
-      'betterLinkMovementMethod': "me.saket:better-link-movement-method:$versions.betterLinkMovementMethod"
+      'betterLinkMovementMethod': "me.saket:better-link-movement-method:$versions.betterLinkMovementMethod",
+      'ktor': [
+          'client': [
+              'common': "io.ktor:ktor-client-core:$versions.ktor",
+              'okHttp': "io.ktor:ktor-client-okhttp:$versions.ktor",
+              'native': "io.ktor:ktor-client-core-native:$versions.ktor",
+              'curl': "io.ktor:ktor-client-curl:$versions.ktor"
+          ],
+          'logger': [
+              'common': "io.ktor:ktor-client-logging:$versions.ktor",
+              'jvm': "io.ktor:ktor-client-logging-jvm:$versions.ktor",
+              'native': "io.ktor:ktor-client-logging-native:$versions.ktor"
+          ],
+          'kotlinxSerialization': [
+              'common': "io.ktor:ktor-client-serialization:$versions.ktor",
+              'jvm': "io.ktor:ktor-client-serialization-jvm:$versions.ktor",
+              'native': "io.ktor:ktor-client-serialization-native:$versions.ktor"
+          ]
+      ],
+      'kotlinxSerialization': [
+          'common': "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$versions.kotlinxSerialization",
+          'jvm': "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$versions.kotlinxSerialization",
+          'native': "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$versions.kotlinxSerialization"
+      ]
   ]
 }

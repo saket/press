@@ -36,6 +36,10 @@ android {
     sourceCompatibility JavaVersion.VERSION_1_8
     targetCompatibility JavaVersion.VERSION_1_8
   }
+
+  packagingOptions {
+    exclude 'META-INF/*'
+  }
 }
 
 dependencies {
@@ -76,4 +80,8 @@ dependencies {
   androidTestImplementation deps.androidx.test.jUnit
   androidTestImplementation deps.androidx.test.jUnitKtx
   androidTestImplementation deps.truth
+
+  // Shouldn't be using reaktive directly from platform code, but this is temporary.
+  androidTestImplementation deps.reaktive.core.common
+  androidTestImplementation deps.reaktive.interop.rxJava2
 }
