@@ -147,7 +147,10 @@ dependencies {}
 
 buildkonfig {
   Properties secrets = new Properties()
-  secrets.load(new FileInputStream(new File('shared/secrets.properties')))
+  def secretsFile = new File('shared/secrets.properties')
+  if (secretsFile.exists()) {
+    secrets.load(new FileInputStream(secretsFile))
+  }
 
   packageName = "me.saket.press.shared"
   defaultConfigs {
