@@ -31,6 +31,20 @@
       android:theme="@style/AppTheme.TransparentWindow"
       android:windowSoftInputMode="adjustResize" />
 
+    <activity
+      android:name="press.sync.SyncPreferencesActivity"
+      android:exported="true"
+      android:launchMode="singleInstance"
+      android:theme="@style/AppTheme.TransparentWindow"
+      android:windowSoftInputMode="adjustResize">
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="intent" android:host="press" />
+      </intent-filter>
+    </activity>
+
     <activity android:name="press.ShortcutReceiverActivity">
       <intent-filter>
         <action android:name="android.intent.action.SEND" />

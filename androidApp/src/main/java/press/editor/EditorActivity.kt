@@ -35,7 +35,7 @@ import kotlin.LazyThreadSafetyMode.NONE
 
 class EditorActivity : ThemeAwareActivity() {
 
-  @field:Inject lateinit var editorViewFactory: EditorView.Factory
+  @Inject lateinit var editorViewFactory: EditorView.Factory
   private val editorView: EditorView by lazy(NONE) { createEditorView() }
   private val openMode: EditorOpenMode by lazy(NONE) { readOpenMode(intent) }
 

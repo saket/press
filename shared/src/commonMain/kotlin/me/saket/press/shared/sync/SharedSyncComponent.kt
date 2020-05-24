@@ -1,28 +1,31 @@
-package me.saket.press.shared.network
+package me.saket.press.shared.sync
 
 import io.ktor.client.HttpClient
-import io.ktor.client.features.json.JsonFeature
-import io.ktor.client.features.json.serializer.KotlinxSerializer
 import io.ktor.client.features.logging.DEFAULT
 import io.ktor.client.features.logging.LogLevel
 import io.ktor.client.features.logging.Logger
 import io.ktor.client.features.logging.Logging
+import kotlinx.serialization.UnstableDefault
 import me.saket.press.shared.di.koin
-import me.saket.press.shared.localization.Strings
-import me.saket.press.shared.sync.github.GithubSyncer
-import me.saket.press.shared.sync.Syncer
+import me.saket.press.shared.sync.github.GitHub
 import org.koin.dsl.module
 
-class SharedNetworkComponent {
+class SharedSyncComponent {
+
   val module = module {
-    single<HttpClient> { httpClient() }
-    single<Syncer> { GithubSyncer(get()) }
+    single { httpClient() }
+    single<GitHost> { GitHub(get()) }
+    factory { SyncPreferencesPresenter(get()) }
   }
 
+  @OptIn(UnstableDefault::class)
   private fun httpClient(): HttpClient {
     return HttpClient {
 //      install(JsonFeature) {
-//        serializer = KotlinxSerializer()
+//        serializer = KotlinxSerializer(Json(JsonConfiguration.Stable.copy(
+//            prettyPrint = true,
+//            ignoreUnknownKeys = true
+//        )))
 //      }
       install(Logging) {
         logger = Logger.DEFAULT
@@ -32,6 +35,7 @@ class SharedNetworkComponent {
   }
 
   companion object {
-    fun syncer(): Syncer = koin()
+    fun syncer(): GitHost = koin()
+    fun presenter(): SyncPreferencesPresenter = koin()
   }
 }

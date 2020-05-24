@@ -9,8 +9,7 @@ import kotlin.LazyThreadSafetyMode.NONE
 
 class HomeActivity : ThemeAwareActivity() {
 
-  @field:Inject
-  lateinit var homeViewFactory: HomeView.Factory
+  @Inject lateinit var homeViewFactory: HomeView.Factory
   private val homeView by lazy(NONE) { homeViewFactory.withContext(this) }
 
   override fun onCreate(savedInstanceState: Bundle?) {
