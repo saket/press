@@ -32,7 +32,7 @@
       android:windowSoftInputMode="adjustResize" />
 
     <activity
-      android:name="press.sync.SyncPreferencesActivity"
+      android:name="press.sync.PreferencesActivity"
       android:exported="true"
       android:launchMode="singleInstance"
       android:theme="@style/AppTheme.TransparentWindow"

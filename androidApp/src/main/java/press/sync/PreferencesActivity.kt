@@ -9,7 +9,7 @@ import javax.inject.Inject
 import kotlin.LazyThreadSafetyMode.NONE
 
 // TODO: make ThemeAwareActivity extend PullCollapsibleActivity.
-class SyncPreferencesActivity : ThemeAwareActivity() {
+class PreferencesActivity : ThemeAwareActivity() {
 
   @Inject lateinit var viewFactory: SyncPreferencesView.Factory
   private val syncPreferencesView by lazy(NONE) { viewFactory.create(this) }
