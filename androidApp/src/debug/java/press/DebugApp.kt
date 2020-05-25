@@ -18,13 +18,13 @@ class DebugApp : App() {
     super.onCreate()
     Timber.plant(DebugTree())
 
-    SoLoader.init(this, false)
-    if (FlipperUtils.shouldEnableFlipper(this)) {
-      val client = AndroidFlipperClient.getInstance(this)
-      client.addPlugin(InspectorFlipperPlugin(this, DescriptorMapping.withDefaults()))
-      client.addPlugin(DatabasesFlipperPlugin(this))
-      client.start()
-    }
+//    SoLoader.init(this, false)
+//    if (FlipperUtils.shouldEnableFlipper(this)) {
+//      val client = AndroidFlipperClient.getInstance(this)
+//      client.addPlugin(InspectorFlipperPlugin(this, DescriptorMapping.withDefaults()))
+//      client.addPlugin(DatabasesFlipperPlugin(this))
+//      client.start()
+//    }
   }
 
   override fun buildDependencyGraph(): AppComponent =
