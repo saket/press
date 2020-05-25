@@ -13,7 +13,7 @@ import me.saket.press.shared.sync.GitHost
 
 class GitHub(private val client: HttpClient) : GitHost {
 
-  override fun createAuthorizationRequestUrl(): String {
+  override fun authorizationRequestUrl(): String {
     return URLBuilder("https://github.com/login/oauth/authorize").apply {
         parameters.apply {
           append("client_id", "c8d3f0629f52edce47b6")

@@ -58,6 +58,7 @@ kotlin {
   sourceSets {
     commonMain {
       dependencies {
+        api project(':kgit')  // todo: change back to implementation when GitSyncerPlayground is removed.
         implementation kotlin('stdlib-common')
         implementation project(':wysiwyg')
         implementation deps.reaktive.core.common

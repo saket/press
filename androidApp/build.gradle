@@ -40,6 +40,12 @@ android {
   packagingOptions {
     exclude 'META-INF/*'
   }
+
+  testOptions {
+    unitTests {
+      includeAndroidResources = true
+    }
+  }
 }
 
 dependencies {
@@ -75,6 +81,8 @@ dependencies {
   releaseImplementation deps.flipper.release.core
 
   testImplementation deps.junit
+  testImplementation deps.robolectric
+  testImplementation deps.androidx.test.core
 
   androidTestImplementation deps.androidx.test.core
   androidTestImplementation deps.androidx.test.runner

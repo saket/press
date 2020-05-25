@@ -31,19 +31,18 @@ class SyncPreferencesPresenter(
   override fun uiEffects(): ObservableWrapper<SyncPreferencesUiEffect> {
     return viewEvents().publish { events ->
       merge(
-          requestAuthorization(events),
-          completeAuthorization(events)
+          events.requestAuthorization(),
+          events.completeAuthorization()
       )
     }.wrap()
   }
 
-  private fun requestAuthorization(events: Observable<SyncPreferencesEvent>) =
-    events.ofType<AuthorizeClicked>()
-        .map { OpenAuthorizationUrl(url = gitHost.createAuthorizationRequestUrl()) }
-        .wrap()
+  private fun Observable<SyncPreferencesEvent>.requestAuthorization() =
+    ofType<AuthorizeClicked>()
+        .map { OpenAuthorizationUrl(url = gitHost.authorizationRequestUrl()) }
 
-  private fun completeAuthorization(events: Observable<SyncPreferencesEvent>) =
-    events.ofType<AuthorizationGranted>()
+  private fun Observable<SyncPreferencesEvent>.completeAuthorization() =
+    ofType<AuthorizationGranted>()
         .flatMapCompletable { gitHost.completeAuthorization(it.callbackUrl) }
         .andThen(observableOfNever<SyncPreferencesUiEffect>())
 }

@@ -6,6 +6,8 @@ import io.ktor.client.features.logging.LogLevel
 import io.ktor.client.features.logging.Logger
 import io.ktor.client.features.logging.Logging
 import kotlinx.serialization.UnstableDefault
+import me.saket.kgit.Git
+import me.saket.press.shared.db.InternalStorage
 import me.saket.press.shared.di.koin
 import me.saket.press.shared.sync.github.GitHub
 import org.koin.dsl.module
@@ -14,8 +16,9 @@ class SharedSyncComponent {
 
   val module = module {
     single { httpClient() }
-    single<GitHost> { GitHub(get()) }
     factory { SyncPreferencesPresenter(get()) }
+    factory<GitHost> { GitHub(get()) }
+    factory<Syncer> { GitSyncer(git = Git.repository(get<InternalStorage>().path)) }
   }
 
   @OptIn(UnstableDefault::class)

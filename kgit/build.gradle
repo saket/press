@@ -1,17 +1,26 @@
+apply plugin: 'com.android.library'
 apply plugin: 'org.jetbrains.kotlin.multiplatform'
 
 repositories {
   mavenCentral()
 }
 
-group 'me.saket.kgit'
-version '0.0.1'
-
-apply plugin: 'maven-publish'
+android {
+  compileSdkVersion versions.compileSdk
+  defaultConfig {
+    minSdkVersion versions.minSdk
+  }
+}
 
 kotlin {
-  jvm()
-  macosX64("macos")
+  targets {
+    fromPreset(presets.android, "android")
+    fromPreset(presets.macosX64, "macos")
+
+    def buildForDevice = project.findProperty("device")?.toBoolean() ?: false
+    def iosTarget = (buildForDevice) ? presets.iosArm64 : presets.iosX64
+    fromPreset(iosTarget, "ios")
+  }
 
   sourceSets {
     commonMain {
@@ -25,18 +34,25 @@ kotlin {
         implementation kotlin('test-annotations-common')
       }
     }
-    jvmMain {
+    androidMain {
       dependencies {
         implementation kotlin('stdlib-jdk8')
+        implementation "org.eclipse.jgit:org.eclipse.jgit:5.7.0.202003110725-r"
       }
     }
-    jvmTest {
+    androidTest {
       dependencies {
         implementation kotlin('test')
         implementation kotlin('test-junit')
       }
     }
-    macosMain {}
-    macosTest {}
+    nativeMain { dependsOn(commonMain) }
+    nativeTest { dependsOn(commonTest) }
+
+    macosMain { dependsOn(nativeMain) }
+    macosTest { dependsOn(nativeTest) }
+
+    iosMain { dependsOn(nativeMain) }
+    iosTest { dependsOn(nativeTest) }
   }
 }
