@@ -14,7 +14,7 @@ buildscript {
       flexmark: '0.50.26',
       reaktive: '1.1.12',
       koin: '3.0.0-alpha-9',
-      flipper: '0.23.5',
+      flipper: '0.43.0',
       klock: '1.9.1',
       multiplatformSettings: '0.5.1',
       androidXTest: '1.2.0',
