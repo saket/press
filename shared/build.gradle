@@ -112,21 +112,24 @@ kotlin {
         implementation deps.robolectric
       }
     }
-    macosMain {
+    nativeMain {
       dependencies {
         implementation deps.sqlDelight.driver.native
         implementation deps.ktor.client.native
-        implementation deps.ktor.client.curl
         implementation deps.ktor.kotlinxSerialization.native
-        implementation deps.kotlinxSerialization.native
         implementation deps.ktor.logger.native
+        implementation deps.kotlinxSerialization.native
+      }
+    }
+    macosMain {
+      dependsOn(nativeMain)
+      dependencies {
+        implementation deps.ktor.client.curl
       }
     }
     macosTest {}
     iosMain {
-      dependencies {
-        implementation deps.sqlDelight.driver.native
-      }
+      dependsOn(nativeMain)
     }
     iosTest {}
 

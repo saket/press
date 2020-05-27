@@ -18,7 +18,7 @@ interface KeyboardShortcuts {
   fun listen(shortcut: KeyboardShortcutEvent): Observable<KeyboardShortcutEvent>
 }
 
-class RealKeyboardShortcuts: KeyboardShortcuts {
+class RealKeyboardShortcuts : KeyboardShortcuts {
   private val events = PublishSubject<KeyboardShortcutEvent>()
 
   override fun broadcast(event: KeyboardShortcutEvent) =
