@@ -101,6 +101,7 @@ kotlin {
         implementation deps.ktor.kotlinxSerialization.jvm
         implementation deps.kotlinxSerialization.jvm
         implementation deps.ktor.logger.jvm
+        implementation deps.okio
       }
     }
     androidTest {
