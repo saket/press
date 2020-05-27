@@ -1,5 +1,7 @@
 package me.saket.kgit
 
+import co.touchlab.stately.concurrency.AtomicReference
+
 interface Git {
   var ssh: SshConfig?
 
@@ -9,11 +11,8 @@ interface Git {
 }
 
 class RealGit : Git {
-  // todo: use AtomicReference instead.
-  private var _ssh: SshConfig? = null
+  private var _ssh = AtomicReference<SshConfig?>(null)
   override var ssh: SshConfig?
-    get() = _ssh
-    set(value) {
-      _ssh = value
-    }
+    get() = _ssh.get()
+    set(value) = _ssh.set(value)
 }

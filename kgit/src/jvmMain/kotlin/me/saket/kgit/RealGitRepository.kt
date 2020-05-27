@@ -29,6 +29,7 @@ internal actual class RealGitRepository actual constructor(
 
   override fun commit(message: String, author: GitAuthor) {
     jgit.commit().apply {
+      setAllowEmpty(false)
       setMessage(message)
       setAuthor(author.name, author.email)
     }.call()
@@ -44,9 +45,9 @@ internal actual class RealGitRepository actual constructor(
         .also { check(it.size == 1) { "Did not expect multiple push results: $it" } }
         .single()
 
-    return when (pushResult.getRemoteUpdate("refs/heads/$currentBranch").status) {
+    return when (val status = pushResult.getRemoteUpdate("refs/heads/$currentBranch").status) {
       RemoteRefUpdate.Status.OK -> PushResult.Success
-      else -> PushResult.Failed(pushResult.toString())
+      else -> PushResult.Failed(status.toString())
     }
   }
 
