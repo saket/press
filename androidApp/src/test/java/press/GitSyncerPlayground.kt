@@ -11,7 +11,7 @@ import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.DateTimeAdapter
 import me.saket.press.shared.db.InternalStorage
 import me.saket.press.shared.db.NoteId
-import me.saket.press.shared.sync.GitSyncer
+import me.saket.press.shared.sync.git.GitSyncer
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

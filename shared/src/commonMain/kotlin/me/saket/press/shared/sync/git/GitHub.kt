@@ -1,4 +1,4 @@
-package me.saket.press.shared.sync.github
+package me.saket.press.shared.sync.git
 
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.coroutinesinterop.completableFromCoroutine
@@ -9,7 +9,6 @@ import io.ktor.client.request.post
 import io.ktor.http.URLBuilder
 import io.ktor.http.Url
 import me.saket.press.shared.BuildKonfig
-import me.saket.press.shared.sync.GitHost
 
 class GitHub(private val client: HttpClient) : GitHost {
 

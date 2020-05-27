@@ -14,6 +14,7 @@ import com.badoo.reaktive.observable.wrap
 import me.saket.press.shared.sync.SyncPreferencesEvent.AuthorizationGranted
 import me.saket.press.shared.sync.SyncPreferencesEvent.AuthorizeClicked
 import me.saket.press.shared.sync.SyncPreferencesUiEffect.OpenAuthorizationUrl
+import me.saket.press.shared.sync.git.GitHost
 import me.saket.press.shared.ui.Presenter
 
 class SyncPreferencesPresenter(

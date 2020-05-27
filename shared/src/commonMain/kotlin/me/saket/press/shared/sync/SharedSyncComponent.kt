@@ -6,11 +6,11 @@ import io.ktor.client.features.logging.LogLevel
 import io.ktor.client.features.logging.Logger
 import io.ktor.client.features.logging.Logging
 import kotlinx.serialization.UnstableDefault
-import me.saket.kgit.Git
 import me.saket.kgit.RealGit
-import me.saket.press.shared.db.InternalStorage
 import me.saket.press.shared.di.koin
-import me.saket.press.shared.sync.github.GitHub
+import me.saket.press.shared.sync.git.GitHost
+import me.saket.press.shared.sync.git.GitHub
+import me.saket.press.shared.sync.git.GitSyncer
 import org.koin.dsl.module
 
 class SharedSyncComponent {

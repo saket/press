@@ -1,10 +1,11 @@
-package me.saket.press.shared.sync
+package me.saket.press.shared.sync.git
 
 import me.saket.kgit.Git
 import me.saket.kgit.GitAuthor
 import me.saket.kgit.PushResult.Success
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.InternalStorage
+import me.saket.press.shared.sync.Syncer
 
 class GitSyncer(git: Git, private val storage: InternalStorage) : Syncer {
   private val repository = git.repository(storage.path)
