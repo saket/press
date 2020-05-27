@@ -12,7 +12,10 @@ import org.eclipse.jgit.util.FS
 import java.io.File
 import org.eclipse.jgit.api.Git as JGit
 
-internal actual class RealGitRepository actual constructor(private val path: String) : GitRepository {
+internal actual class RealGitRepository actual constructor(
+  private val git: Git,
+  private val path: String
+) : GitRepository {
 
   private val jgit: JGit by lazy {
     // Initializing an exiting git directory no-ops.
@@ -31,8 +34,27 @@ internal actual class RealGitRepository actual constructor(private val path: Str
     }.call()
   }
 
-  override fun push(sshPrivateKey: String): PushResult {
-    val sshSessionFactory: SshSessionFactory = object : JschConfigSessionFactory() {
+  override fun push(): PushResult {
+    val pushResult = jgit.push()
+        .setTransportConfigCallback {
+          (it as SshTransport).sshSessionFactory = sshSessionFactory()
+        }
+        .call()
+        .toList()
+        .also { check(it.size == 1) { "Did not expect multiple push results: $it" } }
+        .single()
+
+    return when (pushResult.getRemoteUpdate("refs/heads/$currentBranch").status) {
+      RemoteRefUpdate.Status.OK -> PushResult.Success
+      else -> PushResult.Failed(pushResult.toString())
+    }
+  }
+
+  private fun sshSessionFactory(): SshSessionFactory {
+    val sshConfig = git.ssh
+    requireNotNull(sshConfig)
+
+    return object : JschConfigSessionFactory() {
       override fun configure(host: Host, session: Session) = Unit
 
       override fun createSession(hc: Host?, user: String?, host: String?, port: Int, fs: FS?): Session {
@@ -43,24 +65,9 @@ internal actual class RealGitRepository actual constructor(private val path: Str
 
       override fun createDefaultJSch(fs: FS): JSch? {
         return super.createDefaultJSch(fs).apply {
-          addIdentity("foo", sshPrivateKey.toByteArray(), null, null)
+          addIdentity("foo", sshConfig.privateKey.toByteArray(), null, sshConfig.passphrase?.toByteArray())
         }
       }
-    }
-
-    val pushResult = jgit.push()
-        .setTransportConfigCallback { transport ->
-          val sshTransport = transport as SshTransport
-          sshTransport.sshSessionFactory = sshSessionFactory
-        }
-        .call()
-        .toList()
-        .also { check(it.size == 1) { "Did not expect multiple push results: $it" } }
-        .single()
-
-    return when (pushResult.getRemoteUpdate("refs/heads/$currentBranch").status) {
-      RemoteRefUpdate.Status.OK -> PushResult.Success
-      else -> PushResult.Failed(pushResult.toString())
     }
   }
 

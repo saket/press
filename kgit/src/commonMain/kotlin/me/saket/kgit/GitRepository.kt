@@ -1,6 +1,6 @@
 package me.saket.kgit
 
-internal expect class RealGitRepository(path: String) : GitRepository
+internal expect class RealGitRepository(git: Git, path: String) : GitRepository
 
 interface GitRepository {
   /** git add . */
@@ -8,7 +8,7 @@ interface GitRepository {
 
   fun commit(message: String, author: GitAuthor)
 
-  fun push(sshPrivateKey: String): PushResult
+  fun push(): PushResult
 
   fun addRemote(name: String, url: String)
 }
