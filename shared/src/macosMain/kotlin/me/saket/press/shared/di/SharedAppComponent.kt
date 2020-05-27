@@ -3,7 +3,7 @@ package me.saket.press.shared.di
 import com.russhwolf.settings.AppleSettings
 import com.squareup.sqldelight.drivers.native.NativeSqliteDriver
 import me.saket.press.PressDatabase
-import me.saket.press.shared.db.InternalStorage
+import me.saket.press.shared.sync.git.InternalStorage
 import platform.Foundation.NSUserDefaults
 
 actual object SharedAppComponent : BaseSharedAppComponent() {

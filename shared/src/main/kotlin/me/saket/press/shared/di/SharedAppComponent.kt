@@ -5,7 +5,7 @@ import androidx.preference.PreferenceManager
 import com.russhwolf.settings.AndroidSettings
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import me.saket.press.PressDatabase
-import me.saket.press.shared.db.InternalStorage
+import me.saket.press.shared.sync.git.InternalStorage
 
 actual object SharedAppComponent : BaseSharedAppComponent() {
 

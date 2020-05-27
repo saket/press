@@ -2,7 +2,7 @@ package me.saket.press.shared.di
 
 import com.russhwolf.settings.Settings
 import com.squareup.sqldelight.db.SqlDriver
-import me.saket.press.shared.db.InternalStorage
+import me.saket.press.shared.sync.git.InternalStorage
 
 /**
  * @param settings for storing user preferences.

@@ -17,11 +17,11 @@ object SplitHeadingAndBody {
       val hasBody = titleAndBodySeparatorIndex != -1
 
       if (hasBody) {
-        title = content.substring(titleStartIndex, titleAndBodySeparatorIndex)
+        title = content.substring(titleStartIndex, titleAndBodySeparatorIndex).trimEnd()
         body = content.substring(titleAndBodySeparatorIndex + 1).trimStart()
 
       } else {
-        title = content.substring(titleStartIndex)
+        title = content.substring(titleStartIndex).trimEnd()
         body = ""
       }
 

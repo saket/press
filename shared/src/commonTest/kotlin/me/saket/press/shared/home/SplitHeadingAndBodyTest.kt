@@ -1,5 +1,8 @@
 package me.saket.press.shared.home
 
+import assertk.assertThat
+import assertk.assertions.isEmpty
+import assertk.assertions.isEqualTo
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -93,5 +96,15 @@ class SplitHeadingAndBodyTest {
     )
     assertEquals("", heading)
     assertEquals("#Heading\nBody", body)
+  }
+
+  @Test fun `text with trailing space in the heading`() {
+    val (heading1, body1) = SplitHeadingAndBody.split("# Heading ")
+    assertThat(heading1).isEqualTo("Heading")
+    assertThat(body1).isEmpty()
+
+    val (heading2, body2) = SplitHeadingAndBody.split("# Heading \nBody")
+    assertThat(heading2).isEqualTo("Heading")
+    assertThat(body2).isEqualTo("Body")
   }
 }

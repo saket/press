@@ -18,13 +18,12 @@ internal actual class RealGitRepository actual constructor(
 ) : GitRepository {
 
   private val jgit: JGit by lazy {
-    // Initializing an exiting git directory no-ops.
+    // Initializing a directory that already has git will no-op.
     JGit.init().setDirectory(File(path)).call()
   }
-  private val currentBranch = "master"
 
   override fun addAll() {
-    jgit.add().addFilepattern("*").call()
+    jgit.add().addFilepattern(".").call()
   }
 
   override fun commit(message: String, author: GitAuthor) {
@@ -40,12 +39,13 @@ internal actual class RealGitRepository actual constructor(
         .setTransportConfigCallback {
           (it as SshTransport).sshSessionFactory = sshSessionFactory()
         }
+        .setForce(true)   // todo: remove this once Press starts pulling changes.
         .call()
         .toList()
         .also { check(it.size == 1) { "Did not expect multiple push results: $it" } }
         .single()
 
-    return when (val status = pushResult.getRemoteUpdate("refs/heads/$currentBranch").status) {
+    return when (val status = pushResult.getRemoteUpdate("refs/heads/master").status) {
       RemoteRefUpdate.Status.OK -> PushResult.Success
       else -> PushResult.Failed(status.toString())
     }

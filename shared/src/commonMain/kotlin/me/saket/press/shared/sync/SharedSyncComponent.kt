@@ -19,7 +19,7 @@ class SharedSyncComponent {
     single { httpClient() }
     factory { SyncPreferencesPresenter(get()) }
     factory<GitHost> { GitHub(get()) }
-    factory<Syncer> { GitSyncer(git = RealGit(), storage = get()) }
+    factory<Syncer> { GitSyncer(git = RealGit(), appStorage = get()) }
   }
 
   @OptIn(UnstableDefault::class)

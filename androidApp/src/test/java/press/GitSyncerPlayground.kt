@@ -9,9 +9,9 @@ import me.saket.kgit.SshConfig
 import me.saket.press.BuildConfig
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.DateTimeAdapter
-import me.saket.press.shared.db.InternalStorage
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.sync.git.GitSyncer
+import me.saket.press.shared.sync.git.InternalStorage
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -27,13 +27,18 @@ class GitSyncerUnitPlayground {
 
   @Test
   fun foo() {
+    val noteBody = """
+      |# Nicolas Cage 
+      |is a national treasure
+    """.trimMargin()
+
     val git = RealGit().apply {
       ssh = SshConfig(privateKey = BuildConfig.GITHUB_SSH_PRIV_KEY)
     }
 
     val syncer = GitSyncer(git, InternalStorage(context.filesDir.path))
     syncer.setRemote("git@github.com:saket/PressSyncPlayground.git")
-    syncer.onUpdateContent(fakeNote(content = "Nicolas Cage is a national treasure"))
+    syncer.onUpdateContent(fakeNote(content = noteBody))
   }
 }
 
