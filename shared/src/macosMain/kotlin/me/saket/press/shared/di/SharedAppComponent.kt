@@ -3,7 +3,7 @@ package me.saket.press.shared.di
 import com.russhwolf.settings.AppleSettings
 import com.squareup.sqldelight.drivers.native.NativeSqliteDriver
 import me.saket.press.PressDatabase
-import me.saket.press.shared.sync.git.InternalStorage
+import me.saket.press.shared.sync.git.AppStorage
 import platform.Foundation.NSUserDefaults
 
 actual object SharedAppComponent : BaseSharedAppComponent() {
@@ -12,7 +12,7 @@ actual object SharedAppComponent : BaseSharedAppComponent() {
     setupGraph(PlatformDependencies(
         sqlDriver = { nativeSqliteDriver() },
         settings = { appleSettings() },
-        storage = { InternalStorage(path = "todo") }
+        storage = { AppStorage(path = "todo") }
     ))
   }
 

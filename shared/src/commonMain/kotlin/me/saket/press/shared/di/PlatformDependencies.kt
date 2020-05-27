@@ -2,7 +2,7 @@ package me.saket.press.shared.di
 
 import com.russhwolf.settings.Settings
 import com.squareup.sqldelight.db.SqlDriver
-import me.saket.press.shared.sync.git.InternalStorage
+import me.saket.press.shared.sync.git.AppStorage
 
 /**
  * @param settings for storing user preferences.
@@ -10,7 +10,7 @@ import me.saket.press.shared.sync.git.InternalStorage
 data class PlatformDependencies(
   val settings: () -> Settings,
   val sqlDriver: () -> SqlDriver,
-  val storage: () -> InternalStorage
+  val storage: () -> AppStorage
 ) {
 
   fun asKoinModule() = org.koin.dsl.module {

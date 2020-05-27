@@ -10,7 +10,7 @@ import me.saket.press.shared.sync.Syncer
 import me.saket.press.shared.util.Locale
 import me.saket.press.shared.util.toLowerCase
 
-class GitSyncer(git: Git, appStorage: InternalStorage) : Syncer {
+class GitSyncer(git: Git, appStorage: AppStorage) : Syncer {
 
   private val directory = File(appStorage.path, "git").apply { makeDirectory() }
   private val repository: GitRepository = git.repository(directory.path)

@@ -5,7 +5,7 @@ import androidx.preference.PreferenceManager
 import com.russhwolf.settings.AndroidSettings
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import me.saket.press.PressDatabase
-import me.saket.press.shared.sync.git.InternalStorage
+import me.saket.press.shared.sync.git.AppStorage
 
 actual object SharedAppComponent : BaseSharedAppComponent() {
 
@@ -13,7 +13,7 @@ actual object SharedAppComponent : BaseSharedAppComponent() {
     setupGraph(PlatformDependencies(
         sqlDriver = { androidSqliteDriver(appContext) },
         settings = { androidSettings(appContext) },
-        storage = { InternalStorage(path = appContext.filesDir.path) }
+        storage = { AppStorage(path = appContext.filesDir.path) }
     ))
   }
 
