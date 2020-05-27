@@ -1,20 +1,12 @@
-apply plugin: 'com.android.library'
 apply plugin: 'org.jetbrains.kotlin.multiplatform'
 
 repositories {
   mavenCentral()
 }
 
-android {
-  compileSdkVersion versions.compileSdk
-  defaultConfig {
-    minSdkVersion versions.minSdk
-  }
-}
-
 kotlin {
   targets {
-    fromPreset(presets.android, "android")
+    fromPreset(presets.jvm, "jvm")
     fromPreset(presets.macosX64, "macos")
 
     def buildForDevice = project.findProperty("device")?.toBoolean() ?: false
@@ -34,13 +26,13 @@ kotlin {
         implementation kotlin('test-annotations-common')
       }
     }
-    androidMain {
+    jvmMain {
       dependencies {
         implementation kotlin('stdlib-jdk8')
         implementation "org.eclipse.jgit:org.eclipse.jgit:5.7.0.202003110725-r"
       }
     }
-    androidTest {
+    jvmTest {
       dependencies {
         implementation kotlin('test')
         implementation kotlin('test-junit')
