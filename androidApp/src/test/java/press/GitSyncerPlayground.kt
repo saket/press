@@ -3,20 +3,18 @@ package press
 import android.content.Context
 import android.os.Build
 import androidx.test.core.app.ApplicationProvider
-import com.facebook.soloader.SoLoader
 import com.soywiz.klock.DateTime
 import me.saket.kgit.Git
+import me.saket.press.BuildConfig
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.DateTimeAdapter
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.sync.GitSyncer
-import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import timber.log.Timber
-import java.io.File
 import kotlin.random.Random
 
 @RunWith(RobolectricTestRunner::class)
@@ -37,8 +35,13 @@ class GitSyncerUnitPlayground {
   @Test
   fun foo() {
     val git = Git.repository(context.filesDir.path)
+    git.addRemote("origin", "git@github.com:saket/PressSyncPlayground.git")
+
     val syncer = GitSyncer(git = git)
-    syncer.onUpdateContent(fakeNote(content = "Nicolas Cage is a national treasure"))
+    syncer.onUpdateContent(
+        note = fakeNote(content = "Nicolas Cage is a national treasure"),
+        sshPrivateKey = BuildConfig.GITHUB_SSH_PRIV_KEY
+    )
   }
 }
 

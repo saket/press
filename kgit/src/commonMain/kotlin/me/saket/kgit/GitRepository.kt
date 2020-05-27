@@ -8,5 +8,7 @@ interface GitRepository {
 
   fun commit(message: String, author: GitAuthor)
 
-  fun push(): PushResult
+  fun push(sshPrivateKey: String): PushResult
+
+  fun addRemote(name: String, url: String)
 }

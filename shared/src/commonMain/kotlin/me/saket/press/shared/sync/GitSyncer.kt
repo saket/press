@@ -5,12 +5,12 @@ import me.saket.kgit.GitRepository
 import me.saket.press.data.shared.Note
 
 class GitSyncer(private val git: GitRepository) : Syncer {
-  override fun onUpdateContent(note: Note) {
+  override fun onUpdateContent(note: Note, sshPrivateKey: String) {
     git.addAll()
     git.commit(
         message = "Update note",
         author = GitAuthor("Saket", "saket@somewhere.com")
     )
-    git.push()
+    git.push(sshPrivateKey = sshPrivateKey)
   }
 }

@@ -13,6 +13,9 @@ android {
     versionName "1.5"
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     archivesBaseName = "press_v${versionName}_(${versionCode})"
+
+    def secrets = readSecrets()
+    buildConfigField "String", "GITHUB_SSH_PRIV_KEY", "\"${secrets["github_ssh_private_key"] ?: "nicolas_cage"}\""
   }
 
   lintOptions {
@@ -46,6 +49,15 @@ android {
       includeAndroidResources = true
     }
   }
+}
+
+static def readSecrets() {
+  Properties secrets = new Properties()
+  def secretsFile = new File('shared/secrets.properties')
+  if (secretsFile.exists()) {
+    secrets.load(new FileInputStream(secretsFile))
+  }
+  return secrets
 }
 
 dependencies {
