@@ -24,7 +24,7 @@ abstract class GitSyncerTest(appStorage: AppStorage) {
     git.ssh = SshConfig(privateKey = BuildKonfig.GITHUB_SSH_PRIV_KEY)
   }
 
-  @Test fun `push notes`() {
+  @Test fun `sync notes`() {
     if (BuildKonfig.GITHUB_SSH_PRIV_KEY.isBlank()) {
       return
     }

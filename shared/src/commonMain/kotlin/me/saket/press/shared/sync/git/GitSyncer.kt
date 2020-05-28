@@ -13,6 +13,7 @@ import me.saket.press.shared.note.NoteRepository
 import me.saket.press.shared.sync.Syncer
 import me.saket.press.shared.util.Locale
 import me.saket.press.shared.util.toLowerCase
+import me.saket.wysiwyg.util.isDigit
 
 class GitSyncer(
   git: Git,
@@ -31,12 +32,9 @@ class GitSyncer(
 
         val (heading) = SplitHeadingAndBody.split(note.content)
         check(heading.isNotBlank()) { "Heading is empty for: '${note.content}'" }
-
-        val noteFileName = heading
-            .toLowerCase(Locale.US)
-            .replace(" ", "_")
-            .plus(".md")
-        File(directory.path, noteFileName).write(note.content)
+        
+        val noteFileName = FileNameSanitizer.sanitize(heading, maxLength = 255)
+        File(directory.path, "$noteFileName.md").write(note.content)
 
         repository.addAll()
         repository.commit(
