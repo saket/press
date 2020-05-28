@@ -28,13 +28,13 @@ class GitSyncer(
     // todo: sync deleted and archived notes as well.
     return noteRepository.notes().take(1).flatMapCompletable { notes ->
       completableFromFunction {
-        val note = notes.single()
+        for (note in notes) {
+          val (heading) = SplitHeadingAndBody.split(note.content)
+          check(heading.isNotBlank()) { "Heading is empty for: '${note.content}'" }
 
-        val (heading) = SplitHeadingAndBody.split(note.content)
-        check(heading.isNotBlank()) { "Heading is empty for: '${note.content}'" }
-        
-        val noteFileName = FileNameSanitizer.sanitize(heading, maxLength = 255)
-        File(directory.path, "$noteFileName.md").write(note.content)
+          val noteFileName = FileNameSanitizer.sanitize(heading, maxLength = 255)
+          File(directory.path, "$noteFileName.md").write(note.content)
+        }
 
         repository.addAll()
         repository.commit(
