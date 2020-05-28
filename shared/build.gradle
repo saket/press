@@ -58,9 +58,9 @@ kotlin {
   sourceSets {
     commonMain {
       dependencies {
-        api project(':kgit')  // todo: change back to implementation when GitSyncerPlayground is removed.
         implementation kotlin('stdlib-common')
         implementation project(':wysiwyg')
+        api project(':kgit')
         implementation deps.reaktive.core.common
         implementation deps.reaktive.interop.coroutines
         implementation deps.koin.core.common
@@ -84,7 +84,7 @@ kotlin {
         implementation deps.reaktive.testing.utils
         implementation deps.multiplatformSettings.testing
         implementation deps.assertK.common
-        implementation deps.assertK.opentest4j  // https://youtrack.jetbrains.com/issue/IDEA-214533
+        implementation deps.assertK.opentest4j // https://youtrack.jetbrains.com/issue/IDEA-214533
         implementation deps.statelyCollections
       }
     }
@@ -160,6 +160,7 @@ buildkonfig {
   packageName = "me.saket.press.shared"
   defaultConfigs {
     buildConfigField "String", "GITHUB_CLIENT_SECRET", secrets["github_client_secret"] ?: "nicolas_cage"
+    buildConfigField "String", "GITHUB_SSH_PRIV_KEY", secrets["github_ssh_private_key"] ?: ""
   }
 }
 
@@ -172,7 +173,7 @@ task checkiOS {
   doLast {
     def binary = kotlin.targets.ios.binaries.getTest('DEBUG').outputFile
     exec {
-      commandLine 'xcrun', 'simctl', 'spawn',  '--standalone', device, binary.absolutePath
+      commandLine 'xcrun', 'simctl', 'spawn', '--standalone', device, binary.absolutePath
     }
   }
 }
