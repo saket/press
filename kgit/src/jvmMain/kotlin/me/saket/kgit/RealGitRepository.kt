@@ -2,10 +2,11 @@ package me.saket.kgit
 
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.Session
+import org.eclipse.jgit.api.TransportConfigCallback
+import org.eclipse.jgit.lib.BranchConfig.BranchRebaseMode.REBASE
 import org.eclipse.jgit.transport.JschConfigSessionFactory
 import org.eclipse.jgit.transport.OpenSshConfig.Host
 import org.eclipse.jgit.transport.RemoteRefUpdate
-import org.eclipse.jgit.transport.SshSessionFactory
 import org.eclipse.jgit.transport.SshTransport
 import org.eclipse.jgit.transport.URIish
 import org.eclipse.jgit.util.FS
@@ -34,12 +35,25 @@ internal actual class RealGitRepository actual constructor(
     }.call()
   }
 
-  override fun push(): PushResult {
-    val pushResult = jgit.push()
-        .setTransportConfigCallback {
-          (it as SshTransport).sshSessionFactory = sshSessionFactory()
+  override fun pull(rebase: Boolean): PullResult {
+    val pullResult = jgit.pull()
+        .apply {
+          if (rebase) setRebase(REBASE)
+          else TODO()
         }
-        .setForce(true)   // todo: remove this once Press starts pulling changes.
+        .setTransportConfigCallback(sshTransport())
+        .call()
+
+    return when {
+      pullResult.isSuccessful -> PullResult.Success
+      else -> PullResult.Failed(reason = pullResult.toString())
+    }
+  }
+
+  override fun push(force: Boolean): PushResult {
+    val pushResult = jgit.push()
+        .setTransportConfigCallback(sshTransport())
+        .setForce(force)
         .call()
         .toList()
         .also { check(it.size == 1) { "Did not expect multiple push results: $it" } }
@@ -51,22 +65,31 @@ internal actual class RealGitRepository actual constructor(
     }
   }
 
-  private fun sshSessionFactory(): SshSessionFactory {
-    val sshConfig = git.ssh
-    requireNotNull(sshConfig)
+  private fun sshTransport(): TransportConfigCallback {
+    return TransportConfigCallback { transport ->
+      if (transport !is SshTransport) return@TransportConfigCallback
+      val sshConfig = git.ssh
+      requireNotNull(sshConfig)
 
-    return object : JschConfigSessionFactory() {
-      override fun configure(host: Host, session: Session) = Unit
+      transport.sshSessionFactory = object : JschConfigSessionFactory() {
+        override fun configure(host: Host, session: Session) = Unit
 
-      override fun createSession(hc: Host?, user: String?, host: String?, port: Int, fs: FS?): Session {
-        // JSCH picks up SSH keys from ~/.ssh/config which isn't needed and can potentially fail.
-        val emptyHost = Host()
-        return super.createSession(emptyHost, user, host, port, fs)
-      }
+        override fun createSession(hc: Host?, user: String?, host: String?, port: Int, fs: FS?): Session {
+          // JSCH picks up SSH keys from ~/.ssh/config
+          // which isn't needed and can potentially fail.
+          val emptyHost = Host()
+          return super.createSession(emptyHost, user, host, port, fs)
+        }
 
-      override fun createDefaultJSch(fs: FS): JSch? {
-        return super.createDefaultJSch(fs).apply {
-          addIdentity("foo", sshConfig.privateKey.toByteArray(), null, sshConfig.passphrase?.toByteArray())
+        override fun createDefaultJSch(fs: FS): JSch? {
+          return super.createDefaultJSch(fs).apply {
+            addIdentity(
+                "foo" /* name */,
+                sshConfig.privateKey.toByteArray(),
+                null  /* public key */,
+                sshConfig.passphrase?.toByteArray()
+            )
+          }
         }
       }
     }

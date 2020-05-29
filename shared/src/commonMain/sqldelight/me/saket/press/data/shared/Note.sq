@@ -13,6 +13,7 @@ CREATE TABLE note (
 
 CREATE INDEX note_content ON note(content);
 
+-- todo: change to visibleNotes
 notes:
 SELECT *
 FROM note
