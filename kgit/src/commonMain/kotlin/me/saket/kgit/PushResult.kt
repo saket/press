@@ -2,5 +2,6 @@ package me.saket.kgit
 
 sealed class PushResult {
   object Success : PushResult()
-  data class Failed(val reason: String) : PushResult()
+  object AlreadyUpToDate : PushResult()
+  data class Failure(val reason: String) : PushResult()
 }

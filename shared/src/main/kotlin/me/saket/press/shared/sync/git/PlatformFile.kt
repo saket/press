@@ -4,11 +4,9 @@ import okio.buffer
 import okio.sink
 import java.io.File as JavaFile
 
-actual class PlatformFile actual constructor(
-  private val parentPath: String,
-  name: String
-) : File {
-  private val delegate = JavaFile(parentPath, name)
+actual class PlatformFile constructor(private val delegate: JavaFile) : File {
+  actual constructor(parentPath: String, name: String): this(JavaFile(parentPath, name))
+  actual constructor(path: String): this(JavaFile(path))
 
   override val path: String
     get() = delegate.path
@@ -20,12 +18,31 @@ actual class PlatformFile actual constructor(
   }
 
   override fun copy(name: String): File {
-    val renamed = delegate.renameTo(JavaFile(parentPath, name))
+    require(delegate.parent != null)
+    val renamedDelegate = JavaFile(delegate.parent, name)
+    val renamed = delegate.renameTo(renamedDelegate)
     check(renamed) { "Couldn't rename file ($this) to $name" }
-    return PlatformFile(parentPath, name)
+    return PlatformFile(renamedDelegate)
   }
 
   override fun makeDirectory() {
     delegate.mkdir()
+  }
+
+  override fun delete(recursively: Boolean) {
+    if (recursively) {
+      delegate.deleteRecursively()
+    } else {
+      delegate.delete()
+    }
+  }
+
+  private fun JavaFile.deleteRecursively() {
+    if (isDirectory) {
+      for (child in listFiles()!!) {
+        child.delete()
+      }
+    }
+    check(delete()) { "Failed to delete file: $this" }
   }
 }

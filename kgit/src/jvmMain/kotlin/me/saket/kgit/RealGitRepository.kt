@@ -27,11 +27,11 @@ internal actual class RealGitRepository actual constructor(
     jgit.add().addFilepattern(".").call()
   }
 
-  override fun commit(message: String, author: GitAuthor) {
+  override fun commit(message: String, author: GitAuthor?) {
     jgit.commit().apply {
       setAllowEmpty(false)
       setMessage(message)
-      setAuthor(author.name, author.email)
+      author?.let { setAuthor(it.name, it.email) }
     }.call()
   }
 
@@ -44,9 +44,11 @@ internal actual class RealGitRepository actual constructor(
         .setTransportConfigCallback(sshTransport())
         .call()
 
+    println("Pull result: ${pullResult.toString()}")
+
     return when {
       pullResult.isSuccessful -> PullResult.Success
-      else -> PullResult.Failed(reason = pullResult.toString())
+      else -> PullResult.Failure(reason = pullResult.toString())
     }
   }
 
@@ -61,7 +63,8 @@ internal actual class RealGitRepository actual constructor(
 
     return when (val status = pushResult.getRemoteUpdate("refs/heads/master").status) {
       RemoteRefUpdate.Status.OK -> PushResult.Success
-      else -> PushResult.Failed(status.toString())
+      RemoteRefUpdate.Status.UP_TO_DATE -> PushResult.AlreadyUpToDate
+      else -> PushResult.Failure(status.toString())
     }
   }
 

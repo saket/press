@@ -6,7 +6,7 @@ interface GitRepository {
   /** git add . */
   fun addAll()
 
-  fun commit(message: String, author: GitAuthor)
+  fun commit(message: String, author: GitAuthor? = null)
 
   fun pull(rebase: Boolean): PullResult
 
