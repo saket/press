@@ -1,7 +1,6 @@
 package me.saket.press.shared.sync
 
 import assertk.assertThat
-import assertk.assertions.isEqualTo
 import assertk.assertions.isNotInstanceOf
 import assertk.assertions.isNull
 import com.badoo.reaktive.test.completable.assertComplete
@@ -19,7 +18,6 @@ import me.saket.press.shared.sync.git.File
 import me.saket.press.shared.sync.git.GitSyncer
 import me.saket.press.shared.sync.git.repository
 import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 /**
@@ -27,6 +25,7 @@ import kotlin.test.Test
  */
 abstract class GitSyncerTest(private val appStorage: AppStorage) {
 
+  private val gitDirectory = File(appStorage.path, "git")
   private val git = RealGit()
   private val noteRepository = FakeNoteRepository()
   private val syncer: GitSyncer
@@ -35,7 +34,7 @@ abstract class GitSyncerTest(private val appStorage: AppStorage) {
     git.ssh = SshConfig(privateKey = BuildKonfig.GITHUB_SSH_PRIV_KEY)
 
     syncer = GitSyncer(
-        git = git.repository(File(appStorage.path, "git")),
+        git = git.repository(gitDirectory),
         noteRepository = noteRepository
     )
     syncer.setRemote("git@github.com:saket/PressSyncPlayground.git")
@@ -61,20 +60,19 @@ abstract class GitSyncerTest(private val appStorage: AppStorage) {
 
     with(File(appStorage.path, "temp")) {
       makeDirectory()
-      with(git.repository(path)) {
+      with(git.repository(this)) {
         addRemote("origin", "git@github.com:saket/PressSyncPlayground.git")
-
         // Add some notes over multiple commits.
-        addFiles(
+        addFilesAndCommit(
+            "First commit",
             "note_1.md" to "# Nicolas Cage",
             "note_2.md" to "# Ghost Rider"
         )
-        commitAllAndForcePush(msg = "First sync")
-        addFiles(
+        addFilesAndCommit(
+            "Second commit",
             "note_3.md" to "# National Treasure",
             "note_4.md" to "# The Sorcerer's Apprentice"
         )
-        commitAllAndForcePush(msg = "Second sync")
         assertThat(push(force = true)).isNotInstanceOf(PushResult.Failure::class)
       }
     }
@@ -83,6 +81,11 @@ abstract class GitSyncerTest(private val appStorage: AppStorage) {
       error?.printStack()
       assertThat(error).isNull()
       assertComplete()
+    }
+
+    println("\nFiles in git directory after syncing:")
+    gitDirectory.children().forEach {
+      println(it)
     }
   }
 
@@ -95,7 +98,7 @@ abstract class GitSyncerTest(private val appStorage: AppStorage) {
     // Prepare an empty remote repository.
     with(File(appStorage.path, "temp")) {
       makeDirectory()
-      with(git.repository(path)) {
+      with(git.repository(this)) {
         addRemote("origin", "git@github.com:saket/PressSyncPlayground.git")
         assertThat(push(force = true)).isNotInstanceOf(PushResult.Failure::class)
       }
@@ -114,15 +117,11 @@ abstract class GitSyncerTest(private val appStorage: AppStorage) {
     }
   }
 
-  private fun File.addFiles(vararg files: Pair<String, String>) {
+  private fun GitRepository.addFilesAndCommit(message: String, vararg files: Pair<String, String>) {
     files.forEach { (name, body) ->
-      File(this, name).write(body)
+      File(directoryPath, name).write(body)
     }
-  }
-
-  private fun GitRepository.commitAllAndForcePush(msg: String) {
     addAll()
-    commit(message = msg)
-    check(push(force = true) == PushResult.Success)
+    commit(message = message)
   }
 }

@@ -6,7 +6,6 @@ import com.badoo.reaktive.completable.andThen
 import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.observable.flatMapCompletable
 import com.badoo.reaktive.observable.take
-import me.saket.kgit.Git
 import me.saket.kgit.GitAuthor
 import me.saket.kgit.GitRepository
 import me.saket.kgit.PullResult
@@ -54,8 +53,13 @@ class GitSyncer(
 
   private fun pull(): Completable {
     return completableFromFunction {
+      val headBeforePull = git.resolve("head")
+
       val pullResult = git.pull(rebase = true)
-      require(pullResult !is PullResult.Failure) { "Failed to push: $pullResult" }
+      require(pullResult !is PullResult.Failure) { "Failed to pull: $pullResult" }
+
+      val headAfterPull = git.resolve("head")
+      println("headBeforePull: $headBeforePull, headAfterPull: $headAfterPull")
     }
   }
 
