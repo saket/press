@@ -41,7 +41,7 @@ abstract class GitSyncerTest(private val appStorage: AppStorage) {
     syncer.setRemote("git@github.com:saket/PressSyncPlayground.git")
   }
 
-  @BeforeTest
+  @AfterTest
   fun cleanUp() {
     File(appStorage.path).delete(recursively = true)
   }

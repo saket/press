@@ -40,7 +40,7 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
   private fun JavaFile.deleteRecursively() {
     if (isDirectory) {
       for (child in listFiles()!!) {
-        child.delete()
+        child.deleteRecursively()
       }
     }
     check(delete()) { "Failed to delete file: $this" }
