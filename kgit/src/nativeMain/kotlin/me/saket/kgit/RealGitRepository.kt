@@ -8,5 +8,6 @@ internal actual class RealGitRepository actual constructor(
   override fun commit(message: String, author: GitAuthor?) = TODO()
   override fun push(force: Boolean): PushResult = TODO()
   override fun addRemote(name: String, url: String) = TODO()
+  override fun resolve(revision: String): GitSha1 = TODO()
   override fun pull(rebase: Boolean): PullResult = TODO()
 }

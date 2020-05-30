@@ -47,5 +47,11 @@ kotlin {
 
     iosMain { dependsOn(nativeMain) }
     iosTest { dependsOn(nativeTest) }
+
+    all {
+      languageSettings {
+        enableLanguageFeature("InlineClasses")
+      }
+    }
   }
 }

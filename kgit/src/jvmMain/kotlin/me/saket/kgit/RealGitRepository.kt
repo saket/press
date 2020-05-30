@@ -3,6 +3,7 @@ package me.saket.kgit
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.Session
 import org.eclipse.jgit.api.TransportConfigCallback
+import org.eclipse.jgit.lib.AnyObjectId
 import org.eclipse.jgit.lib.BranchConfig.BranchRebaseMode.REBASE
 import org.eclipse.jgit.transport.JschConfigSessionFactory
 import org.eclipse.jgit.transport.OpenSshConfig.Host
@@ -103,5 +104,11 @@ internal actual class RealGitRepository actual constructor(
         .setName(name)
         .setUri(URIish(url))
         .call()
+  }
+
+  override fun resolve(revision: String): GitSha1 {
+    val resolvedId = jgit.repository.resolve(revision)
+    require(resolvedId is AnyObjectId) { "Unknown kind of ObjectId: $resolvedId" }
+    return GitSha1(resolvedId.name)
   }
 }
