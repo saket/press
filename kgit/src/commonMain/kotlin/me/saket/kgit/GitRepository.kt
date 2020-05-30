@@ -1,16 +1,16 @@
 package me.saket.kgit
 
-internal expect class RealGitRepository(git: Git, path: String) : GitRepository
+internal expect class RealGitRepository(git: Git, directoryPath: String) : GitRepository
 
-interface GitRepository {
+abstract class GitRepository(open val directoryPath: String) {
   /** git add . */
-  fun addAll()
+  abstract fun addAll()
 
-  fun commit(message: String, author: GitAuthor? = null)
+  abstract fun commit(message: String, author: GitAuthor? = null)
 
-  fun pull(rebase: Boolean): PullResult
+  abstract fun pull(rebase: Boolean): PullResult
 
-  fun push(force: Boolean = false): PushResult
+  abstract fun push(force: Boolean = false): PushResult
 
-  fun addRemote(name: String, url: String)
+  abstract fun addRemote(name: String, url: String)
 }

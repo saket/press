@@ -1,6 +1,9 @@
 package me.saket.kgit
 
-internal actual class RealGitRepository actual constructor(git: Git, path: String) : GitRepository {
+internal actual class RealGitRepository actual constructor(
+  git: Git,
+  directoryPath: String
+) : GitRepository(directoryPath) {
   override fun addAll() = TODO()
   override fun commit(message: String, author: GitAuthor?) = TODO()
   override fun push(force: Boolean): PushResult = TODO()

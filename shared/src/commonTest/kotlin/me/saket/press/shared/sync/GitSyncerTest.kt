@@ -17,7 +17,9 @@ import me.saket.press.shared.note.FakeNoteRepository
 import me.saket.press.shared.sync.git.AppStorage
 import me.saket.press.shared.sync.git.File
 import me.saket.press.shared.sync.git.GitSyncer
+import me.saket.press.shared.sync.git.repository
 import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 /**
@@ -27,14 +29,19 @@ abstract class GitSyncerTest(private val appStorage: AppStorage) {
 
   private val git = RealGit()
   private val noteRepository = FakeNoteRepository()
-  private val syncer = GitSyncer(git, appStorage, noteRepository)
+  private val syncer: GitSyncer
 
   init {
     git.ssh = SshConfig(privateKey = BuildKonfig.GITHUB_SSH_PRIV_KEY)
+
+    syncer = GitSyncer(
+        git = git.repository(File(appStorage.path, "git")),
+        noteRepository = noteRepository
+    )
     syncer.setRemote("git@github.com:saket/PressSyncPlayground.git")
   }
 
-  @AfterTest
+  @BeforeTest
   fun cleanUp() {
     File(appStorage.path).delete(recursively = true)
   }

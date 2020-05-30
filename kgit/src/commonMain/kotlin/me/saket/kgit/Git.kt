@@ -4,10 +4,7 @@ import co.touchlab.stately.concurrency.AtomicReference
 
 interface Git {
   var ssh: SshConfig?
-
-  fun repository(path: String): GitRepository {
-    return RealGitRepository(this, path)
-  }
+  fun repository(path: String): GitRepository
 }
 
 class RealGit : Git {
@@ -15,4 +12,8 @@ class RealGit : Git {
   override var ssh: SshConfig?
     get() = _ssh.get()
     set(value) = _ssh.set(value)
+
+  override fun repository(path: String): GitRepository {
+    return RealGitRepository(this, path)
+  }
 }

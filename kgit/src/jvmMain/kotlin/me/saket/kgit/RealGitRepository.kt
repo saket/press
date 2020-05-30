@@ -15,12 +15,12 @@ import org.eclipse.jgit.api.Git as JGit
 
 internal actual class RealGitRepository actual constructor(
   private val git: Git,
-  private val path: String
-) : GitRepository {
+  directoryPath: String
+) : GitRepository(directoryPath) {
 
   private val jgit: JGit by lazy {
     // Initializing a directory that already has git will no-op.
-    JGit.init().setDirectory(File(path)).call()
+    JGit.init().setDirectory(File(directoryPath)).call()
   }
 
   override fun addAll() {
@@ -44,7 +44,7 @@ internal actual class RealGitRepository actual constructor(
         .setTransportConfigCallback(sshTransport())
         .call()
 
-    println("Pull result: ${pullResult.toString()}")
+    println("Pull result: $pullResult")
 
     return when {
       pullResult.isSuccessful -> PullResult.Success

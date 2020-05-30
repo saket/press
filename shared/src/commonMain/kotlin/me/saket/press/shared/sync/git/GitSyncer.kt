@@ -16,14 +16,12 @@ import me.saket.press.shared.note.NoteRepository
 import me.saket.press.shared.sync.Syncer
 
 class GitSyncer(
-  git: Git,
-  appStorage: AppStorage,
+  private val git: GitRepository,
   private val noteRepository: NoteRepository
 ) : Syncer {
 
-  private val directory = File(appStorage.path, "git").apply { makeDirectory() }
-  private val git: GitRepository = git.repository(directory.path)
-  private val remoteSet = AtomicReference<Boolean>(false)
+  private val directory = File(git.directoryPath)
+  private val remoteSet = AtomicReference(false)
 
   override fun sync(): Completable {
     require(remoteSet.get()) { "Remote isn't set" }
@@ -35,13 +33,14 @@ class GitSyncer(
   // TODO: commit deleted and archived notes as well.
   private fun commitAllChanges(): Completable {
     return noteRepository.notes().take(1).flatMapCompletable { notes ->
+      directory.makeDirectory()
       completableFromFunction {
         for (note in notes) {
           val (heading) = SplitHeadingAndBody.split(note.content)
           check(heading.isNotBlank()) { "Heading is empty for: '${note.content}'" }
 
           val noteFileName = FileNameSanitizer.sanitize(heading, maxLength = 255)
-          File(directory.path, "$noteFileName.md").write(note.content)
+          File(directory, "$noteFileName.md").write(note.content)
         }
 
         git.addAll()
