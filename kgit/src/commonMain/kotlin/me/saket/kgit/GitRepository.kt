@@ -6,7 +6,15 @@ abstract class GitRepository(open val directoryPath: String) {
   /** git add . */
   abstract fun addAll()
 
-  abstract fun commit(message: String, author: GitAuthor? = null)
+  /**
+   * @param author when null, the author information is taken from repository's config.
+   * @param timestamp when null, the current time is used.
+   */
+  abstract fun commit(
+    message: String,
+    author: GitAuthor? = null,
+    timestamp: UtcTimestamp? = null
+  )
 
   abstract fun pull(rebase: Boolean): PullResult
 

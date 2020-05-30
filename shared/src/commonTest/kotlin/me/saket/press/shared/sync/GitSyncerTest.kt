@@ -124,6 +124,6 @@ abstract class GitSyncerTest(private val appStorage: AppStorage) {
       File(directoryPath, name).write(body)
     }
     addAll()
-    commit(message = message)
+    commit(message)
   }
 }

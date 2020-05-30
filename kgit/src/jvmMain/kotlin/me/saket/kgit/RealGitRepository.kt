@@ -5,10 +5,10 @@ import com.jcraft.jsch.Session
 import org.eclipse.jgit.api.TransportConfigCallback
 import org.eclipse.jgit.lib.AnyObjectId
 import org.eclipse.jgit.lib.BranchConfig.BranchRebaseMode.REBASE
-import org.eclipse.jgit.lib.ObjectLoader
+import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.Ref
+import org.eclipse.jgit.lib.UserConfig
 import org.eclipse.jgit.revwalk.RevCommit
-import org.eclipse.jgit.revwalk.RevTree
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.transport.JschConfigSessionFactory
 import org.eclipse.jgit.transport.OpenSshConfig.Host
@@ -16,8 +16,11 @@ import org.eclipse.jgit.transport.RemoteRefUpdate
 import org.eclipse.jgit.transport.SshTransport
 import org.eclipse.jgit.transport.URIish
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
+import org.eclipse.jgit.treewalk.TreeWalk
 import org.eclipse.jgit.util.FS
 import java.io.File
+import java.util.Date
+import java.util.TimeZone
 import org.eclipse.jgit.api.Git as JGit
 
 internal actual class RealGitRepository actual constructor(
@@ -34,12 +37,22 @@ internal actual class RealGitRepository actual constructor(
     jgit.add().addFilepattern(".").call()
   }
 
-  override fun commit(message: String, author: GitAuthor?) {
+  @Suppress("NAME_SHADOWING")
+  override fun commit(message: String, author: GitAuthor?, timestamp: UtcTimestamp?) {
     jgit.commit().apply {
       setAllowEmpty(false)
       setMessage(message)
-      author?.let { setAuthor(it.name, it.email) }
+
+      setAuthor(timestamp?.let {
+        val author = author ?: defaultCommitAuthor()
+        PersonIdent(author.name, author.email, Date(it.millis), TimeZone.getTimeZone("UTC"))
+      })
     }.call()
+  }
+
+  private fun defaultCommitAuthor(): GitAuthor {
+    val config = jgit.repository.config.get(UserConfig.KEY)
+    return GitAuthor(name = config.authorName, email = config.authorEmail)
   }
 
   override fun pull(rebase: Boolean): PullResult {
@@ -72,10 +85,28 @@ internal actual class RealGitRepository actual constructor(
   }
 
   private fun printLog() {
+    println("Files: ${File(directoryPath).listFiles()!!.map { it.name }}")
     for (log in jgit.log().call()) {
       println("${log.name.take(7)} - ${log.fullMessage}")
     }
-    println("\nFiles: ${File(directoryPath).listFiles()!!.map { it.name }}")
+    files()
+  }
+
+  fun files() {
+    println("Files on head:")
+    jgit.repository.use { repository ->
+      val head: Ref = repository.findRef("HEAD")
+      RevWalk(repository).use { walk ->
+        val commit: RevCommit = walk.parseCommit(head.objectId)
+        TreeWalk(repository).use { treeWalk ->
+          treeWalk.addTree(commit.tree)
+          treeWalk.isRecursive = true
+          while (treeWalk.next()) {
+            println("found: " + treeWalk.pathString)
+          }
+        }
+      }
+    }
   }
 
   override fun push(force: Boolean): PushResult {
