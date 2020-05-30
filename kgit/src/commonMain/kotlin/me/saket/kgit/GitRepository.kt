@@ -15,4 +15,6 @@ abstract class GitRepository(open val directoryPath: String) {
   abstract fun addRemote(name: String, url: String)
 
   abstract fun resolve(revision: String): GitSha1
+
+  abstract fun diff(first: GitSha1, second: GitSha1)
 }

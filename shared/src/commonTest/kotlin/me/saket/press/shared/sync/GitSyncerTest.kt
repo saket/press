@@ -31,6 +31,8 @@ abstract class GitSyncerTest(private val appStorage: AppStorage) {
   private val syncer: GitSyncer
 
   init {
+    println()
+
     git.ssh = SshConfig(privateKey = BuildKonfig.GITHUB_SSH_PRIV_KEY)
 
     syncer = GitSyncer(
@@ -65,13 +67,13 @@ abstract class GitSyncerTest(private val appStorage: AppStorage) {
         // Add some notes over multiple commits.
         addFilesAndCommit(
             "First commit",
-            "note_1.md" to "# Nicolas Cage",
-            "note_2.md" to "# Ghost Rider"
+            "note_1.md" to "# The Witcher",
+            "note_2.md" to "# Uncharted: The Lost Legacy"
         )
         addFilesAndCommit(
             "Second commit",
-            "note_3.md" to "# National Treasure",
-            "note_4.md" to "# The Sorcerer's Apprentice"
+            "note_3.md" to "# Overcooked",
+            "note_4.md" to "# The Last of Us"
         )
         assertThat(push(force = true)).isNotInstanceOf(PushResult.Failure::class)
       }

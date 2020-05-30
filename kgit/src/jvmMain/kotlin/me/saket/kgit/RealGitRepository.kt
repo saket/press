@@ -5,18 +5,24 @@ import com.jcraft.jsch.Session
 import org.eclipse.jgit.api.TransportConfigCallback
 import org.eclipse.jgit.lib.AnyObjectId
 import org.eclipse.jgit.lib.BranchConfig.BranchRebaseMode.REBASE
+import org.eclipse.jgit.lib.ObjectLoader
+import org.eclipse.jgit.lib.Ref
+import org.eclipse.jgit.revwalk.RevCommit
+import org.eclipse.jgit.revwalk.RevTree
+import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.transport.JschConfigSessionFactory
 import org.eclipse.jgit.transport.OpenSshConfig.Host
 import org.eclipse.jgit.transport.RemoteRefUpdate
 import org.eclipse.jgit.transport.SshTransport
 import org.eclipse.jgit.transport.URIish
+import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.util.FS
 import java.io.File
 import org.eclipse.jgit.api.Git as JGit
 
 internal actual class RealGitRepository actual constructor(
   private val git: Git,
-  directoryPath: String
+  override val directoryPath: String
 ) : GitRepository(directoryPath) {
 
   private val jgit: JGit by lazy {
@@ -37,6 +43,9 @@ internal actual class RealGitRepository actual constructor(
   }
 
   override fun pull(rebase: Boolean): PullResult {
+    println("Before pulling, head is at ${resolve("head").sha1.take(7)}")
+    printLog()
+
     val pullResult = jgit.pull()
         .apply {
           if (rebase) setRebase(REBASE)
@@ -45,17 +54,28 @@ internal actual class RealGitRepository actual constructor(
         .setTransportConfigCallback(sshTransport())
         .call()
 
+    println("\nAfter pulling, head is at ${resolve("head").sha1.take(7)}")
+    printLog()
+
     pullResult.rebaseResult?.run {
       println("\nRebase result: $status")
       println("Conflicts: $conflicts")
       println("Failing paths: $failingPaths")
       println("Uncommitted changes: $uncommittedChanges")
+      println()
     }
 
     return when {
       pullResult.isSuccessful -> PullResult.Success
       else -> PullResult.Failure(reason = pullResult.toString())
     }
+  }
+
+  private fun printLog() {
+    for (log in jgit.log().call()) {
+      println("${log.name.take(7)} - ${log.fullMessage}")
+    }
+    println("\nFiles: ${File(directoryPath).listFiles()!!.map { it.name }}")
   }
 
   override fun push(force: Boolean): PushResult {
@@ -114,6 +134,22 @@ internal actual class RealGitRepository actual constructor(
   override fun resolve(revision: String): GitSha1 {
     val resolvedId = jgit.repository.resolve(revision)
     require(resolvedId is AnyObjectId) { "Unknown kind of ObjectId: $resolvedId" }
-    return GitSha1(resolvedId.name)
+    return GitSha1(resolvedId)
+  }
+
+  override fun diff(first: GitSha1, second: GitSha1) {
+    jgit.repository.newObjectReader().use { reader ->
+      val firstTreeParser = CanonicalTreeParser().apply { reset(reader, first.id) }
+      val secondTreeParser = CanonicalTreeParser().apply { reset(reader, second.id) }
+
+      val diffEntries = jgit.diff()
+          .setNewTree(secondTreeParser)
+          .setOldTree(firstTreeParser)
+          .setShowNameAndStatusOnly(true)
+          .call()
+      for (entry in diffEntries) {
+        println("Entry: $entry")
+      }
+    }
   }
 }

@@ -30,6 +30,7 @@ class GitSyncer(
   }
 
   // TODO: commit deleted and archived notes as well.
+  // TODO: skip empty commits.
   private fun commitAllChanges(): Completable {
     return noteRepository.notes().take(1).flatMapCompletable { notes ->
       directory.makeDirectory()
@@ -53,13 +54,14 @@ class GitSyncer(
 
   private fun pull(): Completable {
     return completableFromFunction {
-      val headBeforePull = git.resolve("head")
+      val headBeforePull = git.resolve("HEAD^{tree}")
 
       val pullResult = git.pull(rebase = true)
       require(pullResult !is PullResult.Failure) { "Failed to pull: $pullResult" }
 
-      val headAfterPull = git.resolve("head")
-      println("headBeforePull: $headBeforePull, headAfterPull: $headAfterPull")
+      val headAfterPull = git.resolve("HEAD^{tree}")
+
+      git.diff(headBeforePull, headAfterPull)
     }
   }
 
