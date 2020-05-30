@@ -45,4 +45,12 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
     }
     check(delete()) { "Failed to delete file: $this" }
   }
+
+  override fun children(): List<File> {
+    return delegate.listFiles()!!.map { PlatformFile(it) }
+  }
+
+  override fun toString(): String {
+    return "${delegate.name} (${delegate.path})"
+  }
 }

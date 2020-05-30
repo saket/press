@@ -22,4 +22,6 @@ interface File {
   fun makeDirectory()
 
   fun delete(recursively: Boolean = false)
+
+  fun children(): List<File>
 }
