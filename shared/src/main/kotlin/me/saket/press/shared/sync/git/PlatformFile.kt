@@ -2,6 +2,7 @@ package me.saket.press.shared.sync.git
 
 import okio.buffer
 import okio.sink
+import okio.source
 import java.io.File as JavaFile
 
 actual class PlatformFile constructor(private val delegate: JavaFile) : File {
@@ -14,6 +15,12 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
   override fun write(input: String) {
     delegate.sink().buffer().use {
       it.writeUtf8(input)
+    }
+  }
+
+  override fun read(): String {
+    delegate.source().buffer().use {
+      return it.readUtf8()
     }
   }
 

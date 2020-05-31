@@ -17,6 +17,8 @@ interface File {
 
   fun write(input: String)
 
+  fun read(): String
+
   /** Kotlin-esque name for renaming a file. */
   fun copy(name: String): File
 
