@@ -5,8 +5,8 @@ import okio.sink
 import java.io.File as JavaFile
 
 actual class PlatformFile constructor(private val delegate: JavaFile) : File {
-  actual constructor(parentPath: String, name: String): this(JavaFile(parentPath, name))
-  actual constructor(path: String): this(JavaFile(path))
+  actual constructor(parentPath: String, name: String) : this(JavaFile(parentPath, name))
+  actual constructor(path: String) : this(JavaFile(path))
 
   override val path: String get() = delegate.path
   override val name: String get() = delegate.name

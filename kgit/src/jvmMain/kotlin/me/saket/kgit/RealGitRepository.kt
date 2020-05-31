@@ -3,10 +3,8 @@ package me.saket.kgit
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.Session
 import org.eclipse.jgit.api.TransportConfigCallback
-import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.BranchConfig.BranchRebaseMode.REBASE
 import org.eclipse.jgit.lib.PersonIdent
-import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.UserConfig
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevWalk
@@ -15,10 +13,8 @@ import org.eclipse.jgit.transport.OpenSshConfig.Host
 import org.eclipse.jgit.transport.RemoteRefUpdate
 import org.eclipse.jgit.transport.SshTransport
 import org.eclipse.jgit.transport.URIish
-import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.EmptyTreeIterator
-import org.eclipse.jgit.treewalk.TreeWalk
 import org.eclipse.jgit.util.FS
 import java.io.File
 import java.util.Date
@@ -58,9 +54,6 @@ internal actual class RealGitRepository actual constructor(
   }
 
   override fun pull(rebase: Boolean): PullResult {
-    //println("Before pulling, head is at ${resolve("head")?.sha1?.take(7)}")
-    //printLog()
-
     val pullResult = jgit.pull()
         .apply {
           if (rebase) setRebase(REBASE)
@@ -68,9 +61,6 @@ internal actual class RealGitRepository actual constructor(
         }
         .setTransportConfigCallback(sshTransport())
         .call()
-
-    //println("\nAfter pulling, head is at ${resolve("head")?.sha1?.take(7)}")
-    //printLog()
 
     pullResult.rebaseResult?.run {
       println("Rebase result: $status")
@@ -86,33 +76,12 @@ internal actual class RealGitRepository actual constructor(
     }
   }
 
-  private fun printLog() {
-    try {
-      println("Files: ${File(directoryPath).listFiles()!!.map { it.name }}")
-      for (log in jgit.log().call()) {
-        println("${log.name.take(7)} - ${log.fullMessage}")
-      }
-      files()
-    } catch (ignored: Throwable) {
-    }
-  }
-
-  private fun files() {
-    println("Files on head:")
-    jgit.repository.use { repository ->
-      val head: Ref = repository.findRef("HEAD")
-      RevWalk(repository).use { walk ->
-        val commit: RevCommit = walk.parseCommit(head.objectId)
-        TreeWalk(repository).use { treeWalk ->
-          treeWalk.addTree(commit.tree)
-          treeWalk.isRecursive = true
-          while (treeWalk.next()) {
-            println("found: " + treeWalk.pathString)
-          }
-        }
-      }
-    }
-  }
+//  private fun printLog() {
+//    println("Files: ${File(directoryPath).listFiles()!!.map { it.name }}")
+//    for (log in jgit.log().call()) {
+//      println("${log.name.take(7)} - ${log.fullMessage}")
+//    }
+//  }
 
   override fun push(force: Boolean): PushResult {
     val pushResult = jgit.push()
@@ -178,60 +147,31 @@ internal actual class RealGitRepository actual constructor(
   }
 
   @OptIn(ExperimentalStdlibApi::class)
-  override fun diff(first: GitSha1?, second: GitSha1) {
-    val to = second.sha1
-
+  override fun commitsBetween(from: GitSha1?, to: GitSha1): List<GitCommit> {
     // a RevWalk allows to walk over commits based on some filtering that is defined
     RevWalk(jgit.repository).use { walk ->
-      val startCommit: RevCommit = walk.parseCommit(second.id)
-      //println("Start-Commit: $startCommit")
-      println("Walking all commits starting at $to until we find $first\n")
+      val startCommit: RevCommit = walk.parseCommit(to.id)
+      // println("Start-Commit: $startCommit")
+      // println("Walking all commits starting at $from until we find $to\n")
       walk.markStart(startCommit)
-      val commits = buildList<RevCommit> {
+      val commits = buildList {
         for (commit in walk) {
-          add(commit)
-          if (first != null && commit.id == first.id) {
+          add(GitCommit(commit))
+          if (from != null && commit.id == from.id) {
             break
           }
         }
-      }.reversed()
+      }
       walk.dispose()
 
-      commits.forEach {
-        println("${it.id.name} - ${it.shortMessage} (${it.authorIdent.`when`.time})")
-      }
-
-      require(commits.size >= 2) { "can't diff with just one commit" }
-
-      println("\nFinding diffs for each commit:")
-
-      // todo: use commits.zipWithNext() instead of looking up the previous commit everytime.
-      commits.forEach { commit ->
-        val previousTreeId = previousCommitFor(commit)?.tree?.id?.let(::GitSha1)
-        diffForReal(firstTree = previousTreeId, secondTree = GitSha1(commit.tree.id))
-      }
+      return commits.reversed()
     }
   }
 
-  private fun previousCommitFor(commit: RevCommit): RevCommit? {
-    RevWalk(jgit.repository).use { walk ->
-      // TODO: JGit flags a commit as seen so it won't show up again,
-      //  requiring another parseCommit(). Might be able to use walk.reset().
-      walk.markStart(walk.parseCommit(commit.id))
+  override fun diffBetween(first: GitCommit?, second: GitCommit) {
+    val firstTree = first?.commit?.tree
+    val secondTree = second.commit.tree
 
-      for ((count, rev) in walk.withIndex()) {
-        if (count == 1) {
-          walk.dispose()
-          return rev
-        }
-      }
-
-      walk.dispose()
-    }
-    return null
-  }
-
-  private fun diffForReal(firstTree: GitSha1?, secondTree: GitSha1) {
     jgit.repository.newObjectReader().use { reader ->
       val firstTreeParser = when {
         firstTree != null -> CanonicalTreeParser().apply { reset(reader, firstTree.id) }
@@ -244,7 +184,7 @@ internal actual class RealGitRepository actual constructor(
           .setOldTree(firstTreeParser)
           .setShowNameAndStatusOnly(true)
           .call()
-      println("${diffEntries.size} diff entries b/w $firstTree and $secondTree")
+
       for (entry in diffEntries) {
         println("Entry: $entry")
       }

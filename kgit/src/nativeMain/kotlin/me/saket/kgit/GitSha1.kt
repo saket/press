@@ -1,5 +1,5 @@
 package me.saket.kgit
 
-actual class GitSha1 {
-  actual val sha1: String get() = TODO()
+actual data class GitSha1(val foo: String) {
+  actual val value: String get() = TODO()
 }

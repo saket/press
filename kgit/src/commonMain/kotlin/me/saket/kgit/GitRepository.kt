@@ -24,5 +24,13 @@ abstract class GitRepository(open val directoryPath: String) {
 
   abstract fun resolve(revision: String): GitSha1?
 
-  abstract fun diff(first: GitSha1?, second: GitSha1)
+  /**
+   * When [from] is null, a list of all commits till [to] are returned.
+   */
+  abstract fun commitsBetween(from: GitSha1?, to: GitSha1): List<GitCommit>
+
+  /**
+   * When [first] is null, the [second] commit's tree is compared with an empty tree.
+   */
+  abstract fun diffBetween(first: GitCommit?, second: GitCommit)
 }

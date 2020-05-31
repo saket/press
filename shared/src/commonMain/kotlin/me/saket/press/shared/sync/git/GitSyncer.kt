@@ -62,16 +62,20 @@ class GitSyncer(
   private fun pull(): Completable {
     return completableFromFunction {
       val headBeforePull = git.resolve("HEAD")
-
       val pullResult = git.pull(rebase = true)
       require(pullResult !is PullResult.Failure) { "Failed to pull: $pullResult" }
-
       val headAfterPull = git.resolve("HEAD")
 
-      println("headBeforePull: $headBeforePull")
-      println("headAfterPull: $headAfterPull\n")
-      if (headAfterPull != null) {
-        git.diff(headBeforePull, headAfterPull)
+      if (headAfterPull != headBeforePull) {
+        // HEAD after pull can't be null if it's not equal to the
+        // HEAD before pull. The git history always moves forward.
+        val commitsPulled = git.commitsBetween(from = headBeforePull, to = headAfterPull!!)
+
+        println("Commits pulled:")
+        commitsPulled.forEachIndexed { index, commit ->
+          println("\n${commit.sha1} - ${commit.message}")
+          git.diffBetween(first = commitsPulled.getOrNull(index - 1), second = commit)
+        }
       }
     }
   }

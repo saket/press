@@ -85,13 +85,13 @@ abstract class GitSyncerTest(private val appStorage: AppStorage) {
       assertComplete()
     }
 
-    //println("\nFiles in git directory after syncing:")
-    //gitDirectory.children().forEach {
-    //  println(it.name)
-    //}
+    // println("\nFiles in git directory after syncing:")
+    // gitDirectory.children().forEach {
+    //   println(it.name)
+    // }
   }
 
-  //@Test
+  // @Test
   fun `push notes to an empty repo`() {
     if (BuildKonfig.GITHUB_SSH_PRIV_KEY.isBlank()) {
       return
