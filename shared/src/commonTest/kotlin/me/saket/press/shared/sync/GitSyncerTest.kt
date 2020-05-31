@@ -1,13 +1,13 @@
 package me.saket.press.shared.sync
 
 import assertk.assertThat
+import assertk.assertions.isEmpty
 import assertk.assertions.isNotInstanceOf
 import assertk.assertions.isNull
 import com.badoo.reaktive.test.completable.assertComplete
 import com.badoo.reaktive.test.completable.test
 import com.badoo.reaktive.utils.printStack
-import me.saket.kgit.GitRepository
-import me.saket.kgit.PushResult
+import me.saket.kgit.PushResult.Failure
 import me.saket.kgit.RealGit
 import me.saket.kgit.SshConfig
 import me.saket.press.shared.BuildKonfig
@@ -60,24 +60,27 @@ abstract class GitSyncerTest(private val appStorage: AppStorage) {
       return
     }
 
-    with(File(appStorage.path, "temp")) {
-      makeDirectory()
-      with(git.repository(this)) {
-        addRemote("origin", "git@github.com:saket/PressSyncPlayground.git")
-        // Add some notes over multiple commits.
-        addFilesAndCommit(
-            "First commit",
-            "note_1.md" to "# The Witcher",
-            "note_2.md" to "# Uncharted: The Lost Legacy"
-        )
-        addFilesAndCommit(
-            "Second commit",
-            "note_3.md" to "# Overcooked",
-            "note_4.md" to "# The Last of Us"
-        )
-        assertThat(push(force = true)).isNotInstanceOf(PushResult.Failure::class)
-      }
+    // Given: Remote repository has some notes over multiple commits.
+    RemoteRepositoryRobot {
+      commitFiles(
+          message = "First commit",
+          files = listOf(
+              "note_1.md" to "# The Witcher",
+              "note_2.md" to "# Uncharted: The Lost Legacy"
+          )
+      )
+      commitFiles(
+          message = "Second commit",
+          files = listOf(
+              "note_3.md" to "# Overcooked",
+              "note_4.md" to "# The Last of Us"
+          )
+      )
+      forcePush()
     }
+
+    // Given: User hasn't saved any notes on this device yet.
+    assertThat(noteRepository.savedNotes).isEmpty()
 
     syncer.sync().test().apply {
       error?.printStack()
@@ -97,16 +100,12 @@ abstract class GitSyncerTest(private val appStorage: AppStorage) {
       return
     }
 
-    // Prepare an empty remote repository.
-    with(File(appStorage.path, "temp")) {
-      makeDirectory()
-      with(git.repository(this)) {
-        addRemote("origin", "git@github.com:saket/PressSyncPlayground.git")
-        assertThat(push(force = true)).isNotInstanceOf(PushResult.Failure::class)
-      }
-      delete(recursively = true)
+    // Given: Remote repository is empty.
+    RemoteRepositoryRobot {
+      forcePush()
     }
 
+    // Given: This device has non-zero notes.
     val noteBody = """
       |# Nicolas Cage 
       |is a national treasure
@@ -119,11 +118,25 @@ abstract class GitSyncerTest(private val appStorage: AppStorage) {
     }
   }
 
-  private fun GitRepository.addFilesAndCommit(message: String, vararg files: Pair<String, String>) {
-    files.forEach { (name, body) ->
-      File(directoryPath, name).write(body)
+  private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit) {
+    private val directory = File(appStorage.path, "temp").apply { makeDirectory() }
+    private val gitRepo = git.repository(directory)
+
+    init {
+      gitRepo.addRemote("origin", "git@github.com:saket/PressSyncPlayground.git")
+      prepare()
     }
-    addAll()
-    commit(message)
+
+    fun forcePush() {
+      assertThat(gitRepo.push(force = true)).isNotInstanceOf(Failure::class)
+    }
+
+    fun commitFiles(message: String, files: List<Pair<String, String>>) {
+      files.forEach { (name, body) ->
+        File(directory.path, name).write(body)
+      }
+      gitRepo.addAll()
+      gitRepo.commit(message)
+    }
   }
 }
