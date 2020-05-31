@@ -87,16 +87,11 @@ class GitSyncer(
             val content = File(directory, diff.path).read()
             val createdAt = DateTime.fromUnix(commit.utcTimestamp.millis)
             Runnable {
-              // todo: add an insert query that only takes
-              //  id, content, createdAt and updatedAt.
               noteQueries.insert(
-                  localId = null,
                   uuid = NoteId.generate(),
                   content = content,
                   createdAt = createdAt,
-                  updatedAt = createdAt,
-                  archivedAtString = null,
-                  deletedAtString = null
+                  updatedAt = createdAt
               )
             }
           }

@@ -42,13 +42,10 @@ internal class RealNoteRepository(
       noteQueries.transaction {
         for (note in insertNotes) {
           noteQueries.insert(
-              localId = null,
               uuid = note.id,
               content = note.content,
               createdAt = note.createdAt ?: clock.nowUtc(),
-              updatedAt = note.createdAt ?: clock.nowUtc(),
-              archivedAtString = null,
-              deletedAtString = null
+              updatedAt = note.createdAt ?: clock.nowUtc()
           )
         }
       }

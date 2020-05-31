@@ -26,8 +26,8 @@ FROM note
 WHERE uuid = ?;
 
 insert:
-INSERT INTO note
-VALUES (?,?,?,?,?,?,?);
+INSERT INTO note(uuid, content, createdAt, updatedAt)
+VALUES (?, ?, ?, ?);
 
 updateContent:
 UPDATE note
