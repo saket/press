@@ -2,7 +2,17 @@ package me.saket.kgit
 
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.Session
+import me.saket.kgit.GitTreeDiff.Add
+import me.saket.kgit.GitTreeDiff.Copy
+import me.saket.kgit.GitTreeDiff.Delete
+import me.saket.kgit.GitTreeDiff.Modify
+import me.saket.kgit.GitTreeDiff.Rename
 import org.eclipse.jgit.api.TransportConfigCallback
+import org.eclipse.jgit.diff.DiffEntry.ChangeType.ADD
+import org.eclipse.jgit.diff.DiffEntry.ChangeType.COPY
+import org.eclipse.jgit.diff.DiffEntry.ChangeType.DELETE
+import org.eclipse.jgit.diff.DiffEntry.ChangeType.MODIFY
+import org.eclipse.jgit.diff.DiffEntry.ChangeType.RENAME
 import org.eclipse.jgit.lib.BranchConfig.BranchRebaseMode.REBASE
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.UserConfig
@@ -148,12 +158,10 @@ internal actual class RealGitRepository actual constructor(
 
   @OptIn(ExperimentalStdlibApi::class)
   override fun commitsBetween(from: GitSha1?, to: GitSha1): List<GitCommit> {
-    // a RevWalk allows to walk over commits based on some filtering that is defined
     RevWalk(jgit.repository).use { walk ->
       val startCommit: RevCommit = walk.parseCommit(to.id)
-      // println("Start-Commit: $startCommit")
-      // println("Walking all commits starting at $from until we find $to\n")
       walk.markStart(startCommit)
+
       val commits = buildList {
         for (commit in walk) {
           add(GitCommit(commit))
@@ -163,12 +171,11 @@ internal actual class RealGitRepository actual constructor(
         }
       }
       walk.dispose()
-
       return commits.reversed()
     }
   }
 
-  override fun diffBetween(first: GitCommit?, second: GitCommit) {
+  override fun diffBetween(first: GitCommit?, second: GitCommit): List<GitTreeDiff> {
     val firstTree = first?.commit?.tree
     val secondTree = second.commit.tree
 
@@ -185,8 +192,14 @@ internal actual class RealGitRepository actual constructor(
           .setShowNameAndStatusOnly(true)
           .call()
 
-      for (entry in diffEntries) {
-        println("Entry: $entry")
+      return diffEntries.map {
+        when (it.changeType!!) {
+          ADD -> Add(path = it.newPath)
+          MODIFY -> Modify(path = it.oldPath)
+          COPY -> Copy(fromPath = it.oldPath, toPath = it.newPath)
+          DELETE -> Delete(path = it.oldPath)
+          RENAME -> Rename(fromPath = it.oldPath, toPath = it.newPath)
+        }
       }
     }
   }

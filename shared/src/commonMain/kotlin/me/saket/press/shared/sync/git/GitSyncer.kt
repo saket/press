@@ -74,7 +74,8 @@ class GitSyncer(
         println("Commits pulled:")
         commitsPulled.forEachIndexed { index, commit ->
           println("\n${commit.sha1} - ${commit.message}")
-          git.diffBetween(first = commitsPulled.getOrNull(index - 1), second = commit)
+          val diffs = git.diffBetween(first = commitsPulled.getOrNull(index - 1), second = commit)
+          diffs.forEach { println(it) }
         }
       }
     }
