@@ -1,7 +1,5 @@
 package me.saket.press.shared.sync
 
-import com.badoo.reaktive.completable.Completable
-
 /** Syncs notes to a remote destination. */
 interface Syncer {
 

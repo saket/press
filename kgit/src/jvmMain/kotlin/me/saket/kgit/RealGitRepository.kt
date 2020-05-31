@@ -85,13 +85,6 @@ internal actual class RealGitRepository actual constructor(
     }
   }
 
-//  private fun printLog() {
-//    println("Files: ${File(directoryPath).listFiles()!!.map { it.name }}")
-//    for (log in jgit.log().call()) {
-//      println("${log.name.take(7)} - ${log.fullMessage}")
-//    }
-//  }
-
   override fun push(force: Boolean): PushResult {
     val pushResult = jgit.push()
         .setTransportConfigCallback(sshTransport())

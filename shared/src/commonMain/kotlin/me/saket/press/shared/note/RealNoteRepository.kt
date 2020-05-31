@@ -45,8 +45,8 @@ internal class RealNoteRepository(
               localId = null,
               uuid = note.id,
               content = note.content,
-              createdAt = clock.nowUtc(),
-              updatedAt = clock.nowUtc(),
+              createdAt = note.createdAt ?: clock.nowUtc(),
+              updatedAt = note.createdAt ?: clock.nowUtc(),
               archivedAtString = null,
               deletedAtString = null
           )
