@@ -75,7 +75,7 @@ class GitSyncer(
     // HEAD before pull. The git history always moves forward.
     val commitsPulled = git.commitsBetween(from = headBeforePull, to = headAfterPull!!)
     val commitsToDiff = commitsPulled.mapIndexed { index, commit ->
-      commit to git.diffBetween(first = commitsPulled.getOrNull(index - 1), second = commit)
+      commit to git.diffBetween(from = commitsPulled.getOrNull(index - 1), to = commit)
     }
 
     val dbOperations = mutableListOf<Runnable>()

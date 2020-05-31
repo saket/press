@@ -13,7 +13,8 @@ abstract class GitRepository(open val directoryPath: String) {
   abstract fun commit(
     message: String,
     author: GitAuthor? = null,
-    timestamp: UtcTimestamp? = null
+    timestamp: UtcTimestamp? = null,
+    allowEmpty: Boolean = false
   )
 
   abstract fun pull(rebase: Boolean): PullResult
@@ -31,7 +32,7 @@ abstract class GitRepository(open val directoryPath: String) {
   abstract fun commitsBetween(from: GitCommit?, to: GitCommit): List<GitCommit>
 
   /**
-   * When [first] is null, the [second] commit's tree is compared with an empty tree.
+   * When [from] is null, the [to] commit's tree is compared with an empty tree.
    */
-  abstract fun diffBetween(first: GitCommit?, second: GitCommit): GitTreeDiff
+  abstract fun diffBetween(from: GitCommit?, to: GitCommit): GitTreeDiff
 }

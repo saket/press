@@ -114,7 +114,7 @@ abstract class GitSyncerTest(private val appStorage: AppStorage) : BaseDatabaeTe
     }
   }
 
-  // @Test
+  @Test
   fun `push notes to an empty repo`() {
     if (BuildKonfig.GITHUB_SSH_PRIV_KEY.isBlank()) {
       return
@@ -122,6 +122,7 @@ abstract class GitSyncerTest(private val appStorage: AppStorage) : BaseDatabaeTe
 
     // Given: Remote repository is empty.
     RemoteRepositoryRobot {
+      commitFiles(message = "Emptiness", files = emptyList())
       forcePush()
     }
 
@@ -153,7 +154,7 @@ abstract class GitSyncerTest(private val appStorage: AppStorage) : BaseDatabaeTe
         File(directory.path, name).write(body)
       }
       gitRepo.addAll()
-      gitRepo.commit(message, timestamp = time?.unixMillisLong?.let(::UtcTimestamp))
+      gitRepo.commit(message, timestamp = time?.unixMillisLong?.let(::UtcTimestamp), allowEmpty = true)
     }
   }
 }

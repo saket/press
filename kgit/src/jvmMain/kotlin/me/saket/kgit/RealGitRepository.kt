@@ -16,7 +16,6 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType.RENAME
 import org.eclipse.jgit.lib.BranchConfig.BranchRebaseMode.REBASE
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.UserConfig
-import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.transport.JschConfigSessionFactory
 import org.eclipse.jgit.transport.OpenSshConfig.Host
@@ -46,9 +45,14 @@ internal actual class RealGitRepository actual constructor(
   }
 
   @Suppress("NAME_SHADOWING")
-  override fun commit(message: String, author: GitAuthor?, timestamp: UtcTimestamp?) {
+  override fun commit(
+    message: String,
+    author: GitAuthor?,
+    timestamp: UtcTimestamp?,
+    allowEmpty: Boolean
+  ) {
     jgit.commit().apply {
-      setAllowEmpty(false)
+      setAllowEmpty(allowEmpty)
       setMessage(message)
 
       setAuthor(timestamp?.let {
@@ -166,16 +170,16 @@ internal actual class RealGitRepository actual constructor(
     }
   }
 
-  override fun diffBetween(first: GitCommit?, second: GitCommit): GitTreeDiff {
-    val firstTree = first?.commit?.tree
-    val secondTree = second.commit.tree
+  override fun diffBetween(from: GitCommit?, to: GitCommit): GitTreeDiff {
+    val fromTree = from?.commit?.tree
+    val toTree = to.commit.tree
 
     jgit.repository.newObjectReader().use { reader ->
       val firstTreeParser = when {
-        firstTree != null -> CanonicalTreeParser().apply { reset(reader, firstTree.id) }
+        fromTree != null -> CanonicalTreeParser().apply { reset(reader, fromTree.id) }
         else -> EmptyTreeIterator()
       }
-      val secondTreeParser = CanonicalTreeParser().apply { reset(reader, secondTree.id) }
+      val secondTreeParser = CanonicalTreeParser().apply { reset(reader, toTree.id) }
 
       val diffEntries = jgit.diff()
           .setNewTree(secondTreeParser)
