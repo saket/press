@@ -2,12 +2,14 @@ package me.saket.press.shared.sync
 
 import assertk.assertThat
 import assertk.assertions.containsOnly
+import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotInstanceOf
 import assertk.assertions.isNull
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.hours
+import me.saket.kgit.GitTreeDiff.Change.Add
 import me.saket.kgit.PushResult.Failure
 import me.saket.kgit.RealGit
 import me.saket.kgit.SshConfig
@@ -94,6 +96,7 @@ abstract class GitSyncerTest(private val appStorage: AppStorage) : BaseDatabaeTe
 
     syncer.sync()
 
+    // Check that the notes were pulled and saved into DB.
     val notesAfterSync = noteQueries.notes().executeAsList()
     assertThat(notesAfterSync.map { it.content }).containsOnly(
         "# The Witcher",
@@ -121,19 +124,27 @@ abstract class GitSyncerTest(private val appStorage: AppStorage) : BaseDatabaeTe
     }
 
     // Given: Remote repository is empty.
-    RemoteRepositoryRobot {
+    val remote = RemoteRepositoryRobot {
       commitFiles(message = "Emptiness", files = emptyList())
       forcePush()
     }
 
     // Given: This device has non-zero notes.
-    val noteBody = """
-      |# Nicolas Cage 
-      |is a national treasure
-    """.trimMargin()
+    val noteBody = "# Nicolas Cage \nis a national treasure"
     noteQueries.testInsert(fakeNote(content = noteBody))
 
     syncer.sync()
+
+    // Check that the local note(s) were pushed to remote
+    with(remote.fetchFiles()) {
+      assertThat(this).hasSize(1)
+      assertThat(this).containsOnly(
+          FileInfo(
+              path = "nicolas_cage.md",
+              content = "# Nicolas Cage \nis a national treasure"
+          )
+      )
+    }
   }
 
   private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit) {
@@ -156,5 +167,19 @@ abstract class GitSyncerTest(private val appStorage: AppStorage) : BaseDatabaeTe
       gitRepo.addAll()
       gitRepo.commit(message, timestamp = time?.unixMillisLong?.let(::UtcTimestamp), allowEmpty = true)
     }
+
+    @OptIn(ExperimentalStdlibApi::class)
+    fun fetchFiles(): List<FileInfo> {
+      val head = gitRepo.headCommit()!!
+      val diffs = gitRepo.diffBetween(from = null, to = head)
+      return buildList {
+        for (diff in diffs) {
+          check(diff is Add)
+          add(FileInfo(path = diff.path, content = File(diff.path).read()))
+        }
+      }
+    }
   }
+
+  data class FileInfo(val path: String, val content: String)
 }

@@ -103,8 +103,10 @@ class GitSyncer(
       }
     }
 
-    noteQueries.transaction {
-      dbOperations.forEach { it.run() }
+    if (dbOperations.isNotEmpty()) {
+      noteQueries.transaction {
+        dbOperations.forEach { it.run() }
+      }
     }
   }
 
