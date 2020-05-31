@@ -9,7 +9,7 @@ internal actual class RealGitRepository actual constructor(
   override fun pull(rebase: Boolean): PullResult = TODO()
   override fun push(force: Boolean): PushResult = TODO()
   override fun addRemote(name: String, url: String) = TODO()
-  override fun resolve(revision: String): GitSha1? = TODO()
-  override fun commitsBetween(from: GitSha1?, to: GitSha1): List<GitCommit> = TODO()
+  override fun headCommit(): GitCommit = TODO()
+  override fun commitsBetween(from: GitCommit?, to: GitCommit): List<GitCommit> = TODO()
   override fun diffBetween(first: GitCommit?, second: GitCommit): GitTreeDiff = TODO()
 }

@@ -22,12 +22,13 @@ abstract class GitRepository(open val directoryPath: String) {
 
   abstract fun addRemote(name: String, url: String)
 
-  abstract fun resolve(revision: String): GitSha1?
+  abstract fun headCommit(): GitCommit?
 
   /**
+   * Fetch commits between two sha-1s, inclusive of [to].
    * When [from] is null, a list of all commits till [to] are returned.
    */
-  abstract fun commitsBetween(from: GitSha1?, to: GitSha1): List<GitCommit>
+  abstract fun commitsBetween(from: GitCommit?, to: GitCommit): List<GitCommit>
 
   /**
    * When [first] is null, the [second] commit's tree is compared with an empty tree.

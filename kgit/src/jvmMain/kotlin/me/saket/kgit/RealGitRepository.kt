@@ -138,26 +138,25 @@ internal actual class RealGitRepository actual constructor(
         .call()
   }
 
-  override fun resolve(revision: String): GitSha1? {
-    val resolvedId = jgit.repository.resolve(revision)
+  override fun headCommit(): GitCommit? {
+    val head = jgit.repository.resolve("HEAD") ?: return null
 
-    if (revision == "HEAD" && resolvedId == null) {
-      return GitSha1(jgit.repository.resolve("4b825dc642cb6eb9a060e54bf8d69288fbee4904"))
+    RevWalk(jgit.repository).use { walk ->
+      val commit = walk.parseCommit(head)
+      walk.dispose()
+      return GitCommit(commit)
     }
-
-    return resolvedId?.let(::GitSha1)
   }
 
   @OptIn(ExperimentalStdlibApi::class)
-  override fun commitsBetween(from: GitSha1?, to: GitSha1): List<GitCommit> {
+  override fun commitsBetween(from: GitCommit?, to: GitCommit): List<GitCommit> {
     RevWalk(jgit.repository).use { walk ->
-      val startCommit: RevCommit = walk.parseCommit(to.id)
-      walk.markStart(startCommit)
+      walk.markStart(to.commit)
 
       val commits = buildList {
         for (commit in walk) {
           add(GitCommit(commit))
-          if (from != null && commit.id == from.id) {
+          if (from != null && commit.id == from.commit.id) {
             break
           }
         }

@@ -61,10 +61,10 @@ class GitSyncer(
   }
 
   private fun pull() {
-    val headBeforePull = git.resolve("HEAD")
+    val headBeforePull = git.headCommit()
     val pullResult = git.pull(rebase = true)
     require(pullResult !is PullResult.Failure) { "Failed to pull: $pullResult" }
-    val headAfterPull = git.resolve("HEAD")
+    val headAfterPull = git.headCommit()
 
     if (headAfterPull == headBeforePull) {
       // No changes received.
