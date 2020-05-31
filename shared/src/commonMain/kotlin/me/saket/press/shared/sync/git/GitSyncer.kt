@@ -17,7 +17,7 @@ import me.saket.press.shared.note.NoteRepository
 import me.saket.press.shared.sync.Syncer
 
 // TODO: commit deleted and archived notes as well.
-// TODO: commit only unsynced notes.
+// TODO: commit only un-synced notes.
 // TODO: figure out the author email.
 class GitSyncer(
   private val git: GitRepository,
@@ -45,7 +45,6 @@ class GitSyncer(
         for (note in notes) {
           val (heading) = SplitHeadingAndBody.split(note.content)
           check(heading.isNotBlank()) { "Heading is empty for: '${note.content}'" }
-
           val noteFileName = FileNameSanitizer.sanitize(heading, maxLength = 255)
           File(directory, "$noteFileName.md").write(note.content)
 
@@ -62,14 +61,18 @@ class GitSyncer(
 
   private fun pull(): Completable {
     return completableFromFunction {
-      val headBeforePull = git.resolve("HEAD^{tree}")
+      val headBeforePull = git.resolve("HEAD")
 
       val pullResult = git.pull(rebase = true)
       require(pullResult !is PullResult.Failure) { "Failed to pull: $pullResult" }
 
-      val headAfterPull = git.resolve("HEAD^{tree}")
+      val headAfterPull = git.resolve("HEAD")
 
-      git.diff(headBeforePull, headAfterPull)
+      println("headBeforePull: $headBeforePull")
+      println("headAfterPull: $headAfterPull\n")
+      if (headAfterPull != null) {
+        git.diff(headBeforePull, headAfterPull)
+      }
     }
   }
 

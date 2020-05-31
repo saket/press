@@ -85,10 +85,10 @@ abstract class GitSyncerTest(private val appStorage: AppStorage) {
       assertComplete()
     }
 
-    println("\nFiles in git directory after syncing:")
-    gitDirectory.children().forEach {
-      println(it)
-    }
+    //println("\nFiles in git directory after syncing:")
+    //gitDirectory.children().forEach {
+    //  println(it.name)
+    //}
   }
 
   //@Test

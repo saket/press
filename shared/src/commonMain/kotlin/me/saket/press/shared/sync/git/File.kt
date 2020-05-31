@@ -13,6 +13,7 @@ interface File {
   }
 
   val path: String
+  val name: String
 
   fun write(input: String)
 
