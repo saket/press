@@ -3,16 +3,12 @@ package me.saket.press.shared.sync
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isNotInstanceOf
-import assertk.assertions.isNull
-import com.badoo.reaktive.test.completable.assertComplete
-import com.badoo.reaktive.test.completable.test
-import com.badoo.reaktive.utils.printStack
 import me.saket.kgit.PushResult.Failure
 import me.saket.kgit.RealGit
 import me.saket.kgit.SshConfig
 import me.saket.press.shared.BuildKonfig
+import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.fakedata.fakeNote
-import me.saket.press.shared.note.FakeNoteRepository
 import me.saket.press.shared.sync.git.AppStorage
 import me.saket.press.shared.sync.git.File
 import me.saket.press.shared.sync.git.GitSyncer
@@ -23,21 +19,20 @@ import kotlin.test.Test
 /**
  * See AndroidGitSyncerTest.
  */
-abstract class GitSyncerTest(private val appStorage: AppStorage) {
+abstract class GitSyncerTest(private val appStorage: AppStorage): BaseDatabaeTest() {
 
+  private val noteQueries get() = database.noteQueries
   private val gitDirectory = File(appStorage.path, "git")
   private val git = RealGit()
-  private val noteRepository = FakeNoteRepository()
   private val syncer: GitSyncer
 
   init {
     println()
-
     git.ssh = SshConfig(privateKey = BuildKonfig.GITHUB_SSH_PRIV_KEY)
 
     syncer = GitSyncer(
         git = git.repository(gitDirectory),
-        noteRepository = noteRepository
+        database = database
     )
     syncer.setRemote("git@github.com:saket/PressSyncPlayground.git")
   }
@@ -80,15 +75,9 @@ abstract class GitSyncerTest(private val appStorage: AppStorage) {
     }
 
     // Given: User hasn't saved any notes on this device yet.
-    assertThat(noteRepository.savedNotes).isEmpty()
+    assertThat(noteQueries.notes().executeAsList()).isEmpty()
 
-    syncer.sync().test().apply {
-      error?.printStack()
-      assertThat(error).isNull()
-      assertComplete()
-    }
-
-
+    syncer.sync()
   }
 
   // @Test
@@ -107,12 +96,9 @@ abstract class GitSyncerTest(private val appStorage: AppStorage) {
       |# Nicolas Cage 
       |is a national treasure
     """.trimMargin()
-    noteRepository.savedNotes += fakeNote(content = noteBody)
+    noteQueries.testInsert(fakeNote(content = noteBody))
 
-    syncer.sync().test().apply {
-      assertThat(error).isNull()
-      assertComplete()
-    }
+    syncer.sync()
   }
 
   private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit) {

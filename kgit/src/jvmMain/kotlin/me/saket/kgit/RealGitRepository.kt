@@ -2,11 +2,11 @@ package me.saket.kgit
 
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.Session
-import me.saket.kgit.GitTreeDiff.Add
-import me.saket.kgit.GitTreeDiff.Copy
-import me.saket.kgit.GitTreeDiff.Delete
-import me.saket.kgit.GitTreeDiff.Modify
-import me.saket.kgit.GitTreeDiff.Rename
+import me.saket.kgit.GitTreeDiff.Change.Add
+import me.saket.kgit.GitTreeDiff.Change.Copy
+import me.saket.kgit.GitTreeDiff.Change.Delete
+import me.saket.kgit.GitTreeDiff.Change.Modify
+import me.saket.kgit.GitTreeDiff.Change.Rename
 import org.eclipse.jgit.api.TransportConfigCallback
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.ADD
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.COPY
@@ -77,7 +77,6 @@ internal actual class RealGitRepository actual constructor(
       if (conflicts != null) println("Conflicts: $conflicts")
       if (failingPaths != null) println("Failing paths: $failingPaths")
       if (uncommittedChanges != null) println("Uncommitted changes: $uncommittedChanges")
-      println()
     }
 
     return when {
@@ -175,7 +174,7 @@ internal actual class RealGitRepository actual constructor(
     }
   }
 
-  override fun diffBetween(first: GitCommit?, second: GitCommit): List<GitTreeDiff> {
+  override fun diffBetween(first: GitCommit?, second: GitCommit): GitTreeDiff {
     val firstTree = first?.commit?.tree
     val secondTree = second.commit.tree
 
@@ -192,7 +191,7 @@ internal actual class RealGitRepository actual constructor(
           .setShowNameAndStatusOnly(true)
           .call()
 
-      return diffEntries.map {
+      return GitTreeDiff(diffEntries.map {
         when (it.changeType!!) {
           ADD -> Add(path = it.newPath)
           MODIFY -> Modify(path = it.oldPath)
@@ -200,7 +199,7 @@ internal actual class RealGitRepository actual constructor(
           DELETE -> Delete(path = it.oldPath)
           RENAME -> Rename(fromPath = it.oldPath, toPath = it.newPath)
         }
-      }
+      })
     }
   }
 }

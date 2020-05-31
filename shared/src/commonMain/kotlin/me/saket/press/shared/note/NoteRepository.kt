@@ -6,6 +6,8 @@ import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.util.Optional
 
+// Note to self: I'm no longer sure if having an abstraction over the Sql table
+// is of any value. Letting Presenters access the table directly could be simpler.
 interface NoteRepository {
   fun note(id: NoteId): Observable<Optional<Note>>
   fun notes(): Observable<List<Note>>
