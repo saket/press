@@ -2,7 +2,6 @@ package me.saket.press.shared.sync
 
 import assertk.assertThat
 import assertk.assertions.containsOnly
-import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotInstanceOf
@@ -36,7 +35,7 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
   private val gitDirectory = File(deviceInfo.appStorage, "git")
   private val git = RealGit()
   private val syncer: GitSyncer
-  private val clock = FakeClock()
+  private val clock = FakeClock() // todo: use in GitSyncer
 
   init {
     println()
@@ -63,7 +62,8 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
 //    // TODO
 //  }
 
-  @Test fun `pull notes on start from a non-empty repo`() {
+  @Test
+  fun `pull notes on start from a non-empty repo`() {
     if (BuildKonfig.GITHUB_SSH_PRIV_KEY.isBlank()) {
       return
     }
@@ -131,19 +131,16 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
     }
 
     // Given: This device has non-zero notes.
-    val noteBody = "# Nicolas Cage \nis a national treasure"
-    noteQueries.testInsert(fakeNote(content = noteBody))
+    noteQueries.testInsert(fakeNote(content = "# Nicolas Cage \nis a national treasure"))
+    noteQueries.testInsert(fakeNote(content = "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures"))
 
     syncer.sync()
 
     // Check that the local note(s) were pushed to remote
     with(remote.fetchFiles()) {
-      assertThat(this).hasSize(1)
       assertThat(this).containsOnly(
-          FileInfo(
-              path = "nicolas_cage.md",
-              content = "# Nicolas Cage \nis a national treasure"
-          )
+          "nicolas_cage.md" to "# Nicolas Cage \nis a national treasure",
+          "witcher_3.md" to "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures"
       )
     }
   }
@@ -170,17 +167,16 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
     }
 
     @OptIn(ExperimentalStdlibApi::class)
-    fun fetchFiles(): List<FileInfo> {
+    fun fetchFiles(): List<Pair<String, String>> {
+      gitRepo.pull(rebase = true)
       val head = gitRepo.headCommit()!!
       val diffs = gitRepo.diffBetween(from = null, to = head)
       return buildList {
         for (diff in diffs) {
           check(diff is Add)
-          add(FileInfo(path = diff.path, content = File(diff.path).read()))
+          add(diff.path to File(directory, diff.path).read())
         }
       }
     }
   }
-
-  data class FileInfo(val path: String, val content: String)
 }

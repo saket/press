@@ -19,6 +19,12 @@ abstract class GitRepository(open val directoryPath: String) {
 
   abstract fun pull(rebase: Boolean): PullResult
 
+  abstract fun fetch()
+
+  abstract fun checkout(branch: String, create: Boolean = false)
+
+  abstract fun rebase(with: GitCommit): RebaseResult
+
   abstract fun push(force: Boolean = false): PushResult
 
   abstract fun addRemote(name: String, url: String)

@@ -16,6 +16,7 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType.RENAME
 import org.eclipse.jgit.lib.BranchConfig.BranchRebaseMode.REBASE
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.UserConfig
+import org.eclipse.jgit.merge.MergeStrategy
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.transport.JschConfigSessionFactory
 import org.eclipse.jgit.transport.OpenSshConfig.Host
@@ -29,6 +30,7 @@ import java.io.File
 import java.util.Date
 import java.util.TimeZone
 import org.eclipse.jgit.api.Git as JGit
+import org.eclipse.jgit.lib.Repository as JRepository
 
 internal actual class RealGitRepository actual constructor(
   private val git: Git,
@@ -51,20 +53,45 @@ internal actual class RealGitRepository actual constructor(
     timestamp: UtcTimestamp?,
     allowEmpty: Boolean
   ) {
-    jgit.commit().apply {
-      setAllowEmpty(allowEmpty)
-      setMessage(message)
-
-      setAuthor(timestamp?.let {
-        val author = author ?: defaultCommitAuthor()
-        PersonIdent(author.name, author.email, Date(it.millis), TimeZone.getTimeZone("UTC"))
-      })
-    }.call()
+    jgit.commit()
+        .setAllowEmpty(allowEmpty)
+        .setMessage(message)
+        .setAuthor(timestamp?.let {
+          val author = author ?: defaultCommitAuthor()
+          PersonIdent(author.name, author.email, Date(it.millis), TimeZone.getTimeZone("UTC"))
+        })
+        .call()
   }
 
   private fun defaultCommitAuthor(): GitAuthor {
     val config = jgit.repository.config.get(UserConfig.KEY)
     return GitAuthor(name = config.authorName, email = config.authorEmail)
+  }
+
+  override fun fetch() {
+    jgit.fetch()
+        .setTransportConfigCallback(sshTransport())
+        .call()
+  }
+
+  override fun checkout(branch: String, create: Boolean) {
+    val branchRef = jgit.checkout()
+        .setCreateBranch(create)
+        .setName(branch)
+        .call()
+    println("branchRef: $branchRef")
+  }
+
+  override fun rebase(with: GitCommit): RebaseResult {
+    val rebaseResult = jgit.rebase()
+        .setUpstream(with.commit)
+        .setStrategy(MergeStrategy.RECURSIVE)
+        .call()
+
+    return when {
+      rebaseResult.status.isSuccessful -> RebaseResult.Success
+      else -> RebaseResult.Failure(reason = rebaseResult.toString())
+    }
   }
 
   override fun pull(rebase: Boolean): PullResult {
@@ -136,6 +163,8 @@ internal actual class RealGitRepository actual constructor(
   }
 
   override fun addRemote(name: String, url: String) {
+    check(jgit.remoteList().call().size == 0) { "Multiple remotes aren't supported" }
+
     jgit.remoteAdd()
         .setName(name)
         .setUri(URIish(url))

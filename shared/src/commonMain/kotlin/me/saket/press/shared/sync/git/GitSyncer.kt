@@ -10,8 +10,8 @@ import me.saket.kgit.GitTreeDiff.Change.Copy
 import me.saket.kgit.GitTreeDiff.Change.Delete
 import me.saket.kgit.GitTreeDiff.Change.Modify
 import me.saket.kgit.GitTreeDiff.Change.Rename
-import me.saket.kgit.PullResult
 import me.saket.kgit.PushResult
+import me.saket.kgit.RebaseResult
 import me.saket.kgit.UtcTimestamp
 import me.saket.press.PressDatabase
 import me.saket.press.shared.db.NoteId
@@ -59,7 +59,7 @@ class GitSyncer(
       git.addAll()
       git.commit(
           message = "Update '$heading'",
-          author = GitAuthor("Saket", "pressapp@saket.me"),
+          author = gitAuthor,
           timestamp = UtcTimestamp(note.updatedAt.unixMillisLong)
       )
     }
@@ -84,8 +84,17 @@ class GitSyncer(
 
   private fun pull() {
     val headBeforePull = git.headCommit()
-    val pullResult = git.pull(rebase = true)
-    require(pullResult !is PullResult.Failure) { "Failed to pull: $pullResult" }
+
+    git.fetch()
+    git.checkout("origin/master")
+    val originHead = git.headCommit()
+    git.checkout("master")
+
+    if (originHead != null) {
+      val rebaseResult = git.rebase(with = originHead)
+      require(rebaseResult !is RebaseResult.Failure) { "Failed to rebase: $rebaseResult" }
+    }
+
     val headAfterPull = git.headCommit()
 
     if (headAfterPull == headBeforePull) {
