@@ -17,6 +17,7 @@ import me.saket.press.PressDatabase
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.home.SplitHeadingAndBody
 import me.saket.press.shared.sync.Syncer
+import me.saket.press.shared.time.Clock
 
 // TODO: commit deleted and archived notes as well.
 // TODO: commit only un-synced notes.
@@ -24,7 +25,8 @@ import me.saket.press.shared.sync.Syncer
 class GitSyncer(
   private val git: GitRepository,
   private val database: PressDatabase,
-  private val deviceInfo: DeviceInfo
+  private val deviceInfo: DeviceInfo,
+  private val clock: Clock
 ) : Syncer {
 
   private val noteQueries get() = database.noteQueries
@@ -60,7 +62,7 @@ class GitSyncer(
       git.commit(
           message = "Update '$heading'",
           author = gitAuthor,
-          timestamp = UtcTimestamp(note.updatedAt.unixMillisLong)
+          timestamp = UtcTimestamp(note.updatedAt)
       )
     }
   }
@@ -77,6 +79,7 @@ class GitSyncer(
       git.commit(
           message = "Setup syncing on ${deviceInfo.deviceName()}",
           author = gitAuthor,
+          timestamp = UtcTimestamp(clock.nowUtc()),
           allowEmpty = true
       )
     }
@@ -150,4 +153,9 @@ class GitSyncer(
     git.addRemote("origin", remoteUrl)
     remoteSet.set(true)
   }
+}
+
+@Suppress("FunctionName")
+private fun UtcTimestamp(time: DateTime): UtcTimestamp {
+  return UtcTimestamp(time.unixMillisLong)
 }

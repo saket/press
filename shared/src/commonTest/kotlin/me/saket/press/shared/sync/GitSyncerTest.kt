@@ -8,11 +8,15 @@ import assertk.assertions.isNotInstanceOf
 import assertk.assertions.isNull
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.hours
+import com.soywiz.klock.milliseconds
+import com.soywiz.klock.seconds
 import me.saket.kgit.GitTreeDiff.Change.Add
 import me.saket.kgit.PushResult.Failure
 import me.saket.kgit.RealGit
 import me.saket.kgit.SshConfig
 import me.saket.kgit.UtcTimestamp
+import me.saket.press.data.shared.Note
+import me.saket.press.data.shared.NoteQueries
 import me.saket.press.shared.BuildKonfig
 import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.fakedata.fakeNote
@@ -35,16 +39,20 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
   private val gitDirectory = File(deviceInfo.appStorage, "git")
   private val git = RealGit()
   private val syncer: GitSyncer
-  private val clock = FakeClock() // todo: use in GitSyncer
+  private val clock = FakeClock()
 
   init {
     println()
     git.ssh = SshConfig(privateKey = BuildKonfig.GITHUB_SSH_PRIV_KEY)
 
+    // Git timestamps are precise upto 1 second. Throw away milliseconds.
+    clock.advanceTimeBy(1.seconds - clock.nowUtc().milliseconds.milliseconds)
+
     syncer = GitSyncer(
         git = git.repository(gitDirectory),
         database = database,
-        deviceInfo = deviceInfo
+        deviceInfo = deviceInfo,
+        clock = clock
     )
     syncer.setRemote("git@github.com:saket/PressSyncPlayground.git")
   }
@@ -54,16 +62,7 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
     deviceInfo.appStorage.delete(recursively = true)
   }
 
-//  @Test fun `resolve conflicts when content has changed but not the file name`() {
-//    // TODO
-//  }
-//
-//  @Test fun `resolve conflicts when both the content and file name have changed`() {
-//    // TODO
-//  }
-
-  @Test
-  fun `pull notes on start from a non-empty repo`() {
+  @Test fun `pull notes from a non-empty repo`() {
     if (BuildKonfig.GITHUB_SSH_PRIV_KEY.isBlank()) {
       return
     }
@@ -118,8 +117,7 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
     }
   }
 
-  @Test
-  fun `push notes to an empty repo`() {
+  @Test fun `push notes to an empty repo`() {
     if (BuildKonfig.GITHUB_SSH_PRIV_KEY.isBlank()) {
       return
     }
@@ -131,12 +129,20 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
     }
 
     // Given: This device has non-zero notes.
-    noteQueries.testInsert(fakeNote(content = "# Nicolas Cage \nis a national treasure"))
-    noteQueries.testInsert(fakeNote(content = "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures"))
+    noteQueries.testInsert(
+        fakeNote(
+            content = "# Nicolas Cage \nis a national treasure",
+            updatedAt = clock.nowUtc()
+        ),
+        fakeNote(
+            content = "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures",
+            updatedAt = clock.nowUtc()
+        )
+    )
 
     syncer.sync()
 
-    // Check that the local note(s) were pushed to remote
+    // Check that the local note(s) were pushed to remote.
     with(remote.fetchFiles()) {
       assertThat(this).containsOnly(
           "nicolas_cage.md" to "# Nicolas Cage \nis a national treasure",
@@ -144,6 +150,18 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
       )
     }
   }
+
+//  @Test fun `merge local and remote notes without conflicts`() {
+//    // TODO
+//  }
+//
+//  @Test fun `resolve conflicts when content has changed but not the file name`() {
+//    // TODO
+//  }
+//
+//  @Test fun `resolve conflicts when both the content and file name have changed`() {
+//    // TODO
+//  }
 
   private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit) {
     private val directory = File(deviceInfo.appStorage, "temp").apply { makeDirectory() }
@@ -179,4 +197,8 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
       }
     }
   }
+}
+
+private fun NoteQueries.testInsert(vararg notes: Note.Impl) {
+  notes.forEach { testInsert(it) }
 }

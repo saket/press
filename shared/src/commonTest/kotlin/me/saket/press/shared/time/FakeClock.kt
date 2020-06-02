@@ -10,6 +10,11 @@ class FakeClock : Clock {
   private val utc = FreezableAtomicReference(DateTime.EPOCH)
   private val offset = FreezableAtomicReference(TimezoneOffset.local(DateTime.EPOCH))
 
+  init {
+    // Start with a real time so that tests aren't living in Jan 1, 1970.
+    utc.value = RealClock().nowUtc()
+  }
+
   override fun nowUtc() = utc.value
 
   override fun nowLocal() = utc.value.toOffset(offset.value)
