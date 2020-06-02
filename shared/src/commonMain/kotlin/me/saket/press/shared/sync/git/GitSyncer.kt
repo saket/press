@@ -22,6 +22,7 @@ import me.saket.press.shared.time.Clock
 // TODO: commit deleted and archived notes as well.
 // TODO: commit only un-synced notes.
 // TODO: push only if something was committed or pulled.
+// TODO: add logging.
 class GitSyncer(
   private val git: GitRepository,
   private val database: PressDatabase,
@@ -107,7 +108,7 @@ class GitSyncer(
 
     // HEAD after pull can't be null if it's not equal to the
     // HEAD before pull. The git history always moves forward.
-    val commitsPulled = git.commitsBetween(from = headBeforePull, to = headAfterPull!!)
+    val commitsPulled = git.commitsBetween(from = headBeforePull, toInclusive = headAfterPull!!)
     val commitsToDiff = commitsPulled.mapIndexed { index, commit ->
       commit to git.diffBetween(from = commitsPulled.getOrNull(index - 1), to = commit)
     }

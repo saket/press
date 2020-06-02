@@ -13,7 +13,7 @@ internal actual class RealGitRepository actual constructor(
   override fun push(force: Boolean): PushResult = TODO()
   override fun addRemote(name: String, url: String) = TODO()
   override fun headCommit(): GitCommit = TODO()
-  override fun commitsBetween(from: GitCommit?, to: GitCommit): List<GitCommit> = TODO()
+  override fun commitsBetween(from: GitCommit?, toInclusive: GitCommit): List<GitCommit> = TODO()
   override fun diffBetween(from: GitCommit?, to: GitCommit): GitTreeDiff = TODO()
   override fun currentBranch(): GitBranch = TODO()
 }

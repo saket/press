@@ -21,4 +21,8 @@ actual class GitCommit(internal val commit: RevCommit) {
             .toInstant()
             .toEpochMilli()
     )
+
+  override fun toString(): String {
+    return "GitCommit[${sha1} - $message]"
+  }
 }

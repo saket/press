@@ -32,10 +32,9 @@ abstract class GitRepository(open val directoryPath: String) {
   abstract fun headCommit(): GitCommit?
 
   /**
-   * Fetch commits between two sha-1s, inclusive of [to].
-   * When [from] is null, a list of all commits till [to] are returned.
+   * When [from] is null, a list of all commits till [toInclusive] are returned.
    */
-  abstract fun commitsBetween(from: GitCommit?, to: GitCommit): List<GitCommit>
+  abstract fun commitsBetween(from: GitCommit?, toInclusive: GitCommit): List<GitCommit>
 
   /**
    * When [from] is null, the [to] commit's tree is compared with an empty tree.

@@ -182,11 +182,11 @@ internal actual class RealGitRepository actual constructor(
   }
 
   @OptIn(ExperimentalStdlibApi::class)
-  override fun commitsBetween(from: GitCommit?, to: GitCommit): List<GitCommit> {
+  override fun commitsBetween(from: GitCommit?, toInclusive: GitCommit): List<GitCommit> {
     RevWalk(jgit.repository).use { walk ->
-      walk.markStart(to.commit)
+      walk.markStart(toInclusive.commit)
 
-      val commits = buildList {
+      val commits: List<GitCommit> = buildList {
         for (commit in walk) {
           add(GitCommit(commit))
           if (from != null && commit.id == from.commit.id) {
@@ -195,6 +195,13 @@ internal actual class RealGitRepository actual constructor(
         }
       }
       walk.dispose()
+
+      if (from != null && from.sha1 != commits.last().sha1) {
+        // [from] isn't a (grand) parent of [toInclusive].
+        val log = jgit.log().call().map { GitCommit(it) }
+        error("Commits (${from.sha1} and ${toInclusive.sha1}) aren't in the same branch. Git log: $log")
+      }
+
       return commits.reversed()
     }
   }
