@@ -1,6 +1,7 @@
 package me.saket.press.shared.sync
 
 import assertk.assertThat
+import assertk.assertions.containsExactly
 import assertk.assertions.containsOnly
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
@@ -14,7 +15,6 @@ import me.saket.kgit.GitTreeDiff.Change.Add
 import me.saket.kgit.PushResult.Failure
 import me.saket.kgit.RealGit
 import me.saket.kgit.SshConfig
-import me.saket.kgit.UtcTimestamp
 import me.saket.press.data.shared.Note
 import me.saket.press.data.shared.NoteQueries
 import me.saket.press.shared.BuildKonfig
@@ -25,6 +25,7 @@ import me.saket.press.shared.note.deletedAt
 import me.saket.press.shared.sync.git.DeviceInfo
 import me.saket.press.shared.sync.git.File
 import me.saket.press.shared.sync.git.GitSyncer
+import me.saket.press.shared.sync.git.UtcTimestamp
 import me.saket.press.shared.sync.git.repository
 import me.saket.press.shared.time.FakeClock
 import kotlin.test.AfterTest
@@ -67,8 +68,8 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
       return
     }
 
-    val firstCommitTime = clock.nowUtc()
-    val secondCommitTime = firstCommitTime + 10.hours
+    val firstCommitTime = clock.nowUtc() - 10.hours
+    val secondCommitTime = clock.nowUtc()
 
     // Given: Remote repository has some notes over multiple commits.
     RemoteRepositoryRobot {
@@ -128,7 +129,7 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
       forcePush()
     }
 
-    // Given: This device has non-zero notes.
+    // Given: This device has some notes.
     noteQueries.testInsert(
         fakeNote(
             content = "# Nicolas Cage \nis a national treasure",
@@ -151,10 +152,68 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
     }
   }
 
-//  @Test fun `merge local and remote notes without conflicts`() {
-//    // TODO
-//  }
-//
+  @Test fun `merge local and remote notes without conflicts`() {
+    if (BuildKonfig.GITHUB_SSH_PRIV_KEY.isBlank()) {
+      return
+    }
+
+    // Given: Remote and local notes are saved in mixed order.
+    val remoteTime1 = clock.nowUtc() - 10.hours
+    val localTime1 = remoteTime1 + 2.hours
+    val remoteTime2 = remoteTime1 + 4.hours
+    val localTime2 = clock.nowUtc()
+
+    // Given: Remote repository has some notes over multiple commits.
+    val remote = RemoteRepositoryRobot {
+      commitFiles(
+          message = "First commit",
+          time = remoteTime1,
+          files = listOf("note_1.md" to "# Uncharted: The Lost Legacy")
+      )
+      commitFiles(
+          message = "Second commit",
+          time = remoteTime2,
+          files = listOf("note_2.md" to "# The Last of Us")
+      )
+      forcePush()
+    }
+
+    // Given: This device has some notes.
+    noteQueries.testInsert(
+        fakeNote(
+            content = "# Nicolas Cage \nis a national treasure",
+            updatedAt = localTime1
+        ),
+        fakeNote(
+            content = "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures",
+            updatedAt = localTime2
+        )
+    )
+
+    syncer.sync()
+
+    // Check: both local and remote have same notes with same timestamps.
+    val localNotes = noteQueries.notes()
+        .executeAsList()
+        .sortedBy { it.updatedAt }
+
+    assertThat(localNotes.map { it.content }).containsExactly(
+        "# Uncharted: The Lost Legacy",
+        "# Nicolas Cage \nis a national treasure",
+        "# The Last of Us",
+        "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures"
+    )
+
+    with(remote.fetchFiles()) {
+      assertThat(this).containsOnly(
+          "note_1.md" to "# Uncharted: The Lost Legacy",
+          "note_2.md" to "# The Last of Us",
+          "nicolas_cage.md" to "# Nicolas Cage \nis a national treasure",
+          "witcher_3.md" to "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures"
+      )
+    }
+  }
+
 //  @Test fun `resolve conflicts when content has changed but not the file name`() {
 //    // TODO
 //  }
@@ -181,7 +240,7 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
         File(directory.path, name).write(body)
       }
       gitRepo.addAll()
-      gitRepo.commit(message, timestamp = time?.unixMillisLong?.let(::UtcTimestamp), allowEmpty = true)
+      gitRepo.commit(message, timestamp = UtcTimestamp(time ?: clock.nowUtc()), allowEmpty = true)
     }
 
     @OptIn(ExperimentalStdlibApi::class)

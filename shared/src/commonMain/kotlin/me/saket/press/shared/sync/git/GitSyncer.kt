@@ -157,6 +157,6 @@ class GitSyncer(
 }
 
 @Suppress("FunctionName")
-private fun UtcTimestamp(time: DateTime): UtcTimestamp {
+fun UtcTimestamp(time: DateTime): UtcTimestamp {
   return UtcTimestamp(time.unixMillisLong)
 }
