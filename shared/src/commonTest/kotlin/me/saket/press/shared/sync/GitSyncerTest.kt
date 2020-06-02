@@ -30,10 +30,10 @@ import kotlin.test.Test
 /**
  * See AndroidGitSyncerTest.
  */
-abstract class GitSyncerTest(private val storage: File) : BaseDatabaeTest() {
+abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTest() {
 
   private val noteQueries get() = database.noteQueries
-  private val gitDirectory = File(storage, "git")
+  private val gitDirectory = File(deviceInfo.appStorage, "git")
   private val git = RealGit()
   private val syncer: GitSyncer
   private val clock = FakeClock()
@@ -44,14 +44,15 @@ abstract class GitSyncerTest(private val storage: File) : BaseDatabaeTest() {
 
     syncer = GitSyncer(
         git = git.repository(gitDirectory),
-        database = database
+        database = database,
+        deviceInfo = deviceInfo
     )
     syncer.setRemote("git@github.com:saket/PressSyncPlayground.git")
   }
 
   @AfterTest
   fun cleanUp() {
-    storage.delete(recursively = true)
+    deviceInfo.appStorage.delete(recursively = true)
   }
 
 //  @Test fun `resolve conflicts when content has changed but not the file name`() {
@@ -148,7 +149,7 @@ abstract class GitSyncerTest(private val storage: File) : BaseDatabaeTest() {
   }
 
   private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit) {
-    private val directory = File(storage, "temp").apply { makeDirectory() }
+    private val directory = File(deviceInfo.appStorage, "temp").apply { makeDirectory() }
     private val gitRepo = git.repository(directory)
 
     init {

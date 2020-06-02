@@ -11,15 +11,21 @@ actual object SharedAppComponent : BaseSharedAppComponent() {
 
   fun initialize() {
     setupGraph(PlatformDependencies(
-        sqlDriver = { nativeSqliteDriver() },
-        settings = { appleSettings() },
-        deviceInfo = { DeviceInfo(appStorage = File("todo")) }
+        sqlDriver = { sqliteDriver() },
+        settings = { settings() },
+        deviceInfo = { deviceInfo() }
     ))
   }
 
-  private fun nativeSqliteDriver() =
+  private fun sqliteDriver() =
     NativeSqliteDriver(PressDatabase.Schema, "press.db")
 
-  private fun appleSettings() =
+  private fun settings() =
     AppleSettings(NSUserDefaults.standardUserDefaults())
+
+  private fun deviceInfo() =
+    DeviceInfo(
+        appStorage = File("todo"),
+        deviceName = { TODO() }
+    )
 }

@@ -12,5 +12,8 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Build.VERSION_CODES.P], manifest = Config.NONE)  // API 29 requires Java 9.
 class AndroidGitSyncerTest : GitSyncerTest(
-    storage = File(ApplicationProvider.getApplicationContext<Context>().filesDir.path)
+    deviceInfo = DeviceInfo(
+        appStorage = File(ApplicationProvider.getApplicationContext<Context>().filesDir.path),
+        deviceName = { "Test" }
+    )
 )

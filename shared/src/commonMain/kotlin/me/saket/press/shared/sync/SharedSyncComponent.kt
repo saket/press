@@ -22,7 +22,7 @@ class SharedSyncComponent {
     factory<GitHost> { GitHub(get()) }
 
     factory { RealGit().repository(get<DeviceInfo>().appStorage.path) }
-    factory<Syncer> { GitSyncer(get(), get()) }
+    factory<Syncer> { GitSyncer(get(), get(), get()) }
   }
 
   @OptIn(UnstableDefault::class)

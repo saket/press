@@ -21,15 +21,18 @@ import me.saket.press.shared.sync.Syncer
 // TODO: commit deleted and archived notes as well.
 // TODO: commit only un-synced notes.
 // TODO: push only if something was committed or pulled.
-// TODO: figure out the author email.
 class GitSyncer(
   private val git: GitRepository,
-  private val database: PressDatabase
+  private val database: PressDatabase,
+  private val deviceInfo: DeviceInfo
 ) : Syncer {
 
   private val noteQueries get() = database.noteQueries
   private val directory = File(git.directoryPath)
   private val remoteSet = AtomicReference(false)
+
+  // TODO: figure out this name and email.
+  private val gitAuthor = GitAuthor("Saket", "pressapp@saket.me")
 
   override fun sync() {
     require(remoteSet.get()) { "Remote isn't set" }
@@ -39,6 +42,8 @@ class GitSyncer(
   }
 
   private fun commitAllChanges() {
+    ensureInitialCommit()
+
     val unSyncedNotes = noteQueries.notes().executeAsList()
     if (unSyncedNotes.isEmpty()) {
       return
@@ -56,6 +61,23 @@ class GitSyncer(
           message = "Update '$heading'",
           author = GitAuthor("Saket", "pressapp@saket.me"),
           timestamp = UtcTimestamp(note.updatedAt.unixMillisLong)
+      )
+    }
+  }
+
+  /**
+   * JGit has a bug where rebasing a branch with a single commit ends up drops the commit.
+   * Ensuring that local master has atleast one commit works around the bug. It's probably
+   * also nice to have an initial commit marking the start of syncing on this device.s
+   */
+  private fun ensureInitialCommit() {
+    val head = git.headCommit()
+    if (head == null) {
+      check(git.currentBranch().name == "master")
+      git.commit(
+          message = "Setup syncing on ${deviceInfo.deviceName()}",
+          author = gitAuthor,
+          allowEmpty = true
       )
     }
   }

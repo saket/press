@@ -7,5 +7,9 @@ data class DeviceInfo(
    */
   val appStorage: File,
 
-  val deviceName: String
+  /**
+   * Currently used by [GitSyncer] for identifying
+   * this device when setting up syncing.
+   */
+  val deviceName: () -> String
 )
