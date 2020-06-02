@@ -19,7 +19,7 @@ import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.note.archivedAt
 import me.saket.press.shared.note.deletedAt
-import me.saket.press.shared.sync.git.AppStorage
+import me.saket.press.shared.sync.git.DeviceInfo
 import me.saket.press.shared.sync.git.File
 import me.saket.press.shared.sync.git.GitSyncer
 import me.saket.press.shared.sync.git.repository
@@ -30,10 +30,10 @@ import kotlin.test.Test
 /**
  * See AndroidGitSyncerTest.
  */
-abstract class GitSyncerTest(private val appStorage: AppStorage) : BaseDatabaeTest() {
+abstract class GitSyncerTest(private val storage: File) : BaseDatabaeTest() {
 
   private val noteQueries get() = database.noteQueries
-  private val gitDirectory = File(appStorage.path, "git")
+  private val gitDirectory = File(storage, "git")
   private val git = RealGit()
   private val syncer: GitSyncer
   private val clock = FakeClock()
@@ -51,7 +51,7 @@ abstract class GitSyncerTest(private val appStorage: AppStorage) : BaseDatabaeTe
 
   @AfterTest
   fun cleanUp() {
-    File(appStorage.path).delete(recursively = true)
+    storage.delete(recursively = true)
   }
 
 //  @Test fun `resolve conflicts when content has changed but not the file name`() {
@@ -148,7 +148,7 @@ abstract class GitSyncerTest(private val appStorage: AppStorage) : BaseDatabaeTe
   }
 
   private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit) {
-    private val directory = File(appStorage.path, "temp").apply { makeDirectory() }
+    private val directory = File(storage, "temp").apply { makeDirectory() }
     private val gitRepo = git.repository(directory)
 
     init {

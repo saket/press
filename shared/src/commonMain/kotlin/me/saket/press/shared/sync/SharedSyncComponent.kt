@@ -8,7 +8,7 @@ import io.ktor.client.features.logging.Logging
 import kotlinx.serialization.UnstableDefault
 import me.saket.kgit.RealGit
 import me.saket.press.shared.di.koin
-import me.saket.press.shared.sync.git.AppStorage
+import me.saket.press.shared.sync.git.DeviceInfo
 import me.saket.press.shared.sync.git.GitHost
 import me.saket.press.shared.sync.git.GitHub
 import me.saket.press.shared.sync.git.GitSyncer
@@ -21,7 +21,7 @@ class SharedSyncComponent {
     factory { SyncPreferencesPresenter(get()) }
     factory<GitHost> { GitHub(get()) }
 
-    factory { RealGit().repository(get<AppStorage>().path) }
+    factory { RealGit().repository(get<DeviceInfo>().appStorage.path) }
     factory<Syncer> { GitSyncer(get(), get()) }
   }
 

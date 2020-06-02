@@ -3,7 +3,8 @@ package me.saket.press.shared.sync
 import android.content.Context
 import android.os.Build
 import androidx.test.core.app.ApplicationProvider
-import me.saket.press.shared.sync.git.AppStorage
+import me.saket.press.shared.sync.git.DeviceInfo
+import me.saket.press.shared.sync.git.File
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -11,5 +12,5 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Build.VERSION_CODES.P], manifest = Config.NONE)  // API 29 requires Java 9.
 class AndroidGitSyncerTest : GitSyncerTest(
-    AppStorage(path = ApplicationProvider.getApplicationContext<Context>().filesDir.path)
+    storage = File(ApplicationProvider.getApplicationContext<Context>().filesDir.path)
 )
