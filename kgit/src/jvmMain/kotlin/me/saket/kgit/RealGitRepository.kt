@@ -198,4 +198,13 @@ internal actual class RealGitRepository actual constructor(
       })
     }
   }
+
+  override fun currentBranch(): GitBranch {
+    val fullBranch: String = jgit.repository.fullBranch ?: error("Repository is corrupt and has no HEAD")
+    return if (fullBranch.startsWith("refs/heads/")) {
+      GitBranch(name = JRepository.shortenRefName(fullBranch))
+    } else {
+      error("HEAD is detached and isn't pointing to any branch.")
+    }
+  }
 }

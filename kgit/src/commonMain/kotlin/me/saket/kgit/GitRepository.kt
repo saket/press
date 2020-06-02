@@ -35,4 +35,6 @@ abstract class GitRepository(open val directoryPath: String) {
    * When [from] is null, the [to] commit's tree is compared with an empty tree.
    */
   abstract fun diffBetween(from: GitCommit?, to: GitCommit): GitTreeDiff
+
+  abstract fun currentBranch(): GitBranch
 }
