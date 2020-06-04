@@ -32,8 +32,12 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
     return PlatformFile(renamedDelegate)
   }
 
-  override fun makeDirectory() {
-    delegate.mkdir()
+  override fun makeDirectory(recursively: Boolean) {
+    if (recursively) {
+      delegate.mkdirs()
+    } else {
+      delegate.mkdir()
+    }
   }
 
   override fun delete(recursively: Boolean) {

@@ -22,7 +22,7 @@ interface File {
   /** Kotlin-esque name for renaming a file. */
   fun copy(name: String): File
 
-  fun makeDirectory()
+  fun makeDirectory(recursively: Boolean = false)
 
   fun delete(recursively: Boolean = false)
 
