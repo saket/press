@@ -17,7 +17,9 @@ import org.eclipse.jgit.lib.BranchConfig.BranchRebaseMode.REBASE
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.UserConfig
 import org.eclipse.jgit.merge.MergeStrategy
+import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevWalk
+import org.eclipse.jgit.revwalk.filter.RevFilter
 import org.eclipse.jgit.transport.JschConfigSessionFactory
 import org.eclipse.jgit.transport.OpenSshConfig.Host
 import org.eclipse.jgit.transport.RemoteRefUpdate
@@ -72,14 +74,6 @@ internal actual class RealGitRepository actual constructor(
     jgit.fetch()
         .setTransportConfigCallback(sshTransport())
         .call()
-  }
-
-  override fun checkout(branch: String, create: Boolean) {
-    val branchRef = jgit.checkout()
-        .setCreateBranch(create)
-        .setName(branch)
-        .call()
-    println("branchRef: $branchRef")
   }
 
   override fun rebase(with: GitCommit): RebaseResult {
@@ -171,8 +165,9 @@ internal actual class RealGitRepository actual constructor(
         .call()
   }
 
-  override fun headCommit(): GitCommit? {
-    val head = jgit.repository.resolve("HEAD") ?: return null
+  override fun headCommit(onBranch: String?): GitCommit? {
+    val branch = onBranch ?: currentBranch().name
+    val head = jgit.repository.resolve(branch) ?: return null
 
     RevWalk(jgit.repository).use { walk ->
       val commit = walk.parseCommit(head)
@@ -203,6 +198,17 @@ internal actual class RealGitRepository actual constructor(
       }
 
       return commits.reversed()
+    }
+  }
+
+  override fun commonAncestor(first: GitCommit, second: GitCommit): GitCommit? {
+    RevWalk(jgit.repository).use { walk ->
+      walk.revFilter = RevFilter.MERGE_BASE
+      walk.markStart(first.commit)
+      walk.markStart(second.commit)
+      val mergeBase: RevCommit? = walk.next()
+      walk.dispose()
+      return mergeBase?.let(::GitCommit)
     }
   }
 

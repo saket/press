@@ -86,31 +86,42 @@ class GitSyncer(
     }
   }
 
-  private fun pull() {
-    val headBeforePull = git.headCommit()
-
+  private fun pull(register: FileNameRegister) {
+    // ensureInitialCommit() ensures a local head is always present.
     git.fetch()
-    git.checkout("origin/master")
-    val originHead = git.headCommit()
-    git.checkout("master")
+    val localHead = git.headCommit()!!
+    val upstreamHead = git.headCommit(onBranch = "origin/master")
 
-    if (originHead != null) {
-      val rebaseResult = git.rebase(with = originHead)
-      require(rebaseResult !is RebaseResult.Failure) { "Failed to rebase: $rebaseResult" }
-    }
-
-    val headAfterPull = git.headCommit()
-
-    if (headAfterPull == headBeforePull) {
-      // No changes received.
+    if (localHead == upstreamHead || upstreamHead == null) {
+      // Nothing to fetch.
       return
     }
 
-    // HEAD after pull can't be null if it's not equal to the
-    // HEAD before pull. The git history always moves forward.
-    val commitsPulled = git.commitsBetween(from = headBeforePull, toInclusive = headAfterPull!!)
-    val commitsToDiff = commitsPulled.mapIndexed { index, commit ->
-      commit to git.diffBetween(from = commitsPulled.getOrNull(index - 1), to = commit)
+    val rebaseResult = git.rebase(with = upstreamHead)
+    require(rebaseResult !is RebaseResult.Failure) { "Failed to rebase: $rebaseResult" }
+
+    // A rebase will cause the history to be re-written, so we need
+    // to find the first common ancestor of local and upstream. All
+    // commits from the ancestor to the current HEAD will have to be
+    // (re)processed.
+    val commitsUpdated = git.commitsBetween(
+        from = git.commonAncestor(localHead, upstreamHead),
+        toInclusive = git.headCommit()!!
+    )
+
+    // It would be easier to diff between the common ancestor and the
+    // current HEAD, but Press stores meta information of notes (e.g.,
+    // updated-at timestamp) in each commit so they need to be processed
+    // one-by-one.
+    val commitsToDiff = commitsUpdated.mapIndexed { index, commit ->
+      commit to git.diffBetween(from = commitsUpdated.getOrNull(index - 1), to = commit)
+    }
+
+    println("\nProcessing commits:")
+    commitsToDiff.forEach { (commit, diffs) ->
+      println(commit)
+      println(diffs)
+      println()
     }
 
     val dbOperations = mutableListOf<Runnable>()

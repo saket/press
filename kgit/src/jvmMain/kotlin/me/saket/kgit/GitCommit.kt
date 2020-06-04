@@ -23,6 +23,6 @@ actual class GitCommit(internal val commit: RevCommit) {
     )
 
   override fun toString(): String {
-    return "GitCommit[${sha1} - $message]"
+    return "GitCommit[${sha1.abbreviated} - $message]"
   }
 }

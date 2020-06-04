@@ -21,20 +21,24 @@ abstract class GitRepository(open val directoryPath: String) {
 
   abstract fun fetch()
 
-  abstract fun checkout(branch: String, create: Boolean = false)
-
   abstract fun rebase(with: GitCommit): RebaseResult
 
   abstract fun push(force: Boolean = false): PushResult
 
   abstract fun addRemote(name: String, url: String)
 
-  abstract fun headCommit(): GitCommit?
+  /**
+   * The commit HEAD is pointing to on [onBranch].
+   * When [onBranch] is null, the current branch is used.
+   */
+  abstract fun headCommit(onBranch: String? = null): GitCommit?
 
   /**
    * When [from] is null, a list of all commits till [toInclusive] are returned.
    */
   abstract fun commitsBetween(from: GitCommit?, toInclusive: GitCommit): List<GitCommit>
+
+  abstract fun commonAncestor(first: GitCommit, second: GitCommit): GitCommit?
 
   /**
    * When [from] is null, the [to] commit's tree is compared with an empty tree.
