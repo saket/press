@@ -1,5 +1,8 @@
 package me.saket.press.shared.sync.git
 
+import com.benasher44.uuid.Uuid
+import me.saket.press.shared.settings.Setting
+
 data class DeviceInfo(
   /**
    * Dedicated location for storing files that other apps can't access.
@@ -13,3 +16,6 @@ data class DeviceInfo(
    */
   val deviceName: () -> String
 )
+
+/** Setting for storing a unique ID for Press on this device. */
+inline class DeviceId(val id: Uuid)

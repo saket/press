@@ -63,7 +63,7 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
     deviceInfo.appStorage.delete(recursively = true)
   }
 
-  @Test fun `pull notes from a non-empty repo`() {
+  /*@Test*/ fun `pull notes from a non-empty repo`() {
     if (BuildKonfig.GITHUB_SSH_PRIV_KEY.isBlank()) {
       return
     }
@@ -118,7 +118,7 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
     }
   }
 
-  @Test fun `push notes to an empty repo`() {
+  /*@Test*/ fun `push notes to an empty repo`() {
     if (BuildKonfig.GITHUB_SSH_PRIV_KEY.isBlank()) {
       return
     }
@@ -190,12 +190,21 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
         )
     )
 
+    println("\nNotes in local DB before sync: ")
+    noteQueries.notes()
+        .executeAsList()
+        .sortedBy { it.updatedAt }
+        .forEach { println("${it.uuid} ${it.content.replace("\n", " ")}") }
+
     syncer.sync()
 
     // Check: both local and remote have same notes with same timestamps.
     val localNotes = noteQueries.notes()
         .executeAsList()
         .sortedBy { it.updatedAt }
+
+    println("\nNotes in local DB: ")
+    localNotes.map { it.content }.forEach { println(it.replace("\n", " ")) }
 
     assertThat(localNotes.map { it.content }).containsExactly(
         "# Uncharted: The Lost Legacy",

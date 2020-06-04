@@ -1,6 +1,7 @@
 package me.saket.press.shared.sync.git
 
 import co.touchlab.stately.concurrency.AtomicReference
+import com.benasher44.uuid.uuid4
 import com.soywiz.klock.DateTime
 import kotlinx.coroutines.Runnable
 import me.saket.kgit.GitAuthor
@@ -15,7 +16,6 @@ import me.saket.kgit.RebaseResult
 import me.saket.kgit.UtcTimestamp
 import me.saket.press.PressDatabase
 import me.saket.press.shared.db.NoteId
-import me.saket.press.shared.home.SplitHeadingAndBody
 import me.saket.press.shared.sync.Syncer
 import me.saket.press.shared.time.Clock
 
@@ -39,12 +39,20 @@ class GitSyncer(
 
   override fun sync() {
     require(remoteSet.get()) { "Remote isn't set" }
-    commitAllChanges()
-    pull()
+    fileRegister().use { register ->
+      commitAllChanges(register)
+      pull(register)
+    }
     push()
   }
 
-  private fun commitAllChanges() {
+  private fun fileRegister(): FileNameRegister {
+    val registerDirectory = File(directory, ".press/register/").also { it.makeDirectory(recursively = true) }
+    val deviceId = DeviceId(uuid4())  // todo: get from somewhere.
+    return FileNameRegister(registerDirectory, deviceId)
+  }
+
+  private fun commitAllChanges(register: FileNameRegister) {
     ensureInitialCommit()
 
     val unSyncedNotes = noteQueries.notes().executeAsList()
@@ -54,14 +62,12 @@ class GitSyncer(
 
     directory.makeDirectory()
     for (note in unSyncedNotes) {
-      val (heading) = SplitHeadingAndBody.split(note.content)
-      check(heading.isNotBlank()) { "Heading is empty for: '${note.content}'" }
-      val noteFileName = FileNameSanitizer.sanitize(heading, maxLength = 255)
-      File(directory, "$noteFileName.md").write(note.content)
+      val noteFileName = register.fileNameFor(note)
+      File(directory, noteFileName).write(note.content)
 
       git.addAll()
       git.commit(
-          message = "Update '$heading'",
+          message = "Update '$noteFileName'",
           author = gitAuthor,
           timestamp = UtcTimestamp(note.updatedAt)
       )
@@ -131,14 +137,25 @@ class GitSyncer(
         dbOperations += when (diff) {
           is Add -> {
             val content = File(directory, diff.path).read()
+            val existingId = register.noteIdFor(diff.path)
             val createdAt = DateTime.fromUnix(commit.utcTimestamp.millis)
             Runnable {
-              noteQueries.insert(
-                  uuid = NoteId.generate(),
-                  content = content,
-                  createdAt = createdAt,
-                  updatedAt = createdAt
-              )
+              if (existingId != null) {
+                println("Updating (${diff.path} $existingId) ${content.replace("\n", " ")}")
+                noteQueries.updateContent(
+                    uuid = NoteId.generate(),
+                    content = content,
+                    updatedAt = createdAt
+                )
+              } else {
+                println("Inserting (${diff.path}) ${content.replace("\n", " ")}")
+                noteQueries.insert(
+                    uuid = NoteId.generate(),
+                    content = content,
+                    createdAt = createdAt,
+                    updatedAt = createdAt
+                )
+              }
             }
           }
           is Modify -> TODO()
