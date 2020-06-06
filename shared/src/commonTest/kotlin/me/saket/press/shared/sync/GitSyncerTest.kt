@@ -7,6 +7,7 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotInstanceOf
 import assertk.assertions.isNull
+import com.benasher44.uuid.uuid4
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.hours
 import com.soywiz.klock.milliseconds
@@ -22,6 +23,8 @@ import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.note.archivedAt
 import me.saket.press.shared.note.deletedAt
+import me.saket.press.shared.settings.FakeSetting
+import me.saket.press.shared.sync.git.DeviceId
 import me.saket.press.shared.sync.git.DeviceInfo
 import me.saket.press.shared.sync.git.File
 import me.saket.press.shared.sync.git.GitSyncer
@@ -53,7 +56,8 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
         git = git.repository(gitDirectory),
         database = database,
         deviceInfo = deviceInfo,
-        clock = clock
+        clock = clock,
+        deviceId = FakeSetting(DeviceId(uuid4()))
     )
     syncer.setRemote("git@github.com:saket/PressSyncPlayground.git")
   }
@@ -63,7 +67,7 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
     deviceInfo.appStorage.delete(recursively = true)
   }
 
-  /*@Test*/ fun `pull notes from a non-empty repo`() {
+  @Test fun `pull notes from a non-empty repo`() {
     if (BuildKonfig.GITHUB_SSH_PRIV_KEY.isBlank()) {
       return
     }
@@ -118,7 +122,7 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
     }
   }
 
-  /*@Test*/ fun `push notes to an empty repo`() {
+  @Test fun `push notes to an empty repo`() {
     if (BuildKonfig.GITHUB_SSH_PRIV_KEY.isBlank()) {
       return
     }
@@ -144,12 +148,10 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
     syncer.sync()
 
     // Check that the local note(s) were pushed to remote.
-    with(remote.fetchFiles()) {
-      assertThat(this).containsOnly(
-          "nicolas_cage.md" to "# Nicolas Cage \nis a national treasure",
-          "witcher_3.md" to "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures"
-      )
-    }
+    assertThat(remote.fetchFiles(".md")).containsOnly(
+        "nicolas_cage.md" to "# Nicolas Cage \nis a national treasure",
+        "witcher_3.md" to "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures"
+    )
   }
 
   @Test fun `merge local and remote notes without conflicts`() {
@@ -213,14 +215,12 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
         "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures"
     )
 
-    with(remote.fetchFiles()) {
-      assertThat(this).containsOnly(
-          "note_1.md" to "# Uncharted: The Lost Legacy",
-          "note_2.md" to "# The Last of Us",
-          "nicolas_cage.md" to "# Nicolas Cage \nis a national treasure",
-          "witcher_3.md" to "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures"
-      )
-    }
+    assertThat(remote.fetchFiles(".md")).containsOnly(
+        "note_1.md" to "# Uncharted: The Lost Legacy",
+        "note_2.md" to "# The Last of Us",
+        "nicolas_cage.md" to "# Nicolas Cage \nis a national treasure",
+        "witcher_3.md" to "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures"
+    )
   }
 
 //  @Test fun `resolve conflicts when content has changed but not the file name`() {
@@ -253,14 +253,16 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
     }
 
     @OptIn(ExperimentalStdlibApi::class)
-    fun fetchFiles(): List<Pair<String, String>> {
+    fun fetchFiles(extension: String = ""): List<Pair<String, String>> {
       gitRepo.pull(rebase = true)
       val head = gitRepo.headCommit()!!
       val diffs = gitRepo.diffBetween(from = null, to = head)
       return buildList {
         for (diff in diffs) {
-          check(diff is Add)
-          add(diff.path to File(directory, diff.path).read())
+          check(diff is Add)  // because we're diffing with an empty file tree.
+          if (diff.path.endsWith(extension)) {
+            add(diff.path to File(directory, diff.path).read())
+          }
         }
       }
     }

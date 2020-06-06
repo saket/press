@@ -1,7 +1,6 @@
 package me.saket.press.shared.sync.git
 
 import co.touchlab.stately.concurrency.AtomicReference
-import com.benasher44.uuid.uuid4
 import com.soywiz.klock.DateTime
 import kotlinx.coroutines.Runnable
 import me.saket.kgit.GitAuthor
@@ -16,6 +15,7 @@ import me.saket.kgit.RebaseResult
 import me.saket.kgit.UtcTimestamp
 import me.saket.press.PressDatabase
 import me.saket.press.shared.db.NoteId
+import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.sync.Syncer
 import me.saket.press.shared.time.Clock
 
@@ -27,47 +27,48 @@ class GitSyncer(
   private val git: GitRepository,
   private val database: PressDatabase,
   private val deviceInfo: DeviceInfo,
-  private val clock: Clock
+  private val clock: Clock,
+  private val deviceId: Setting<DeviceId>
 ) : Syncer {
 
   private val noteQueries get() = database.noteQueries
   private val directory = File(git.directoryPath)
   private val remoteSet = AtomicReference(false)
+  private val register = fileRegister()
 
   // TODO: figure out this name and email.
   private val gitAuthor = GitAuthor("Saket", "pressapp@saket.me")
 
   override fun sync() {
-    require(remoteSet.get()) { "Remote isn't set" }
-    fileRegister().use { register ->
-      commitAllChanges(register)
-      pull(register)
-    }
+    val reader = register.read()
+    commitAllChanges(reader)
+    pull(reader)
     push()
   }
 
-  private fun fileRegister(): FileNameRegister {
-    val registerDirectory = File(directory, ".press/register/").also { it.makeDirectory(recursively = true) }
-    val deviceId = DeviceId(uuid4())  // todo: get from somewhere.
-    return FileNameRegister(registerDirectory, deviceId)
-  }
+  private fun fileRegister(): FileNameRegister =
+    with(File(directory, ".press/register/")) {
+      return FileNameRegister(this, deviceId.get())
+    }
 
-  private fun commitAllChanges(register: FileNameRegister) {
+  private fun commitAllChanges(register: FileNameRegister.Reader) {
     ensureInitialCommit()
+    directory.makeDirectory()
 
+    // todo: add a column for tracking sync state.
     val unSyncedNotes = noteQueries.notes().executeAsList()
     if (unSyncedNotes.isEmpty()) {
       return
     }
 
-    directory.makeDirectory()
     for (note in unSyncedNotes) {
-      val noteFileName = register.fileNameFor(note)
-      File(directory, noteFileName).write(note.content)
+      val noteFile = File(directory, register.fileNameFor(note))
+      noteFile.write(note.content)
+      register.save()
 
       git.addAll()
       git.commit(
-          message = "Update '$noteFileName'",
+          message = "Update '${noteFile.name}'",
           author = gitAuthor,
           timestamp = UtcTimestamp(note.updatedAt)
       )
@@ -77,25 +78,28 @@ class GitSyncer(
   /**
    * JGit has a bug where rebasing a branch with a single commit ends up drops the commit.
    * Ensuring that local master has atleast one commit works around the bug. It's probably
-   * also nice to have an initial commit marking the start of syncing on this device.s
+   * also nice to have an initial commit marking the start of syncing on this device.
+   *
+   * https://bugs.eclipse.org/bugs/show_bug.cgi?id=563805
    */
   private fun ensureInitialCommit() {
     val head = git.headCommit()
-    if (head == null) {
-      check(git.currentBranch().name == "master")
-      git.commit(
-          message = "Setup syncing on ${deviceInfo.deviceName()}",
-          author = gitAuthor,
-          timestamp = UtcTimestamp(clock.nowUtc()),
-          allowEmpty = true
-      )
-    }
+    if (head != null) return
+
+    check(git.currentBranch().name == "master")
+    git.commit(
+        message = "Setup syncing on ${deviceInfo.deviceName()}",
+        author = gitAuthor,
+        timestamp = UtcTimestamp(clock.nowUtc()),
+        allowEmpty = true
+    )
   }
 
-  private fun pull(register: FileNameRegister) {
-    // ensureInitialCommit() ensures a local head is always present.
+  private fun pull(register: FileNameRegister.Reader) {
+    require(remoteSet.get())
+
     git.fetch()
-    val localHead = git.headCommit()!!
+    val localHead = git.headCommit()!!  // non-null because of ensureInitialCommit().
     val upstreamHead = git.headCommit(onBranch = "origin/master")
 
     if (localHead == upstreamHead || upstreamHead == null) {
@@ -123,17 +127,10 @@ class GitSyncer(
       commit to git.diffBetween(from = commitsUpdated.getOrNull(index - 1), to = commit)
     }
 
-    println("\nProcessing commits:")
-    commitsToDiff.forEach { (commit, diffs) ->
-      println(commit)
-      println(diffs)
-      println()
-    }
-
     val dbOperations = mutableListOf<Runnable>()
 
     for ((commit, diffs) in commitsToDiff) {
-      for (diff in diffs) {
+      for (diff in diffs.filter { it.path.endsWith(".md") }) {
         dbOperations += when (diff) {
           is Add -> {
             val content = File(directory, diff.path).read()
@@ -141,14 +138,12 @@ class GitSyncer(
             val createdAt = DateTime.fromUnix(commit.utcTimestamp.millis)
             Runnable {
               if (existingId != null) {
-                println("Updating (${diff.path} $existingId) ${content.replace("\n", " ")}")
                 noteQueries.updateContent(
                     uuid = NoteId.generate(),
                     content = content,
                     updatedAt = createdAt
                 )
               } else {
-                println("Inserting (${diff.path}) ${content.replace("\n", " ")}")
                 noteQueries.insert(
                     uuid = NoteId.generate(),
                     content = content,
