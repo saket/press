@@ -10,7 +10,6 @@ import io.ktor.client.features.logging.Logging
 import kotlinx.serialization.UnstableDefault
 import me.saket.kgit.RealGit
 import me.saket.press.shared.di.koin
-import me.saket.press.shared.editor.AutoCorrectEnabled
 import me.saket.press.shared.settings.customTypeSetting
 import me.saket.press.shared.sync.git.DeviceId
 import me.saket.press.shared.sync.git.DeviceInfo

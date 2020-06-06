@@ -1,7 +1,6 @@
 package me.saket.press.shared.sync.git
 
 import com.benasher44.uuid.Uuid
-import me.saket.press.shared.settings.Setting
 
 data class DeviceInfo(
   /**

@@ -11,17 +11,17 @@ import kotlin.native.concurrent.ThreadLocal
 typealias FileName = String
 
 /**
- * Press tries really hard to avoid leaking Press's implementation leaking into user's git
- * repository. This includes using human readable filenames instead of UUIDs, generated note
- * titles. An unfortunate drawback is that filenames can collide despite having unique UUIDs
- * because users can create hundreds of notes titled "shopping checklist".
+ * Press tries really hard to avoid leaking Press's implementation into user's git repository.
+ * This includes using human readable filenames instead of UUIDs, generated from note titles.
+ * An unfortunate drawback is that notes with the same title (e.g., "shopping checklist")
+ * can't have the same filename. This class maintains a mapping of filenames to their UUIDs
+ * to solve this.
  *
- * This class maintains a mapping of filenames to their UUIDs. At the time of writing this,
- * I'm really hoping this works out alright. Otherwise, Press will have to start suffixing
- * filenames with 32 character long UUIDs 🤮.
+ * At the time of writing this, I'm really hoping this works out alright. Otherwise, Press
+ * will have to start suffixing filenames with 32 character long UUIDs 🤮.
  */
 @ThreadLocal
-class FileNameRegister internal constructor(private val directory: File, private val deviceId: DeviceId) {
+class FileNameRegister(private val directory: File, private val deviceId: DeviceId) {
   private val deviceMappingFileName get() = "register_${deviceId.id}"
 
   init {
