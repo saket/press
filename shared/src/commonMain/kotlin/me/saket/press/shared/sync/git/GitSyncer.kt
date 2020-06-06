@@ -19,12 +19,14 @@ import me.saket.press.PressDatabase
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.sync.Syncer
+import me.saket.press.shared.sync.git.GitSyncer.Result.DONE
+import me.saket.press.shared.sync.git.GitSyncer.Result.SKIPPED
 import me.saket.press.shared.time.Clock
 
 // TODO: commit deleted and archived notes as well.
 // TODO: commit only un-synced notes.
-// TODO: push only if something was committed or pulled.
 // TODO: add logging.
+// TODO: figure out git author name/email.
 class GitSyncer(
   private val git: GitRepository,
   private val database: PressDatabase,
@@ -35,27 +37,32 @@ class GitSyncer(
 
   private val noteQueries get() = database.noteQueries
   private val directory = File(git.directoryPath)
-  private val remoteSet = AtomicReference(false)
   private val register = FileNameRegister(Json(Stable))
-
-  // TODO: figure out this name and email.
+  private val remoteSet = AtomicReference(false)
   private val gitAuthor = GitAuthor("Saket", "pressapp@saket.me")
+
+  private enum class Result {
+    DONE,
+    SKIPPED
+  }
 
   override fun sync() {
     val reader = register.read(directory, deviceId)
-    commitAllChanges(reader)
-    pull(reader)
-    push()
+    val commitResult = commitAllChanges(reader)
+    val pullResult = pull(reader)
+
+    if (commitResult == DONE || pullResult == DONE) {
+      push()
+    }
   }
 
-  private fun commitAllChanges(register: FileNameRegister.Reader) {
+  private fun commitAllChanges(register: FileNameRegister.Reader): Result {
     ensureInitialCommit()
     directory.makeDirectory()
 
-    // todo: add a column for tracking sync state.
     val unSyncedNotes = noteQueries.notes().executeAsList()
     if (unSyncedNotes.isEmpty()) {
-      return
+      return SKIPPED
     }
 
     for (note in unSyncedNotes) {
@@ -70,6 +77,7 @@ class GitSyncer(
           timestamp = UtcTimestamp(note.updatedAt)
       )
     }
+    return DONE
   }
 
   /**
@@ -92,7 +100,7 @@ class GitSyncer(
     )
   }
 
-  private fun pull(register: FileNameRegister.Reader) {
+  private fun pull(register: FileNameRegister.Reader): Result {
     require(remoteSet.get())
 
     git.fetch()
@@ -101,7 +109,7 @@ class GitSyncer(
 
     if (localHead == upstreamHead || upstreamHead == null) {
       // Nothing to fetch.
-      return
+      return SKIPPED
     }
 
     // todo: maybe use pull instead.
@@ -164,6 +172,7 @@ class GitSyncer(
         dbOperations.forEach { it.run() }
       }
     }
+    return DONE
   }
 
   private fun push() {
