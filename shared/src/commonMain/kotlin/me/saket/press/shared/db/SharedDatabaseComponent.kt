@@ -21,7 +21,7 @@ internal fun SqlDriver.createPressDatabase(): PressDatabase {
   return PressDatabase(
       driver = this,
       noteAdapter = Note.Adapter(
-          uuidAdapter = NoteId.Adapter(),
+          uuidAdapter = NoteId.SqlAdapter,
           createdAtAdapter = DateTimeAdapter,
           updatedAtAdapter = DateTimeAdapter
       )

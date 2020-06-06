@@ -1,7 +1,9 @@
 package me.saket.press.shared.sync.git
 
 import co.touchlab.stately.ensureNeverFrozen
-import com.benasher44.uuid.uuidFrom
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.Json
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.home.SplitHeadingAndBody
@@ -23,47 +25,49 @@ typealias FileName = String
  */
 @ThreadLocal
 @OptIn(ExperimentalStdlibApi::class)
-class FileNameRegister {
+class FileNameRegister(private val json: Json) {
   init { ensureNeverFrozen() }
 
   fun read(fileDirectory: File, deviceId: Setting<DeviceId>): Reader {
-    val registerDirectory = File(fileDirectory, ".press/registers")
-    registerDirectory.makeDirectory(recursively = true)
+    val registerDirectory = File(fileDirectory, ".press/registers").apply {
+      makeDirectory(recursively = true)
+    }
 
+    // For avoiding merge conflicts, mappings from each device are stored separately.
+    // Mappings are read from all, but new mappings are only written to this device's file.
     val deviceMappingsFile = File(registerDirectory, "register_${deviceId.get().id}")
+    val deviceMappings = deserialize(listOf(deviceMappingsFile)).toMutableMap()
+
     val otherMappingFiles = registerDirectory.children()
         .filter { it.name.startsWith("register_") }
         .filter { it.name != deviceMappingsFile.name }
 
-    // todo: use kotlinx.serialization.
-    val deserialize: (List<File>) -> Map<FileName, NoteId> = { files ->
-      files.map { it.read() }
-          .flatMap { it.split("\n") /* each line contains one record */ }
-          .associate {
-            val (name, id) = it.split("==")
-            name to NoteId(uuidFrom(id))
-          }
-    }
-
-    val deviceMappings = if (deviceMappingsFile.exists) {
-      deserialize(listOf(deviceMappingsFile))
-    } else {
-      emptyMap()
-    }
     return Reader(
-        deviceMappings = deviceMappings.toMutableMap(),
+        deviceMappings = deviceMappings,
         otherMappings = deserialize(otherMappingFiles),
-        onSave = { save(fileDirectory, deviceMappingsFile, deviceMappings) }
+        onSave = { save(deviceMappings, fileDirectory, deviceMappingsFile) }
     )
   }
 
+  private fun deserialize(files: List<File>): Map<FileName, NoteId> {
+    return buildMap {
+      for (file in files.filter { it.exists }) {
+        val serialized = file.read()
+        putAll(json.parse(serializer(), serialized))
+      }
+    }
+  }
+
+  private fun serializer() =
+    MapSerializer(String.serializer(), NoteId.SerializationAdapter)
+
   // todo: test
-  private fun save(fileDirectory: File, deviceMappingsFile: File, mappings: Map<FileName, NoteId>) {
+  private fun save(mappings: Map<FileName, NoteId>, fileDirectory: File, deviceMappingsFile: File) {
     // Prune stale mappings.
     val currentFiles = fileDirectory.children().map { it.name }
     val uptoDateMappings = mappings.filterKeys { it !in currentFiles }
 
-    val serialized = uptoDateMappings.toList().joinToString(separator = "\n") { (name, id) -> "$name==${id.value}" }
+    val serialized = json.stringify(serializer(), uptoDateMappings)
     deviceMappingsFile.write(serialized)
   }
 

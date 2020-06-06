@@ -3,6 +3,8 @@ package me.saket.press.shared.sync.git
 import co.touchlab.stately.concurrency.AtomicReference
 import com.soywiz.klock.DateTime
 import kotlinx.coroutines.Runnable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration.Companion.Stable
 import me.saket.kgit.GitAuthor
 import me.saket.kgit.GitRepository
 import me.saket.kgit.GitTreeDiff.Change.Add
@@ -34,7 +36,7 @@ class GitSyncer(
   private val noteQueries get() = database.noteQueries
   private val directory = File(git.directoryPath)
   private val remoteSet = AtomicReference(false)
-  private val register = FileNameRegister()
+  private val register = FileNameRegister(Json(Stable))
 
   // TODO: figure out this name and email.
   private val gitAuthor = GitAuthor("Saket", "pressapp@saket.me")
@@ -102,6 +104,7 @@ class GitSyncer(
       return
     }
 
+    // todo: maybe use pull instead.
     val rebaseResult = git.rebase(with = upstreamHead)
     require(rebaseResult !is RebaseResult.Failure) { "Failed to rebase: $rebaseResult" }
 

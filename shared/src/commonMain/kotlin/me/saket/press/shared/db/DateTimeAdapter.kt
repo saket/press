@@ -7,7 +7,6 @@ import com.squareup.sqldelight.ColumnAdapter
 
 /** For UTC date times. */
 object DateTimeAdapter : ColumnAdapter<DateTime, String> {
-
   override fun decode(databaseValue: String): DateTime =
     DateFormat.FORMAT1.parse(databaseValue).utc
 

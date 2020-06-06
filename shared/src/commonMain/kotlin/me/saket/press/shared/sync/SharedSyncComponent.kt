@@ -36,7 +36,15 @@ class SharedSyncComponent {
           defaultValue = DeviceId(uuid4())
       )
     }
-    factory<Syncer> { GitSyncer(get(), get(), get(), get(), get(named("device_id"))) }
+    factory<Syncer> {
+      GitSyncer(
+          git = get(),
+          database = get(),
+          deviceInfo = get(),
+          clock = get(),
+          deviceId = get(named("device_id"))
+      )
+    }
   }
 
   @OptIn(UnstableDefault::class)
