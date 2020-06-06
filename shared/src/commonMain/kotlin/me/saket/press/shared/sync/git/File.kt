@@ -12,6 +12,7 @@ interface File {
     operator fun invoke(parentPath: String, name: String): File = PlatformFile(parentPath, name)
   }
 
+  val exists: Boolean
   val path: String
   val name: String
 

@@ -11,6 +11,7 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
 
   override val path: String get() = delegate.path
   override val name: String get() = delegate.name
+  override val exists: Boolean get() = delegate.exists()
 
   override fun write(input: String) {
     delegate.sink().buffer().use {

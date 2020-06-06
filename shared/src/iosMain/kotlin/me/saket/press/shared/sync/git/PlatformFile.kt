@@ -3,6 +3,7 @@ package me.saket.press.shared.sync.git
 actual class PlatformFile actual constructor(parentPath: String, name: String) : File {
   override val path: String get() = TODO()
   override val name: String get() = TODO()
+  override val exists: Boolean get() = TODO()
 
   actual constructor(path: String) : this("foo", "bar") { TODO() }
 

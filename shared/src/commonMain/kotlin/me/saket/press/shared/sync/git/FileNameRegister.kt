@@ -5,6 +5,7 @@ import com.benasher44.uuid.uuidFrom
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.home.SplitHeadingAndBody
+import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.sync.git.FileNameSanitizer.sanitize
 import kotlin.native.concurrent.ThreadLocal
 
@@ -21,25 +22,18 @@ typealias FileName = String
  * will have to start suffixing filenames with 32 character long UUIDs 🤮.
  */
 @ThreadLocal
-class FileNameRegister(private val directory: File, private val deviceId: DeviceId) {
-  private val deviceMappingFileName get() = "register_${deviceId.id}"
+@OptIn(ExperimentalStdlibApi::class)
+class FileNameRegister {
+  init { ensureNeverFrozen() }
 
-  init {
-    ensureNeverFrozen()
-  }
+  fun read(fileDirectory: File, deviceId: Setting<DeviceId>): Reader {
+    val registerDirectory = File(fileDirectory, ".press/registers")
+    registerDirectory.makeDirectory(recursively = true)
 
-  fun read(): Reader {
-    return readRegisters(directory)
-  }
-
-  @OptIn(ExperimentalStdlibApi::class)
-  private fun readRegisters(directory: File): Reader {
-    directory.makeDirectory(recursively = true)
-
-    val (deviceMappingsFile, otherMappingsFile) = directory
-        .children()
+    val deviceMappingsFile = File(registerDirectory, "register_${deviceId.get().id}")
+    val otherMappingFiles = registerDirectory.children()
         .filter { it.name.startsWith("register_") }
-        .partition { it.name == deviceMappingFileName }
+        .filter { it.name != deviceMappingsFile.name }
 
     // todo: use kotlinx.serialization.
     val deserialize: (List<File>) -> Map<FileName, NoteId> = { files ->
@@ -51,22 +45,26 @@ class FileNameRegister(private val directory: File, private val deviceId: Device
           }
     }
 
-    val deviceMappings = deserialize(deviceMappingsFile).toMutableMap()
+    val deviceMappings = if (deviceMappingsFile.exists) {
+      deserialize(listOf(deviceMappingsFile))
+    } else {
+      emptyMap()
+    }
     return Reader(
-        deviceMappings = deviceMappings,
-        otherMappings = deserialize(otherMappingsFile),
-        onSave = { save(deviceMappings) }
+        deviceMappings = deviceMappings.toMutableMap(),
+        otherMappings = deserialize(otherMappingFiles),
+        onSave = { save(fileDirectory, deviceMappingsFile, deviceMappings) }
     )
   }
 
   // todo: test
-  private fun save(mappings: Map<FileName, NoteId>) {
+  private fun save(fileDirectory: File, deviceMappingsFile: File, mappings: Map<FileName, NoteId>) {
     // Prune stale mappings.
-    val currentFiles = directory.children().map { it.name }
+    val currentFiles = fileDirectory.children().map { it.name }
     val uptoDateMappings = mappings.filterKeys { it !in currentFiles }
 
     val serialized = uptoDateMappings.toList().joinToString(separator = "\n") { (name, id) -> "$name==${id.value}" }
-    File(directory, deviceMappingFileName).write(serialized)
+    deviceMappingsFile.write(serialized)
   }
 
   class Reader internal constructor(

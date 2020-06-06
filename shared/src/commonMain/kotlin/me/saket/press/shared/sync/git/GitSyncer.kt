@@ -34,22 +34,17 @@ class GitSyncer(
   private val noteQueries get() = database.noteQueries
   private val directory = File(git.directoryPath)
   private val remoteSet = AtomicReference(false)
-  private val register = fileRegister()
+  private val register = FileNameRegister()
 
   // TODO: figure out this name and email.
   private val gitAuthor = GitAuthor("Saket", "pressapp@saket.me")
 
   override fun sync() {
-    val reader = register.read()
+    val reader = register.read(directory, deviceId)
     commitAllChanges(reader)
     pull(reader)
     push()
   }
-
-  private fun fileRegister(): FileNameRegister =
-    with(File(directory, ".press/register/")) {
-      return FileNameRegister(this, deviceId.get())
-    }
 
   private fun commitAllChanges(register: FileNameRegister.Reader) {
     ensureInitialCommit()
