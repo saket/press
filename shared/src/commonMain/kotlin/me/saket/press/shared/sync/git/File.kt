@@ -20,8 +20,7 @@ interface File {
 
   fun read(): String
 
-  /** Kotlin-esque name for renaming a file. */
-  fun copy(name: String): File
+  fun renameTo(name: String): File
 
   fun makeDirectory(recursively: Boolean = false)
 
