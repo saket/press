@@ -15,6 +15,10 @@ interface File {
   val exists: Boolean
   val path: String
   val name: String
+  val parent: File?
+
+  val extension: String
+    get() = name.substringAfterLast('.', "")
 
   fun write(input: String)
 

@@ -4,6 +4,7 @@ actual class PlatformFile actual constructor(parentPath: String, name: String) :
   override val path: String get() = TODO()
   override val name: String get() = TODO()
   override val exists: Boolean get() = TODO()
+  override val parent: File? get() = TODO()
 
   actual constructor(path: String) : this("foo", "bar") { TODO() }
 
