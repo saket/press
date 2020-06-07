@@ -49,9 +49,6 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
     println()
     git.ssh = SshConfig(privateKey = BuildKonfig.GITHUB_SSH_PRIV_KEY)
 
-    // Git timestamps are precise upto 1 second. Throw away milliseconds.
-    clock.advanceTimeBy(1.seconds - clock.nowUtc().milliseconds.milliseconds)
-
     syncer = GitSyncer(
         git = git.repository(gitDirectory),
         database = database,

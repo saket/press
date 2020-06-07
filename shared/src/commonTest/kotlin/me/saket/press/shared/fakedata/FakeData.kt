@@ -4,15 +4,15 @@ import com.soywiz.klock.DateTime
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.DateTimeAdapter
 import me.saket.press.shared.db.NoteId
+import me.saket.press.shared.time.Clock
 import me.saket.press.shared.time.FakeClock
 import kotlin.random.Random
-
-private val clock = FakeClock()
 
 fun fakeNote(
   localId: Long = Random.Default.nextLong(),
   noteId: NoteId = NoteId.generate(),
   content: String,
+  clock: Clock = FakeClock(),
   createdAt: DateTime = clock.nowUtc(),
   updatedAt: DateTime = clock.nowUtc(),
   archivedAt: DateTime? = null,
