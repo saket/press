@@ -37,13 +37,17 @@ class GitSyncer(
 
   private val noteQueries get() = database.noteQueries
   private val directory = File(git.directoryPath)
-  private val register = FileNameRegister(Json(Stable))
+  private val register = FileNameRegister(Json(Stable.copy(prettyPrint = true)))
   private val remoteSet = AtomicReference(false)
   private val gitAuthor = GitAuthor("Saket", "pressapp@saket.me")
 
   private enum class Result {
     DONE,
     SKIPPED
+  }
+
+  init {
+    git.workaroundJgitBug = true
   }
 
   override fun sync() {
@@ -57,7 +61,7 @@ class GitSyncer(
   }
 
   private fun commitAllChanges(register: FileNameRegister.Reader): Result {
-    ensureInitialCommit()
+    maybeMakeInitialCommit()
     directory.makeDirectory()
 
     val unSyncedNotes = noteQueries.notes().executeAsList()
@@ -80,18 +84,24 @@ class GitSyncer(
     return DONE
   }
 
-  /**
-   * JGit has a bug where rebasing a branch with a single commit ends up drops the commit.
-   * Ensuring that local master has atleast one commit works around the bug. It's probably
-   * also nice to have an initial commit marking the start of syncing on this device.
-   *
-   * https://bugs.eclipse.org/bugs/show_bug.cgi?id=563805
-   */
-  private fun ensureInitialCommit() {
+  /** Announcement commit when syncing begins. */
+  private fun maybeMakeInitialCommit() {
+    check(git.currentBranch().name == "master")
     val head = git.headCommit()
     if (head != null) return
 
-    check(git.currentBranch().name == "master")
+    // Empty commits get thrown away on a rebase so gotta add something -_-.
+    with(File(directory, ".press/")) {
+      makeDirectory(recursively = true)
+      File(this, "README.md").write(
+          "Press uses files in this directory for storing meta-data of your synced notes. " +
+              "They are auto-generated and shouldn't be modified. If you run into any " +
+              "issues with syncing of notes, feel free to file a [bug report here]" +
+              "(https://github.com/saket/press/issues)."
+      )
+    }
+
+    git.addAll()
     git.commit(
         message = "Setup syncing on ${deviceInfo.deviceName()}",
         author = gitAuthor,
@@ -112,7 +122,6 @@ class GitSyncer(
       return SKIPPED
     }
 
-    // todo: maybe use pull instead.
     val rebaseResult = git.rebase(with = upstreamHead)
     require(rebaseResult !is RebaseResult.Failure) { "Failed to rebase: $rebaseResult" }
 
@@ -136,7 +145,16 @@ class GitSyncer(
     val dbOperations = mutableListOf<Runnable>()
 
     for ((commit, diffs) in commitsToDiff) {
-      for (diff in diffs.filter { it.path.endsWith(".md") }) {
+      for (diff in diffs) {
+        if (!diff.path.endsWith(".md")) {
+          // Not a note, ignore.
+          continue
+        }
+        if (diff.path.contains("/")) {
+          // Nested notes aren't supported yet.
+          continue
+        }
+
         dbOperations += when (diff) {
           is Add -> {
             val content = File(directory, diff.path).read()

@@ -148,7 +148,7 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
     syncer.sync()
 
     // Check that the local note(s) were pushed to remote.
-    assertThat(remote.fetchFiles(".md")).containsOnly(
+    assertThat(remote.fetchNoteFiles()).containsOnly(
         "nicolas_cage.md" to "# Nicolas Cage \nis a national treasure",
         "witcher_3.md" to "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures"
     )
@@ -215,7 +215,7 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
         "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures"
     )
 
-    assertThat(remote.fetchFiles(".md")).containsOnly(
+    assertThat(remote.fetchNoteFiles()).containsOnly(
         "note_1.md" to "# Uncharted: The Lost Legacy",
         "note_2.md" to "# The Last of Us",
         "nicolas_cage.md" to "# Nicolas Cage \nis a national treasure",
@@ -253,14 +253,14 @@ abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTe
     }
 
     @OptIn(ExperimentalStdlibApi::class)
-    fun fetchFiles(extension: String = ""): List<Pair<String, String>> {
+    fun fetchNoteFiles(): List<Pair<String, String>> {
       gitRepo.pull(rebase = true)
       val head = gitRepo.headCommit()!!
       val diffs = gitRepo.diffBetween(from = null, to = head)
       return buildList {
         for (diff in diffs) {
           check(diff is Add)  // because we're diffing with an empty file tree.
-          if (diff.path.endsWith(extension)) {
+          if (diff.path.endsWith(".md") && !diff.path.contains("/")) {
             add(diff.path to File(directory, diff.path).read())
           }
         }

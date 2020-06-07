@@ -16,7 +16,7 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType.RENAME
 import org.eclipse.jgit.lib.BranchConfig.BranchRebaseMode.REBASE
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.UserConfig
-import org.eclipse.jgit.merge.MergeStrategy
+import org.eclipse.jgit.merge.MergeStrategy.RECURSIVE
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.revwalk.filter.RevFilter
@@ -44,8 +44,28 @@ internal actual class RealGitRepository actual constructor(
     JGit.init().setDirectory(File(directoryPath)).call()
   }
 
+  override var workaroundJgitBug: Boolean = false
+
   override fun addAll() {
+    workaroundJgitRebaseBug()
     jgit.add().addFilepattern(".").call()
+  }
+
+  private fun workaroundJgitRebaseBug() {
+    if (workaroundJgitBug && headCommit() == null) {
+      commit(
+          message = """
+              |JGit bug workaround
+              |
+              |Press uses JGit for syncing notes on Android, but it has an annoying
+              |bug where commits without a parent get dropped after a rebase, which 
+              |is always going to be true for the first commit. As a workaround, 
+              |Press adds a dummy commit that sacrifices itself to protect an actual
+              |commit. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=563805.
+              """.trimMargin(),
+          allowEmpty = true
+      )
+    }
   }
 
   @Suppress("NAME_SHADOWING")
@@ -79,7 +99,7 @@ internal actual class RealGitRepository actual constructor(
   override fun rebase(with: GitCommit): RebaseResult {
     val rebaseResult = jgit.rebase()
         .setUpstream(with.commit)
-        .setStrategy(MergeStrategy.RECURSIVE)
+        .setStrategy(RECURSIVE)
         .call()
 
     return when {

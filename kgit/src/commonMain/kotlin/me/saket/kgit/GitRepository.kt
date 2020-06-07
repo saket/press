@@ -3,6 +3,9 @@ package me.saket.kgit
 internal expect class RealGitRepository(git: Git, directoryPath: String) : GitRepository
 
 abstract class GitRepository(open val directoryPath: String) {
+  // See usage in JVM for explanation.
+  abstract var workaroundJgitBug: Boolean
+
   /** git add . */
   abstract fun addAll()
 

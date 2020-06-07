@@ -65,10 +65,10 @@ class FileNameRegister(private val json: Json) {
   private fun save(mappings: Map<FileName, NoteId>, fileDirectory: File, deviceMappingsFile: File) {
     // Prune stale mappings.
     val currentFiles = fileDirectory.children().map { it.name }
-    val uptoDateMappings = mappings.filterKeys { it !in currentFiles }
+    val uptoDateMappings = mappings.filterKeys { it in currentFiles }
 
     val serialized = json.stringify(serializer(), uptoDateMappings)
-    deviceMappingsFile.write(serialized)
+    deviceMappingsFile.write("$serialized\n")
   }
 
   class Reader internal constructor(
