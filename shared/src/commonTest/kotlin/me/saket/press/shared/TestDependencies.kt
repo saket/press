@@ -1,19 +1,13 @@
 package me.saket.press.shared
 
 import me.saket.press.shared.db.BaseDatabaeTest
+import me.saket.press.shared.sync.git.DeviceInfo
 import kotlin.reflect.KClass
 
 /**
- * Still not fully sure how this works, but the common tests are on the JVM
- * using Android's JUnit runner so that an in-memory database can be created.
- * See [BaseDatabaeTest].
- *
- * Copied from https://github.com/russhwolf/soluna
+ * Common tests are run on the JVM using Robolectric so that
+ * an in-memory database can be created. See [BaseDatabaeTest].
  */
-expect abstract class Runner
-expect class AndroidJUnit4 : Runner
+expect abstract class RobolectricTest()
 
-@Suppress("unused")
-@OptionalExpectation
-@UseExperimental(ExperimentalMultiplatform::class)
-expect annotation class RunWith(val value: KClass<out Runner>)
+expect fun testDeviceInfo(): DeviceInfo

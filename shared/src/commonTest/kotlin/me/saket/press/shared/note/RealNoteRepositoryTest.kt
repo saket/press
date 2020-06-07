@@ -6,15 +6,12 @@ import assertk.assertions.isNotNull
 import com.badoo.reaktive.scheduler.trampolineScheduler
 import com.badoo.reaktive.test.completable.test
 import com.soywiz.klock.seconds
-import me.saket.press.shared.AndroidJUnit4
-import me.saket.press.shared.RunWith
 import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.time.FakeClock
 import kotlin.test.Test
 
-@RunWith(AndroidJUnit4::class)
 class RealNoteRepositoryTest : BaseDatabaeTest() {
 
   private val clock = FakeClock()

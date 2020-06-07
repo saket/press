@@ -10,8 +10,6 @@ import assertk.assertions.isNull
 import com.benasher44.uuid.uuid4
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.hours
-import com.soywiz.klock.milliseconds
-import com.soywiz.klock.seconds
 import me.saket.kgit.GitTreeDiff.Change.Add
 import me.saket.kgit.PushResult.Failure
 import me.saket.kgit.RealGit
@@ -20,12 +18,12 @@ import me.saket.press.data.shared.Note
 import me.saket.press.data.shared.NoteQueries
 import me.saket.press.shared.BuildKonfig
 import me.saket.press.shared.db.BaseDatabaeTest
+import me.saket.press.shared.testDeviceInfo
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.note.archivedAt
 import me.saket.press.shared.note.deletedAt
 import me.saket.press.shared.settings.FakeSetting
 import me.saket.press.shared.sync.git.DeviceId
-import me.saket.press.shared.sync.git.DeviceInfo
 import me.saket.press.shared.sync.git.File
 import me.saket.press.shared.sync.git.GitSyncer
 import me.saket.press.shared.sync.git.UtcTimestamp
@@ -34,11 +32,9 @@ import me.saket.press.shared.time.FakeClock
 import kotlin.test.AfterTest
 import kotlin.test.Test
 
-/**
- * See AndroidGitSyncerTest.
- */
-abstract class GitSyncerTest(private val deviceInfo: DeviceInfo) : BaseDatabaeTest() {
+class GitSyncerTest : BaseDatabaeTest() {
 
+  private val deviceInfo = testDeviceInfo()
   private val noteQueries get() = database.noteQueries
   private val gitDirectory = File(deviceInfo.appStorage, "git")
   private val git = RealGit()

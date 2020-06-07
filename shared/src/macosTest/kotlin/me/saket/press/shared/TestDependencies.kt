@@ -1,5 +1,7 @@
 package me.saket.press.shared
 
-// Unused on iOS.
-actual abstract class Runner
-actual class AndroidJUnit4 : Runner()
+import me.saket.press.shared.sync.git.DeviceInfo
+
+// Unused on macOS.
+actual abstract class RobolectricTest
+actual fun testDeviceInfo(): DeviceInfo = TODO()

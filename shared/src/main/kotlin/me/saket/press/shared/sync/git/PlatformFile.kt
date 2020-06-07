@@ -12,6 +12,7 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
   override val path: String get() = delegate.path
   override val name: String get() = delegate.name
   override val exists: Boolean get() = delegate.exists()
+  override val parent: File? get() = delegate.parentFile?.let(::PlatformFile)
 
   override fun write(input: String) {
     delegate.sink().buffer().use {
@@ -25,12 +26,13 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
     }
   }
 
-  override fun copy(name: String): File {
+  override fun renameTo(name: String): File {
     require(delegate.parent != null)
-    val renamedDelegate = JavaFile(delegate.parent, name)
-    val renamed = delegate.renameTo(renamedDelegate)
+
+    val newDelegate = JavaFile(delegate.parent, name)
+    val renamed = delegate.renameTo(newDelegate)
     check(renamed) { "Couldn't rename file ($this) to $name" }
-    return PlatformFile(renamedDelegate)
+    return PlatformFile(newDelegate)
   }
 
   override fun makeDirectory(recursively: Boolean) {
