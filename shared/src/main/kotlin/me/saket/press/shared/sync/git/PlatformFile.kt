@@ -26,13 +26,14 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
     }
   }
 
-  override fun renameTo(name: String): File {
+  override fun copy(name: String, recursively: Boolean): File {
     require(delegate.parent != null)
+    require(recursively) { "todo non-recursive copy" }
 
-    val newDelegate = JavaFile(delegate.parent, name)
-    val renamed = delegate.renameTo(newDelegate)
-    check(renamed) { "Couldn't rename file ($this) to $name" }
-    return PlatformFile(newDelegate)
+    val targetDelegate = JavaFile(delegate.parent, name)
+    val copied = delegate.copyRecursively(target = targetDelegate, overwrite = true)
+    check(copied) { "Couldn't copy file ($this) to $name" }
+    return PlatformFile(targetDelegate)
   }
 
   override fun makeDirectory(recursively: Boolean) {
@@ -61,6 +62,7 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
   }
 
   override fun children(): List<File> {
+    require(exists) { "Non-existent path: $path" }
     return delegate.listFiles()!!.map { PlatformFile(it) }
   }
 

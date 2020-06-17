@@ -20,11 +20,14 @@ interface File {
   val extension: String
     get() = name.substringAfterLast('.', "")
 
+  val nameWithoutExtension: String
+    get() = name.substringBeforeLast('.')
+
   fun write(input: String)
 
   fun read(): String
 
-  fun renameTo(name: String): File
+  fun copy(name: String, recursively: Boolean = false): File
 
   fun makeDirectory(recursively: Boolean = false)
 
