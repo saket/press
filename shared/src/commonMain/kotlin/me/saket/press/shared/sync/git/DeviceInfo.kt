@@ -15,6 +15,3 @@ data class DeviceInfo(
    */
   val deviceName: () -> String
 )
-
-/** Setting for storing a unique ID for Press on this device. */
-inline class DeviceId(val id: Uuid)

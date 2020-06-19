@@ -31,8 +31,7 @@ class GitSyncer(
   private val git: GitRepository,
   private val database: PressDatabase,
   private val deviceInfo: DeviceInfo,
-  private val clock: Clock,
-  private val deviceId: Setting<DeviceId>
+  private val clock: Clock
 ) : Syncer {
 
   private val noteQueries get() = database.noteQueries
