@@ -62,8 +62,8 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
   }
 
   override fun children(): List<File> {
-    require(exists) { "Non-existent path: $path" }
-    return delegate.listFiles()!!.map { PlatformFile(it) }
+    val children = delegate.listFiles() ?: error("Can't print children. Exists? $exists. Path: $path")
+    return children.map { PlatformFile(it) }
   }
 
   override fun toString(): String {

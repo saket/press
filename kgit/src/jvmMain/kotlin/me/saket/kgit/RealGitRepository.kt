@@ -7,6 +7,8 @@ import me.saket.kgit.GitTreeDiff.Change.Copy
 import me.saket.kgit.GitTreeDiff.Change.Delete
 import me.saket.kgit.GitTreeDiff.Change.Modify
 import me.saket.kgit.GitTreeDiff.Change.Rename
+import me.saket.kgit.MergeStrategy.OURS
+import org.eclipse.jgit.api.RebaseResult.Status.STOPPED
 import org.eclipse.jgit.api.TransportConfigCallback
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.ADD
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.COPY
@@ -16,7 +18,8 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType.RENAME
 import org.eclipse.jgit.lib.BranchConfig.BranchRebaseMode.REBASE
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.UserConfig
-import org.eclipse.jgit.merge.MergeStrategy.RECURSIVE
+import org.eclipse.jgit.merge.ResolveMerger
+import org.eclipse.jgit.merge.ThreeWayMergeStrategy
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.revwalk.filter.RevFilter
@@ -29,11 +32,16 @@ import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.EmptyTreeIterator
 import org.eclipse.jgit.util.FS
 import java.io.File
+import java.time.Duration
 import java.util.Date
 import java.util.TimeZone
 import org.eclipse.jgit.api.Git as JGit
 import org.eclipse.jgit.lib.Repository as JRepository
+import org.eclipse.jgit.merge.MergeStrategy as JgitMergeStrategy
 
+/**
+ * JGit is garbage. Try replacing it with [github.com/git24j/git24j].
+ */
 internal actual class RealGitRepository actual constructor(
   private val git: Git,
   override val directoryPath: String
@@ -43,18 +51,22 @@ internal actual class RealGitRepository actual constructor(
     // Initializing a directory that already has git will no-op.
     JGit.init().setDirectory(File(directoryPath)).call()
   }
-
   override var workaroundJgitBug: Boolean = false
 
-  override fun addAll() {
-    workaroundJgitRebaseBug()
-    jgit.add().addFilepattern(".").call()
-  }
+  @Suppress("NAME_SHADOWING")
+  override fun commitAll(
+    message: String,
+    author: GitAuthor?,
+    timestamp: UtcTimestamp?,
+    allowEmpty: Boolean
+  ) {
+    val author = timestamp?.let {
+      val author = author ?: defaultCommitAuthor()
+      PersonIdent(author.name, author.email, Date(it.millis), TimeZone.getTimeZone("UTC"))
+    }
 
-  private fun workaroundJgitRebaseBug() {
     if (workaroundJgitBug && headCommit() == null) {
-      commit(
-          message = """
+      val message = """
               |JGit bug workaround
               |
               |Press uses JGit for syncing notes on Android, but it has an annoying
@@ -62,26 +74,23 @@ internal actual class RealGitRepository actual constructor(
               |is always going to be true for the first commit. As a workaround, 
               |Press adds a dummy commit that sacrifices itself to protect an actual
               |commit. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=563805.
-              """.trimMargin(),
-          allowEmpty = true
-      )
+              """.trimMargin()
+      jgit.commit()
+          .setAllowEmpty(true)
+          .setMessage(message)
+          .setAuthor(author)
+          .call()
     }
-  }
 
-  @Suppress("NAME_SHADOWING")
-  override fun commit(
-    message: String,
-    author: GitAuthor?,
-    timestamp: UtcTimestamp?,
-    allowEmpty: Boolean
-  ) {
+    jgit.add().addFilepattern(".").call()
+
     jgit.commit()
+        // Calling 'add .' in JGit doesn't add deleted files, unlike
+        // native git. So it's important to use setAll(true) here.
+        .setAll(true)
         .setAllowEmpty(allowEmpty)
         .setMessage(message)
-        .setAuthor(timestamp?.let {
-          val author = author ?: defaultCommitAuthor()
-          PersonIdent(author.name, author.email, Date(it.millis), TimeZone.getTimeZone("UTC"))
-        })
+        .setAuthor(author)
         .call()
   }
 
@@ -96,15 +105,34 @@ internal actual class RealGitRepository actual constructor(
         .call()
   }
 
-  override fun rebase(with: GitCommit): RebaseResult {
+  override fun mergeConflicts(with: GitCommit): List<MergeConflict> {
+    val head = headCommit() ?: return emptyList()
+
+    val merger = ThreeWayMergeStrategy.RECURSIVE.newMerger(jgit.repository, true /* in-memory */)
+    val canMerge = merger.merge(head.commit, with.commit)
+    if (canMerge) {
+      return emptyList()
+    }
+
+    check(merger is ResolveMerger)
+    check(merger.unmergedPaths.isNotEmpty()) {
+      "Merge will fail despite having zero conflicts. Failing paths: ${merger.failingPaths}"
+    }
+    return merger.unmergedPaths.map(::MergeConflict)
+  }
+
+  override fun rebase(with: GitCommit, strategy: MergeStrategy): RebaseResult {
     val rebaseResult = jgit.rebase()
         .setUpstream(with.commit)
-        .setStrategy(RECURSIVE)
+        .setStrategy(strategy.toJgit())
         .call()
 
-    return when {
-      rebaseResult.status.isSuccessful -> RebaseResult.Success
-      else -> RebaseResult.Failure(reason = rebaseResult.toString())
+    return with(rebaseResult) {
+      when {
+        status.isSuccessful -> RebaseResult.Success
+        status == STOPPED -> RebaseResult.Failure(details = "Merge conflicts")
+        else -> RebaseResult.Failure(details = "Unknown. Failing: $failingPaths, uncommitted: $uncommittedChanges")
+      }
     }
   }
 
@@ -162,10 +190,10 @@ internal actual class RealGitRepository actual constructor(
           return super.createSession(emptyHost, user, host, port, fs)
         }
 
-        override fun createDefaultJSch(fs: FS): JSch? {
+        override fun createDefaultJSch(fs: FS): JSch {
           return super.createDefaultJSch(fs).apply {
             addIdentity(
-                "foo" /* name */,
+                "ssh-key" /* name */,
                 sshConfig.privateKey.toByteArray(),
                 null  /* public key */,
                 sshConfig.passphrase?.toByteArray()
@@ -268,5 +296,19 @@ internal actual class RealGitRepository actual constructor(
     } else {
       error("HEAD is detached and isn't pointing to any branch.")
     }
+  }
+
+  private fun printLog(title: String) {
+    println(title)
+    for (log in jgit.log().call()) {
+      val relativeTime = Duration.ofMillis(System.currentTimeMillis() - log.authorIdent.`when`.time)
+      println("${log.name.take(7)} - ${log.shortMessage} (${relativeTime.toHours()}h ago)")
+    }
+  }
+}
+
+private fun MergeStrategy.toJgit(): JgitMergeStrategy {
+  return when (this) {
+    OURS -> FakeOneSidedStrategy()
   }
 }

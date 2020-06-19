@@ -3,11 +3,12 @@ package me.saket.press.shared.sync
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.containsOnly
+import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotInstanceOf
 import assertk.assertions.isNull
-import com.benasher44.uuid.uuid4
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.hours
 import me.saket.kgit.GitTreeDiff.Change.Add
@@ -18,16 +19,14 @@ import me.saket.press.data.shared.Note
 import me.saket.press.data.shared.NoteQueries
 import me.saket.press.shared.BuildKonfig
 import me.saket.press.shared.db.BaseDatabaeTest
-import me.saket.press.shared.testDeviceInfo
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.note.archivedAt
 import me.saket.press.shared.note.deletedAt
-import me.saket.press.shared.settings.FakeSetting
-import me.saket.press.shared.sync.git.DeviceId
 import me.saket.press.shared.sync.git.File
 import me.saket.press.shared.sync.git.GitSyncer
 import me.saket.press.shared.sync.git.UtcTimestamp
 import me.saket.press.shared.sync.git.repository
+import me.saket.press.shared.testDeviceInfo
 import me.saket.press.shared.time.FakeClock
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -49,8 +48,7 @@ class GitSyncerTest : BaseDatabaeTest() {
         git = git.repository(gitDirectory),
         database = database,
         deviceInfo = deviceInfo,
-        clock = clock,
-        deviceId = FakeSetting(DeviceId(uuid4()))
+        clock = clock
     )
     syncer.setRemote("git@github.com:saket/PressSyncPlayground.git")
   }
@@ -198,9 +196,6 @@ class GitSyncerTest : BaseDatabaeTest() {
         .executeAsList()
         .sortedBy { it.updatedAt }
 
-    println("\nNotes in local DB: ")
-    localNotes.map { it.content }.forEach { println(it.replace("\n", " ")) }
-
     assertThat(localNotes.map { it.content }).containsExactly(
         "# Uncharted: The Lost Legacy",
         "# Nicolas Cage \nis a national treasure",
@@ -216,11 +211,60 @@ class GitSyncerTest : BaseDatabaeTest() {
     )
   }
 
-//  @Test fun `resolve conflicts when content has changed but not the file name`() {
+  @Test fun `resolve conflicts when content has changed but not the file name`() {
+    clock.rewindTimeBy(10.hours)
+
+    // Given: a note was created on another device.
+    val remote = RemoteRepositoryRobot {
+      commitFiles(
+          message = "First commit",
+          time = clock.nowUtc(),
+          files = listOf("uncharted.md" to "# Uncharted")
+      )
+      forcePush()
+    }
+    syncer.sync()
+
+    // Given: the same note was edited locally.
+    val locallyEditedNote = noteQueries.notes().executeAsOne()
+    clock.advanceTimeBy(1.hours)
+    noteQueries.updateContent(
+        uuid = locallyEditedNote.uuid,
+        content = "# Uncharted\nLocal edit",
+        updatedAt = clock.nowUtc()
+    )
+
+    // Given: the same note was edited on remote in a conflicting way.
+    clock.advanceTimeBy(1.hours)
+    with(remote) {
+      commitFiles(
+          message = "Second commit",
+          time = clock.nowUtc(),
+          files = listOf("uncharted.md" to "# Uncharted\nRemote edit")
+      )
+      forcePush()
+    }
+
+    // The conflict should get auto-resolved here.
+    syncer.sync()
+
+    val localNotes = noteQueries.notes().executeAsList().sortedBy { it.updatedAt }
+
+    // The local note should get duplicated as a new note and then
+    // the local note should get overridden by the server copy.
+    assertThat(localNotes).hasSize(2)
+    assertThat(localNotes[0].content).isEqualTo("# Uncharted\nRemote edit")
+    assertThat(localNotes[0].uuid).isEqualTo(locallyEditedNote.uuid)
+
+    assertThat(localNotes[1].content).isEqualTo("# Uncharted\nLocal edit")
+    assertThat(localNotes[1].uuid).isNotEqualTo(locallyEditedNote.uuid)
+  }
+
+//  @Test fun `resolve conflicts when both the content and file name have changed`() {
 //    // TODO
 //  }
 //
-//  @Test fun `resolve conflicts when both the content and file name have changed`() {
+//  @Test fun `notes with the same title are stored in separate files`() {
 //    // TODO
 //  }
 
@@ -241,8 +285,7 @@ class GitSyncerTest : BaseDatabaeTest() {
       files.forEach { (name, body) ->
         File(directory.path, name).write(body)
       }
-      gitRepo.addAll()
-      gitRepo.commit(message, timestamp = UtcTimestamp(time ?: clock.nowUtc()), allowEmpty = true)
+      gitRepo.commitAll(message, timestamp = UtcTimestamp(time ?: clock.nowUtc()), allowEmpty = true)
     }
 
     @OptIn(ExperimentalStdlibApi::class)

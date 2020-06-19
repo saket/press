@@ -27,6 +27,10 @@ class FakeClock : Clock {
   override fun nowLocal() = utc.value.toOffset(offset.value)
 
   fun advanceTimeBy(span: TimeSpan) {
-    utc.value = utc.value.plus(span)
+    utc.value = utc.value + span
+  }
+
+  fun rewindTimeBy(span: TimeSpan) {
+    utc.value = utc.value - span
   }
 }

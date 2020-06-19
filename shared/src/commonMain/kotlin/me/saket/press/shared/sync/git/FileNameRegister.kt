@@ -1,15 +1,10 @@
 package me.saket.press.shared.sync.git
 
-import co.touchlab.stately.ensureNeverFrozen
-import kotlinx.serialization.builtins.MapSerializer
-import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.json.Json
+import com.benasher44.uuid.uuidFrom
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.home.SplitHeadingAndBody
-import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.sync.git.FileNameSanitizer.sanitize
-import kotlin.native.concurrent.ThreadLocal
 
 typealias FileName = String
 
@@ -23,97 +18,80 @@ typealias FileName = String
  * At the time of writing this, I'm really hoping this works out alright. Otherwise, Press
  * will have to start suffixing filenames with 32 character long UUIDs 🤮.
  */
-@ThreadLocal
 @OptIn(ExperimentalStdlibApi::class)
-class FileNameRegister(private val json: Json) {
-  init { ensureNeverFrozen() }
-
-  fun read(fileDirectory: File, deviceId: Setting<DeviceId>): Reader {
-    val registerDirectory = File(fileDirectory, ".press/registers").apply {
-      makeDirectory(recursively = true)
-    }
-
-    // For avoiding merge conflicts, mappings from each device are stored separately.
-    // Mappings are read from all, but new mappings are only written to this device's file.
-    val deviceMappingsFile = File(registerDirectory, "register_${deviceId.get().id}")
-    val deviceMappings = deserialize(listOf(deviceMappingsFile)).toMutableMap()
-
-    val otherMappingFiles = registerDirectory.children()
-        .filter { it.name.startsWith("register_") }
-        .filter { it.name != deviceMappingsFile.name }
-
-    return Reader(
-        deviceMappings = deviceMappings,
-        otherMappings = deserialize(otherMappingFiles),
-        onSave = { save(deviceMappings, fileDirectory, deviceMappingsFile) }
-    )
+class FileNameRegister(directory: File) {
+  companion object {
+    // Both NTFS and Unix file systems have a max-length of 255 letters.
+    // Reserving 15 letters for handling conflicts and file name extension.
+    private const val MAX_NAME_LENGTH = 240
+    private const val SEPARATOR = "___"
   }
 
-  private fun deserialize(files: List<File>): Map<FileName, NoteId> {
-    return buildMap {
-      for (file in files.filter { it.exists }) {
-        val serialized = file.read()
-        putAll(json.parse(serializer(), serialized))
+  private val registerDirectory = File(directory, ".press/registers").also {
+    it.makeDirectory(recursively = true)
+  }
+
+  private fun serialize(noteFileName: String, id: NoteId) =
+    "$noteFileName$SEPARATOR${id.value}"
+
+  private fun deserialize(registerName: String): Pair<String, String> {
+    val (name, id) = registerName.split(SEPARATOR)
+    return name to id
+  }
+
+  /**
+   * If a mapping does not exist, this file is either new or this register
+   * was recreated after getting deleted. In both cases, a new ID should be
+   * created.
+   */
+  @Suppress("NAME_SHADOWING")
+  fun noteIdFor(fileName: String): NoteId? {
+    require(fileName.endsWith("md")) { "Not a note: $fileName" }
+    val fileName = fileName.substringBeforeLast(".")
+
+    for (file in registerDirectory.children()) {
+      val (name, id) = deserialize(registerName = file.name)
+      if (name == fileName) {
+        return NoteId(uuidFrom(id))
       }
+    }
+    return null
+  }
+
+  fun fileNameFor(note: Note): FileName {
+    val existingNames = registerDirectory.children().map { file ->
+      val (name) = file.name.split(SEPARATOR)
+      return@map name
+    }
+
+    val (heading) = SplitHeadingAndBody.split(note.content)
+    val expectedName = if (heading.isNotBlank()) heading else "untitled_note"
+
+    // Suffix the name to avoid conflicts. E.g., "untitled_note_2".
+    var uniqueName: String
+    var conflicts = 0
+    loop@ while (true) {
+      uniqueName = sanitize(expectedName, MAX_NAME_LENGTH) + if (conflicts++ == 0) "" else "_$conflicts"
+      if (uniqueName !in existingNames) break@loop
+    }
+
+    return "$uniqueName.md".also {
+      val serializedName = serialize(noteFileName = uniqueName, id = note.uuid)
+      File(registerDirectory, serializedName).write("")
     }
   }
 
-  private fun serializer() =
-    MapSerializer(String.serializer(), NoteId.SerializationAdapter)
+  fun findNewNameOnConflict(noteFile: File): FileName {
+    val extension = noteFile.extension
+    val conflictedName = noteFile.nameWithoutExtension
+    val existingNames = noteFile.parent!!.children().map { it.name }
 
-  // todo: test
-  private fun save(mappings: Map<FileName, NoteId>, fileDirectory: File, deviceMappingsFile: File) {
-    // Prune stale mappings.
-    val currentFiles = fileDirectory.children().map { it.name }
-    val uptoDateMappings = mappings.filterKeys { it in currentFiles }
-
-    val serialized = json.stringify(serializer(), uptoDateMappings)
-    deviceMappingsFile.write("$serialized\n")
-  }
-
-  class Reader internal constructor(
-    val deviceMappings: MutableMap<FileName, NoteId>,
-    private val otherMappings: Map<FileName, NoteId>,
-    private val onSave: () -> Unit
-  ) {
-
-    /**
-     * If a mapping does not exist, this file is either new or this register
-     * was recreated after getting deleted. In both cases, a new ID should be
-     * created.
-     */
-    fun noteIdFor(fileName: String): NoteId? {
-      return deviceMappings[fileName] ?: otherMappings[fileName]
+    // Suffix the name to avoid conflicts. E.g., "untitled_note_2".
+    var conflicts = 0
+    var newName: String = noteFile.name
+    while (newName in existingNames) {
+      newName = "${sanitize(conflictedName, MAX_NAME_LENGTH)}_${++conflicts + 1}.$extension"
     }
-
-    fun fileNameFor(note: Note): FileName {
-      val (heading) = SplitHeadingAndBody.split(note.content)
-      val expectedName = if (heading.isNotBlank()) heading else "untitled_note"
-
-      // Suffix the name to avoid conflicts. E.g., "untitled_note_2".
-      var uniqueName: String
-      var conflicts = 0
-      loop@ while (true) {
-        uniqueName = sanitize(expectedName, maxLength = 240) + if (conflicts++ == 0) "" else "_$conflicts"
-
-        when (noteIdFor("$uniqueName.md")) {
-          note.uuid -> break@loop   // Reuse the same name.
-          null -> break@loop        // New note. Can still use this name.
-          else -> continue@loop     // Conflict! Try another name.
-        }
-      }
-
-      return "$uniqueName.md".also {
-        deviceMappings += it to note.uuid
-      }
-    }
-
-    operator fun get(note: Note): FileName {
-      return fileNameFor(note)
-    }
-
-    fun save() {
-      onSave()
-    }
+    return newName
   }
 }

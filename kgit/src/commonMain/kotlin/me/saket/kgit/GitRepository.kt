@@ -4,16 +4,15 @@ internal expect class RealGitRepository(git: Git, directoryPath: String) : GitRe
 
 abstract class GitRepository(open val directoryPath: String) {
   // See usage in JVM for explanation.
-  abstract var workaroundJgitBug: Boolean
-
-  /** git add . */
-  abstract fun addAll()
+  open var workaroundJgitBug: Boolean = false
 
   /**
+   * Add all files to staging and commit.
+   *
    * @param author when null, the author information is taken from repository's config.
    * @param timestamp when null, the current time is used.
    */
-  abstract fun commit(
+  abstract fun commitAll(
     message: String,
     author: GitAuthor? = null,
     timestamp: UtcTimestamp? = null,
@@ -24,7 +23,13 @@ abstract class GitRepository(open val directoryPath: String) {
 
   abstract fun fetch()
 
-  abstract fun rebase(with: GitCommit): RebaseResult
+  /**
+   * Find files which will fail to merge if the current head is merged/rebased with a
+   * commit. Press uses this for resolving conflicts before rebasing with upstream.
+   */
+  abstract fun mergeConflicts(with: GitCommit): List<MergeConflict>
+
+  abstract fun rebase(with: GitCommit, strategy: MergeStrategy): RebaseResult
 
   abstract fun push(force: Boolean = false): PushResult
 

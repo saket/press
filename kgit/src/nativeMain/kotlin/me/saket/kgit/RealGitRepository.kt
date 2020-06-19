@@ -4,11 +4,11 @@ internal actual class RealGitRepository actual constructor(
   git: Git,
   directoryPath: String
 ) : GitRepository(directoryPath) {
-  override fun addAll() = TODO()
-  override fun commit(message: String, author: GitAuthor?, timestamp: UtcTimestamp?, allowEmpty: Boolean) = TODO()
+  override fun commitAll(message: String, author: GitAuthor?, timestamp: UtcTimestamp?, allowEmpty: Boolean) = TODO()
   override fun pull(rebase: Boolean): PullResult = TODO()
   override fun fetch(): Unit = TODO()
-  override fun rebase(with: GitCommit): RebaseResult = TODO()
+  override fun mergeConflicts(with: GitCommit): List<MergeConflict> = TODO()
+  override fun rebase(with: GitCommit, strategy: MergeStrategy): RebaseResult = TODO()
   override fun push(force: Boolean): PushResult = TODO()
   override fun addRemote(name: String, url: String) = TODO()
   override fun headCommit(onBranch: String?): GitCommit = TODO()

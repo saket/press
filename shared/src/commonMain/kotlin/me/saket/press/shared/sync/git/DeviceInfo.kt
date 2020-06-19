@@ -1,7 +1,5 @@
 package me.saket.press.shared.sync.git
 
-import com.benasher44.uuid.Uuid
-
 data class DeviceInfo(
   /**
    * Dedicated location for storing files that other apps can't access.

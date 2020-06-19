@@ -3,8 +3,6 @@ package me.saket.press.shared.sync.git
 import co.touchlab.stately.concurrency.AtomicReference
 import com.soywiz.klock.DateTime
 import kotlinx.coroutines.Runnable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration.Companion.Stable
 import me.saket.kgit.GitAuthor
 import me.saket.kgit.GitRepository
 import me.saket.kgit.GitTreeDiff.Change.Add
@@ -12,12 +10,12 @@ import me.saket.kgit.GitTreeDiff.Change.Copy
 import me.saket.kgit.GitTreeDiff.Change.Delete
 import me.saket.kgit.GitTreeDiff.Change.Modify
 import me.saket.kgit.GitTreeDiff.Change.Rename
+import me.saket.kgit.MergeStrategy.OURS
 import me.saket.kgit.PushResult
 import me.saket.kgit.RebaseResult
 import me.saket.kgit.UtcTimestamp
 import me.saket.press.PressDatabase
 import me.saket.press.shared.db.NoteId
-import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.sync.Syncer
 import me.saket.press.shared.sync.git.GitSyncer.Result.DONE
 import me.saket.press.shared.sync.git.GitSyncer.Result.SKIPPED
@@ -27,6 +25,7 @@ import me.saket.press.shared.time.Clock
 // TODO: commit only un-synced notes.
 // TODO: add logging.
 // TODO: figure out git author name/email.
+// TODO: handle all GitTreeDiff.Change types.
 class GitSyncer(
   private val git: GitRepository,
   private val database: PressDatabase,
@@ -36,7 +35,7 @@ class GitSyncer(
 
   private val noteQueries get() = database.noteQueries
   private val directory = File(git.directoryPath)
-  private val register = FileNameRegister(Json(Stable.copy(prettyPrint = true)))
+  private val register = FileNameRegister(directory)
   private val remoteSet = AtomicReference(false)
   private val gitAuthor = GitAuthor("Saket", "pressapp@saket.me")
 
@@ -50,19 +49,18 @@ class GitSyncer(
   }
 
   override fun sync() {
-    val reader = register.read(directory, deviceId)
-    val commitResult = commitAllChanges(reader)
-    val pullResult = pull(reader)
+    maybeMakeInitialCommit()
+    directory.makeDirectory()
+
+    val commitResult = commitAllChanges()
+    val pullResult = pull()
 
     if (commitResult == DONE || pullResult == DONE) {
       push()
     }
   }
 
-  private fun commitAllChanges(register: FileNameRegister.Reader): Result {
-    maybeMakeInitialCommit()
-    directory.makeDirectory()
-
+  private fun commitAllChanges(): Result {
     val unSyncedNotes = noteQueries.notes().executeAsList()
     if (unSyncedNotes.isEmpty()) {
       return SKIPPED
@@ -71,10 +69,8 @@ class GitSyncer(
     for (note in unSyncedNotes) {
       val noteFile = File(directory, register.fileNameFor(note))
       noteFile.write(note.content)
-      register.save()
 
-      git.addAll()
-      git.commit(
+      git.commitAll(
           message = "Update '${noteFile.name}'",
           author = gitAuthor,
           timestamp = UtcTimestamp(note.updatedAt)
@@ -83,7 +79,7 @@ class GitSyncer(
     return DONE
   }
 
-  /** Announcement commit when syncing begins. */
+  /** Commit announcing syncing has begun. */
   private fun maybeMakeInitialCommit() {
     check(git.currentBranch().name == "master")
     val head = git.headCommit()
@@ -100,16 +96,15 @@ class GitSyncer(
       )
     }
 
-    git.addAll()
-    git.commit(
+    git.commitAll(
         message = "Setup syncing on ${deviceInfo.deviceName()}",
         author = gitAuthor,
-        timestamp = UtcTimestamp(clock.nowUtc()),
+        timestamp = UtcTimestamp(clock),
         allowEmpty = true
     )
   }
 
-  private fun pull(register: FileNameRegister.Reader): Result {
+  private fun pull(): Result {
     require(remoteSet.get())
 
     git.fetch()
@@ -121,7 +116,36 @@ class GitSyncer(
       return SKIPPED
     }
 
-    val rebaseResult = git.rebase(with = upstreamHead)
+    val conflicts = git.mergeConflicts(with = upstreamHead)
+    if (conflicts.isNotEmpty()) {
+      for (conflict in conflicts) {
+        // Git makes it easy to handle merge conflicts, but automating it for
+        // the user is going to be a challenge. If the same note was modified
+        // from different devices, Press duplicates them: note.md & note_2.md.
+        // This will also cover non-.md files.
+        val conflictingNote = File(directory, conflict.path)
+
+        // It's _very_ important that the local copy is duplicated. It'd be
+        // nice to rename the upstream copy because it's possible that the
+        // local copy is being edited right now, but that will result in an
+        // infinite loop where a new copy is created on every sync on the
+        // other device.
+        val newName = register.findNewNameOnConflict(conflictingNote)
+
+        // This file will get processed after rebase and a new note will be saved.
+        conflictingNote.copy(newName, recursively = true)
+
+        println("Conflict resolution: ${conflictingNote.name} -> $newName")
+      }
+
+      git.commitAll(
+          message = "Auto-resolve merge conflicts",
+          author = gitAuthor,
+          timestamp = UtcTimestamp(clock)
+      )
+    }
+
+    val rebaseResult = git.rebase(with = upstreamHead, strategy = OURS)
     require(rebaseResult !is RebaseResult.Failure) { "Failed to rebase: $rebaseResult" }
 
     // A rebase will cause the history to be re-written, so we need
@@ -149,20 +173,23 @@ class GitSyncer(
           // Not a note, ignore.
           continue
         }
-        if (diff.path.contains("/")) {
-          // Nested notes aren't supported yet.
+        if (diff.path.startsWith(".press/")) {
+          // Meta-files, ignore.
           continue
+        }
+        if (diff.path.contains("/")) {
+          error("Nested notes aren't supported yet: '${diff.path}'")
         }
 
         dbOperations += when (diff) {
-          is Add -> {
+          is Add, is Modify -> {
             val content = File(directory, diff.path).read()
             val existingId = register.noteIdFor(diff.path)
             val createdAt = DateTime.fromUnix(commit.utcTimestamp.millis)
             Runnable {
               if (existingId != null) {
                 noteQueries.updateContent(
-                    uuid = NoteId.generate(),
+                    uuid = existingId,
                     content = content,
                     updatedAt = createdAt
                 )
@@ -176,10 +203,9 @@ class GitSyncer(
               }
             }
           }
-          is Modify -> TODO()
-          is Copy -> TODO()
-          is Delete -> TODO()
-          is Rename -> TODO()
+          is Copy -> TODO("handle copy of ${diff.fromPath} -> ${diff.toPath}")
+          is Delete -> TODO("handle deletion of ${diff.path}")
+          is Rename -> TODO("handle rename of ${diff.fromPath} -> ${diff.toPath}")
         }
       }
     }
@@ -206,4 +232,9 @@ class GitSyncer(
 @Suppress("FunctionName")
 fun UtcTimestamp(time: DateTime): UtcTimestamp {
   return UtcTimestamp(time.unixMillisLong)
+}
+
+@Suppress("FunctionName")
+fun UtcTimestamp(clock: Clock): UtcTimestamp {
+  return UtcTimestamp(clock.nowUtc())
 }
