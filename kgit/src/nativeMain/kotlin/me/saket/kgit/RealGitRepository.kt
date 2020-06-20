@@ -4,6 +4,7 @@ internal actual class RealGitRepository actual constructor(
   git: Git,
   directoryPath: String
 ) : GitRepository(directoryPath) {
+  override fun isStagingAreaDirty(): Boolean = TODO()
   override fun commitAll(message: String, author: GitAuthor?, timestamp: UtcTimestamp?, allowEmpty: Boolean) = TODO()
   override fun pull(rebase: Boolean): PullResult = TODO()
   override fun fetch(): Unit = TODO()

@@ -6,6 +6,8 @@ abstract class GitRepository(open val directoryPath: String) {
   // See usage in JVM for explanation.
   open var workaroundJgitBug: Boolean = false
 
+  abstract fun isStagingAreaDirty(): Boolean
+
   /**
    * Add all files to staging and commit.
    *

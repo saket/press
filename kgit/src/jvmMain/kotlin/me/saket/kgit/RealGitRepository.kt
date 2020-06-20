@@ -53,6 +53,11 @@ internal actual class RealGitRepository actual constructor(
   }
   override var workaroundJgitBug: Boolean = false
 
+  override fun isStagingAreaDirty(): Boolean {
+    val status = jgit.status().call()
+    return !status.isClean
+  }
+
   @Suppress("NAME_SHADOWING")
   override fun commitAll(
     message: String,
