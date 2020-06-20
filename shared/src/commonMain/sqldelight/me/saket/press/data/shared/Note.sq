@@ -20,6 +20,11 @@ FROM note
 WHERE deletedAtString IS NULL AND archivedAtString IS NULL
 ORDER BY updatedAt DESC;
 
+allNotes:
+SELECT *
+FROM note
+ORDER BY updatedAt DESC;
+
 note:
 SELECT *
 FROM note

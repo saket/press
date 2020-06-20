@@ -8,6 +8,7 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotInstanceOf
+import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.hours
@@ -19,6 +20,7 @@ import me.saket.press.data.shared.Note
 import me.saket.press.data.shared.NoteQueries
 import me.saket.press.shared.BuildKonfig
 import me.saket.press.shared.db.BaseDatabaeTest
+import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.note.archivedAt
 import me.saket.press.shared.note.deletedAt
@@ -56,6 +58,11 @@ class GitSyncerTest : BaseDatabaeTest() {
   @AfterTest
   fun cleanUp() {
     deviceInfo.appStorage.delete(recursively = true)
+
+    RemoteRepositoryRobot {
+      commitFiles(message = "Emptiness", add = emptyList())
+      forcePush()
+    }
   }
 
   @Test fun `pull notes from a non-empty repo`() {
@@ -71,7 +78,7 @@ class GitSyncerTest : BaseDatabaeTest() {
       commitFiles(
           message = "First commit",
           time = firstCommitTime,
-          files = listOf(
+          add = listOf(
               "note_1.md" to "# The Witcher",
               "note_2.md" to "# Uncharted: The Lost Legacy"
           )
@@ -79,7 +86,7 @@ class GitSyncerTest : BaseDatabaeTest() {
       commitFiles(
           message = "Second commit",
           time = secondCommitTime,
-          files = listOf(
+          add = listOf(
               "note_3.md" to "# Overcooked",
               "note_4.md" to "# The Last of Us"
           )
@@ -119,10 +126,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     }
 
     // Given: Remote repository is empty.
-    val remote = RemoteRepositoryRobot {
-      commitFiles(message = "Emptiness", files = emptyList())
-      forcePush()
-    }
+    val remote = RemoteRepositoryRobot {}
 
     // Given: This device has some notes.
     noteQueries.testInsert(
@@ -161,12 +165,12 @@ class GitSyncerTest : BaseDatabaeTest() {
       commitFiles(
           message = "First commit",
           time = remoteTime1,
-          files = listOf("note_1.md" to "# Uncharted: The Lost Legacy")
+          add = listOf("note_1.md" to "# Uncharted: The Lost Legacy")
       )
       commitFiles(
           message = "Second commit",
           time = remoteTime2,
-          files = listOf("note_2.md" to "# The Last of Us")
+          add = listOf("note_2.md" to "# The Last of Us")
       )
       forcePush()
     }
@@ -211,7 +215,12 @@ class GitSyncerTest : BaseDatabaeTest() {
     )
   }
 
+  // todo: add filenameregister to remote repo.
   @Test fun `resolve conflicts when content has changed but not the file name`() {
+    if (BuildKonfig.GITHUB_SSH_PRIV_KEY.isBlank()) {
+      return
+    }
+
     clock.rewindTimeBy(10.hours)
 
     // Given: a note was created on another device.
@@ -219,7 +228,7 @@ class GitSyncerTest : BaseDatabaeTest() {
       commitFiles(
           message = "First commit",
           time = clock.nowUtc(),
-          files = listOf("uncharted.md" to "# Uncharted")
+          add = listOf("uncharted.md" to "# Uncharted")
       )
       forcePush()
     }
@@ -240,7 +249,7 @@ class GitSyncerTest : BaseDatabaeTest() {
       commitFiles(
           message = "Second commit",
           time = clock.nowUtc(),
-          files = listOf("uncharted.md" to "# Uncharted\nRemote edit")
+          add = listOf("uncharted.md" to "# Uncharted\nRemote edit")
       )
       forcePush()
     }
@@ -260,13 +269,46 @@ class GitSyncerTest : BaseDatabaeTest() {
     assertThat(localNotes[1].uuid).isNotEqualTo(locallyEditedNote.uuid)
   }
 
-//  @Test fun `resolve conflicts when both the content and file name have changed`() {
-//    // TODO
-//  }
-//
-//  @Test fun `notes with the same title are stored in separate files`() {
-//    // TODO
-//  }
+  @Test fun `resolve conflicts when both the content and file name have changed`() {
+    // TODO
+  }
+
+  @Test fun `notes with the same title are stored in separate files`() {
+    // TODO
+  }
+
+  @Test fun `sync notes deleted on remote`() {
+    if (BuildKonfig.GITHUB_SSH_PRIV_KEY.isBlank()) {
+      return
+    }
+
+    noteQueries.insert(
+        uuid = NoteId.generate(),
+        content = "# Horizon Zero Dawn",
+        createdAt = clock.nowUtc(),
+        updatedAt = clock.nowUtc()
+    )
+    syncer.sync()
+
+    clock.advanceTimeBy(2.hours)
+    RemoteRepositoryRobot {
+      pull()
+      commitFiles(
+          message = "Delete notes",
+          time = clock.nowUtc(),
+          delete = listOf("horizon_zero_dawn.md")
+      )
+      forcePush()
+    }
+    syncer.sync()
+
+    val savedNote = noteQueries.allNotes().executeAsOne()
+    assertThat(savedNote.deletedAt).isEqualTo(clock.nowUtc())
+  }
+
+  @Test fun `sync notes deleted locally`() {
+    // TODO
+  }
 
   private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit) {
     private val directory = File(deviceInfo.appStorage, "temp").apply { makeDirectory() }
@@ -277,13 +319,28 @@ class GitSyncerTest : BaseDatabaeTest() {
       prepare()
     }
 
+    fun pull() {
+      gitRepo.pull(rebase = true)
+    }
+
     fun forcePush() {
       assertThat(gitRepo.push(force = true)).isNotInstanceOf(Failure::class)
     }
 
-    fun commitFiles(message: String, time: DateTime? = null, files: List<Pair<String, String>>) {
-      files.forEach { (name, body) ->
-        File(directory.path, name).write(body)
+    fun commitFiles(
+      message: String,
+      time: DateTime? = null,
+      add: List<Pair<String, String>> = emptyList(),
+      delete: List<String> = emptyList()
+    ) {
+      add.forEach { (name, body) ->
+        File(directory, name).write(body)
+      }
+      delete.forEach { path ->
+        File(directory, path).apply {
+          require(exists) { "$path does not exist" }
+          delete()
+        }
       }
       gitRepo.commitAll(message, timestamp = UtcTimestamp(time ?: clock.nowUtc()), allowEmpty = true)
     }

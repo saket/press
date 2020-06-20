@@ -48,7 +48,7 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
     if (recursively) {
       delegate.deleteRecursively()
     } else {
-      delegate.delete()
+      check(delegate.delete()) { "Failed to delete file: $this" }
     }
   }
 

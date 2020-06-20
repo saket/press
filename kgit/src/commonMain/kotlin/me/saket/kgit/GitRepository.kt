@@ -56,4 +56,8 @@ abstract class GitRepository(open val directoryPath: String) {
   abstract fun diffBetween(from: GitCommit?, to: GitCommit): GitTreeDiff
 
   abstract fun currentBranch(): GitBranch
+
+  abstract fun checkout(commit: GitCommit)
+
+  abstract fun checkout(branch: GitBranch)
 }

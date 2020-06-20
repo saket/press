@@ -6,7 +6,7 @@ import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.home.SplitHeadingAndBody
 import me.saket.press.shared.sync.git.FileNameSanitizer.sanitize
 
-typealias FileName = String
+private typealias FileName = String
 
 /**
  * Press tries really hard to avoid leaking Press's implementation into user's git repository.
@@ -27,9 +27,7 @@ class FileNameRegister(directory: File) {
     private const val SEPARATOR = "___"
   }
 
-  private val registerDirectory = File(directory, ".press/registers").also {
-    it.makeDirectory(recursively = true)
-  }
+  private val registerDirectory = File(directory, ".press/registers")
 
   private fun serialize(noteFileName: String, id: NoteId) =
     "$noteFileName$SEPARATOR${id.value}"
@@ -49,6 +47,12 @@ class FileNameRegister(directory: File) {
     require(fileName.endsWith("md")) { "Not a note: $fileName" }
     val fileName = fileName.substringBeforeLast(".")
 
+    if (!registerDirectory.exists) {
+      // Likely checking out a remote commit that
+      // doesn't have the registers directory yet.
+      return null
+    }
+
     for (file in registerDirectory.children()) {
       val (name, id) = deserialize(registerName = file.name)
       if (name == fileName) {
@@ -59,11 +63,6 @@ class FileNameRegister(directory: File) {
   }
 
   fun fileNameFor(note: Note): FileName {
-    val existingNames = registerDirectory.children().map { file ->
-      val (name) = file.name.split(SEPARATOR)
-      return@map name
-    }
-
     val (heading) = SplitHeadingAndBody.split(note.content)
     val expectedName = if (heading.isNotBlank()) heading else "untitled_note"
 
@@ -72,10 +71,17 @@ class FileNameRegister(directory: File) {
     var conflicts = 0
     loop@ while (true) {
       uniqueName = sanitize(expectedName, MAX_NAME_LENGTH) + if (conflicts++ == 0) "" else "_$conflicts"
-      if (uniqueName !in existingNames) break@loop
+      when (noteIdFor("$uniqueName.md")) {
+        note.uuid -> break@loop   // Reuse the same name.
+        null -> break@loop        // New note. Can still use this name.
+        else -> continue@loop     // Conflict! Try another name.
+      }
     }
 
     return "$uniqueName.md".also {
+      if (!registerDirectory.exists) {
+        registerDirectory.makeDirectory(recursively = true)
+      }
       val serializedName = serialize(noteFileName = uniqueName, id = note.uuid)
       File(registerDirectory, serializedName).write("")
     }

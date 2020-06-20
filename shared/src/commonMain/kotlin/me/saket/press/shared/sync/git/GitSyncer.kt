@@ -18,6 +18,7 @@ import me.saket.kgit.RebaseResult
 import me.saket.kgit.UtcTimestamp
 import me.saket.press.PressDatabase
 import me.saket.press.shared.db.NoteId
+import me.saket.press.shared.note.markAsDeleted
 import me.saket.press.shared.sync.Syncer
 import me.saket.press.shared.sync.git.GitSyncer.Result.DONE
 import me.saket.press.shared.sync.git.GitSyncer.Result.SKIPPED
@@ -73,11 +74,15 @@ class GitSyncer(
       val noteFile = File(directory, register.fileNameFor(note))
       noteFile.write(note.content)
 
-      git.commitAll(
-          message = "Update '${noteFile.name}'",
-          author = gitAuthor,
-          timestamp = UtcTimestamp(note.updatedAt)
-      )
+      // When commits are re-processed, it's possible that nothing
+      // changes when notes are written to the file system.
+      if (git.isStagingAreaDirty()) {
+        git.commitAll(
+            message = "Update '${noteFile.name}'",
+            author = gitAuthor,
+            timestamp = UtcTimestamp(note.updatedAt)
+        )
+      }
     }
     return DONE
   }
@@ -171,34 +176,53 @@ class GitSyncer(
       current to git.diffBetween(prev, current).filterNoteChanges()
     }
 
+    // DB operations are executed in one go to
+    // avoid locking the DB in a transaction for long.
     val dbOperations = mutableListOf<Runnable>()
 
+    println("\n-------------------------")
+    val branch = git.currentBranch()
+
     for ((commit, diffs) in changes) {
+      git.checkout(commit)
+      println("Processing $commit")
+
       for (diff in diffs.filterNoteChanges()) {
+        println("- $diff")
+        val commitTime = DateTime.fromUnix(commit.utcTimestamp.millis)
+
         dbOperations += when (diff) {
           is Add, is Modify -> {
             val content = File(directory, diff.path).read()
             val existingId = register.noteIdFor(diff.path)
-            val createdAt = DateTime.fromUnix(commit.utcTimestamp.millis)
-            Runnable {
-              if (existingId != null) {
+            if (existingId != null) {
+              println("Updating $existingId (${diff.path})")
+              Runnable {
                 noteQueries.updateContent(
                     uuid = existingId,
                     content = content,
-                    updatedAt = createdAt
+                    updatedAt = commitTime
                 )
-              } else {
+              }
+            } else {
+              println("Creating new note for (${diff.path})")
+              Runnable {
                 noteQueries.insert(
                     uuid = NoteId.generate(),
                     content = content,
-                    createdAt = createdAt,
-                    updatedAt = createdAt
+                    createdAt = commitTime,
+                    updatedAt = commitTime
                 )
               }
             }
           }
+          is Delete -> {
+            val noteId = register.noteIdFor(diff.path)
+            requireNotNull(noteId) { "Deleting non-existent note: $noteId" }
+            println("Deleting $noteId (${diff.path})")
+            Runnable { noteQueries.markAsDeleted(noteId, deletedAt = commitTime) }
+          }
           is Copy -> TODO("handle copy of ${diff.fromPath} -> ${diff.toPath}")
-          is Delete -> TODO("handle deletion of ${diff.path}")
           is Rename -> TODO("handle rename of ${diff.fromPath} -> ${diff.toPath}")
         }
       }
@@ -209,6 +233,8 @@ class GitSyncer(
         dbOperations.forEach { it.run() }
       }
     }
+
+    git.checkout(branch)
   }
 
   private fun List<GitTreeDiff.Change>.filterNoteChanges() = filter { diff ->

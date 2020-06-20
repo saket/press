@@ -303,6 +303,14 @@ internal actual class RealGitRepository actual constructor(
     }
   }
 
+  override fun checkout(commit: GitCommit) {
+    jgit.checkout().setName(commit.sha1.value).call()
+  }
+
+  override fun checkout(branch: GitBranch) {
+    jgit.checkout().setName(branch.name).call()
+  }
+
   private fun printLog(title: String) {
     println(title)
     for (log in jgit.log().call()) {
