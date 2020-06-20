@@ -6,7 +6,16 @@ import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.home.SplitHeadingAndBody
 import me.saket.press.shared.sync.git.FileNameSanitizer.sanitize
 
-private typealias FileName = String
+typealias FileName = String
+
+//private inline class Record(val filename: FileName) {
+//  companion object {
+//    private const val SEPARATOR = "___"
+//  }
+//
+//  val noteName: String get() = filename.substringBefore(SEPARATOR)
+//  val noteId: String get() = filename.substringAfter(SEPARATOR)
+//}
 
 /**
  * Press tries really hard to avoid leaking Press's implementation into user's git repository.
@@ -38,14 +47,14 @@ class FileNameRegister(directory: File) {
   }
 
   /**
+   * todo: accept a file instead.
    * If a mapping does not exist, this file is either new or this register
    * was recreated after getting deleted. In both cases, a new ID should be
    * created.
    */
   @Suppress("NAME_SHADOWING")
-  fun noteIdFor(fileName: String): NoteId? {
+  fun noteIdFor(fileName: FileName): NoteId? {
     require(fileName.endsWith("md")) { "Not a note: $fileName" }
-    val fileName = fileName.substringBeforeLast(".")
 
     if (!registerDirectory.exists) {
       // Likely checking out a remote commit that
@@ -53,6 +62,7 @@ class FileNameRegister(directory: File) {
       return null
     }
 
+    val fileName = fileName.substringBeforeLast(".")
     for (file in registerDirectory.children()) {
       val (name, id) = deserialize(registerName = file.name)
       if (name == fileName) {
@@ -62,7 +72,18 @@ class FileNameRegister(directory: File) {
     return null
   }
 
-  fun fileNameFor(note: Note): FileName {
+  fun recordNewNoteId(notesDirectory: File, noteFile: File, id: NoteId) {
+    require(noteFile.extension == "md")
+    require(!noteFile.relativePathIn(notesDirectory).contains("/"))
+
+    if (!registerDirectory.exists) {
+      registerDirectory.makeDirectory(recursively = true)
+    }
+    val serializedName = serialize(noteFile.nameWithoutExtension, id)
+    File(registerDirectory, serializedName).write("")
+  }
+
+  fun fileFor(directory: File, note: Note): File {
     val (heading) = SplitHeadingAndBody.split(note.content)
     val expectedName = if (heading.isNotBlank()) heading else "untitled_note"
 
@@ -78,12 +99,8 @@ class FileNameRegister(directory: File) {
       }
     }
 
-    return "$uniqueName.md".also {
-      if (!registerDirectory.exists) {
-        registerDirectory.makeDirectory(recursively = true)
-      }
-      val serializedName = serialize(noteFileName = uniqueName, id = note.uuid)
-      File(registerDirectory, serializedName).write("")
+    return File(directory, "$uniqueName.md").also {
+      recordNewNoteId(directory, it, note.uuid)
     }
   }
 
@@ -99,5 +116,18 @@ class FileNameRegister(directory: File) {
       newName = "${sanitize(conflictedName, MAX_NAME_LENGTH)}_${++conflicts + 1}.$extension"
     }
     return newName
+  }
+
+  fun pruneStaleRecords(latestNotes: List<Note>) {
+    if (!registerDirectory.exists) return
+
+    val noteIds = latestNotes.map { it.uuid.toString() }
+
+    for (file in registerDirectory.children().reversed()) {
+      val (_, id) = deserialize(registerName = file.name)
+      if (id !in noteIds) {
+        file.delete()
+      }
+    }
   }
 }

@@ -34,4 +34,9 @@ interface File {
   fun delete(recursively: Boolean = false)
 
   fun children(): List<File>
+
+  fun relativePathIn(ancestor: File): String {
+    check(path.contains(ancestor.path)) { "$ancestor does not contain $this" }
+    return path.drop(ancestor.path.length + 1)  // +1 for the trailing "/".
+  }
 }

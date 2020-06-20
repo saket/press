@@ -245,7 +245,7 @@ internal actual class RealGitRepository actual constructor(
       walk.dispose()
 
       if (from != null && from.sha1 != commits.last().sha1) {
-        // [from] isn't a (grand) parent of [toInclusive].
+        // [from] isn't an ancestor of [toInclusive].
         val log = jgit.log().call().map { GitCommit(it) }
         error("Commits (${from.sha1} and ${toInclusive.sha1}) aren't in the same branch. Git log: $log")
       }
@@ -263,6 +263,17 @@ internal actual class RealGitRepository actual constructor(
       walk.dispose()
       return mergeBase?.let(::GitCommit)
     }
+  }
+
+  override fun changesIn(commit: GitCommit): GitTreeDiff {
+    var previousCommit: RevCommit? = null
+    RevWalk(jgit.repository).use { walk ->
+      walk.markStart(commit.commit)
+      previousCommit = walk.next()
+      walk.dispose()
+    }
+
+    return diffBetween(previousCommit?.let(::GitCommit), commit)
   }
 
   override fun diffBetween(from: GitCommit?, to: GitCommit): GitTreeDiff {
@@ -301,14 +312,6 @@ internal actual class RealGitRepository actual constructor(
     } else {
       error("HEAD is detached and isn't pointing to any branch.")
     }
-  }
-
-  override fun checkout(commit: GitCommit) {
-    jgit.checkout().setName(commit.sha1.value).call()
-  }
-
-  override fun checkout(branch: GitBranch) {
-    jgit.checkout().setName(branch.name).call()
   }
 
   private fun printLog(title: String) {

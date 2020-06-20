@@ -51,13 +51,14 @@ abstract class GitRepository(open val directoryPath: String) {
   abstract fun commonAncestor(first: GitCommit, second: GitCommit): GitCommit?
 
   /**
+   * Diff between [commit] and its parent.
+   */
+  abstract fun changesIn(commit: GitCommit): GitTreeDiff
+
+  /**
    * When [from] is null, the [to] commit's tree is compared with an empty tree.
    */
   abstract fun diffBetween(from: GitCommit?, to: GitCommit): GitTreeDiff
 
   abstract fun currentBranch(): GitBranch
-
-  abstract fun checkout(commit: GitCommit)
-
-  abstract fun checkout(branch: GitBranch)
 }

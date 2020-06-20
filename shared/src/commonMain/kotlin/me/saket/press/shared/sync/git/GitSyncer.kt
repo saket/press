@@ -71,7 +71,7 @@ class GitSyncer(
     }
 
     for (note in unSyncedNotes) {
-      val noteFile = File(directory, register.fileNameFor(note))
+      val noteFile = register.fileFor(directory, note)
       noteFile.write(note.content)
 
       // When commits are re-processed, it's possible that nothing
@@ -156,75 +156,73 @@ class GitSyncer(
 
     // A rebase will cause the history to be re-written, so we need
     // to find the first common ancestor of local and upstream. All
-    // commits from the ancestor to the current HEAD will have to be
+    // changes from the ancestor to the current HEAD will have to be
     // (re)processed.
-    //
-    // It would be easier to diff between the common ancestor and the
-    // current HEAD, but Press stores meta information of notes (e.g.,
-    // updated-at timestamp) in each commit so they need to be processed
-    // one-by-one.
-    val updatedCommits = git.commitsBetween(
+    reprocessNotesFromCommits(
         from = git.commonAncestor(localHead, upstreamHead),
-        toInclusive = git.headCommit()!!
+        to = git.headCommit()!!
     )
-    reprocessNotesFromCommits(updatedCommits)
     return DONE
   }
 
-  private fun reprocessNotesFromCommits(commits: List<GitCommit>) {
-    val changes = commits.zipWithNext(initialValue = null).map { (prev, current) ->
-      current to git.diffBetween(prev, current).filterNoteChanges()
-    }
+  private fun reprocessNotesFromCommits(from: GitCommit?, to: GitCommit) {
+    // Press stores updated-at timestamp of notes in each commit.
+    val diffPathTimestamps = git.commitsBetween(from = from, toInclusive = to)
+        .flatMap { commit ->
+          git.changesIn(commit)
+              .filterNoteChanges()
+              .map { it.path to commit.dateTime }
+        }
+        .toMap()
 
     // DB operations are executed in one go to
     // avoid locking the DB in a transaction for long.
     val dbOperations = mutableListOf<Runnable>()
 
     println("\n-------------------------")
-    val branch = git.currentBranch()
 
-    for ((commit, diffs) in changes) {
-      git.checkout(commit)
-      println("Processing $commit")
+    for (diff in git.diffBetween(from, to).filterNoteChanges()) {
+      println("$diff")
+      val commitTime = diffPathTimestamps[diff.path]!!
 
-      for (diff in diffs.filterNoteChanges()) {
-        println("- $diff")
-        val commitTime = DateTime.fromUnix(commit.utcTimestamp.millis)
+      dbOperations += when (diff) {
+        is Add, is Modify -> {
+          val file = File(directory, diff.path)
+          val content = file.read()
 
-        dbOperations += when (diff) {
-          is Add, is Modify -> {
-            val content = File(directory, diff.path).read()
-            val existingId = register.noteIdFor(diff.path)
-            if (existingId != null) {
-              println("Updating $existingId (${diff.path})")
-              Runnable {
-                noteQueries.updateContent(
-                    uuid = existingId,
-                    content = content,
-                    updatedAt = commitTime
-                )
-              }
-            } else {
-              println("Creating new note for (${diff.path})")
-              Runnable {
-                noteQueries.insert(
-                    uuid = NoteId.generate(),
-                    content = content,
-                    createdAt = commitTime,
-                    updatedAt = commitTime
-                )
-              }
+          val existingId = register.noteIdFor(diff.path)
+          if (existingId != null) {
+            println("Updating $existingId (${diff.path})")
+            Runnable {
+              noteQueries.updateContent(
+                  uuid = existingId,
+                  content = content,
+                  updatedAt = commitTime
+              )
+            }
+          } else {
+            val newId = NoteId.generate()
+            println("Creating new note $newId for (${diff.path})")
+            register.recordNewNoteId(directory, file, newId)
+            Runnable {
+              // todo: can insert() use createdAt for updatedAt?
+              noteQueries.insert(
+                  uuid = newId,
+                  content = content,
+                  createdAt = commitTime,
+                  updatedAt = commitTime
+              )
             }
           }
-          is Delete -> {
-            val noteId = register.noteIdFor(diff.path)
-            requireNotNull(noteId) { "Deleting non-existent note: $noteId" }
-            println("Deleting $noteId (${diff.path})")
-            Runnable { noteQueries.markAsDeleted(noteId, deletedAt = commitTime) }
-          }
-          is Copy -> TODO("handle copy of ${diff.fromPath} -> ${diff.toPath}")
-          is Rename -> TODO("handle rename of ${diff.fromPath} -> ${diff.toPath}")
         }
+        is Delete -> {
+          val noteId = register.noteIdFor(diff.path)
+          requireNotNull(noteId) { "Deleting non-existent note: $noteId" }
+          println("Deleting $noteId (${diff.path})")
+          Runnable { noteQueries.markAsDeleted(noteId, deletedAt = commitTime) }
+        }
+        is Copy -> TODO("handle copy of ${diff.fromPath} -> ${diff.toPath}")
+        is Rename -> TODO("handle rename of ${diff.fromPath} -> ${diff.toPath}")
       }
     }
 
@@ -234,7 +232,15 @@ class GitSyncer(
       }
     }
 
-    git.checkout(branch)
+    val savedNotes = noteQueries.allNotes().executeAsList()
+    register.pruneStaleRecords(savedNotes)
+    if (git.isStagingAreaDirty()) {
+      git.commitAll(
+          message = "Update file name records",
+          author = gitAuthor,
+          timestamp = UtcTimestamp(clock)
+      )
+    }
   }
 
   private fun List<GitTreeDiff.Change>.filterNoteChanges() = filter { diff ->
@@ -266,3 +272,6 @@ fun UtcTimestamp(time: DateTime): UtcTimestamp {
 fun UtcTimestamp(clock: Clock): UtcTimestamp {
   return UtcTimestamp(clock.nowUtc())
 }
+
+private val GitCommit.dateTime: DateTime
+  get() = DateTime.fromUnix(utcTimestamp.millis)
