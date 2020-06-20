@@ -4,7 +4,9 @@ import co.touchlab.stately.concurrency.AtomicReference
 import com.soywiz.klock.DateTime
 import kotlinx.coroutines.Runnable
 import me.saket.kgit.GitAuthor
+import me.saket.kgit.GitCommit
 import me.saket.kgit.GitRepository
+import me.saket.kgit.GitTreeDiff
 import me.saket.kgit.GitTreeDiff.Change.Add
 import me.saket.kgit.GitTreeDiff.Change.Copy
 import me.saket.kgit.GitTreeDiff.Change.Delete
@@ -26,6 +28,7 @@ import me.saket.press.shared.time.Clock
 // TODO: add logging.
 // TODO: figure out git author name/email.
 // TODO: handle all GitTreeDiff.Change types.
+// TODO: Broadcast an event when a merge conflict is resolved.
 class GitSyncer(
   private val git: GitRepository,
   private val database: PressDatabase,
@@ -116,26 +119,24 @@ class GitSyncer(
       return SKIPPED
     }
 
+    // Git makes it easy to handle merge conflicts, but automating it for
+    // the user is going to be a challenge. If the same note was modified
+    // from different devices, Press duplicates them: note.md & note_2.md.
+    // This will also cover non-.md files.
+    //
+    // It's _very_ important that the local copy is duplicated. It'd be
+    // nice to rename the upstream copy because it's possible that the
+    // local copy is being edited right now, but duplicating the remote
+    // copy will result in an infinite loop where a new copy is created
+    // on every sync on the other device.
+    //
+    // This file will get processed after rebase.
     val conflicts = git.mergeConflicts(with = upstreamHead)
     if (conflicts.isNotEmpty()) {
       for (conflict in conflicts) {
-        // Git makes it easy to handle merge conflicts, but automating it for
-        // the user is going to be a challenge. If the same note was modified
-        // from different devices, Press duplicates them: note.md & note_2.md.
-        // This will also cover non-.md files.
         val conflictingNote = File(directory, conflict.path)
-
-        // It's _very_ important that the local copy is duplicated. It'd be
-        // nice to rename the upstream copy because it's possible that the
-        // local copy is being edited right now, but that will result in an
-        // infinite loop where a new copy is created on every sync on the
-        // other device.
         val newName = register.findNewNameOnConflict(conflictingNote)
-
-        // This file will get processed after rebase and a new note will be saved.
         conflictingNote.copy(newName, recursively = true)
-
-        println("Conflict resolution: ${conflictingNote.name} -> $newName")
       }
 
       git.commitAll(
@@ -152,35 +153,28 @@ class GitSyncer(
     // to find the first common ancestor of local and upstream. All
     // commits from the ancestor to the current HEAD will have to be
     // (re)processed.
-    val commitsUpdated = git.commitsBetween(
-        from = git.commonAncestor(localHead, upstreamHead),
-        toInclusive = git.headCommit()!!
-    )
-
+    //
     // It would be easier to diff between the common ancestor and the
     // current HEAD, but Press stores meta information of notes (e.g.,
     // updated-at timestamp) in each commit so they need to be processed
     // one-by-one.
-    val commitsToDiff = commitsUpdated.mapIndexed { index, commit ->
-      commit to git.diffBetween(from = commitsUpdated.getOrNull(index - 1), to = commit)
+    val updatedCommits = git.commitsBetween(
+        from = git.commonAncestor(localHead, upstreamHead),
+        toInclusive = git.headCommit()!!
+    )
+    reprocessNotesFromCommits(updatedCommits)
+    return DONE
+  }
+
+  private fun reprocessNotesFromCommits(commits: List<GitCommit>) {
+    val changes = commits.zipWithNext(initialValue = null).map { (prev, current) ->
+      current to git.diffBetween(prev, current).filterNoteChanges()
     }
 
     val dbOperations = mutableListOf<Runnable>()
 
-    for ((commit, diffs) in commitsToDiff) {
-      for (diff in diffs) {
-        if (!diff.path.endsWith(".md")) {
-          // Not a note, ignore.
-          continue
-        }
-        if (diff.path.startsWith(".press/")) {
-          // Meta-files, ignore.
-          continue
-        }
-        if (diff.path.contains("/")) {
-          error("Nested notes aren't supported yet: '${diff.path}'")
-        }
-
+    for ((commit, diffs) in changes) {
+      for (diff in diffs.filterNoteChanges()) {
         dbOperations += when (diff) {
           is Add, is Modify -> {
             val content = File(directory, diff.path).read()
@@ -215,7 +209,15 @@ class GitSyncer(
         dbOperations.forEach { it.run() }
       }
     }
-    return DONE
+  }
+
+  private fun List<GitTreeDiff.Change>.filterNoteChanges() = filter { diff ->
+    when {
+      !diff.path.endsWith(".md") -> false       // Not a markdown note, at-least not managed by Press.
+      diff.path.startsWith(".press/") -> false  // Meta-files, ignore.
+      diff.path.contains("/") -> error("Nested notes aren't supported yet: '${diff.path}'")
+      else -> true
+    }
   }
 
   private fun push() {
