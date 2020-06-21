@@ -1,22 +1,33 @@
 import com.soywiz.klock.DateTime;
 import me.saket.press.shared.db.NoteId;
+import me.saket.press.shared.sync.SyncState;
 
 CREATE TABLE note (
   localId INTEGER PRIMARY KEY AUTOINCREMENT,
-  uuid TEXT AS NoteId NOT NULL,
+  id TEXT AS NoteId NOT NULL,
   content TEXT NOT NULL,
   createdAt TEXT AS DateTime NOT NULL,
   updatedAt TEXT AS DateTime NOT NULL,
-  archivedAtString TEXT AS String,
-  deletedAtString TEXT AS String
+  isArchived INTEGER AS Boolean NOT NULL DEFAULT 0,
+  isPendingDeletion INTEGER AS Boolean NOT NULL DEFAULT 0,
+  syncState TEXT AS SyncState NOT NULL DEFAULT 'PENDING'
 );
 
 CREATE INDEX note_content ON note(content);
 
+-- Mark as pending-sync when content is updated.
+CREATE TRIGGER mark_as_pending_sync
+AFTER UPDATE OF content ON note
+BEGIN
+	UPDATE note
+  SET syncState = 'PENDING'
+  WHERE id = new.id;
+END;
+
 visibleNotes:
 SELECT *
 FROM note
-WHERE deletedAtString IS NULL AND archivedAtString IS NULL
+WHERE isPendingDeletion IS 0 AND isArchived IS 0
 ORDER BY updatedAt DESC;
 
 allNotes:
@@ -27,26 +38,26 @@ ORDER BY updatedAt DESC;
 note:
 SELECT *
 FROM note
-WHERE uuid = ?;
+WHERE id = ?;
 
 insert:
-INSERT INTO note(uuid, content, createdAt, updatedAt)
+INSERT INTO note(id, content, createdAt, updatedAt)
 VALUES (?, ?, ?, ?);
 
 updateContent:
 UPDATE note
 SET content = ?, updatedAt = ?
-WHERE uuid = ?;
+WHERE id = ?;
 
 markAsPendingDeletion:
 UPDATE note
-SET deletedAtString = ?
-WHERE uuid = ?;
+SET isPendingDeletion = 1
+WHERE id = ?;
 
 markAsArchived:
 UPDATE note
-SET archivedAtString = ?
-WHERE uuid = ?;
+SET isArchived = 1
+WHERE id = ?;
 
 -- Test functions
 testInsert:

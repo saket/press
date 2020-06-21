@@ -6,9 +6,10 @@ import assertk.assertions.containsOnly
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotInstanceOf
-import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.hours
 import me.saket.kgit.GitTreeDiff.Change.Add
@@ -23,8 +24,6 @@ import me.saket.press.shared.PlatformHost.Android
 import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakedata.fakeNote
-import me.saket.press.shared.note.archivedAt
-import me.saket.press.shared.note.deletedAt
 import me.saket.press.shared.sync.git.File
 import me.saket.press.shared.sync.git.GitSyncer
 import me.saket.press.shared.sync.git.UtcTimestamp
@@ -115,8 +114,8 @@ class GitSyncerTest : BaseDatabaeTest() {
     notesAfterSync.first { it.content == "# The Witcher" }.apply {
       assertThat(createdAt).isEqualTo(firstCommitTime)
       assertThat(updatedAt).isEqualTo(firstCommitTime)
-      assertThat(archivedAt).isNull()
-      assertThat(deletedAt).isNull()
+      assertThat(isArchived).isFalse()
+      assertThat(isPendingDeletion).isFalse()
     }
 
     notesAfterSync.first { it.content == "# The Last of Us" }.apply {
@@ -191,7 +190,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     noteQueries.visibleNotes()
         .executeAsList()
         .sortedBy { it.updatedAt }
-        .forEach { println("${it.uuid} ${it.content.replace("\n", " ")}") }
+        .forEach { println("${it.id} ${it.content.replace("\n", " ")}") }
 
     syncer.sync()
 
@@ -235,7 +234,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     val locallyEditedNote = noteQueries.visibleNotes().executeAsOne()
     clock.advanceTimeBy(1.hours)
     noteQueries.updateContent(
-        uuid = locallyEditedNote.uuid,
+        id = locallyEditedNote.id,
         content = "# Uncharted\nLocal edit",
         updatedAt = clock.nowUtc()
     )
@@ -260,10 +259,10 @@ class GitSyncerTest : BaseDatabaeTest() {
     // the local note should get overridden by the server copy.
     assertThat(localNotes).hasSize(2)
     assertThat(localNotes[0].content).isEqualTo("# Uncharted\nRemote edit")
-    assertThat(localNotes[0].uuid).isEqualTo(locallyEditedNote.uuid)
+    assertThat(localNotes[0].id).isEqualTo(locallyEditedNote.id)
 
     assertThat(localNotes[1].content).isEqualTo("# Uncharted\nLocal edit")
-    assertThat(localNotes[1].uuid).isNotEqualTo(locallyEditedNote.uuid)
+    assertThat(localNotes[1].id).isNotEqualTo(locallyEditedNote.id)
   }
 
   @Test fun `resolve conflicts when both the content and file name have changed`() {
@@ -279,7 +278,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     if (!canRunTests()) return
 
     noteQueries.insert(
-        uuid = NoteId.generate(),
+        id = NoteId.generate(),
         content = "# Horizon Zero Dawn",
         createdAt = clock.nowUtc(),
         updatedAt = clock.nowUtc()
@@ -299,7 +298,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     syncer.sync()
 
     val savedNote = noteQueries.allNotes().executeAsOne()
-    assertThat(savedNote.deletedAt).isEqualTo(clock.nowUtc())
+    assertThat(savedNote.isPendingDeletion).isTrue()
   }
 
   @Test fun `sync notes deleted locally`() {

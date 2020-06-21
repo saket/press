@@ -106,7 +106,7 @@ class HomePresenterTest {
     presenter.dispatch(NewNoteClicked)
 
     assertThat(noteRepository.savedNotes).isNotEmpty()
-    val savedNoteId = noteRepository.savedNotes.single().uuid
+    val savedNoteId = noteRepository.savedNotes.single().id
     effects.assertValue(ComposeNewNote(noteId = savedNoteId))
   }
 
@@ -117,7 +117,7 @@ class HomePresenterTest {
 
     keyboardShortcuts.broadcast(KeyboardShortcuts.newNote)
 
-    val savedNoteId = noteRepository.savedNotes.single().uuid
+    val savedNoteId = noteRepository.savedNotes.single().id
     effects.assertValue(ComposeNewNote(noteId = savedNoteId))
   }
 }

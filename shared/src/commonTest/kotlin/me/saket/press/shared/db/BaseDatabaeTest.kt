@@ -12,7 +12,7 @@ expect fun inMemorySqlDriver(): SqlDriver
  * This class exists because JUnit rules aren't a thing (yet) in Kotlin tests.
  * The name of this class is not a typo.
  */
-open class BaseDatabaeTest : RobolectricTest() {
+abstract class BaseDatabaeTest : RobolectricTest() {
 
   private val sqlDriver: SqlDriver = inMemorySqlDriver()
   protected val database: PressDatabase = sqlDriver.createPressDatabase()

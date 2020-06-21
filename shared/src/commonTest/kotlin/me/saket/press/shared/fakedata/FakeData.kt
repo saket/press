@@ -2,8 +2,9 @@ package me.saket.press.shared.fakedata
 
 import com.soywiz.klock.DateTime
 import me.saket.press.data.shared.Note
-import me.saket.press.shared.db.DateTimeAdapter
 import me.saket.press.shared.db.NoteId
+import me.saket.press.shared.sync.SyncState
+import me.saket.press.shared.sync.SyncState.PENDING
 import me.saket.press.shared.time.Clock
 import me.saket.press.shared.time.FakeClock
 import kotlin.random.Random
@@ -15,16 +16,18 @@ fun fakeNote(
   clock: Clock = FakeClock(),
   createdAt: DateTime = clock.nowUtc(),
   updatedAt: DateTime = clock.nowUtc(),
-  archivedAt: DateTime? = null,
-  deletedAt: DateTime? = null
+  isArchived: Boolean = false,
+  isPendingDeletion: Boolean = false,
+  syncState: SyncState = PENDING
 ): Note.Impl {
   return Note.Impl(
       localId = localId,
-      uuid = noteId,
+      id = noteId,
       content = content,
       createdAt = createdAt,
       updatedAt = updatedAt,
-      archivedAtString = archivedAt?.let { DateTimeAdapter.encode(it) },
-      deletedAtString = deletedAt?.let { DateTimeAdapter.encode(it) }
+      isArchived = isArchived,
+      isPendingDeletion = isPendingDeletion,
+      syncState = syncState
   )
 }

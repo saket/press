@@ -1,0 +1,48 @@
+BEGIN TRANSACTION;
+
+CREATE TABLE note_copy (
+  localId INTEGER PRIMARY KEY AUTOINCREMENT,
+  id TEXT NOT NULL,
+  content TEXT NOT NULL,
+  createdAt TEXT NOT NULL,
+  updatedAt TEXT NOT NULL,
+  isArchived INTEGER NOT NULL DEFAULT 0,
+  isPendingDeletion INTEGER NOT NULL DEFAULT 0,
+  syncState TEXT NOT NULL DEFAULT 'PENDING'
+);
+
+INSERT INTO note_copy
+SELECT
+  localId,
+  uuid,
+  content,
+  createdAt,
+  updatedAt,
+  CASE
+    WHEN archivedAtString IS NULL THEN 0
+    ELSE 1
+  END,
+  CASE
+    WHEN deletedAtString IS NULL THEN 0
+    ELSE 1
+  END,
+  'PENDING'
+FROM note;
+
+DROP TABLE note;
+
+ALTER TABLE note_copy
+RENAME TO note;
+
+CREATE INDEX note_content ON note(content);
+
+-- Mark as pending-sync when content is updated.
+CREATE TRIGGER mark_as_pending_sync
+AFTER UPDATE OF content ON note
+BEGIN
+	UPDATE note
+  SET syncState = 'PENDING'
+  WHERE id = new.id;
+END;
+
+END TRANSACTION;

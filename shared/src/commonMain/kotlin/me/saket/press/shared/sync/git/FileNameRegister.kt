@@ -74,14 +74,14 @@ class FileNameRegister(directory: File) {
     loop@ while (true) {
       uniqueName = sanitize(expectedName, MAX_NAME_LENGTH) + if (conflicts++ == 0) "" else "_$conflicts"
       when (noteIdFor("$uniqueName.md")) {
-        note.uuid -> break@loop   // Reuse the same name.
+        note.id -> break@loop     // Reuse the same name.
         null -> break@loop        // New note. Can still use this name.
         else -> continue@loop     // Conflict! Try another name.
       }
     }
 
     return File(directory, "$uniqueName.md").also {
-      recordNewNoteId(directory, it, note.uuid)
+      recordNewNoteId(directory, it, note.id)
     }
   }
 
@@ -102,7 +102,7 @@ class FileNameRegister(directory: File) {
   fun pruneStaleRecords(latestNotes: List<Note>) {
     if (!registerDirectory.exists) return
 
-    val noteIds = latestNotes.map { it.uuid.value.toString() }
+    val noteIds = latestNotes.map { it.id.value.toString() }
     for (file in registerDirectory.children().reversed()) {
       val record = Record(registerName = file.name)
       if (record.noteId !in noteIds) {

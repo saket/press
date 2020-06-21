@@ -20,17 +20,17 @@ class FileNameRegisterTest : RobolectricTest() {
     with(register) {
       val note1 = fakeNote(noteId = NoteId.generate(), content = "# abc")
       assertThat(fileFor(directory, note1).name).isEqualTo("abc.md")
-      assertThat(noteIdFor("abc.md")).isEqualTo(note1.uuid)
+      assertThat(noteIdFor("abc.md")).isEqualTo(note1.id)
 
       // Same note, updated content.
       val note2 = note1.copy(content = "# abc def")
       assertThat(fileFor(directory, note2).name).isEqualTo("abc_def.md")
-      assertThat(noteIdFor("abc_def.md")).isEqualTo(note2.uuid)
+      assertThat(noteIdFor("abc_def.md")).isEqualTo(note2.id)
 
       // Different note, same content.
       val note3 = fakeNote(noteId = NoteId.generate(), content = note1.content)
       assertThat(fileFor(directory, note3).name).isEqualTo("abc_2.md")
-      assertThat(noteIdFor("abc_2.md")).isEqualTo(note3.uuid)
+      assertThat(noteIdFor("abc_2.md")).isEqualTo(note3.id)
     }
   }
 
@@ -49,12 +49,12 @@ class FileNameRegisterTest : RobolectricTest() {
     val note1File = register.fileFor(directory, note1)
     val note2File = register.fileFor(directory, note2)
 
-    assertThat(register.noteIdFor(note1File.name)).isEqualTo(note1.uuid)
-    assertThat(register.noteIdFor(note2File.name)).isEqualTo(note2.uuid)
+    assertThat(register.noteIdFor(note1File.name)).isEqualTo(note1.id)
+    assertThat(register.noteIdFor(note2File.name)).isEqualTo(note2.id)
 
     register.pruneStaleRecords(latestNotes = listOf(note1))
 
-    assertThat(register.noteIdFor(note1File.name)).isEqualTo(note1.uuid)
+    assertThat(register.noteIdFor(note1File.name)).isEqualTo(note1.id)
     assertThat(register.noteIdFor(note2File.name)).isNull()
   }
 }

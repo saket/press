@@ -29,7 +29,6 @@ import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.localization.Strings.Editor
 import me.saket.press.shared.note.NoteRepository
-import me.saket.press.shared.note.deletedAt
 import me.saket.press.shared.rx.mapToOptional
 import me.saket.press.shared.rx.mapToSome
 import me.saket.press.shared.rx.observableInterval
@@ -115,7 +114,7 @@ class EditorPresenter(
    */
   private fun closeIfNoteGetsDeleted(): Observable<EditorUiEffect> {
     return noteStream
-        .filter { it.deletedAt != null }
+        .filter { it.isPendingDeletion }
         .take(1)
         .map { CloseNote }
   }
@@ -142,7 +141,7 @@ class EditorPresenter(
           observableInterval(config.autoSaveEvery, computationScheduler)
               .withLatestFrom(textChanges) { _, text -> text }
               .distinctUntilChanged()
-              .flatMapCompletable { text -> noteRepository.update(note.uuid, text) }
+              .flatMapCompletable { text -> noteRepository.update(note.id, text) }
         }
         .andThen(observableOfEmpty())
   }
@@ -171,10 +170,10 @@ class EditorPresenter(
         .mapToSome()
         .flatMapCompletable { note ->
           val maybeArchive = when {
-            shouldArchive -> noteRepository.markAsArchived(note.uuid)
+            shouldArchive -> noteRepository.markAsArchived(note.id)
             else -> completableOfEmpty()
           }
-          noteRepository.update(note.uuid, content).andThen(maybeArchive)
+          noteRepository.update(note.id, content).andThen(maybeArchive)
         }
   }
 

@@ -2,7 +2,8 @@ package me.saket.press.shared.note
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isNotNull
+import assertk.assertions.isFalse
+import assertk.assertions.isTrue
 import com.badoo.reaktive.scheduler.trampolineScheduler
 import com.badoo.reaktive.test.completable.test
 import com.soywiz.klock.seconds
@@ -31,11 +32,11 @@ class RealNoteRepositoryTest : BaseDatabaeTest() {
     val savedNote = noteQueries.visibleNotes().executeAsOne()
 
     savedNote.let {
-      assertThat(it.uuid).isEqualTo(noteId)
+      assertThat(it.id).isEqualTo(noteId)
       assertThat(it.content).isEqualTo(content)
       assertThat(it.createdAt).isEqualTo(clock.nowUtc())
       assertThat(it.updatedAt).isEqualTo(clock.nowUtc())
-      assertThat(it.deletedAt).isEqualTo(null)
+      assertThat(it.isPendingDeletion).isFalse()
     }
   }
 
@@ -43,33 +44,33 @@ class RealNoteRepositoryTest : BaseDatabaeTest() {
     val note = fakeNote(noteId = NoteId.generate(), content = "# Nicolas", clock = clock)
     noteQueries.testInsert(note)
 
-    repository().update(note.uuid, content = "# Nicolas").test()
+    repository().update(note.id, content = "# Nicolas").test()
 
-    val savedNote = { noteQueries.note(note.uuid).executeAsOne() }
+    val savedNote = { noteQueries.note(note.id).executeAsOne() }
     assertThat(savedNote().updatedAt).isEqualTo(note.updatedAt)
 
     clock.advanceTimeBy(5.seconds)
-    repository().update(note.uuid, content = "# Nicolas Cage").test()
+    repository().update(note.id, content = "# Nicolas Cage").test()
     assertThat(savedNote().updatedAt).isEqualTo(note.updatedAt + 5.seconds)
   }
 
-  @Test fun `mark a note as deleted`() {
+  @Test fun `mark a note as pending deletion`() {
     val note = fakeNote(noteId = NoteId.generate(), content = "# Nicolas Cage")
     noteQueries.testInsert(note)
 
-    repository().markAsPendingDeletion(note.uuid).test()
+    repository().markAsPendingDeletion(note.id).test()
 
-    val savedNote = noteQueries.note(note.uuid).executeAsOne()
-    assertThat(savedNote.deletedAt).isNotNull()
+    val savedNote = noteQueries.note(note.id).executeAsOne()
+    assertThat(savedNote.isPendingDeletion).isTrue()
   }
 
   @Test fun `mark a note as archived`() {
     val note = fakeNote(noteId = NoteId.generate(), content = "# A national treasure")
     noteQueries.testInsert(note)
 
-    repository().markAsArchived(note.uuid).test()
+    repository().markAsArchived(note.id).test()
 
-    val savedNote = noteQueries.note(note.uuid).executeAsOne()
-    assertThat(savedNote.archivedAt).isNotNull()
+    val savedNote = noteQueries.note(note.id).executeAsOne()
+    assertThat(savedNote.isArchived).isTrue()
   }
 }

@@ -3,8 +3,9 @@ package me.saket.press.shared.editor
 import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
-import assertk.assertions.isNotNull
+import assertk.assertions.isFalse
 import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import com.badoo.reaktive.test.base.assertNotError
 import com.badoo.reaktive.test.observable.assertValue
 import com.badoo.reaktive.test.observable.test
@@ -57,7 +58,7 @@ class EditorPresenterTest {
         .test()
 
     repository.savedNotes.single().let {
-      assertThat(it.uuid).isEqualTo(noteId)
+      assertThat(it.id).isEqualTo(noteId)
       assertThat(it.content).isEqualTo(NEW_NOTE_PLACEHOLDER)
     }
     observer.assertNotError()
@@ -74,7 +75,7 @@ class EditorPresenterTest {
         .uiModels()
         .test()
 
-    val savedNote = { repository.savedNotes.single { it.uuid == noteId } }
+    val savedNote = { repository.savedNotes.single { it.id == noteId } }
 
     presenter.dispatch(NoteTextChanged("# Ghost Rider"))
     testScheduler.timer.advanceBy(config.autoSaveEvery.millisecondsLong)
@@ -99,7 +100,7 @@ class EditorPresenterTest {
         .test()
 
     repository.savedNotes.single().let {
-      assertThat(it.uuid).isEqualTo(noteId)
+      assertThat(it.id).isEqualTo(noteId)
       assertThat(it.content).isEqualTo("Nicolas")
     }
     observer.assertNotError()
@@ -131,7 +132,7 @@ class EditorPresenterTest {
 
     val archivedNote = repository.savedNotes.last()
     assertThat(archivedNote.content).isEqualTo("")
-    assertThat(archivedNote.archivedAtString).isNotNull()
+    assertThat(archivedNote.isArchived).isTrue()
   }
 
   @Test fun `avoid archiving blank note on exit when disabled`() {
@@ -145,7 +146,7 @@ class EditorPresenterTest {
 
     val archivedNote = repository.savedNotes.last()
     assertThat(archivedNote.content).isEqualTo("")
-    assertThat(archivedNote.archivedAtString).isNull()
+    assertThat(archivedNote.isArchived).isFalse()
   }
 
   @Test fun `show hint text until the text is changed`() {

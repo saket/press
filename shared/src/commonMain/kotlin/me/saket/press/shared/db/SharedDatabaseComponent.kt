@@ -2,6 +2,7 @@ package me.saket.press.shared.db
 
 import com.badoo.reaktive.scheduler.computationScheduler
 import com.badoo.reaktive.scheduler.ioScheduler
+import com.squareup.sqldelight.EnumColumnAdapter
 import com.squareup.sqldelight.db.SqlDriver
 import me.saket.press.PressDatabase
 import me.saket.press.data.shared.Note
@@ -21,9 +22,10 @@ internal fun SqlDriver.createPressDatabase(): PressDatabase {
   return PressDatabase(
       driver = this,
       noteAdapter = Note.Adapter(
-          uuidAdapter = NoteId.SqlAdapter,
+          idAdapter = NoteId.SqlAdapter,
           createdAtAdapter = DateTimeAdapter,
-          updatedAtAdapter = DateTimeAdapter
+          updatedAtAdapter = DateTimeAdapter,
+          syncStateAdapter = EnumColumnAdapter()
       )
   )
 }

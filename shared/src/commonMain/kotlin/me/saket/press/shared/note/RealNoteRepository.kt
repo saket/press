@@ -10,7 +10,6 @@ import com.badoo.reaktive.observable.take
 import com.badoo.reaktive.scheduler.Scheduler
 import me.saket.press.data.shared.Note
 import me.saket.press.data.shared.NoteQueries
-import me.saket.press.shared.db.DateTimeAdapter
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.rx.asObservable
 import me.saket.press.shared.rx.mapToList
@@ -42,7 +41,7 @@ internal class RealNoteRepository(
       noteQueries.transaction {
         for (note in insertNotes) {
           noteQueries.insert(
-              uuid = note.id,
+              id = note.id,
               content = note.content,
               createdAt = note.createdAt ?: clock.nowUtc(),
               updatedAt = note.createdAt ?: clock.nowUtc()
@@ -59,7 +58,7 @@ internal class RealNoteRepository(
         .filter { note -> note.content.trim() != content.trim() }
         .map {
           noteQueries.updateContent(
-              uuid = id,
+              id = id,
               content = content,
               updatedAt = clock.nowUtc()
           )
@@ -69,19 +68,13 @@ internal class RealNoteRepository(
 
   override fun markAsPendingDeletion(id: NoteId): Completable {
     return completableFromFunction {
-      noteQueries.markAsPendingDeletion(
-          uuid = id,
-          deletedAtString = DateTimeAdapter.encode(clock.nowUtc())
-      )
+      noteQueries.markAsPendingDeletion(id)
     }
   }
 
   override fun markAsArchived(id: NoteId): Completable {
     return completableFromFunction {
-      noteQueries.markAsArchived(
-          uuid = id,
-          archivedAtString = DateTimeAdapter.encode(clock.nowUtc())
-      )
+      noteQueries.markAsArchived(id)
     }
   }
 }

@@ -18,13 +18,14 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class FakeNoteRepository : NoteRepository {
+  // todo: can this be replaced by a Map?
   val savedNotes = frozenCopyOnWriteList<Note.Impl>()
 
   private val _updateCount = AtomicInt(0)
   val updateCount: Int get() = _updateCount.get()
   private val scheduler = TestScheduler()
 
-  private fun findNote(noteId: NoteId) = savedNotes.find { it.uuid == noteId }
+  private fun findNote(noteId: NoteId) = savedNotes.find { it.id == noteId }
 
   override fun note(id: NoteId): Observable<Optional<Note>> {
     return observableFromFunction { findNote(id).toOptional() }.observeOn(scheduler)
@@ -54,7 +55,7 @@ class FakeNoteRepository : NoteRepository {
     return completableFromFunction {
       val existingNote = findNote(id)!!
       assertTrue(savedNotes.remove(existingNote))
-      savedNotes += existingNote.copy(deletedAtString = "current_time")
+      savedNotes += existingNote.copy(isPendingDeletion = true)
       _updateCount.addAndGet(1)
     }.observeOn(scheduler)
   }
@@ -63,7 +64,7 @@ class FakeNoteRepository : NoteRepository {
     return completableFromFunction {
       val existingNote = findNote(id)!!
       assertTrue(savedNotes.remove(existingNote))
-      savedNotes += existingNote.copy(archivedAtString = "current_time")
+      savedNotes += existingNote.copy(isArchived = true)
       _updateCount.addAndGet(1)
     }.observeOn(scheduler)
   }
