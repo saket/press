@@ -24,6 +24,8 @@ import me.saket.press.shared.PlatformHost.Android
 import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakedata.fakeNote
+import me.saket.press.shared.sync.SyncState.PENDING
+import me.saket.press.shared.sync.SyncState.SYNCED
 import me.saket.press.shared.sync.git.File
 import me.saket.press.shared.sync.git.GitSyncer
 import me.saket.press.shared.sync.git.UtcTimestamp
@@ -133,11 +135,11 @@ class GitSyncerTest : BaseDatabaeTest() {
     noteQueries.testInsert(
         fakeNote(
             content = "# Nicolas Cage \nis a national treasure",
-            updatedAt = clock.nowUtc()
+            clock = clock
         ),
         fakeNote(
             content = "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures",
-            updatedAt = clock.nowUtc()
+            clock = clock
         )
     )
 
@@ -311,6 +313,26 @@ class GitSyncerTest : BaseDatabaeTest() {
     // TODO
   }
 
+  @Test fun `ignore empty notes`() {
+    if (!canRunTests()) return
+    // TODO
+  }
+
+  @Test fun `ignore notes that are already synced`() {
+    if (!canRunTests()) return
+
+    val remote = RemoteRepositoryRobot {}
+    noteQueries.testInsert(
+        fakeNote(content = "# The Last of Us II", syncState = SYNCED, clock = clock),
+        fakeNote(content = "# Horizon Zero Dawn", syncState = PENDING, clock = clock)
+    )
+    syncer.sync()
+
+    assertThat(remote.fetchNoteFiles()).containsOnly(
+        "horizon_zero_dawn.md" to "# Horizon Zero Dawn"
+    )
+  }
+
   private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit) {
     private val directory = File(deviceInfo.appStorage, "temp").apply { makeDirectory() }
     private val gitRepo = git.repository(directory)
@@ -346,6 +368,9 @@ class GitSyncerTest : BaseDatabaeTest() {
       gitRepo.commitAll(message, timestamp = UtcTimestamp(time ?: clock.nowUtc()), allowEmpty = true)
     }
 
+    /**
+     * @return Pair(file name, file content).
+     */
     @OptIn(ExperimentalStdlibApi::class)
     fun fetchNoteFiles(): List<Pair<String, String>> {
       gitRepo.pull(rebase = true)

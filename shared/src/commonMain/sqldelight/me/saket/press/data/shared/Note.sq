@@ -35,6 +35,12 @@ SELECT *
 FROM note
 ORDER BY updatedAt DESC;
 
+pendingSyncNotes:
+SELECT *
+FROM note
+WHERE syncState = 'PENDING'
+ORDER BY updatedAt DESC;
+
 note:
 SELECT *
 FROM note
@@ -48,6 +54,16 @@ updateContent:
 UPDATE note
 SET content = ?, updatedAt = ?
 WHERE id = ?;
+
+updateSyncState:
+UPDATE note
+SET syncState = ?
+WHERE id IN :ids;
+
+swapSyncStates:
+UPDATE note
+SET syncState = :new
+WHERE syncState = :old;
 
 markAsPendingDeletion:
 UPDATE note

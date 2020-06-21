@@ -18,6 +18,8 @@ import me.saket.kgit.RebaseResult
 import me.saket.kgit.UtcTimestamp
 import me.saket.press.PressDatabase
 import me.saket.press.shared.db.NoteId
+import me.saket.press.shared.sync.SyncState.IN_FLIGHT
+import me.saket.press.shared.sync.SyncState.SYNCED
 import me.saket.press.shared.sync.Syncer
 import me.saket.press.shared.sync.git.GitSyncer.Result.DONE
 import me.saket.press.shared.sync.git.GitSyncer.Result.SKIPPED
@@ -65,17 +67,25 @@ class GitSyncer(
   }
 
   private fun commitAllChanges(): Result {
-    val unSyncedNotes = noteQueries.allNotes().executeAsList()
-    if (unSyncedNotes.isEmpty()) {
+    val pendingSyncNotes = noteQueries.pendingSyncNotes().executeAsList()
+    if (pendingSyncNotes.isEmpty()) {
       return SKIPPED
     }
 
-    for (note in unSyncedNotes) {
+    // Having an intermediate sync state between PENDING and SYNCED
+    // is important in case a note gets updated while it is syncing,
+    // in which case it'll get marked as PENDING again.
+    noteQueries.updateSyncState(
+        ids = pendingSyncNotes.map { it.id },
+        syncState = IN_FLIGHT
+    )
+
+    for (note in pendingSyncNotes) {
       val noteFile = register.fileFor(directory, note)
       noteFile.write(note.content)
 
       // When commits are re-processed, it's possible that nothing
-      // changes when notes are written to the file system.
+      // changes when the same notes are written to files.
       if (git.isStagingAreaDirty()) {
         git.commitAll(
             message = "Update '${noteFile.name}'",
@@ -87,7 +97,7 @@ class GitSyncer(
     return DONE
   }
 
-  /** Commit announcing syncing has begun. */
+  /** Commit announcing that syncing has been setup. */
   private fun maybeMakeInitialCommit() {
     check(git.currentBranch().name == "master")
     val head = git.headCommit()
@@ -254,6 +264,8 @@ class GitSyncer(
   private fun push() {
     val pushResult = git.push()
     require(pushResult !is PushResult.Failure) { "Failed to push: $pushResult" }
+
+    noteQueries.swapSyncStates(old = IN_FLIGHT, new = SYNCED)
   }
 
   fun setRemote(remoteUrl: String) {
