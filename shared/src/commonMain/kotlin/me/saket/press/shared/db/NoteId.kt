@@ -11,7 +11,7 @@ import kotlinx.serialization.PrimitiveDescriptor
 import kotlinx.serialization.PrimitiveKind.STRING
 import kotlinx.serialization.Serializer
 
-// Inline class would have been nice if Kotlin multi-platform supported it.
+// Inline class would have been nice if Kotlin multiplatform supported it.
 data class NoteId(val value: Uuid) {
   object SqlAdapter : ColumnAdapter<NoteId, String> {
     override fun decode(databaseValue: String) = NoteId(uuidFrom(databaseValue))
