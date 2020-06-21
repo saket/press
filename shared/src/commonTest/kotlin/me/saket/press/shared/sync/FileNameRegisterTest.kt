@@ -1,9 +1,10 @@
 package me.saket.press.shared.sync
 
 import assertk.assertThat
+import assertk.assertions.containsOnly
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
+import assertk.assertions.isNull
 import me.saket.press.shared.RobolectricTest
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.testDeviceInfo
@@ -47,13 +48,15 @@ class FileNameRegisterTest : RobolectricTest() {
   @Test fun `prune stale records`() {
     val note1 = fakeNote(content = "# Uncharted\nA Thief's End")
     val note2 = fakeNote(content = "# Uncharted\nThe Lost Legacy")
-    val noteFile1 = register.fileFor(directory, note1)
-    val noteFile2 = register.fileFor(directory, note2)
-    assertThat(noteFile1).isNotNull()
-    assertThat(noteFile2).isNotNull()
+    val note1File = register.fileFor(directory, note1)
+    val note2File = register.fileFor(directory, note2)
+
+    assertThat(register.noteIdFor(note1File.name)).isEqualTo(note1.uuid)
+    assertThat(register.noteIdFor(note2File.name)).isEqualTo(note2.uuid)
 
     register.pruneStaleRecords(latestNotes = listOf(note1))
 
-    assertThat(noteFile2.exists).isFalse()
+    assertThat(register.noteIdFor(note1File.name)).isEqualTo(note1.uuid)
+    assertThat(register.noteIdFor(note2File.name)).isNull()
   }
 }

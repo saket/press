@@ -121,7 +121,7 @@ class FileNameRegister(directory: File) {
   fun pruneStaleRecords(latestNotes: List<Note>) {
     if (!registerDirectory.exists) return
 
-    val noteIds = latestNotes.map { it.uuid.toString() }
+    val noteIds = latestNotes.map { it.uuid.value.toString() }
 
     for (file in registerDirectory.children().reversed()) {
       val (_, id) = deserialize(registerName = file.name)
