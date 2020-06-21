@@ -257,8 +257,8 @@ internal actual class RealGitRepository actual constructor(
   override fun commonAncestor(first: GitCommit, second: GitCommit): GitCommit? {
     RevWalk(jgit.repository).use { walk ->
       walk.revFilter = RevFilter.MERGE_BASE
-      walk.markStart(first.commit)
-      walk.markStart(second.commit)
+      walk.markStart(walk.parseCommit(first.commit))
+      walk.markStart(walk.parseCommit(second.commit))
       val mergeBase: RevCommit? = walk.next()
       walk.dispose()
       return mergeBase?.let(::GitCommit)
@@ -266,14 +266,15 @@ internal actual class RealGitRepository actual constructor(
   }
 
   override fun changesIn(commit: GitCommit): GitTreeDiff {
-    var previousCommit: RevCommit? = null
+    var parent: RevCommit? = null
     RevWalk(jgit.repository).use { walk ->
-      walk.markStart(commit.commit)
-      previousCommit = walk.next()
+      // Not sure if picking the first parent is right if
+      // multiple parents are present (in case of a merge).
+      parent = walk.parseCommit(commit.commit.id).parents.firstOrNull()
+      parent?.let { walk.parseHeaders(it) }
       walk.dispose()
     }
-
-    return diffBetween(previousCommit?.let(::GitCommit), commit)
+    return diffBetween(parent?.let(::GitCommit), commit)
   }
 
   override fun diffBetween(from: GitCommit?, to: GitCommit): GitTreeDiff {

@@ -28,6 +28,7 @@ import me.saket.press.shared.time.Clock
 // TODO: commit only un-synced notes.
 // TODO: add logging.
 // TODO: figure out git author name/email.
+// TODO: set both author and committer time.
 // TODO: handle all GitTreeDiff.Change types.
 // TODO: Broadcast an event when a merge conflict is resolved.
 class GitSyncer(
