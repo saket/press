@@ -1,16 +1,14 @@
 package me.saket.press.shared.sync
 
 import assertk.assertThat
-import assertk.assertions.containsOnly
 import assertk.assertions.isEqualTo
-import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import me.saket.press.shared.RobolectricTest
 import me.saket.press.shared.db.NoteId
-import me.saket.press.shared.testDeviceInfo
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.sync.git.File
 import me.saket.press.shared.sync.git.FileNameRegister
+import me.saket.press.shared.testDeviceInfo
 import kotlin.test.Test
 
 class FileNameRegisterTest : RobolectricTest() {

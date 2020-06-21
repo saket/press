@@ -8,7 +8,6 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotInstanceOf
-import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.hours

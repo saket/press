@@ -8,15 +8,6 @@ import me.saket.press.shared.sync.git.FileNameSanitizer.sanitize
 
 typealias FileName = String
 
-//private inline class Record(val filename: FileName) {
-//  companion object {
-//    private const val SEPARATOR = "___"
-//  }
-//
-//  val noteName: String get() = filename.substringBefore(SEPARATOR)
-//  val noteId: String get() = filename.substringAfter(SEPARATOR)
-//}
-
 /**
  * Press tries really hard to avoid leaking Press's implementation into user's git repository.
  * This includes using human readable filenames instead of UUIDs, generated from note titles.
@@ -33,21 +24,11 @@ class FileNameRegister(directory: File) {
     // Both NTFS and Unix file systems have a max-length of 255 letters.
     // Reserving 15 letters for handling conflicts and file name extension.
     private const val MAX_NAME_LENGTH = 240
-    private const val SEPARATOR = "___"
   }
 
   private val registerDirectory = File(directory, ".press/registers")
 
-  private fun serialize(noteFileName: String, id: NoteId) =
-    "$noteFileName$SEPARATOR${id.value}"
-
-  private fun deserialize(registerName: String): Pair<String, String> {
-    val (name, id) = registerName.split(SEPARATOR)
-    return name to id
-  }
-
   /**
-   * todo: accept a file instead.
    * If a mapping does not exist, this file is either new or this register
    * was recreated after getting deleted. In both cases, a new ID should be
    * created.
@@ -64,9 +45,9 @@ class FileNameRegister(directory: File) {
 
     val fileName = fileName.substringBeforeLast(".")
     for (file in registerDirectory.children()) {
-      val (name, id) = deserialize(registerName = file.name)
-      if (name == fileName) {
-        return NoteId(uuidFrom(id))
+      val record = Record(registerName = file.name)
+      if (record.noteName == fileName) {
+        return NoteId(uuidFrom(record.noteId))
       }
     }
     return null
@@ -79,7 +60,7 @@ class FileNameRegister(directory: File) {
     if (!registerDirectory.exists) {
       registerDirectory.makeDirectory(recursively = true)
     }
-    val serializedName = serialize(noteFile.nameWithoutExtension, id)
+    val serializedName = Record.serialize(noteFile.nameWithoutExtension, id)
     File(registerDirectory, serializedName).write("")
   }
 
@@ -122,12 +103,23 @@ class FileNameRegister(directory: File) {
     if (!registerDirectory.exists) return
 
     val noteIds = latestNotes.map { it.uuid.value.toString() }
-
     for (file in registerDirectory.children().reversed()) {
-      val (_, id) = deserialize(registerName = file.name)
-      if (id !in noteIds) {
+      val record = Record(registerName = file.name)
+      if (record.noteId !in noteIds) {
         file.delete()
       }
     }
   }
+}
+
+private inline class Record(val registerName: FileName) {
+  companion object {
+    private const val SEPARATOR = "___"
+
+    fun serialize(noteFileName: String, id: NoteId) =
+      "$noteFileName${SEPARATOR}${id.value}"
+  }
+
+  val noteName: String get() = registerName.substringBefore(SEPARATOR)
+  val noteId: String get() = registerName.substringAfter(SEPARATOR)
 }
