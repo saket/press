@@ -51,7 +51,7 @@ class HomePresenter(
       args.includeEmptyNotes || (note.content.isNotBlank() && note.content != NEW_NOTE_PLACEHOLDER)
     }
 
-    return repository.notes()
+    return repository.visibleNotes()
         .map { notes -> notes.filter { canInclude(it) } }
         .map {
           HomeUiModel(it.map { note ->

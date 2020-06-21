@@ -99,12 +99,12 @@ class GitSyncerTest : BaseDatabaeTest() {
     }
 
     // Given: User hasn't saved any notes on this device yet.
-    assertThat(noteQueries.notes().executeAsList()).isEmpty()
+    assertThat(noteQueries.visibleNotes().executeAsList()).isEmpty()
 
     syncer.sync()
 
     // Check that the notes were pulled and saved into DB.
-    val notesAfterSync = noteQueries.notes().executeAsList()
+    val notesAfterSync = noteQueries.visibleNotes().executeAsList()
     assertThat(notesAfterSync.map { it.content }).containsOnly(
         "# The Witcher",
         "# Uncharted: The Lost Legacy",
@@ -188,7 +188,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     )
 
     println("\nNotes in local DB before sync: ")
-    noteQueries.notes()
+    noteQueries.visibleNotes()
         .executeAsList()
         .sortedBy { it.updatedAt }
         .forEach { println("${it.uuid} ${it.content.replace("\n", " ")}") }
@@ -196,7 +196,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     syncer.sync()
 
     // Check: both local and remote have same notes with same timestamps.
-    val localNotes = noteQueries.notes()
+    val localNotes = noteQueries.visibleNotes()
         .executeAsList()
         .sortedBy { it.updatedAt }
 
@@ -232,7 +232,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     syncer.sync()
 
     // Given: the same note was edited locally.
-    val locallyEditedNote = noteQueries.notes().executeAsOne()
+    val locallyEditedNote = noteQueries.visibleNotes().executeAsOne()
     clock.advanceTimeBy(1.hours)
     noteQueries.updateContent(
         uuid = locallyEditedNote.uuid,
@@ -254,7 +254,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     // The conflict should get auto-resolved here.
     syncer.sync()
 
-    val localNotes = noteQueries.notes().executeAsList().sortedBy { it.updatedAt }
+    val localNotes = noteQueries.visibleNotes().executeAsList().sortedBy { it.updatedAt }
 
     // The local note should get duplicated as a new note and then
     // the local note should get overridden by the server copy.

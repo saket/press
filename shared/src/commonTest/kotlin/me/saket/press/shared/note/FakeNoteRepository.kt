@@ -30,7 +30,7 @@ class FakeNoteRepository : NoteRepository {
     return observableFromFunction { findNote(id).toOptional() }.observeOn(scheduler)
   }
 
-  override fun notes(): Observable<List<Note>> =
+  override fun visibleNotes(): Observable<List<Note>> =
     observableFromFunction { savedNotes }.observeOn(scheduler)
 
   override fun create(vararg insertNotes: InsertNote): Completable {

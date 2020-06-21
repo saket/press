@@ -10,9 +10,14 @@ import me.saket.press.shared.util.Optional
 // is of any value. Letting Presenters access the table directly could be simpler.
 interface NoteRepository {
   fun note(id: NoteId): Observable<Optional<Note>>
-  fun notes(): Observable<List<Note>>
+
+  /** Non-archived and non-deleted notes. */
+  fun visibleNotes(): Observable<List<Note>>
+
   fun create(vararg insertNotes: InsertNote): Completable
+
   fun update(id: NoteId, content: String): Completable
+
   fun markAsArchived(id: NoteId): Completable
 
   /** Note will be permanently deleted once it has been synced. */

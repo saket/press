@@ -28,7 +28,7 @@ class RealNoteRepositoryTest : BaseDatabaeTest() {
     val content = "Nicolas Cage is a national treasure"
     repository().create(id = noteId, content = content).test()
 
-    val savedNote = noteQueries.notes().executeAsOne()
+    val savedNote = noteQueries.visibleNotes().executeAsOne()
 
     savedNote.let {
       assertThat(it.uuid).isEqualTo(noteId)

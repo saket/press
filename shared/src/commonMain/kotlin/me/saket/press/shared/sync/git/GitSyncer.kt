@@ -66,7 +66,7 @@ class GitSyncer(
   }
 
   private fun commitAllChanges(): Result {
-    val unSyncedNotes = noteQueries.notes().executeAsList()
+    val unSyncedNotes = noteQueries.allNotes().executeAsList()
     if (unSyncedNotes.isEmpty()) {
       return SKIPPED
     }
@@ -206,7 +206,6 @@ class GitSyncer(
             println("Creating new note $newId for (${diff.path})")
             register.recordNewNoteId(directory, file, newId)
             Runnable {
-              // todo: can insert() use createdAt for updatedAt?
               noteQueries.insert(
                   uuid = newId,
                   content = content,

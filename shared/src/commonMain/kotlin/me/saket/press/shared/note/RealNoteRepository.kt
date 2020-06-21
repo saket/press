@@ -31,8 +31,8 @@ internal class RealNoteRepository(
         .mapToOneOrOptional()
   }
 
-  override fun notes(): Observable<List<Note>> {
-    return noteQueries.notes()
+  override fun visibleNotes(): Observable<List<Note>> {
+    return noteQueries.visibleNotes()
         .asObservable(ioScheduler)
         .mapToList()
   }

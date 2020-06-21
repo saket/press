@@ -13,8 +13,7 @@ CREATE TABLE note (
 
 CREATE INDEX note_content ON note(content);
 
--- todo: change to visibleNotes
-notes:
+visibleNotes:
 SELECT *
 FROM note
 WHERE deletedAtString IS NULL AND archivedAtString IS NULL
