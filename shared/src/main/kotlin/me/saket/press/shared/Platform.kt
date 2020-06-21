@@ -1,5 +1,5 @@
 package me.saket.press.shared
 
 actual object Platform {
-  actual val name: String = "Android"
+  actual val host = PlatformHost.Android
 }

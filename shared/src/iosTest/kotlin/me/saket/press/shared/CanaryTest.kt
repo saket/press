@@ -6,6 +6,6 @@ import kotlin.test.assertEquals
 class CanaryTest {
 
   @Test fun canary() {
-    assertEquals(Platform.name, "iOS")
+    assertEquals(Platform.host, PlatformHost.iOS)
   }
 }
