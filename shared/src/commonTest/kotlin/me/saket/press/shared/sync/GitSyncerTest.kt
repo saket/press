@@ -19,6 +19,8 @@ import me.saket.kgit.SshConfig
 import me.saket.press.data.shared.Note
 import me.saket.press.data.shared.NoteQueries
 import me.saket.press.shared.BuildKonfig
+import me.saket.press.shared.Platform
+import me.saket.press.shared.PlatformHost.Android
 import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakedata.fakeNote
@@ -55,6 +57,11 @@ class GitSyncerTest : BaseDatabaeTest() {
     syncer.setRemote("git@github.com:saket/PressSyncPlayground.git")
   }
 
+  private fun canRunTests(): Boolean {
+    // todo: make tests work for native platforms.
+    return BuildKonfig.GITHUB_SSH_PRIV_KEY.isNotBlank() && Platform.host == Android
+  }
+
   @AfterTest
   fun cleanUp() {
     deviceInfo.appStorage.delete(recursively = true)
@@ -66,9 +73,7 @@ class GitSyncerTest : BaseDatabaeTest() {
   }
 
   @Test fun `pull notes from a non-empty repo`() {
-    if (BuildKonfig.GITHUB_SSH_PRIV_KEY.isBlank()) {
-      return
-    }
+    if (!canRunTests()) return
 
     val firstCommitTime = clock.nowUtc() - 10.hours
     val secondCommitTime = clock.nowUtc()
@@ -121,9 +126,7 @@ class GitSyncerTest : BaseDatabaeTest() {
   }
 
   @Test fun `push notes to an empty repo`() {
-    if (BuildKonfig.GITHUB_SSH_PRIV_KEY.isBlank()) {
-      return
-    }
+    if (!canRunTests()) return
 
     // Given: Remote repository is empty.
     val remote = RemoteRepositoryRobot {}
@@ -150,9 +153,7 @@ class GitSyncerTest : BaseDatabaeTest() {
   }
 
   @Test fun `merge local and remote notes without conflicts`() {
-    if (BuildKonfig.GITHUB_SSH_PRIV_KEY.isBlank()) {
-      return
-    }
+    if (!canRunTests()) return
 
     // Given: Remote and local notes are saved in mixed order.
     val remoteTime1 = clock.nowUtc() - 10.hours
@@ -215,11 +216,8 @@ class GitSyncerTest : BaseDatabaeTest() {
     )
   }
 
-  // todo: add filenameregister to remote repo.
   @Test fun `resolve conflicts when content has changed but not the file name`() {
-    if (BuildKonfig.GITHUB_SSH_PRIV_KEY.isBlank()) {
-      return
-    }
+    if (!canRunTests()) return
 
     clock.rewindTimeBy(10.hours)
 
@@ -274,13 +272,12 @@ class GitSyncerTest : BaseDatabaeTest() {
   }
 
   @Test fun `notes with the same title are stored in separate files`() {
+    if (!canRunTests()) return
     // TODO
   }
 
   @Test fun `sync notes deleted on remote`() {
-    if (BuildKonfig.GITHUB_SSH_PRIV_KEY.isBlank()) {
-      return
-    }
+    if (!canRunTests()) return
 
     noteQueries.insert(
         uuid = NoteId.generate(),
@@ -307,6 +304,12 @@ class GitSyncerTest : BaseDatabaeTest() {
   }
 
   @Test fun `sync notes deleted locally`() {
+    if (!canRunTests()) return
+    // TODO
+  }
+
+  @Test fun `file name register from remote is used`() {
+    if (!canRunTests()) return
     // TODO
   }
 
