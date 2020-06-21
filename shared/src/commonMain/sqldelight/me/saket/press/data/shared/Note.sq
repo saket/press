@@ -39,7 +39,7 @@ UPDATE note
 SET content = ?, updatedAt = ?
 WHERE uuid = ?;
 
-markAsDeleted:
+markAsPendingDeletion:
 UPDATE note
 SET deletedAtString = ?
 WHERE uuid = ?;

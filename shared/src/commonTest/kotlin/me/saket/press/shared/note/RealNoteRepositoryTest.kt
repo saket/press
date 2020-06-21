@@ -57,7 +57,7 @@ class RealNoteRepositoryTest : BaseDatabaeTest() {
     val note = fakeNote(noteId = NoteId.generate(), content = "# Nicolas Cage")
     noteQueries.testInsert(note)
 
-    repository().markAsDeleted(note.uuid).test()
+    repository().markAsPendingDeletion(note.uuid).test()
 
     val savedNote = noteQueries.note(note.uuid).executeAsOne()
     assertThat(savedNote.deletedAt).isNotNull()

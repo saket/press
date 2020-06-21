@@ -18,7 +18,7 @@ import me.saket.kgit.RebaseResult
 import me.saket.kgit.UtcTimestamp
 import me.saket.press.PressDatabase
 import me.saket.press.shared.db.NoteId
-import me.saket.press.shared.note.markAsDeleted
+import me.saket.press.shared.note.markAsPendingDeletion
 import me.saket.press.shared.sync.Syncer
 import me.saket.press.shared.sync.git.GitSyncer.Result.DONE
 import me.saket.press.shared.sync.git.GitSyncer.Result.SKIPPED
@@ -220,7 +220,7 @@ class GitSyncer(
           val noteId = register.noteIdFor(diff.path)
           requireNotNull(noteId) { "Deleting non-existent note: $noteId" }
           println("Deleting $noteId (${diff.path})")
-          Runnable { noteQueries.markAsDeleted(noteId, deletedAt = commitTime) }
+          Runnable { noteQueries.markAsPendingDeletion(noteId, deletedAt = commitTime) }
         }
         is Copy -> TODO("handle copy of ${diff.fromPath} -> ${diff.toPath}")
         is Rename -> TODO("handle rename of ${diff.fromPath} -> ${diff.toPath}")

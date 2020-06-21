@@ -67,9 +67,9 @@ internal class RealNoteRepository(
         .asCompletable()
   }
 
-  override fun markAsDeleted(id: NoteId): Completable {
+  override fun markAsPendingDeletion(id: NoteId): Completable {
     return completableFromFunction {
-      noteQueries.markAsDeleted(
+      noteQueries.markAsPendingDeletion(
           uuid = id,
           deletedAtString = DateTimeAdapter.encode(clock.nowUtc())
       )

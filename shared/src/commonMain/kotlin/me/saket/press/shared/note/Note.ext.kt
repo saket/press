@@ -9,8 +9,8 @@ import me.saket.press.shared.db.NoteId
 // Workaround until https://youtrack.jetbrains.com/issue/KT-35234 is fixed.
 val Note.deletedAt get() = deletedAtString?.let { DateTimeAdapter.decode(it) }
 
-fun NoteQueries.markAsDeleted(uuid: NoteId, deletedAt: DateTime) {
-  markAsDeleted(uuid = uuid, deletedAtString = DateTimeAdapter.encode(deletedAt))
+fun NoteQueries.markAsPendingDeletion(uuid: NoteId, deletedAt: DateTime) {
+  markAsPendingDeletion(uuid = uuid, deletedAtString = DateTimeAdapter.encode(deletedAt))
 }
 
 val Note.archivedAt get() = archivedAtString?.let { DateTimeAdapter.decode(it) }

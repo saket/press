@@ -50,7 +50,7 @@ class FakeNoteRepository : NoteRepository {
     }.observeOn(scheduler)
   }
 
-  override fun markAsDeleted(id: NoteId): Completable {
+  override fun markAsPendingDeletion(id: NoteId): Completable {
     return completableFromFunction {
       val existingNote = findNote(id)!!
       assertTrue(savedNotes.remove(existingNote))

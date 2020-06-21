@@ -13,8 +13,10 @@ interface NoteRepository {
   fun notes(): Observable<List<Note>>
   fun create(vararg insertNotes: InsertNote): Completable
   fun update(id: NoteId, content: String): Completable
-  fun markAsDeleted(id: NoteId): Completable
   fun markAsArchived(id: NoteId): Completable
+
+  /** Note will be permanently deleted once it has been synced. */
+  fun markAsPendingDeletion(id: NoteId): Completable
 
   fun create(id: NoteId, content: String): Completable {
     return create(InsertNote(id, content))
