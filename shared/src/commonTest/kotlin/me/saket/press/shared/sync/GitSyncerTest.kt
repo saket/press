@@ -272,8 +272,9 @@ class GitSyncerTest : BaseDatabaeTest() {
     assertThat(localNotes[1].id).isNotEqualTo(locallyEditedNote.id)
   }
 
+  // TODO
   @Test fun `merge local and remote notes with filename and content conflict`() {
-    // TODO
+    if (!canRunTests()) return
   }
 
   @Test fun `notes with the same headings are stored in separate files`() {
@@ -325,28 +326,64 @@ class GitSyncerTest : BaseDatabaeTest() {
     assertThat(savedNotes()).isEmpty()
   }
 
-  @Test fun `sync notes deleted locally`() {
+  // TODO
+  @Test fun `sync notes archived and deleted locally`() {
     if (!canRunTests()) return
-    // TODO
   }
 
+  // TODO
   @Test fun `filename-register from remote is used for determining file name`() {
     if (!canRunTests()) return
-    // TODO
   }
 
   @Test fun `ignore notes that are already synced`() {
     if (!canRunTests()) return
 
-    val remote = RemoteRepositoryRobot {}
     noteQueries.testInsert(
         fakeNote(content = "# The Last of Us II", syncState = SYNCED, clock = clock),
         fakeNote(content = "# Horizon Zero Dawn", syncState = PENDING, clock = clock)
     )
     syncer.sync()
 
-    assertThat(remote.fetchNoteFiles()).containsOnly(
+    val remoteFiles = RemoteRepositoryRobot().fetchNoteFiles()
+    assertThat(remoteFiles).containsOnly(
         "horizon_zero_dawn.md" to "# Horizon Zero Dawn"
+    )
+  }
+
+  @Test fun `sync notes with changing heading`() {
+    if (!canRunTests()) return
+
+    val noteId = NoteId.generate()
+    noteQueries.testInsert(
+        fakeNote(
+            noteId = noteId,
+            content = """
+            |# John
+            |I'm thinking I'm back
+            """.trimMargin()
+        )
+    )
+    syncer.sync()
+
+    val remote = RemoteRepositoryRobot()
+    assertThat(remote.fetchNoteFiles()).containsOnly(
+        "john.md" to "# John\nI'm thinking I'm back"
+    )
+
+    noteQueries.updateContent(
+        id = noteId,
+        updatedAt = clock.nowUtc(),
+        content =
+        """
+        |# John Wick
+        |I'm thinking I'm back
+        """.trimMargin()
+    )
+    syncer.sync()
+
+    assertThat(remote.fetchNoteFiles()).containsOnly(
+        "john_wick.md" to "# John Wick\nI'm thinking I'm back"
     )
   }
 

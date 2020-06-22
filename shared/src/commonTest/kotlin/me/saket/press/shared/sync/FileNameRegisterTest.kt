@@ -2,7 +2,9 @@ package me.saket.press.shared.sync
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import me.saket.press.shared.RobolectricTest
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakedata.fakeNote
@@ -18,20 +20,38 @@ class FileNameRegisterTest : RobolectricTest() {
 
   @Test fun `generates unique file names to avoid conflicts`() {
     with(register) {
-      val note1 = fakeNote(noteId = NoteId.generate(), content = "# abc")
-      assertThat(fileFor(directory, note1).name).isEqualTo("abc.md")
-      assertThat(noteIdFor("abc.md")).isEqualTo(note1.id)
+      val note = fakeNote(noteId = NoteId.generate(), content = "# abc")
+      assertThat(fileFor(directory, note).name).isEqualTo("abc.md")
+      assertThat(noteIdFor("abc.md")).isEqualTo(note.id)
 
       // Same note, updated content.
-      val note2 = note1.copy(content = "# abc def")
-      assertThat(fileFor(directory, note2).name).isEqualTo("abc_def.md")
-      assertThat(noteIdFor("abc_def.md")).isEqualTo(note2.id)
+      val updatedNote1 = note.copy(content = "# abc def")
+      assertThat(fileFor(directory, updatedNote1).name).isEqualTo("abc_def.md")
+      assertThat(noteIdFor("abc_def.md")).isEqualTo(updatedNote1.id)
 
       // Different note, same content.
-      val note3 = fakeNote(noteId = NoteId.generate(), content = note1.content)
+      val note3 = fakeNote(noteId = NoteId.generate(), content = note.content)
       assertThat(fileFor(directory, note3).name).isEqualTo("abc_2.md")
       assertThat(noteIdFor("abc_2.md")).isEqualTo(note3.id)
     }
+  }
+
+  @Test fun `rename file if note's heading changes`() {
+    val note = fakeNote(noteId = NoteId.generate(), content = "# abc")
+
+    val fileBeforeUpdate = register.fileFor(directory, note)
+    fileBeforeUpdate.write(note.content)
+
+    assertThat(fileBeforeUpdate.name).isEqualTo("abc.md")
+    assertThat(fileBeforeUpdate.exists).isTrue()
+    assertThat(register.noteIdFor("abc.md")).isEqualTo(note.id)
+
+    val fileAfterUpdate = register.fileFor(directory, note.copy(content = "# abcdef"))
+    assertThat(fileAfterUpdate.name).isEqualTo("abcdef.md")
+    assertThat(fileBeforeUpdate.exists).isFalse()
+
+    assertThat(register.noteIdFor("abc.md")).isNull()
+    assertThat(register.noteIdFor("abcdef.md")).isEqualTo(note.id)
   }
 
   @Test fun `generation of a new file name for resolving conflict`() {

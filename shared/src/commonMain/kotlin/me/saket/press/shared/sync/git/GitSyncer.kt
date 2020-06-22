@@ -84,7 +84,6 @@ class GitSyncer(
       val noteFile = register.fileFor(directory, note)
       noteFile.write(note.content)
 
-      // When commits are re-processed, it's possible that nothing
       // changes when the same notes are written to files.
       if (git.isStagingAreaDirty()) {
         git.commitAll(
@@ -196,6 +195,9 @@ class GitSyncer(
       val commitTime = diffPathTimestamps[diff.path]!!
 
       dbOperations += when (diff) {
+        is Rename,
+          // Renaming of note files are ignored. Press
+          // generates a name as per the note's heading.
         is Add, is Modify -> {
           val file = File(directory, diff.path)
           val content = file.read()
@@ -213,7 +215,7 @@ class GitSyncer(
           } else {
             val newId = NoteId.generate()
             println("Creating new note $newId for (${diff.path})")
-            register.recordNewNoteId(directory, file, newId)
+            register.recordFileForNote(directory, file, newId)
             Runnable {
               noteQueries.insert(
                   id = newId,
@@ -234,7 +236,6 @@ class GitSyncer(
           }
         }
         is Copy -> TODO("handle copy of ${diff.fromPath} -> ${diff.toPath}")
-        is Rename -> TODO("handle rename of ${diff.fromPath} -> ${diff.toPath}")
       }
     }
 

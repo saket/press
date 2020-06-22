@@ -26,7 +26,9 @@ class FileNameRegister(directory: File) {
     private const val MAX_NAME_LENGTH = 240
   }
 
-  private val registerDirectory = File(directory, ".press/registers")
+  private val registerDirectory = File(directory, ".press/registers").also {
+    it.makeDirectory(recursively = true)
+  }
 
   /**
    * If a mapping does not exist, this file is either new or this register
@@ -53,7 +55,47 @@ class FileNameRegister(directory: File) {
     return null
   }
 
-  fun recordNewNoteId(notesDirectory: File, noteFile: File, id: NoteId) {
+  @Suppress("CascadeIf")
+  fun fileFor(notesDirectory: File, note: Note): File {
+    val oldRecord = existingRecordFor(note)
+    val oldNoteFile = oldRecord?.file(notesDirectory)?.existsOrNull()
+
+    val newNoteName = oldNoteFile.hideAndRun {
+      // The old file (if any) needs to be hidden or else it'll
+      // be seen as a conflict when a new name is generated.
+      generateFileNameFor(note)
+    }
+
+    return if (oldNoteFile == null) {
+      // New note. A new file needs to be created.
+      File(notesDirectory, newNoteName).also {
+        recordFileForNote(notesDirectory, it, note.id)
+      }
+    } else if (oldNoteFile.name == newNoteName) {
+      // A file already exists and the name matches the note's heading.
+      oldNoteFile
+    } else {
+      // A file already exists, but the heading was changed. Rename the file.
+      oldNoteFile.renameTo(newNoteName).also {
+        println("Renaming to $newNoteName")
+        File(registerDirectory, oldRecord.registerName).delete()
+        recordFileForNote(notesDirectory, it, note.id)
+      }
+    }
+  }
+
+  private inline fun <T> File?.hideAndRun(crossinline run: () -> T): T {
+    return if (this == null) run()
+    else {
+      val origName = name
+      val renamedFile = renameTo("__temp")
+      val value = run()
+      renamedFile.renameTo(origName)
+      value
+    }
+  }
+
+  fun recordFileForNote(notesDirectory: File, noteFile: File, id: NoteId) {
     require(noteFile.extension == "md")
     require(!noteFile.relativePathIn(notesDirectory).contains("/"))
 
@@ -64,7 +106,19 @@ class FileNameRegister(directory: File) {
     File(registerDirectory, serializedName).write("")
   }
 
-  fun fileFor(directory: File, note: Note): File {
+  private fun existingRecordFor(note: Note): Record? {
+    val noteIdString = note.id.value.toString()
+
+    for (file in registerDirectory.children()) {
+      val record = Record(registerName = file.name)
+      if (record.noteId == noteIdString) {
+        return record
+      }
+    }
+    return null
+  }
+
+  private fun generateFileNameFor(note: Note): String {
     val (heading) = SplitHeadingAndBody.split(note.content)
     val expectedName = if (heading.isNotBlank()) heading else "untitled_note"
 
@@ -80,9 +134,7 @@ class FileNameRegister(directory: File) {
       }
     }
 
-    return File(directory, "$uniqueName.md").also {
-      recordNewNoteId(directory, it, note.id)
-    }
+    return "$uniqueName.md"
   }
 
   fun findNewNameOnConflict(noteFile: File): FileName {
@@ -112,6 +164,10 @@ class FileNameRegister(directory: File) {
   }
 }
 
+private fun File.existsOrNull(): File? {
+  return if (exists) this else null
+}
+
 private inline class Record(val registerName: FileName) {
   companion object {
     private const val SEPARATOR = "___"
@@ -122,4 +178,5 @@ private inline class Record(val registerName: FileName) {
 
   val noteName: String get() = registerName.substringBefore(SEPARATOR)
   val noteId: String get() = registerName.substringAfter(SEPARATOR)
+  fun file(directory: File): File = File(directory, "$noteName.md")
 }
