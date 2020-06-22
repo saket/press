@@ -9,7 +9,6 @@ import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotInstanceOf
-import assertk.assertions.isTrue
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.hours
 import me.saket.kgit.GitTreeDiff.Change.Add
@@ -34,6 +33,7 @@ import me.saket.press.shared.sync.git.repository
 import me.saket.press.shared.testDeviceInfo
 import me.saket.press.shared.time.FakeClock
 import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class GitSyncerTest : BaseDatabaeTest() {
@@ -63,14 +63,18 @@ class GitSyncerTest : BaseDatabaeTest() {
     return BuildKonfig.GITHUB_SSH_PRIV_KEY.isNotBlank() && Platform.host == Android
   }
 
-  @AfterTest
-  fun cleanUp() {
-    deviceInfo.appStorage.delete(recursively = true)
-
+  @BeforeTest
+  fun setUp() {
     RemoteRepositoryRobot {
       commitFiles(message = "Emptiness", add = emptyList())
       forcePush()
+      directory.delete(recursively = true)
     }
+  }
+
+  @AfterTest
+  fun cleanUp() {
+    deviceInfo.appStorage.delete(recursively = true)
   }
 
   @Test fun `pull notes from a non-empty repo`() {
@@ -130,7 +134,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     if (!canRunTests()) return
 
     // Given: Remote repository is empty.
-    val remote = RemoteRepositoryRobot {}
+    val remote = RemoteRepositoryRobot()
 
     // Given: This device has some notes.
     noteQueries.testInsert(
@@ -217,7 +221,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     )
   }
 
-  @Test fun `resolve conflicts when content has changed but not the file name`() {
+  @Test fun `merge local and remote notes with content conflict`() {
     if (!canRunTests()) return
 
     clock.rewindTimeBy(10.hours)
@@ -268,13 +272,28 @@ class GitSyncerTest : BaseDatabaeTest() {
     assertThat(localNotes[1].id).isNotEqualTo(locallyEditedNote.id)
   }
 
-  @Test fun `resolve conflicts when both the content and file name have changed`() {
+  @Test fun `merge local and remote notes with filename and content conflict`() {
     // TODO
   }
 
-  @Test fun `notes with the same title are stored in separate files`() {
+  @Test fun `notes with the same headings are stored in separate files`() {
     if (!canRunTests()) return
-    // TODO
+
+    noteQueries.testInsert(
+        fakeNote("# Shopping List\nMangoes and strawberries"),
+        fakeNote("# Shopping List\nMilk and eggs"),
+        fakeNote("Note without heading"),
+        fakeNote("Another note without heading")
+    )
+    syncer.sync()
+
+    val remoteFiles = RemoteRepositoryRobot().fetchNoteFiles()
+    assertThat(remoteFiles).containsOnly(
+        "shopping_list.md" to "# Shopping List\nMangoes and strawberries",
+        "shopping_list_2.md" to "# Shopping List\nMilk and eggs",
+        "untitled_note.md" to "Note without heading",
+        "untitled_note_2.md" to "Another note without heading"
+    )
   }
 
   @Test fun `sync notes deleted on remote`() {
@@ -331,8 +350,8 @@ class GitSyncerTest : BaseDatabaeTest() {
     )
   }
 
-  private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit) {
-    private val directory = File(deviceInfo.appStorage, "temp").apply { makeDirectory() }
+  private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit = {}) {
+    val directory = File(deviceInfo.appStorage, "temp").apply { makeDirectory() }
     private val gitRepo = git.repository(directory)
 
     init {

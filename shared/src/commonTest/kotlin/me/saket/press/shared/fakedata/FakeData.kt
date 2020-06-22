@@ -10,9 +10,9 @@ import me.saket.press.shared.time.FakeClock
 import kotlin.random.Random
 
 fun fakeNote(
+  content: String,
   localId: Long = Random.Default.nextLong(),
   noteId: NoteId = NoteId.generate(),
-  content: String,
   clock: Clock = FakeClock(),
   createdAt: DateTime = clock.nowUtc(),
   updatedAt: DateTime = clock.nowUtc(),
