@@ -39,4 +39,6 @@ interface File {
     check(path.contains(ancestor.path)) { "$ancestor does not contain $this" }
     return path.drop(ancestor.path.length + 1)  // +1 for the trailing "/".
   }
+
+  fun renameTo(newName: String): File
 }
