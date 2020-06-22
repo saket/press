@@ -2,7 +2,6 @@ package me.saket.press.shared.sync
 
 import assertk.assertThat
 import assertk.assertions.containsExactly
-import assertk.assertions.containsOnly
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
@@ -22,6 +21,7 @@ import me.saket.press.data.shared.NoteQueries
 import me.saket.press.shared.BuildKonfig
 import me.saket.press.shared.Platform
 import me.saket.press.shared.PlatformHost.Android
+import me.saket.press.shared.containsOnly
 import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakedata.fakeNote
