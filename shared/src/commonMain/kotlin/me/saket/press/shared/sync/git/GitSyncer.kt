@@ -227,8 +227,11 @@ class GitSyncer(
         is Delete -> {
           val noteId = register.noteIdFor(diff.path)
           requireNotNull(noteId) { "Deleting non-existent note: $noteId" }
-          println("Deleting $noteId (${diff.path})")
-          Runnable { noteQueries.markAsPendingDeletion(noteId) }
+          println("Permanently deleting $noteId (${diff.path})")
+          Runnable {
+            noteQueries.markAsPendingDeletion(noteId)
+            noteQueries.deleteNote(noteId)
+          }
         }
         is Copy -> TODO("handle copy of ${diff.fromPath} -> ${diff.toPath}")
         is Rename -> TODO("handle rename of ${diff.fromPath} -> ${diff.toPath}")

@@ -65,15 +65,23 @@ UPDATE note
 SET syncState = :new
 WHERE syncState = :old;
 
+markAsArchived:
+UPDATE note
+SET isArchived = 1
+WHERE id = ?;
+
 markAsPendingDeletion:
 UPDATE note
 SET isPendingDeletion = 1
 WHERE id = ?;
 
-markAsArchived:
-UPDATE note
-SET isArchived = 1
-WHERE id = ?;
+deleteNote:
+DELETE
+FROM note
+WHERE id = ?
+  -- to safe-guard against mistakes:
+  AND isPendingDeletion = 1
+  AND syncState = 'IN_FLIGHT';
 
 -- Test functions
 testInsert:

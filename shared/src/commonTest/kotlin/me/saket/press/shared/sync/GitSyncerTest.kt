@@ -7,6 +7,7 @@ import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
+import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotInstanceOf
 import assertk.assertions.isTrue
@@ -287,6 +288,9 @@ class GitSyncerTest : BaseDatabaeTest() {
     )
     syncer.sync()
 
+    val savedNotes = { noteQueries.allNotes().executeAsList() }
+    assertThat(savedNotes()).isNotEmpty()
+
     clock.advanceTimeBy(2.hours)
     RemoteRepositoryRobot {
       pull()
@@ -299,8 +303,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     }
     syncer.sync()
 
-    val savedNote = noteQueries.allNotes().executeAsOne()
-    assertThat(savedNote.isPendingDeletion).isTrue()
+    assertThat(savedNotes()).isEmpty()
   }
 
   @Test fun `sync notes deleted locally`() {
@@ -308,12 +311,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     // TODO
   }
 
-  @Test fun `file name register from remote is used`() {
-    if (!canRunTests()) return
-    // TODO
-  }
-
-  @Test fun `ignore empty notes`() {
+  @Test fun `filename-register from remote is used for determining file name`() {
     if (!canRunTests()) return
     // TODO
   }
