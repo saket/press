@@ -38,7 +38,7 @@ class FakeNoteRepository : NoteRepository {
     return completableFromFunction {
       for (note in insertNotes) {
         assertNull(findNote(note.id))
-        savedNotes += fakeNote(noteId = note.id, content = note.content)
+        savedNotes += fakeNote(id = note.id, content = note.content)
       }
     }.observeOn(scheduler)
   }
@@ -46,7 +46,7 @@ class FakeNoteRepository : NoteRepository {
   override fun update(id: NoteId, content: String): Completable {
     return completableFromFunction {
       assertTrue(savedNotes.remove(findNote(id)))
-      savedNotes += fakeNote(noteId = id, content = content)
+      savedNotes += fakeNote(id = id, content = content)
       _updateCount.addAndGet(1)
     }.observeOn(scheduler)
   }

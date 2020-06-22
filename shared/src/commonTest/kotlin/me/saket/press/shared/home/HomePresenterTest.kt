@@ -36,7 +36,7 @@ class HomePresenterTest {
     val noteId = NoteId.generate()
     noteRepository.savedNotes += listOf(
         fakeNote(
-            noteId = noteId,
+            id = noteId,
             localId = -1L,
             content = "# Nicolas Cage\nOur national treasure"
         )
@@ -60,9 +60,9 @@ class HomePresenterTest {
 
   @Test fun `filter out empty notes if requested`() {
     noteRepository.savedNotes += listOf(
-        fakeNote(noteId = NoteId.generate(), content = "# Non-empty note"),
-        fakeNote(noteId = NoteId.generate(), content = NEW_NOTE_PLACEHOLDER),
-        fakeNote(noteId = NoteId.generate(), content = "")
+        fakeNote(id = NoteId.generate(), content = "# Non-empty note"),
+        fakeNote(id = NoteId.generate(), content = NEW_NOTE_PLACEHOLDER),
+        fakeNote(id = NoteId.generate(), content = "")
     )
 
     presenter(includeEmptyNotes = false)
@@ -76,9 +76,9 @@ class HomePresenterTest {
 
   @Test fun `include empty notes if requested`() {
     noteRepository.savedNotes += listOf(
-        fakeNote(noteId = NoteId.generate(), content = "# Non-empty note"),
-        fakeNote(noteId = NoteId.generate(), content = NEW_NOTE_PLACEHOLDER),
-        fakeNote(noteId = NoteId.generate(), content = "")
+        fakeNote(id = NoteId.generate(), content = "# Non-empty note"),
+        fakeNote(id = NoteId.generate(), content = NEW_NOTE_PLACEHOLDER),
+        fakeNote(id = NoteId.generate(), content = "")
     )
 
     presenter(includeEmptyNotes = true)

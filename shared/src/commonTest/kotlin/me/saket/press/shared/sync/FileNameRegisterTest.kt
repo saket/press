@@ -20,7 +20,7 @@ class FileNameRegisterTest : RobolectricTest() {
 
   @Test fun `generates unique file names to avoid conflicts`() {
     with(register) {
-      val note = fakeNote(noteId = NoteId.generate(), content = "# abc")
+      val note = fakeNote(id = NoteId.generate(), content = "# abc")
       assertThat(fileFor(directory, note).name).isEqualTo("abc.md")
       assertThat(noteIdFor("abc.md")).isEqualTo(note.id)
 
@@ -30,14 +30,14 @@ class FileNameRegisterTest : RobolectricTest() {
       assertThat(noteIdFor("abc_def.md")).isEqualTo(updatedNote1.id)
 
       // Different note, same content.
-      val note3 = fakeNote(noteId = NoteId.generate(), content = note.content)
+      val note3 = fakeNote(id = NoteId.generate(), content = note.content)
       assertThat(fileFor(directory, note3).name).isEqualTo("abc_2.md")
       assertThat(noteIdFor("abc_2.md")).isEqualTo(note3.id)
     }
   }
 
   @Test fun `rename file if note's heading changes`() {
-    val note = fakeNote(noteId = NoteId.generate(), content = "# abc")
+    val note = fakeNote(id = NoteId.generate(), content = "# abc")
 
     val fileBeforeUpdate = register.fileFor(directory, note)
     fileBeforeUpdate.write(note.content)

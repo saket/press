@@ -66,7 +66,7 @@ class EditorPresenterTest {
 
   @Test fun `auto-save note at regular intervals`() {
     repository.savedNotes += fakeNote(
-        noteId = noteId,
+        id = noteId,
         content = "# "
     )
 
@@ -93,7 +93,7 @@ class EditorPresenterTest {
   }
 
   @Test fun `blank note is not created on start when an existing note is opened`() {
-    repository.savedNotes += fakeNote(noteId = noteId, content = "Nicolas")
+    repository.savedNotes += fakeNote(id = noteId, content = "Nicolas")
 
     val observer = presenter(ExistingNote(noteId))
         .uiModels()
@@ -108,7 +108,7 @@ class EditorPresenterTest {
 
   @Test fun `updating an existing note on exit when its content is non-blank`() {
     repository.savedNotes += fakeNote(
-        noteId = noteId,
+        id = noteId,
         content = "Existing note"
     )
 
@@ -121,7 +121,7 @@ class EditorPresenterTest {
 
   @Test fun `archive blank note on exit when enabled`() {
     repository.savedNotes += fakeNote(
-        noteId = noteId,
+        id = noteId,
         content = "Existing note"
     )
 
@@ -137,7 +137,7 @@ class EditorPresenterTest {
 
   @Test fun `avoid archiving blank note on exit when disabled`() {
     repository.savedNotes += fakeNote(
-        noteId = noteId,
+        id = noteId,
         content = "Existing note"
     )
 
@@ -177,7 +177,7 @@ class EditorPresenterTest {
 
   @Test fun `populate existing note's content on start`() {
     repository.savedNotes += fakeNote(
-        noteId = noteId,
+        id = noteId,
         content = "Nicolas Cage favorite dialogues"
     )
 

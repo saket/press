@@ -41,7 +41,7 @@ class RealNoteRepositoryTest : BaseDatabaeTest() {
   }
 
   @Test fun `update a note only if its content is changed`() {
-    val note = fakeNote(noteId = NoteId.generate(), content = "# Nicolas", clock = clock)
+    val note = fakeNote(id = NoteId.generate(), content = "# Nicolas", clock = clock)
     noteQueries.testInsert(note)
 
     repository().update(note.id, content = "# Nicolas").test()
@@ -55,7 +55,7 @@ class RealNoteRepositoryTest : BaseDatabaeTest() {
   }
 
   @Test fun `mark a note as pending deletion`() {
-    val note = fakeNote(noteId = NoteId.generate(), content = "# Nicolas Cage")
+    val note = fakeNote(id = NoteId.generate(), content = "# Nicolas Cage")
     noteQueries.testInsert(note)
 
     repository().markAsPendingDeletion(note.id).test()
@@ -65,7 +65,7 @@ class RealNoteRepositoryTest : BaseDatabaeTest() {
   }
 
   @Test fun `mark a note as archived`() {
-    val note = fakeNote(noteId = NoteId.generate(), content = "# A national treasure")
+    val note = fakeNote(id = NoteId.generate(), content = "# A national treasure")
     noteQueries.testInsert(note)
 
     repository().markAsArchived(note.id).test()

@@ -9,11 +9,10 @@ import me.saket.press.shared.time.Clock
 import me.saket.press.shared.time.FakeClock
 import kotlin.random.Random
 
-// todo: rename [noteId] to [id].
 fun fakeNote(
   content: String,
   localId: Long = Random.Default.nextLong(),
-  noteId: NoteId = NoteId.generate(),
+  id: NoteId = NoteId.generate(),
   clock: Clock = FakeClock(),
   createdAt: DateTime = clock.nowUtc(),
   updatedAt: DateTime = clock.nowUtc(),
@@ -23,7 +22,7 @@ fun fakeNote(
 ): Note.Impl {
   return Note.Impl(
       localId = localId,
-      id = noteId,
+      id = id,
       content = content,
       createdAt = createdAt,
       updatedAt = updatedAt,

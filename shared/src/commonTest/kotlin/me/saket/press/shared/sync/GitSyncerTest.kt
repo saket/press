@@ -357,7 +357,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     val noteId = NoteId.generate()
     noteQueries.testInsert(
         fakeNote(
-            noteId = noteId,
+            id = noteId,
             content = """
             |# John
             |I'm thinking I'm back
