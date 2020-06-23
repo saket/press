@@ -10,6 +10,7 @@ import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.sync.git.File
 import me.saket.press.shared.sync.git.FileNameRegister
+import me.saket.press.shared.sync.git.touch
 import me.saket.press.shared.testDeviceInfo
 import kotlin.test.Test
 
@@ -21,17 +22,17 @@ class FileNameRegisterTest : RobolectricTest() {
   @Test fun `generates unique file names to avoid conflicts`() {
     with(register) {
       val note = fakeNote(id = NoteId.generate(), content = "# abc")
-      assertThat(fileFor(directory, note).name).isEqualTo("abc.md")
+      assertThat(fileFor(note).name).isEqualTo("abc.md")
       assertThat(noteIdFor("abc.md")).isEqualTo(note.id)
 
       // Same note, updated content.
       val updatedNote1 = note.copy(content = "# abc def")
-      assertThat(fileFor(directory, updatedNote1).name).isEqualTo("abc_def.md")
+      assertThat(fileFor(updatedNote1).name).isEqualTo("abc_def.md")
       assertThat(noteIdFor("abc_def.md")).isEqualTo(updatedNote1.id)
 
       // Different note, same content.
       val note3 = fakeNote(id = NoteId.generate(), content = note.content)
-      assertThat(fileFor(directory, note3).name).isEqualTo("abc_2.md")
+      assertThat(fileFor(note3).name).isEqualTo("abc_2.md")
       assertThat(noteIdFor("abc_2.md")).isEqualTo(note3.id)
     }
   }
@@ -39,14 +40,12 @@ class FileNameRegisterTest : RobolectricTest() {
   @Test fun `rename file if note's heading changes`() {
     val note = fakeNote(id = NoteId.generate(), content = "# abc")
 
-    val fileBeforeUpdate = register.fileFor(directory, note)
-    fileBeforeUpdate.write(note.content)
-
+    val fileBeforeUpdate = register.fileFor(note).touch()
     assertThat(fileBeforeUpdate.name).isEqualTo("abc.md")
     assertThat(fileBeforeUpdate.exists).isTrue()
     assertThat(register.noteIdFor("abc.md")).isEqualTo(note.id)
 
-    val fileAfterUpdate = register.fileFor(directory, note.copy(content = "# abcdef"))
+    val fileAfterUpdate = register.fileFor(note.copy(content = "# abcdef"))
     assertThat(fileAfterUpdate.name).isEqualTo("abcdef.md")
     assertThat(fileBeforeUpdate.exists).isFalse()
 
@@ -66,8 +65,8 @@ class FileNameRegisterTest : RobolectricTest() {
   @Test fun `prune stale records`() {
     val note1 = fakeNote(content = "# Uncharted\nA Thief's End")
     val note2 = fakeNote(content = "# Uncharted\nThe Lost Legacy")
-    val note1File = register.fileFor(directory, note1)
-    val note2File = register.fileFor(directory, note2)
+    val note1File = register.fileFor(note1)
+    val note2File = register.fileFor(note2)
 
     assertThat(register.noteIdFor(note1File.name)).isEqualTo(note1.id)
     assertThat(register.noteIdFor(note2File.name)).isEqualTo(note2.id)
@@ -76,5 +75,24 @@ class FileNameRegisterTest : RobolectricTest() {
 
     assertThat(register.noteIdFor(note1File.name)).isEqualTo(note1.id)
     assertThat(register.noteIdFor(note2File.name)).isNull()
+  }
+
+  @Test fun `support for archived folder`() {
+    val note = fakeNote(content = "# The Witcher 3\nWild hunt", isArchived = false)
+
+    val unarchivedFile = register.fileFor(note).touch()
+    assertThat(unarchivedFile.exists).isTrue()
+    assertThat(unarchivedFile.relativePathIn(directory)).isEqualTo("the_witcher_3.md")
+    assertThat(register.noteIdFor("the_witcher_3.md")).isEqualTo(note.id)
+
+    val archivedFile = register.fileFor(note.copy(isArchived = true)).touch()
+    assertThat(archivedFile.relativePathIn(directory)).isEqualTo("archived/the_witcher_3.md")
+    assertThat(unarchivedFile.exists).isFalse()
+    assertThat(register.noteIdFor("archived/the_witcher_3.md")).isEqualTo(note.id)
+
+    register.fileFor(note.copy(isArchived = false)).touch()
+    assertThat(archivedFile.exists).isFalse()
+    assertThat(unarchivedFile.exists).isTrue()
+    assertThat(register.noteIdFor("the_witcher_3.md")).isEqualTo(note.id)
   }
 }

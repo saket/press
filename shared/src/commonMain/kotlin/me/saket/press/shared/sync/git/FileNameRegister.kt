@@ -19,18 +19,20 @@ typealias FileName = String
  * will have to start suffixing filenames with 32 character long UUIDs 🤮.
  */
 @OptIn(ExperimentalStdlibApi::class)
-class FileNameRegister(directory: File) {
+class FileNameRegister(private val notesDirectory: File) {
   companion object {
     // Both NTFS and Unix file systems have a max-length of 255 letters.
     // Reserving 15 letters for handling conflicts and file name extension.
     private const val MAX_NAME_LENGTH = 240
   }
 
-  private val registerDirectory = File(directory, ".press/registers").also {
+  private val registerDirectory = File(notesDirectory, ".press/registers").also {
     it.makeDirectory(recursively = true)
   }
 
   /**
+   * todo: accept a file instead.
+   *
    * If a mapping does not exist, this file is either new or this register
    * was recreated after getting deleted. In both cases, a new ID should be
    * created.
@@ -39,15 +41,18 @@ class FileNameRegister(directory: File) {
   fun noteIdFor(fileName: FileName): NoteId? {
     require(fileName.endsWith("md")) { "Not a note: $fileName" }
 
-    if (!registerDirectory.exists) {
-      // Likely checking out a remote commit that
-      // doesn't have the registers directory yet.
-      return null
-    }
+    // if (!registerDirectory.exists) {
+    //   // Likely checking out a remote commit that
+    //   // doesn't have the registers directory yet.
+    //   return null
+    // }
 
-    val fileName = fileName.substringBeforeLast(".")
-    for (file in registerDirectory.children()) {
-      val record = Record(registerName = file.name)
+    // Example: "archived/uncharted.md"
+    val fileName = fileName.substringBeforeLast(".").substringAfterLast("/")    // e.g., "uncharted"
+    val folderName = fileName.substringBefore("/", missingDelimiterValue = "")  // e.g., "archived"
+
+    for (file in allRegisterFiles(folderName)) {
+      val record = Record.from(registerDirectory, file)
       if (record.noteName == fileName) {
         return NoteId(uuidFrom(record.noteId))
       }
@@ -56,9 +61,9 @@ class FileNameRegister(directory: File) {
   }
 
   @Suppress("CascadeIf")
-  fun fileFor(notesDirectory: File, note: Note): File {
+  fun fileFor(note: Note): File {
     val oldRecord = existingRecordFor(note)
-    val oldNoteFile = oldRecord?.file(notesDirectory)?.existsOrNull()
+    val oldNoteFile = oldRecord?.noteFileIn(notesDirectory).existsOrNull()
 
     val newNoteName = oldNoteFile.hideAndRun {
       // The old file (if any) needs to be hidden or else it'll
@@ -69,72 +74,71 @@ class FileNameRegister(directory: File) {
     return if (oldNoteFile == null) {
       // New note. A new file needs to be created.
       File(notesDirectory, newNoteName).also {
-        recordFileForNote(notesDirectory, it, note.id)
+        recordFileForNote(it, note.id)
       }
-    } else if (oldNoteFile.name == newNoteName) {
+    } else if (oldNoteFile.relativePathIn(notesDirectory) == newNoteName) {
       // A file already exists and the name matches the note's heading.
       oldNoteFile
     } else {
       // A file already exists, but the heading was changed. Rename the file.
-      oldNoteFile.renameTo(newNoteName).also {
+      oldNoteFile.renameTo(File(notesDirectory, newNoteName)).also {
         println("Renaming to $newNoteName")
-        File(registerDirectory, oldRecord.registerName).delete()
-        recordFileForNote(notesDirectory, it, note.id)
+        oldRecord!!.registerFileIn(registerDirectory).delete()
+        recordFileForNote(it, note.id)
       }
     }
   }
 
-  private inline fun <T> File?.hideAndRun(crossinline run: () -> T): T {
-    return if (this == null) run()
-    else {
-      val origName = name
-      val renamedFile = renameTo("__temp")
-      val value = run()
-      renamedFile.renameTo(origName)
-      value
-    }
-  }
-
-  fun recordFileForNote(notesDirectory: File, noteFile: File, id: NoteId) {
+  fun recordFileForNote(noteFile: File, id: NoteId) {
     require(noteFile.extension == "md")
-    require(!noteFile.relativePathIn(notesDirectory).contains("/"))
 
     if (!registerDirectory.exists) {
       registerDirectory.makeDirectory(recursively = true)
     }
-    val serializedName = Record.serialize(noteFile.nameWithoutExtension, id)
-    File(registerDirectory, serializedName).write("")
+    val serializedName = Record.generateSavePath(notesDirectory, noteFile, id)
+    File(registerDirectory, serializedName).touch()
   }
 
   private fun existingRecordFor(note: Note): Record? {
-    val noteIdString = note.id.value.toString()
+    val noteId = note.id.value.toString()
 
-    for (file in registerDirectory.children()) {
-      val record = Record(registerName = file.name)
-      if (record.noteId == noteIdString) {
+    for (registerFile in allRegisterFiles()) {
+      val record = Record.from(registerDirectory, registerFile)
+      if (record.noteId == noteId) {
         return record
       }
     }
     return null
   }
 
+  private fun allRegisterFiles(folder: String = "") = File(registerDirectory, folder)
+      .children(recursively = true)
+      .filter { !it.isDirectory }
+
   private fun generateFileNameFor(note: Note): String {
     val (heading) = SplitHeadingAndBody.split(note.content)
     val expectedName = if (heading.isNotBlank()) heading else "untitled_note"
+    val folder = note.folder()?.plus("/") ?: ""
 
     // Suffix the name to avoid conflicts. E.g., "untitled_note_2".
     var uniqueName: String
     var conflicts = 0
     loop@ while (true) {
-      uniqueName = sanitize(expectedName, MAX_NAME_LENGTH) + if (conflicts++ == 0) "" else "_$conflicts"
-      when (noteIdFor("$uniqueName.md")) {
+      val conflictSuffix = if (conflicts++ == 0) "" else "_$conflicts"
+      uniqueName = "$folder${sanitize(expectedName, MAX_NAME_LENGTH)}$conflictSuffix.md"
+
+      when (noteIdFor(uniqueName)) {
         note.id -> break@loop     // Reuse the same name.
         null -> break@loop        // New note. Can still use this name.
         else -> continue@loop     // Conflict! Try another name.
       }
     }
 
-    return "$uniqueName.md"
+    return uniqueName
+  }
+
+  private fun Note.folder(): String? {
+    return if (isArchived) "archived" else null
   }
 
   fun findNewNameOnConflict(noteFile: File): FileName {
@@ -155,8 +159,8 @@ class FileNameRegister(directory: File) {
     if (!registerDirectory.exists) return
 
     val noteIds = latestNotes.map { it.id.value.toString() }
-    for (file in registerDirectory.children().reversed()) {
-      val record = Record(registerName = file.name)
+    for (file in allRegisterFiles().reversed()) {
+      val record = Record.from(registerDirectory, file)
       if (record.noteId !in noteIds) {
         file.delete()
       }
@@ -164,19 +168,56 @@ class FileNameRegister(directory: File) {
   }
 }
 
-private fun File.existsOrNull(): File? {
-  return if (exists) this else null
+private fun File?.existsOrNull(): File? {
+  return if (this?.exists == true) this else null
 }
 
-private inline class Record(val registerName: FileName) {
+private inline fun <T> File?.hideAndRun(crossinline run: () -> T): T {
+  return if (this == null) run()
+  else {
+    val origPath = this.path
+    val renamedFile = renameTo(File(parent!!, "__temp"))
+    val value = run()
+    renamedFile.renameTo(File(origPath))
+    value
+  }
+}
+
+/**
+ * @param relativePathWithoutExt Extension-less path of the register
+ * file relative to directory where register files are stored.
+ * E.g., "archived/uncharted___<uuid>".
+ */
+private class Record @Deprecated("Use Record.forFile()") constructor(
+  val relativePathWithoutExt: String
+) {
   companion object {
     private const val SEPARATOR = "___"
 
-    fun serialize(noteFileName: String, id: NoteId) =
-      "$noteFileName${SEPARATOR}${id.value}"
+    @Suppress("DEPRECATION")
+    fun from(registersDirectory: File, registerFile: File): Record {
+      check(registerFile.name.contains(SEPARATOR))
+      return Record(registerFile.relativePathIn(registersDirectory))
+    }
+
+    fun generateSavePath(notesDirectory: File, noteFile: File, id: NoteId): String {
+      val relativeName = noteFile.relativePathIn(notesDirectory).dropLast(".md".length)
+      return "$relativeName$SEPARATOR${id.value}"
+    }
   }
 
-  val noteName: String get() = registerName.substringBefore(SEPARATOR)
-  val noteId: String get() = registerName.substringAfter(SEPARATOR)
-  fun file(directory: File): File = File(directory, "$noteName.md")
+  val noteName: String
+    get() = relativePathWithoutExt.substringBefore(SEPARATOR).substringAfter("/")
+
+  val noteId: String
+    get() = relativePathWithoutExt.substringAfter(SEPARATOR)
+
+  private val noteFolder: String
+    get() = relativePathWithoutExt.substringBefore("/", missingDelimiterValue = "")
+
+  fun registerFileIn(registersDirectory: File): File =
+    File(registersDirectory, relativePathWithoutExt)
+
+  fun noteFileIn(notesDirectory: File): File =
+    File(File(notesDirectory, noteFolder), "$noteName.md")
 }

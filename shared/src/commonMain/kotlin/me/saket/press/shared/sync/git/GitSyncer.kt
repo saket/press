@@ -81,7 +81,7 @@ class GitSyncer(
     )
 
     for (note in pendingSyncNotes) {
-      val noteFile = register.fileFor(directory, note)
+      val noteFile = register.fileFor(note)
       noteFile.write(note.content)
 
       // changes when the same notes are written to files.
@@ -215,7 +215,7 @@ class GitSyncer(
           } else {
             val newId = NoteId.generate()
             println("Creating new note $newId for (${diff.path})")
-            register.recordFileForNote(directory, file, newId)
+            register.recordFileForNote(file, newId)
             Runnable {
               noteQueries.insert(
                   id = newId,

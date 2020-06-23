@@ -16,6 +16,7 @@ interface File {
   val path: String
   val name: String
   val parent: File?
+  val isDirectory: Boolean
 
   val extension: String
     get() = name.substringAfterLast('.', "")
@@ -35,10 +36,30 @@ interface File {
 
   fun children(): List<File>
 
+  @OptIn(ExperimentalStdlibApi::class)
+  fun children(recursively: Boolean): List<File> {
+    if (!recursively) return children()
+
+    return buildList {
+      for (child in children()) {
+        add(child)
+        if (child.isDirectory) {
+          addAll(child.children(recursively))
+        }
+      }
+    }
+  }
+
   fun relativePathIn(ancestor: File): String {
     check(path.contains(ancestor.path)) { "$ancestor does not contain $this" }
     return path.drop(ancestor.path.length + 1)  // +1 for the trailing "/".
   }
 
-  fun renameTo(newName: String): File
+  fun renameTo(newFile: File): File
+}
+
+fun File.touch(): File {
+  parent?.let { if (!exists) it.makeDirectory(recursively = true) }
+  write("")
+  return this
 }

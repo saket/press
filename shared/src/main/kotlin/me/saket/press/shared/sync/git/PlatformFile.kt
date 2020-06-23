@@ -13,6 +13,7 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
   override val name: String get() = delegate.name
   override val exists: Boolean get() = delegate.exists()
   override val parent: File? get() = delegate.parentFile?.let(::PlatformFile)
+  override val isDirectory: Boolean get() = delegate.isDirectory
 
   override fun write(input: String) {
     delegate.sink().buffer().use {
@@ -37,16 +38,18 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
     return PlatformFile(targetDelegate)
   }
 
-  override fun renameTo(newName: String): File {
-    check(name != newName)
-    check(exists) { "$newName doesn't exist" }
+  override fun renameTo(newFile: File): File {
+    check(this.path != newFile.path)
+    check(this.exists) { "$path doesn't exist" }
 
-    val renamedDelegate = JavaFile(delegate.parent, newName)
-    check(!renamedDelegate.exists())
+    val renamedFile = File(newFile.path).apply {
+      check(!exists)
+      if (!parent!!.exists) parent!!.makeDirectory(recursively = true)
+    }
 
-    val renamed = delegate.renameTo(renamedDelegate)
-    check(renamed) { "Couldn't rename ($this) to $newName" }
-    return PlatformFile(renamedDelegate)
+    val renamed = delegate.renameTo(JavaFile(renamedFile.path))
+    check(renamed) { "Couldn't rename ($this) to $newFile" }
+    return renamedFile
   }
 
   override fun makeDirectory(recursively: Boolean) {
@@ -58,6 +61,7 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
   }
 
   override fun delete(recursively: Boolean) {
+    check(exists) { "$name does not exist: $path" }
     if (recursively) {
       delegate.deleteRecursively()
     } else {
@@ -75,6 +79,7 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
   }
 
   override fun children(): List<File> {
+    check(delegate.isDirectory)
     val children = delegate.listFiles() ?: error("Can't print children. Exists? $exists. Path: $path")
     return children.map { PlatformFile(it) }
   }
