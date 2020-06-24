@@ -5,7 +5,6 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
-import me.saket.press.shared.RobolectricTest
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.sync.git.File
@@ -14,7 +13,7 @@ import me.saket.press.shared.sync.git.touch
 import me.saket.press.shared.testDeviceInfo
 import kotlin.test.Test
 
-class FileNameRegisterTest : RobolectricTest() {
+class FileNameRegisterTest {
 
   private val directory = testDeviceInfo().appStorage
   private val register = FileNameRegister(directory)

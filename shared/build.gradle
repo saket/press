@@ -116,7 +116,7 @@ kotlin {
         implementation kotlin('test')
         implementation kotlin('test-junit')
         implementation deps.androidx.test.jUnit
-        implementation deps.robolectric
+        implementation deps.sqlDelight.driver.jvm
       }
     }
     nativeMain {

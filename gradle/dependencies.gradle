@@ -75,6 +75,7 @@ buildscript {
               'jdk': "com.squareup.sqldelight:runtime-jvm:${versions.sqlDelight}",
           ],
           'driver': [
+              'jvm': "com.squareup.sqldelight:sqlite-driver:${versions.sqlDelight}",
               'android': "com.squareup.sqldelight:android-driver:${versions.sqlDelight}",
               'native': "com.squareup.sqldelight:native-driver:${versions.sqlDelight}"
           ],
