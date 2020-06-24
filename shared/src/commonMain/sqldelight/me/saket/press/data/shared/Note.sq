@@ -67,7 +67,12 @@ WHERE syncState = :old;
 
 markAsArchived:
 UPDATE note
-SET isArchived = 1
+SET isArchived = 1, updatedAt = ?
+WHERE id = ?;
+
+setArchived:
+UPDATE note
+SET isArchived = ?, updatedAt = ?
 WHERE id = ?;
 
 markAsPendingDeletion:

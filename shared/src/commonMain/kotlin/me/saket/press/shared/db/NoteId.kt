@@ -31,5 +31,6 @@ data class NoteId(val value: Uuid) {
 
   companion object {
     fun generate() = NoteId(uuid4())
+    fun from(uuidString: String) = NoteId(uuidFrom(uuidString))
   }
 }

@@ -9,6 +9,7 @@ import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotInstanceOf
+import assertk.assertions.isTrue
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.hours
 import me.saket.kgit.GitTreeDiff.Change.Add
@@ -22,11 +23,13 @@ import me.saket.press.shared.Platform
 import me.saket.press.shared.PlatformHost.Android
 import me.saket.press.shared.containsOnly
 import me.saket.press.shared.db.BaseDatabaeTest
+import me.saket.press.shared.db.DateTimeAdapter
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.sync.SyncState.PENDING
 import me.saket.press.shared.sync.SyncState.SYNCED
 import me.saket.press.shared.sync.git.File
+import me.saket.press.shared.sync.git.FileName
 import me.saket.press.shared.sync.git.GitSyncer
 import me.saket.press.shared.sync.git.UtcTimestamp
 import me.saket.press.shared.sync.git.repository
@@ -387,6 +390,38 @@ class GitSyncerTest : BaseDatabaeTest() {
     )
   }
 
+  @Test fun `sync archived notes`() {
+    if (!canRunTests()) return
+
+    val note1 = fakeNote("# Horizon Zero Dawn")
+    val note2 = fakeNote("# Uncharted")
+    noteQueries.testInsert(note1, note2)
+    syncer.sync()
+
+    // Archive both notes: One on local and the other on remote.
+    noteQueries.markAsArchived(id = note1.id, updatedAt = clock.nowUtc())
+    val remote = RemoteRepositoryRobot {
+      pull()
+      commitFiles(
+          message = "Archive uncharted.md",
+          rename = listOf(
+              "uncharted.md" to "archived/uncharted.md"
+          )
+      )
+      forcePush()
+    }
+    syncer.sync()
+
+    val notes = noteQueries.allNotes().executeAsList()
+    println("Local notes after syncing:"); notes.forEach { println(it) }
+    assertThat(notes.all { it.isArchived }).isTrue()
+
+    assertThat(remote.fetchNoteFiles()).containsOnly(
+        "archived/horizon_zero_dawn.md" to "# Horizon Zero Dawn",
+        "archived/uncharted.md" to "# Uncharted"
+    )
+  }
+
   private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit = {}) {
     val directory = File(deviceInfo.appStorage, "temp").apply { makeDirectory() }
     private val gitRepo = git.repository(directory)
@@ -406,38 +441,32 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     fun commitFiles(
       message: String,
-      time: DateTime? = null,
-      add: List<Pair<String, String>> = emptyList(),
-      delete: List<String> = emptyList()
+      time: DateTime = clock.nowUtc(),
+      add: List<Pair<FileName, FileName>> = emptyList(),
+      delete: List<FileName> = emptyList(),
+      rename: List<Pair<FileName, String>> = emptyList()
     ) {
       add.forEach { (name, body) ->
         File(directory, name).write(body)
       }
       delete.forEach { path ->
-        File(directory, path).apply {
-          require(exists) { "$path does not exist" }
-          delete()
-        }
+        File(directory, path).delete()
       }
-      gitRepo.commitAll(message, timestamp = UtcTimestamp(time ?: clock.nowUtc()), allowEmpty = true)
+      rename.forEach { (oldPath, newPath) ->
+        File(directory, oldPath).renameTo(File(directory, newPath))
+      }
+      gitRepo.commitAll(message, timestamp = UtcTimestamp(time), allowEmpty = true)
     }
 
     /**
-     * @return Pair(file name, file content).
+     * @return Pair(relative file path, file content).
      */
-    @OptIn(ExperimentalStdlibApi::class)
     fun fetchNoteFiles(): List<Pair<String, String>> {
       gitRepo.pull(rebase = true)
-      val head = gitRepo.headCommit()!!
-      val diffs = gitRepo.diffBetween(from = null, to = head)
-      return buildList {
-        for (diff in diffs) {
-          check(diff is Add)  // because we're diffing with an empty file tree.
-          if (diff.path.endsWith(".md") && !diff.path.contains("/")) {
-            add(diff.path to File(directory, diff.path).read())
-          }
-        }
-      }
+      return directory
+          .children(recursively = true)
+          .filter { it.extension == "md" && !it.relativePathIn(directory).startsWith(".") }
+          .map { it.relativePathIn(directory) to it.read() }
     }
   }
 }

@@ -21,7 +21,7 @@ fun Assert<Iterable<*>>.containsOnly(vararg elements: Any?) = given { actual ->
     actual.appendFlatString(this)
 
     if (notInActual.isNotEmpty()) {
-      append("\n\nElements not found")
+      append("\n\nElements not found:")
       notInActual.appendFlatString(this)
     }
     if (notInExpected.isNotEmpty()) {

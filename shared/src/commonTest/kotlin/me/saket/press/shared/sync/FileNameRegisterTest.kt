@@ -1,6 +1,7 @@
 package me.saket.press.shared.sync
 
 import assertk.assertThat
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNull
@@ -82,16 +83,25 @@ class FileNameRegisterTest {
     val unarchivedFile = register.fileFor(note).touch()
     assertThat(unarchivedFile.exists).isTrue()
     assertThat(unarchivedFile.relativePathIn(directory)).isEqualTo("the_witcher_3.md")
-    assertThat(register.noteIdFor("the_witcher_3.md")).isEqualTo(note.id)
+    with(register.recordFor("the_witcher_3.md")!!) {
+      assertThat(noteId).isEqualTo(note.id)
+      assertThat(noteFolder).isEmpty()
+    }
 
     val archivedFile = register.fileFor(note.copy(isArchived = true)).touch()
     assertThat(archivedFile.relativePathIn(directory)).isEqualTo("archived/the_witcher_3.md")
     assertThat(unarchivedFile.exists).isFalse()
-    assertThat(register.noteIdFor("archived/the_witcher_3.md")).isEqualTo(note.id)
+    with(register.recordFor("archived/the_witcher_3.md")!!) {
+      assertThat(noteId).isEqualTo(note.id)
+      assertThat(noteFolder).isEqualTo("archived")
+    }
 
     register.fileFor(note.copy(isArchived = false)).touch()
     assertThat(archivedFile.exists).isFalse()
     assertThat(unarchivedFile.exists).isTrue()
-    assertThat(register.noteIdFor("the_witcher_3.md")).isEqualTo(note.id)
+    with(register.recordFor("the_witcher_3.md")!!) {
+      assertThat(noteId).isEqualTo(note.id)
+      assertThat(noteFolder).isEmpty()
+    }
   }
 }

@@ -167,14 +167,14 @@ class GitSyncer(
     // to find the first common ancestor of local and upstream. All
     // changes from the ancestor to the current HEAD will have to be
     // (re)processed.
-    reprocessNotesFromCommits(
+    processNotesFromCommits(
         from = git.commonAncestor(localHead, upstreamHead),
         to = git.headCommit()!!
     )
     return DONE
   }
 
-  private fun reprocessNotesFromCommits(from: GitCommit?, to: GitCommit) {
+  private fun processNotesFromCommits(from: GitCommit?, to: GitCommit) {
     // Press stores updated-at timestamp of notes in each commit.
     val diffPathTimestamps = git.commitsBetween(from = from, toInclusive = to)
         .flatMap { commit ->
@@ -202,25 +202,39 @@ class GitSyncer(
           val file = File(directory, diff.path)
           val content = file.read()
 
-          val existingId = register.noteIdFor(diff.path)
+          val oldPath = if (diff is Rename) diff.fromPath else null
+          val record = register.recordFor(diff.path, oldPath = oldPath)
+          val existingId = record?.noteId
+          val isArchived = record?.noteFolder == "archived"
+
           if (existingId != null) {
-            println("Updating $existingId (${diff.path})")
+            println("Updating $existingId (${diff.path}), isArchived? $isArchived")
             Runnable {
               noteQueries.updateContent(
                   id = existingId,
                   content = content,
                   updatedAt = commitTime
               )
+              noteQueries.setArchived(
+                  id = existingId,
+                  isArchived = isArchived,
+                  updatedAt = commitTime
+              )
             }
           } else {
             val newId = NoteId.generate()
-            println("Creating new note $newId for (${diff.path})")
-            register.recordFileForNote(file, newId)
+            println("Creating new note $newId for (${diff.path}), isArchived? $isArchived")
+            register.createNewRecordFor(file, newId)
             Runnable {
               noteQueries.insert(
                   id = newId,
                   content = content,
                   createdAt = commitTime,
+                  updatedAt = commitTime
+              )
+              noteQueries.setArchived(
+                  id = newId,
+                  isArchived = isArchived,
                   updatedAt = commitTime
               )
             }
@@ -257,10 +271,16 @@ class GitSyncer(
   }
 
   private fun List<GitTreeDiff.Change>.filterNoteChanges() = filter { diff ->
+    val path = diff.path
     when {
-      !diff.path.endsWith(".md") -> false       // Not a markdown note, at-least not managed by Press.
-      diff.path.startsWith(".press/") -> false  // Meta-files, ignore.
-      diff.path.contains("/") -> error("Nested notes aren't supported yet: '${diff.path}'")
+      !path.endsWith(".md") -> false                                        // Not a markdown note.
+      path.startsWith(".press/") -> false                                   // Meta-files, ignore.
+      path.contains("/") -> {
+        when {
+          path.startsWith("archived/") && !path.hasMultipleOf('/') -> true  // Archived note.
+          else -> error("Folders aren't supported yet: '$path'")
+        }
+      }
       else -> true
     }
   }

@@ -6,6 +6,7 @@ import assertk.assertions.isFalse
 import assertk.assertions.isTrue
 import com.badoo.reaktive.scheduler.trampolineScheduler
 import com.badoo.reaktive.test.completable.test
+import com.soywiz.klock.hours
 import com.soywiz.klock.seconds
 import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.NoteId
@@ -65,12 +66,14 @@ class RealNoteRepositoryTest : BaseDatabaeTest() {
   }
 
   @Test fun `mark a note as archived`() {
-    val note = fakeNote(id = NoteId.generate(), content = "# A national treasure")
+    val note = fakeNote(id = NoteId.generate(), content = "# A national treasure", clock = clock)
     noteQueries.testInsert(note)
 
+    clock.advanceTimeBy(2.hours)
     repository().markAsArchived(note.id).test()
 
     val savedNote = noteQueries.note(note.id).executeAsOne()
     assertThat(savedNote.isArchived).isTrue()
+    assertThat(savedNote.updatedAt).isEqualTo(clock.nowUtc())
   }
 }
