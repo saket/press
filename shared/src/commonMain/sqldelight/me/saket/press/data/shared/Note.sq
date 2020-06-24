@@ -39,7 +39,7 @@ pendingSyncNotes:
 SELECT *
 FROM note
 WHERE syncState = 'PENDING'
-ORDER BY updatedAt DESC;
+ORDER BY updatedAt ASC;
 
 note:
 SELECT *

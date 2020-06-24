@@ -12,7 +12,6 @@ import assertk.assertions.isNotInstanceOf
 import assertk.assertions.isTrue
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.hours
-import me.saket.kgit.GitTreeDiff.Change.Add
 import me.saket.kgit.PushResult.Failure
 import me.saket.kgit.RealGit
 import me.saket.kgit.SshConfig
@@ -23,7 +22,6 @@ import me.saket.press.shared.Platform
 import me.saket.press.shared.PlatformHost.Android
 import me.saket.press.shared.containsOnly
 import me.saket.press.shared.db.BaseDatabaeTest
-import me.saket.press.shared.db.DateTimeAdapter
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.sync.SyncState.PENDING
@@ -283,11 +281,12 @@ class GitSyncerTest : BaseDatabaeTest() {
   @Test fun `notes with the same headings are stored in separate files`() {
     if (!canRunTests()) return
 
+    val now = clock.nowUtc()
     noteQueries.testInsert(
-        fakeNote("# Shopping List\nMangoes and strawberries"),
-        fakeNote("# Shopping List\nMilk and eggs"),
-        fakeNote("Note without heading"),
-        fakeNote("Another note without heading")
+        fakeNote(updatedAt = now + 1.hours, content = "# Shopping List\nMangoes and strawberries"),
+        fakeNote(updatedAt = now + 2.hours, content = "# Shopping List\nMilk and eggs"),
+        fakeNote(updatedAt = now + 3.hours, content = "Note without heading"),
+        fakeNote(updatedAt = now + 4.hours, content = "Another note without heading")
     )
     syncer.sync()
 
