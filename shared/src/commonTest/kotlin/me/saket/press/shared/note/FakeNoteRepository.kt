@@ -19,7 +19,7 @@ import kotlin.test.assertTrue
 
 class FakeNoteRepository : NoteRepository {
   // todo: can this be replaced by a Map?
-  val savedNotes = frozenCopyOnWriteList<Note.Impl>()
+  val savedNotes = frozenCopyOnWriteList<Note>()
 
   private val _updateCount = AtomicInt(0)
   val updateCount: Int get() = _updateCount.get()

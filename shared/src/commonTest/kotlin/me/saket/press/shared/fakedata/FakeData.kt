@@ -19,8 +19,8 @@ fun fakeNote(
   isArchived: Boolean = false,
   isPendingDeletion: Boolean = false,
   syncState: SyncState = PENDING
-): Note.Impl {
-  return Note.Impl(
+): Note {
+  return Note(
       localId = localId,
       id = id,
       content = content,

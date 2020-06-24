@@ -442,6 +442,6 @@ class GitSyncerTest : BaseDatabaeTest() {
   }
 }
 
-private fun NoteQueries.testInsert(vararg notes: Note.Impl) {
+private fun NoteQueries.testInsert(vararg notes: Note) {
   notes.forEach { testInsert(it) }
 }
