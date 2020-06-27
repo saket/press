@@ -34,8 +34,7 @@
     <activity
       android:name="press.sync.PreferencesActivity"
       android:exported="true"
-      android:launchMode="singleInstance"
-      android:theme="@style/AppTheme.TransparentWindow"
+      android:launchMode="singleTask"
       android:windowSoftInputMode="adjustResize">
       <intent-filter>
         <action android:name="android.intent.action.VIEW" />

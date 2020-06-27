@@ -5,6 +5,7 @@ import me.saket.press.shared.editor.EditorPresenter
 
 interface HomeEvent {
   object NewNoteClicked : HomeEvent
+  object SettingsClicked : HomeEvent
   data class WindowFocusChanged(val hasFocus: Boolean) : HomeEvent
 }
 

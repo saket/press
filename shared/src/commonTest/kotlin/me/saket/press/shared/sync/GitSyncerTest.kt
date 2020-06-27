@@ -329,7 +329,7 @@ class GitSyncerTest : BaseDatabaeTest() {
   }
 
   // TODO
-  @Test fun `sync notes archived and deleted locally`() {
+  @Test fun `sync notes deleted locally`() {
     if (!canRunTests()) return
   }
 

@@ -1,5 +1,6 @@
 package press.sync
 
+import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_VIEW
 import android.os.Bundle
@@ -8,11 +9,10 @@ import press.widgets.ThemeAwareActivity
 import javax.inject.Inject
 import kotlin.LazyThreadSafetyMode.NONE
 
-// TODO: make ThemeAwareActivity extend PullCollapsibleActivity.
 class PreferencesActivity : ThemeAwareActivity() {
 
   @Inject lateinit var viewFactory: SyncPreferencesView.Factory
-  private val syncPreferencesView by lazy(NONE) { viewFactory.create(this) }
+  private val syncPreferencesView by lazy(NONE) { viewFactory.create(this, onDismiss = ::finish) }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     App.component.inject(this)
@@ -33,5 +33,9 @@ class PreferencesActivity : ThemeAwareActivity() {
     if (intent.action == ACTION_VIEW && intent.data != null) {
       syncPreferencesView.handleDeepLink(intent.dataString!!)
     }
+  }
+
+  companion object {
+    fun intent(context: Context) = Intent(context, PreferencesActivity::class.java)
   }
 }

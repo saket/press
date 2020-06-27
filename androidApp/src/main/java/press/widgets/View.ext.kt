@@ -5,6 +5,7 @@ import android.os.Build.VERSION.SDK_INT
 import android.text.Editable
 import android.util.TypedValue.COMPLEX_UNIT_PX
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
@@ -81,5 +82,20 @@ fun View.locationOnScreen(): Rect {
 inline fun EditText.doOnTextChange(crossinline action: (Editable) -> Unit) {
   addTextChangedListener(object : SimpleTextWatcher {
     override fun afterTextChanged(text: Editable) = action(text)
+  })
+}
+
+val View.parentView: ViewGroup get() = parent as ViewGroup
+
+inline fun View.doOnAttach(crossinline action: () -> Unit) {
+  if (isAttachedToWindow) {
+    action()
+  }
+  addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+    override fun onViewDetachedFromWindow(v: View) = Unit
+    override fun onViewAttachedToWindow(v: View) =
+      removeOnAttachStateChangeListener(this).also {
+        action()
+      }
   })
 }

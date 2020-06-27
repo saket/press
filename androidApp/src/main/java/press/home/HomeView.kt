@@ -3,10 +3,16 @@ package press.home
 import android.app.Activity
 import android.content.Context
 import android.graphics.Color.BLACK
+import android.graphics.Rect
+import android.graphics.drawable.Drawable
 import android.os.Parcelable
+import android.view.Menu
+import android.view.MenuItem.SHOW_AS_ACTION_IF_ROOM
+import android.view.MotionEvent
 import android.view.animation.PathInterpolator
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.contains
 import androidx.core.view.doOnLayout
 import androidx.core.view.postDelayed
 import androidx.core.view.updatePadding
@@ -26,16 +32,19 @@ import me.saket.press.R
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
+import me.saket.press.shared.home.HomeEvent.SettingsClicked
 import me.saket.press.shared.home.HomeEvent.WindowFocusChanged
 import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.home.HomePresenter.Args
 import me.saket.press.shared.home.HomeUiEffect
 import me.saket.press.shared.home.HomeUiEffect.ComposeNewNote
 import me.saket.press.shared.home.HomeUiModel
+import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import press.editor.EditorActivity
 import press.editor.EditorView
+import press.sync.PreferencesActivity
 import press.theme.themeAware
 import press.theme.themed
 import press.util.exhaustive
@@ -49,17 +58,22 @@ import press.widgets.BackPressInterceptResult.BACK_PRESS_INTERCEPTED
 import press.widgets.SpacingBetweenItemsDecoration
 import press.widgets.addStateChangeCallbacks
 import press.widgets.attr
+import press.widgets.doOnAttach
 import press.widgets.doOnNextAboutToCollapse
 import press.widgets.doOnNextCollapse
+import press.widgets.getDrawable
 import press.widgets.hideKeyboard
 import press.widgets.interceptPullToCollapseOnView
+import press.widgets.locationOnScreen
+import press.widgets.parentView
 import press.widgets.suspendWhileExpanded
 
 class HomeView @AssistedInject constructor(
   @Assisted context: Context,
   private val noteAdapter: NoteAdapter,
   private val presenter: HomePresenter.Factory,
-  private val editorViewFactory: EditorView.Factory
+  private val editorViewFactory: EditorView.Factory,
+  private val strings: Strings
 ) : ContourLayout(context) {
 
   private val activity = context as Activity
@@ -79,13 +93,14 @@ class HomeView @AssistedInject constructor(
     adapter = noteAdapter
     tintPainter = TintPainter.uncoveredArea(color = BLACK, opacity = 0.25f)
     itemAnimator = AlphaInAnimator()
-    toolbar.doOnLayout {
-      updatePadding(top = toolbar.height)
+    doOnAttach {
+      // Let the items draw over the toolbar.
+      parentView.clipChildren = false
     }
     addItemDecoration(SpacingBetweenItemsDecoration(1.dip))
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
-        y = topTo { parent.top() }.bottomTo { parent.bottom() }
+        y = topTo { toolbar.bottom() }.bottomTo { parent.bottom() }
     )
   }
 
@@ -133,17 +148,21 @@ class HomeView @AssistedInject constructor(
   init {
     id = R.id.home_view
     setupNoteEditorPage()
+
+    themeAware { palette ->
+      toolbar.menu.clear()
+      toolbar.menu.add(
+          icon = context.getDrawable(R.drawable.ic_preferences_24dp, palette.accentColor),
+          title = strings.home.preferences,
+          onClick = { context.startActivity(PreferencesActivity.intent(context)) }
+      )
+    }
   }
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
 
     val presenter = presenter.create(Args(includeEmptyNotes = false))
-
-    newNoteFab.setOnClickListener {
-      presenter.dispatch(NewNoteClicked)
-    }
-
     presenter.uiUpdates()
         // These two suspend calls skip updates while an
         // existing note or the new-note screen is open.
@@ -152,6 +171,10 @@ class HomeView @AssistedInject constructor(
         .takeUntil(detaches())
         .observeOn(mainThread())
         .subscribe(models = ::render, effects = ::render)
+
+    newNoteFab.setOnClickListener {
+      presenter.dispatch(NewNoteClicked)
+    }
   }
 
   override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
@@ -208,9 +231,9 @@ class HomeView @AssistedInject constructor(
   }
 
   private fun render(effect: HomeUiEffect) {
-    when (effect) {
+    return when (effect) {
       is ComposeNewNote -> openNewNoteScreen(effect.noteId)
-    }.exhaustive
+    }
   }
 
   private fun openNewNoteScreen(noteId: NoteId) {
@@ -235,5 +258,13 @@ class HomeView @AssistedInject constructor(
   @AssistedInject.Factory
   interface Factory {
     fun withContext(context: Context): HomeView
+  }
+}
+
+private fun Menu.add(icon: Drawable, title: String, onClick: () -> Unit) {
+  add(title).let {
+    it.icon = icon
+    it.setShowAsAction(SHOW_AS_ACTION_IF_ROOM)
+    it.setOnMenuItemClickListener { onClick(); true }
   }
 }

@@ -34,6 +34,7 @@ import me.saket.press.shared.editor.EditorUiEffect
 import me.saket.press.shared.editor.EditorUiEffect.CloseNote
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.editor.EditorUiModel
+import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.theme.DisplayUnits
 import me.saket.press.shared.theme.EditorUiStyles
@@ -50,6 +51,7 @@ import press.theme.themeAware
 import press.theme.themePalette
 import press.theme.themed
 import press.util.exhaustive
+import press.widgets.PressToolbar
 import press.widgets.Truss
 import press.widgets.doOnTextChange
 import press.widgets.fromOreo
@@ -61,14 +63,11 @@ class EditorView @AssistedInject constructor(
   @Assisted openMode: EditorOpenMode,
   @Assisted private val onDismiss: () -> Unit,
   presenterFactory: EditorPresenter.Factory,
-  autoCorrectEnabled: Setting<AutoCorrectEnabled>
+  autoCorrectEnabled: Setting<AutoCorrectEnabled>,
+  strings: Strings
 ) : ContourLayout(context) {
 
-  private val toolbar = themed(Toolbar(context)).apply {
-    navigationIcon = getDrawable(context, drawable.ic_close_24dp)
-    themeAware {
-      setBackgroundColor(it.window.editorBackgroundColor)
-    }
+  private val toolbar = themed(PressToolbar(context, strings)).apply {
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
         y = topTo { parent.top() }
