@@ -10,7 +10,7 @@ import me.saket.press.PressDatabase
 import me.saket.press.shared.sync.git.DeviceInfo
 import me.saket.press.shared.sync.git.File
 
-actual object SharedAppComponent : BaseSharedAppComponent() {
+actual object SharedComponent : BaseSharedComponent() {
 
   fun initialize(appContext: Application) {
     setupGraph(PlatformDependencies(

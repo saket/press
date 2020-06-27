@@ -11,9 +11,9 @@ import me.saket.press.shared.note.SharedNoteComponent
 import me.saket.press.shared.time.SharedTimeComponent
 import org.koin.core.context.startKoin
 
-expect object SharedAppComponent : BaseSharedAppComponent
+expect object SharedComponent : BaseSharedComponent
 
-abstract class BaseSharedAppComponent {
+abstract class BaseSharedComponent {
   fun setupGraph(platform: PlatformDependencies) {
     startKoin {
       modules(

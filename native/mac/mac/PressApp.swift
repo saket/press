@@ -57,7 +57,7 @@ class PressApp: NSObject, NSApplicationDelegate {
   /// term "component" to keep it consistent with the shared
   /// Kotlin and Android code.
   func createAppComponent() -> Resolver {
-    SharedAppComponent().initialize()
+    SharedComponent().initialize()
     return Assembler([
       ThemeComponent(),
       HomeComponent(),

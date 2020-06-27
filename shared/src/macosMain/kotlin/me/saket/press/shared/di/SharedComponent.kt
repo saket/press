@@ -7,7 +7,7 @@ import me.saket.press.shared.sync.git.DeviceInfo
 import me.saket.press.shared.sync.git.File
 import platform.Foundation.NSUserDefaults
 
-actual object SharedAppComponent : BaseSharedAppComponent() {
+actual object SharedComponent : BaseSharedComponent() {
 
   fun initialize() {
     setupGraph(PlatformDependencies(

@@ -5,7 +5,7 @@ import android.os.Looper
 import press.di.AppComponent
 import io.reactivex.android.plugins.RxAndroidPlugins
 import io.reactivex.android.schedulers.AndroidSchedulers
-import me.saket.press.shared.di.SharedAppComponent
+import me.saket.press.shared.di.SharedComponent
 
 abstract class App : Application() {
 
@@ -16,7 +16,7 @@ abstract class App : Application() {
   override fun onCreate() {
     super.onCreate()
     component = buildDependencyGraph()
-    SharedAppComponent.initialize(this)
+    SharedComponent.initialize(this)
 
     RxAndroidPlugins.setInitMainThreadSchedulerHandler {
       AndroidSchedulers.from(Looper.getMainLooper(), true)
