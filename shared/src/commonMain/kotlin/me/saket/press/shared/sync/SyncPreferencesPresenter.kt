@@ -4,14 +4,15 @@ import com.badoo.reaktive.completable.andThen
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.ObservableWrapper
 import com.badoo.reaktive.observable.filter
-import com.badoo.reaktive.observable.flatMapCompletable
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observableFromFunction
 import com.badoo.reaktive.observable.observableOfNever
 import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.publish
+import com.badoo.reaktive.observable.switchMapCompletable
 import com.badoo.reaktive.observable.wrap
+import com.badoo.reaktive.single.flatMapCompletable
 import me.saket.press.shared.DeepLinks
 import me.saket.press.shared.sync.SyncPreferencesEvent.AuthorizeClicked
 import me.saket.press.shared.sync.SyncPreferencesUiEffect.OpenAuthorizationUrl
@@ -42,11 +43,20 @@ class SyncPreferencesPresenter(
 
   private fun requestAuthorization(events: Observable<SyncPreferencesEvent>) =
     events.ofType<AuthorizeClicked>()
-        .map { OpenAuthorizationUrl(gitHost.authorizationRequestUrl()) }
+        .map { OpenAuthorizationUrl(gitHost.generateAuthUrl()) }
 
   private fun completeAuthorization() =
     deepLinks.listen()
         .filter { it.url.startsWith("intent://press/authorization-granted") }
-        .flatMapCompletable { gitHost.completeAuthorization(it.url) }
+        .switchMapCompletable {
+          // todo: remove these hardcoded values.
+          val repoName = "PressSyncPlayground"
+          val sshPublicKey = "foo"
+          gitHost
+              .completeAuth(it.url)
+              .flatMapCompletable { auth ->
+                auth.addDeployKey(repoName, sshPublicKey)
+              }
+        }
         .andThen(observableOfNever<SyncPreferencesUiEffect>())
 }

@@ -1,10 +1,14 @@
 package me.saket.press.shared.sync
 
 import io.ktor.client.HttpClient
+import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.features.json.serializer.KotlinxSerializer
 import io.ktor.client.features.logging.DEFAULT
 import io.ktor.client.features.logging.LogLevel
 import io.ktor.client.features.logging.Logger
 import io.ktor.client.features.logging.Logging
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration.Companion.Stable
 import me.saket.kgit.RealGit
 import me.saket.press.shared.di.koin
 import me.saket.press.shared.sync.git.DeviceInfo
@@ -26,12 +30,12 @@ class SharedSyncComponent {
 
   private fun httpClient(): HttpClient {
     return HttpClient {
-//      install(JsonFeature) {
-//        serializer = KotlinxSerializer(Json(JsonConfiguration.Stable.copy(
-//            prettyPrint = true,
-//            ignoreUnknownKeys = true
-//        )))
-//      }
+      install(JsonFeature) {
+        serializer = KotlinxSerializer(Json(Stable.copy(
+            prettyPrint = true,
+            ignoreUnknownKeys = true
+        )))
+      }
       install(Logging) {
         logger = Logger.DEFAULT
         level = LogLevel.HEADERS
