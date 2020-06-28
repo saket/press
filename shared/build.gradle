@@ -166,6 +166,7 @@ buildkonfig {
 
   packageName = "me.saket.press.shared"
   defaultConfigs {
+    buildConfigField "String", "GITHUB_CLIENT_ID", secrets["github_client_id"] ?: "nicolas_cage"
     buildConfigField "String", "GITHUB_CLIENT_SECRET", secrets["github_client_secret"] ?: "nicolas_cage"
     buildConfigField "String", "GITHUB_SSH_PRIV_KEY", secrets["github_ssh_private_key"] ?: ""
   }

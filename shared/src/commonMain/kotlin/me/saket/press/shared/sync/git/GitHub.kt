@@ -15,25 +15,21 @@ class GitHub(private val client: HttpClient) : GitHost {
   override fun authorizationRequestUrl(): String {
     return URLBuilder("https://github.com/login/oauth/authorize").apply {
         parameters.apply {
-          append("client_id", "c8d3f0629f52edce47b6")
+          append("client_id", BuildKonfig.GITHUB_CLIENT_ID)
           append("scope", "repo")
-          append("state", uuid4().toString())
         }
       }.buildString()
   }
 
-  @Suppress("NAME_SHADOWING")
   override fun completeAuthorization(callbackUrl: String): Completable {
     return completableFromCoroutine {
       val responseUrl = Url(callbackUrl)
 
       val response = client.post<String>("https://github.com/login/oauth/access_token") {
         url {
-          parameter("client_id", "c8d3f0629f52edce47b6")
+          parameter("client_id", BuildKonfig.GITHUB_CLIENT_ID)
           parameter("client_secret", BuildKonfig.GITHUB_CLIENT_SECRET)
           parameter("code", responseUrl.parameters["code"])
-          parameter("redirect_uri", "https://github.com/saket/press?finish-login-again")
-          parameter("state", responseUrl.parameters["state"])
         }
       }
       println("Auth response: $response")

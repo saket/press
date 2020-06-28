@@ -19,5 +19,6 @@ Although being the official IDE, Xcode isn't very good in comparison to IntelliJ
 Press uses GitHub for syncing notes with a git repository. If you wish, you can [register](https://github.com/settings/applications/new) your own GitHub app and add its client secret key to `shared/secrets.properties`:
 
 ```groovy
+github_client_id=...
 github_client_secret=...
 ```

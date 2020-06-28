@@ -42,7 +42,7 @@ class SyncPreferencesPresenter(
 
   private fun requestAuthorization(events: Observable<SyncPreferencesEvent>) =
     events.ofType<AuthorizeClicked>()
-        .map { OpenAuthorizationUrl(url = gitHost.authorizationRequestUrl()) }
+        .map { OpenAuthorizationUrl(gitHost.authorizationRequestUrl()) }
 
   private fun completeAuthorization() =
     deepLinks.listen()
