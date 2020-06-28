@@ -11,9 +11,8 @@ import press.theme.themeAware
 class PressToolbar(context: Context) : Toolbar(context) {
   init {
     navigationContentDescription = context.strings().common.closeNavIconDescription
-    navigationIcon = AppCompatResources.getDrawable(context, drawable.ic_close_24dp)
     themeAware {
-      setBackgroundColor(it.window.editorBackgroundColor)
+      navigationIcon = context.getDrawable(drawable.ic_close_24dp, it.accentColor)
     }
   }
 }

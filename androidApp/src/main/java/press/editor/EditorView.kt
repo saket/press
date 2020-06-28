@@ -67,6 +67,9 @@ class EditorView @AssistedInject constructor(
 ) : ContourLayout(context) {
 
   private val toolbar = themed(PressToolbar(context)).apply {
+    themeAware {
+      setBackgroundColor(it.window.editorBackgroundColor)
+    }
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
         y = topTo { parent.top() }
@@ -99,7 +102,7 @@ class EditorView @AssistedInject constructor(
     movementMethod = EditorLinkMovementMethod(scrollView)
     filters += FormatMarkdownOnEnterPress(this)
     CapitalizeOnHeadingStart.capitalize(this)
-    updatePaddingRelative(start = 16.dip, end = 16.dip, bottom = 16.dip)
+    updatePaddingRelative(start = 20.dip, end = 20.dip, bottom = 20.dip)
     fromOreo {
       importantForAutofill = IMPORTANT_FOR_AUTOFILL_NO
     }
