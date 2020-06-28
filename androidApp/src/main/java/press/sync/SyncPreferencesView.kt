@@ -10,7 +10,6 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.press.shared.localization.strings
-import me.saket.press.shared.sync.SyncPreferencesEvent.AuthorizationGranted
 import me.saket.press.shared.sync.SyncPreferencesEvent.AuthorizeClicked
 import me.saket.press.shared.sync.SyncPreferencesPresenter
 import me.saket.press.shared.sync.SyncPreferencesUiEffect
@@ -67,11 +66,6 @@ class SyncPreferencesView @AssistedInject constructor(
           .build()
           .launchUrl(context, Uri.parse(effect.url))
     }.exhaustive
-  }
-
-  fun handleDeepLink(url: String) {
-    require(url.startsWith("intent://press/authorization-granted"))
-    presenter.dispatch(AuthorizationGranted(url))
   }
 
   @AssistedInject.Factory

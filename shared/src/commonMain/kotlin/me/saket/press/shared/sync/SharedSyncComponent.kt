@@ -17,7 +17,7 @@ class SharedSyncComponent {
 
   val module = module {
     single { httpClient() }
-    factory { SyncPreferencesPresenter(get()) }
+    factory { SyncPreferencesPresenter(get(), get()) }
     factory<GitHost> { GitHub(get()) }
 
     factory { RealGit().repository(get<DeviceInfo>().appStorage.path) }

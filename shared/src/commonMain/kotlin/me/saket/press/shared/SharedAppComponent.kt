@@ -11,13 +11,15 @@ import org.koin.dsl.module
 
 class SharedAppComponent {
   val module = module {
-    single<KeyboardShortcuts> { RealKeyboardShortcuts() }
     single { ENGLISH_STRINGS }
+    single<KeyboardShortcuts> { RealKeyboardShortcuts() }
     single<Clock> { RealClock() }
+    single<DeepLinks> { RealDeepLinks() }
   }
 
   companion object {
     fun strings(): Strings = koin()
     fun keyboardShortcuts(): KeyboardShortcuts = koin()
+    fun deepLinks(): DeepLinks = koin()
   }
 }

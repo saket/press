@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_VIEW
 import android.os.Bundle
+import me.saket.press.shared.DeepLink
+import me.saket.press.shared.DeepLinks
 import press.App
 import press.widgets.ThemeAwareActivity
 import javax.inject.Inject
@@ -13,6 +15,8 @@ class PreferencesActivity : ThemeAwareActivity() {
 
   @Inject lateinit var viewFactory: SyncPreferencesView.Factory
   private val syncPreferencesView by lazy(NONE) { viewFactory.create(this, onDismiss = ::finish) }
+
+  @Inject lateinit var deepLinks: DeepLinks
 
   override fun onCreate(savedInstanceState: Bundle?) {
     App.component.inject(this)
@@ -31,7 +35,7 @@ class PreferencesActivity : ThemeAwareActivity() {
 
   private fun maybeReadDeepLink(intent: Intent) {
     if (intent.action == ACTION_VIEW && intent.data != null) {
-      syncPreferencesView.handleDeepLink(intent.dataString!!)
+      deepLinks.broadcast(DeepLink(intent.dataString!!))
     }
   }
 
