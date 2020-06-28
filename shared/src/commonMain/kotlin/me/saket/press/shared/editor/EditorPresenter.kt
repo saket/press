@@ -27,7 +27,7 @@ import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorUiEffect.CloseNote
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.home.HomePresenter
-import me.saket.press.shared.localization.Strings.Editor
+import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.note.NoteRepository
 import me.saket.press.shared.rx.mapToOptional
 import me.saket.press.shared.rx.mapToSome
@@ -42,7 +42,7 @@ class EditorPresenter(
   private val noteRepository: NoteRepository,
   private val ioScheduler: Scheduler,
   private val computationScheduler: Scheduler,
-  private val strings: Editor,
+  private val strings: Strings,
   private val config: EditorConfig
 ) : Presenter<EditorEvent, EditorUiModel, EditorUiEffect>() {
 
@@ -120,7 +120,7 @@ class EditorPresenter(
   }
 
   private fun Observable<EditorEvent>.toggleHintText(): Observable<Optional<String>> {
-    val randomHint = strings.newNoteHints.shuffled().first()
+    val randomHint = strings.editor.newNoteHints.shuffled().first()
 
     return ofType<NoteTextChanged>()
         .distinctUntilChanged()

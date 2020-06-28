@@ -3,7 +3,7 @@ package press.di
 import com.squareup.inject.assisted.dagger2.AssistedModule
 import dagger.Module
 import dagger.Provides
-import me.saket.press.shared.localization.SharedLocalizationComponent
+import me.saket.press.shared.SharedAppComponent
 import me.saket.press.shared.localization.Strings
 import press.editor.EditorModule
 import press.home.HomeModule
@@ -20,5 +20,5 @@ import press.theme.ThemeModule
 ])
 object AppModule {
   @Provides
-  fun strings(): Strings = SharedLocalizationComponent.strings()
+  fun strings(): Strings = SharedAppComponent.strings()
 }

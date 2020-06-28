@@ -1,14 +1,12 @@
 package me.saket.press.shared.di
 
+import me.saket.press.shared.SharedAppComponent
 import me.saket.press.shared.db.SharedDatabaseComponent
 import me.saket.press.shared.editor.SharedEditorComponent
 import me.saket.press.shared.home.SharedHomeComponent
-import me.saket.press.shared.keyboard.SharedKeyboardComponent
-import me.saket.press.shared.localization.SharedLocalizationComponent
-import me.saket.press.shared.sync.SharedSyncComponent
 import me.saket.press.shared.note.PrePopulatedNotes
 import me.saket.press.shared.note.SharedNoteComponent
-import me.saket.press.shared.time.SharedTimeComponent
+import me.saket.press.shared.sync.SharedSyncComponent
 import org.koin.core.context.startKoin
 
 expect object SharedComponent : BaseSharedComponent
@@ -18,13 +16,11 @@ abstract class BaseSharedComponent {
     startKoin {
       modules(
           listOf(
+              SharedAppComponent().module,
               SharedHomeComponent().module,
               SharedEditorComponent().module,
               SharedNoteComponent().module,
               SharedDatabaseComponent().module,
-              SharedTimeComponent().module,
-              SharedLocalizationComponent().module,
-              SharedKeyboardComponent().module,
               SharedSyncComponent().module,
               platform.asKoinModule()
           )

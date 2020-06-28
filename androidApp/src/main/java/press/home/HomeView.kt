@@ -40,6 +40,7 @@ import me.saket.press.shared.home.HomeUiEffect
 import me.saket.press.shared.home.HomeUiEffect.ComposeNewNote
 import me.saket.press.shared.home.HomeUiModel
 import me.saket.press.shared.localization.Strings
+import me.saket.press.shared.localization.strings
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import press.editor.EditorActivity
@@ -72,8 +73,7 @@ class HomeView @AssistedInject constructor(
   @Assisted context: Context,
   private val noteAdapter: NoteAdapter,
   private val presenter: HomePresenter.Factory,
-  private val editorViewFactory: EditorView.Factory,
-  private val strings: Strings
+  private val editorViewFactory: EditorView.Factory
 ) : ContourLayout(context) {
 
   private val activity = context as Activity
@@ -153,7 +153,7 @@ class HomeView @AssistedInject constructor(
       toolbar.menu.clear()
       toolbar.menu.add(
           icon = context.getDrawable(R.drawable.ic_preferences_24dp, palette.accentColor),
-          title = strings.home.preferences,
+          title = context.strings().home.preferences,
           onClick = { context.startActivity(PreferencesActivity.intent(context)) }
       )
     }

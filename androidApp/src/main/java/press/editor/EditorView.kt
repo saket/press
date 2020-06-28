@@ -63,11 +63,10 @@ class EditorView @AssistedInject constructor(
   @Assisted openMode: EditorOpenMode,
   @Assisted private val onDismiss: () -> Unit,
   presenterFactory: EditorPresenter.Factory,
-  autoCorrectEnabled: Setting<AutoCorrectEnabled>,
-  strings: Strings
+  autoCorrectEnabled: Setting<AutoCorrectEnabled>
 ) : ContourLayout(context) {
 
-  private val toolbar = themed(PressToolbar(context, strings)).apply {
+  private val toolbar = themed(PressToolbar(context)).apply {
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
         y = topTo { parent.top() }

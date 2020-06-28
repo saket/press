@@ -10,7 +10,7 @@ import shared
 class KeyboardShortcutsComponent: Assembly {
   func assemble(container: Container) {
     container.register(KeyboardShortcuts.self) { _ in
-      SharedKeyboardComponent.Companion().shortcuts()
+      SharedAppComponent.Companion().keyboardShortcuts()
     }
   }
 }

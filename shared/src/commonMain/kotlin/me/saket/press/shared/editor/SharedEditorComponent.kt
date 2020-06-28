@@ -18,7 +18,7 @@ class SharedEditorComponent {
           noteRepository = get(),
           ioScheduler = get(named("io")),
           computationScheduler = get(named("computation")),
-          strings = get<Strings>().editor,
+          strings = get(),
           config = editorConfig()
       )
     }
