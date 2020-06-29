@@ -5,6 +5,8 @@ import android.os.Build.VERSION.SDK_INT
 import android.text.Editable
 import android.util.TypedValue.COMPLEX_UNIT_PX
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
@@ -14,19 +16,20 @@ import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
 import me.saket.wysiwyg.widgets.SimpleTextWatcher
+import kotlin.DeprecationLevel.ERROR
 
 fun View.string(@StringRes stringRes: Int) = resources.getString(stringRes)
 
 fun View.attr(@AttrRes resId: Int) = Attr(resId, context)
 
-@get:Deprecated(message = "Impossible", level = DeprecationLevel.ERROR)
+@get:Deprecated(message = "Impossible", level = ERROR)
 var EditText.hintRes: Int
   get() = throw UnsupportedOperationException()
   set(resId) {
     hint = string(resId)
   }
 
-@get:Deprecated(message = "Impossible", level = DeprecationLevel.ERROR)
+@get:Deprecated(message = "Impossible", level = ERROR)
 var View.padding: Int
   get() = throw UnsupportedOperationException()
   set(padding) {

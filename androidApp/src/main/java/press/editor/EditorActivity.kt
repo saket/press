@@ -22,7 +22,6 @@ import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import press.App
 import press.animation.FabTransform
-import press.util.exhaustive
 import press.util.withOpacity
 import press.widgets.ThemeAwareActivity
 import press.widgets.dp
@@ -116,7 +115,7 @@ class EditorActivity : ThemeAwareActivity() {
       openMode: EditorOpenMode = NewNote(NoteId.generate(), preFilledNote = null)
     ): Intent {
       return Intent(context, EditorActivity::class.java).apply {
-        when (openMode) {
+        val exhaustive = when (openMode) {
           is NewNote -> {
             putExtra(EXTRA_NOTE_ID, openMode.placeholderId.value.toString())
             putExtra(EXTRA_TEXT, openMode.preFilledNote)
@@ -124,7 +123,7 @@ class EditorActivity : ThemeAwareActivity() {
           is ExistingNote -> {
             putExtra(EXTRA_NOTE_ID, openMode.noteId.value.toString())
           }
-        }.exhaustive
+        }
       }
     }
 

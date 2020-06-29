@@ -12,16 +12,21 @@ data class Strings(
   val syncPreferences: SyncPreferences
 ) {
   data class Common(
-    val closeNavIconDescription: String
+    val closeNavIconDescription: String,
+    val genericError: String,
+    val retry: String
   )
+
   data class Home(
     val preferences: String
   )
+
   data class Editor(
     val newNoteHints: List<String>,
     val openUrl: String,
     val editUrl: String
   )
+
   data class SyncPreferences(
     val title: String
   )
@@ -29,7 +34,9 @@ data class Strings(
 
 val ENGLISH_STRINGS = Strings(
     common = Common(
-        closeNavIconDescription = "Go back"
+        closeNavIconDescription = "Go back",
+        genericError = "Something went wrong, try again?",
+        retry = "Retry"
     ),
     home = Home(
         preferences = "Preferences"

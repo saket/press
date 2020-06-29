@@ -1,14 +1,16 @@
 package me.saket.press.shared.di
 
-import com.russhwolf.settings.Settings
+import com.russhwolf.settings.ExperimentalListener
+import com.russhwolf.settings.ObservableSettings
 import com.squareup.sqldelight.db.SqlDriver
 import me.saket.press.shared.sync.git.DeviceInfo
 
 /**
  * @param settings for storing user preferences.
  */
-data class PlatformDependencies(
-  val settings: () -> Settings,
+@OptIn(ExperimentalListener::class)
+data class PlatformDependencies constructor(
+  val settings: () -> ObservableSettings,
   val sqlDriver: () -> SqlDriver,
   val deviceInfo: () -> DeviceInfo
 ) {

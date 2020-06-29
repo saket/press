@@ -1,6 +1,11 @@
 package me.saket.press.shared.rx
 
+import com.badoo.reaktive.completable.asObservable
 import com.badoo.reaktive.observable.Observable
+import com.badoo.reaktive.observable.asCompletable
+import com.badoo.reaktive.observable.delay
+import com.badoo.reaktive.observable.doOnBeforeNext
+import com.badoo.reaktive.observable.filter
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observableInterval
@@ -29,3 +34,21 @@ internal fun <T, O> Observable<T>.withLatestFrom(other: Observable<O>): Observab
 internal fun <T> Observable<T>.mergeWith(other: Observable<T>): Observable<T> {
   return merge(this, other)
 }
+
+internal fun <T> Observable<T>.delay(span: TimeSpan, scheduler: Scheduler): Observable<T> {
+  return delay(span.millisecondsLong, scheduler)
+}
+
+internal fun <T, R> Observable<T>.consumeOnNext(consume: (T) -> Unit): Observable<R> {
+  return doOnBeforeNext { consume(it) }
+      .asCompletable()
+      .asObservable()
+}
+
+internal fun <T> Observable<T?>.filterNull(): Observable<T?> =
+  filter { it == null }
+      .map { null }
+
+internal fun <T> Observable<T?>.filterNotNull(): Observable<T> =
+  filter { it != null }
+      .map { it!! }

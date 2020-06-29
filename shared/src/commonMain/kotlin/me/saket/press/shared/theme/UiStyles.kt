@@ -1,28 +1,26 @@
 package me.saket.press.shared.theme
 
+import me.saket.press.shared.theme.TextStyles.Primary
+import me.saket.press.shared.theme.TextStyles.Secondary
 import me.saket.press.shared.theme.UiStyles.FontFamily.WORK_SANS
-import me.saket.press.shared.theme.UiStyles.FontVariant.BOLD
 import me.saket.press.shared.theme.UiStyles.FontVariant.REGULAR
 import me.saket.press.shared.theme.UiStyles.Text
 
 object HomeUiStyles {
   object NoteRow {
-    val title = Text(
-        font = WORK_SANS * BOLD,
-        textSize = 16f,
+    val title = Primary.copy(
         maxLines = 1
     )
-    val body = Text(
-        textSize = 15f,
-        maxLines = 2
+    val body = Secondary.copy(
+        maxLines = 2,
+        lineSpacingMultiplier = 1f
     )
   }
 }
 
 object EditorUiStyles {
-  val editor = Text(
-      textSize = 16f,
-      lineSpacingMultiplier = 1.25f
+  val editor = Primary.copy(
+      font = WORK_SANS * REGULAR
   )
 }
 
@@ -43,6 +41,7 @@ object UiStyles {
   enum class FontFamily {
     WORK_SANS;
 
+    /** e.g., WORK_SANS * REGULAR */
     operator fun times(variant: FontVariant) = Font(this, variant)
   }
 

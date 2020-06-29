@@ -15,8 +15,6 @@ import android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN
 import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.TextView
-import androidx.appcompat.content.res.AppCompatResources.getDrawable
-import androidx.appcompat.widget.Toolbar
 import androidx.core.view.updatePaddingRelative
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
@@ -24,7 +22,6 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.press.R
-import me.saket.press.R.drawable
 import me.saket.press.shared.editor.AutoCorrectEnabled
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode
@@ -34,7 +31,6 @@ import me.saket.press.shared.editor.EditorUiEffect
 import me.saket.press.shared.editor.EditorUiEffect.CloseNote
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.editor.EditorUiModel
-import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.theme.DisplayUnits
 import me.saket.press.shared.theme.EditorUiStyles
@@ -50,7 +46,6 @@ import me.saket.wysiwyg.widgets.addTextChangedListener
 import press.theme.themeAware
 import press.theme.themePalette
 import press.theme.themed
-import press.util.exhaustive
 import press.widgets.PressToolbar
 import press.widgets.Truss
 import press.widgets.doOnTextChange
@@ -95,7 +90,7 @@ class EditorView @AssistedInject constructor(
         TYPE_TEXT_FLAG_CAP_SENTENCES or
         TYPE_TEXT_FLAG_MULTI_LINE or
         TYPE_TEXT_FLAG_NO_SUGGESTIONS
-    if (autoCorrectEnabled.get().enabled) {
+    if (autoCorrectEnabled.get()!!.enabled) {
       inputType = inputType or TYPE_TEXT_FLAG_AUTO_CORRECT
     }
     imeOptions = IME_FLAG_NO_FULLSCREEN
@@ -186,10 +181,10 @@ class EditorView @AssistedInject constructor(
   }
 
   private fun render(uiUpdate: EditorUiEffect) {
-    when (uiUpdate) {
+    return when (uiUpdate) {
       is UpdateNoteText -> editorEditText.setText(uiUpdate.newText, uiUpdate.newSelection)
       is CloseNote -> onDismiss()
-    }.exhaustive
+    }
   }
 
   private fun EditText.setText(newText: CharSequence, newSelection: TextSelection?) {

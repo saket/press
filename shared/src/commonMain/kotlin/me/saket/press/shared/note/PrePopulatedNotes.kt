@@ -91,7 +91,7 @@ class PrePopulatedNotes(
   )
 
   fun doWork() {
-    val (inserted) = setting.get()
+    val (inserted) = setting.get()!!
 
     if (inserted.not()) {
       repository.create(WELCOME, MARKDOWN_GUIDE)

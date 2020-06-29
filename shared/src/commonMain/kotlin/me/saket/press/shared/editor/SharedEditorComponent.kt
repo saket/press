@@ -2,9 +2,7 @@ package me.saket.press.shared.editor
 
 import com.soywiz.klock.seconds
 import me.saket.press.shared.di.koin
-import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.settings.Setting
-import me.saket.press.shared.settings.customTypeSetting
 import org.koin.core.parameter.parametersOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
@@ -23,7 +21,7 @@ class SharedEditorComponent {
       )
     }
     factory(named("autocorrect")) {
-      customTypeSetting(
+      Setting.create(
           settings = get(),
           key = "autocorrect",
           from = { AutoCorrectEnabled(it.toBoolean()) },

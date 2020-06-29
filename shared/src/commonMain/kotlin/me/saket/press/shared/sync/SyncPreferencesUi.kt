@@ -1,11 +1,17 @@
 package me.saket.press.shared.sync
 
-interface SyncPreferencesEvent {
-  object AuthorizeClicked : SyncPreferencesEvent
+import me.saket.press.shared.sync.git.GitRepositoryInfo
+
+interface GitHostAuthEvent {
+  data class GitRepositoryClicked(val repo: GitRepositoryInfo) : GitHostAuthEvent
 }
 
-class SyncPreferencesUiModel
+sealed class GitHostAuthUiModel {
+  object Loading : GitHostAuthUiModel()
+  class FullscreenError(val onRetry: () -> Unit) : GitHostAuthUiModel()
+  data class SelectRepo(val repositories: List<GitRepositoryInfo>) : GitHostAuthUiModel()
+}
 
-sealed class SyncPreferencesUiEffect {
-  data class OpenAuthorizationUrl(val url: String) : SyncPreferencesUiEffect()
+sealed class GitHostAuthUiEffect {
+  data class OpenAuthorizationUrl(val url: String) : GitHostAuthUiEffect()
 }

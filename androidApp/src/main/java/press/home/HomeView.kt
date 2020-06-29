@@ -3,19 +3,14 @@ package press.home
 import android.app.Activity
 import android.content.Context
 import android.graphics.Color.BLACK
-import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.os.Parcelable
 import android.view.Menu
 import android.view.MenuItem.SHOW_AS_ACTION_IF_ROOM
-import android.view.MotionEvent
 import android.view.animation.PathInterpolator
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.contains
-import androidx.core.view.doOnLayout
 import androidx.core.view.postDelayed
-import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.detaches
@@ -32,14 +27,12 @@ import me.saket.press.R
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
-import me.saket.press.shared.home.HomeEvent.SettingsClicked
 import me.saket.press.shared.home.HomeEvent.WindowFocusChanged
 import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.home.HomePresenter.Args
 import me.saket.press.shared.home.HomeUiEffect
 import me.saket.press.shared.home.HomeUiEffect.ComposeNewNote
 import me.saket.press.shared.home.HomeUiModel
-import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
@@ -48,7 +41,6 @@ import press.editor.EditorView
 import press.sync.PreferencesActivity
 import press.theme.themeAware
 import press.theme.themed
-import press.util.exhaustive
 import press.util.heightOf
 import press.util.second
 import press.util.suspendWhile
@@ -65,7 +57,6 @@ import press.widgets.doOnNextCollapse
 import press.widgets.getDrawable
 import press.widgets.hideKeyboard
 import press.widgets.interceptPullToCollapseOnView
-import press.widgets.locationOnScreen
 import press.widgets.parentView
 import press.widgets.suspendWhileExpanded
 

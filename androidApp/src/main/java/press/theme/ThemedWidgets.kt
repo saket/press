@@ -7,6 +7,7 @@ import android.graphics.drawable.ColorDrawable
 import android.view.View
 import android.widget.EdgeEffect
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -43,7 +44,7 @@ fun AppCompatActivity.themeAware(onThemeChange: (ThemePalette) -> Unit) {
       .subscribe { onThemeChange(it) }
 }
 
-fun themed(view: TextView): TextView = view.apply {
+fun <T: TextView> themed(view: T): T = view.apply {
   typeface = ResourcesCompat.getFont(context, R.font.work_sans_regular)
 
   themeAware {
@@ -51,7 +52,7 @@ fun themed(view: TextView): TextView = view.apply {
   }
 }
 
-fun themed(view: EditText) = view.apply {
+fun <T: EditText> themed(view: T): T = view.apply {
   require(view !is AppCompatEditText) { "Cursor tinting doesn't work with AppCompatEditText, not sure why." }
 
   typeface = ResourcesCompat.getFont(context, R.font.work_sans_regular)
@@ -69,7 +70,7 @@ fun themed(view: ScrollView) = view.apply {
   }
 }
 
-fun <T : RecyclerView> themed(view: T) = view.apply {
+fun <T : RecyclerView> themed(view: T): T = view.apply {
   themeAware {
     edgeEffectFactory = object : EdgeEffectFactory() {
       override fun createEdgeEffect(view: RecyclerView, direction: Int) =
@@ -92,5 +93,11 @@ fun themed(view: FloatingActionButton) = view.apply {
   themeAware {
     backgroundTintList = ColorStateList.valueOf(it.fabColor)
     colorFilter = PorterDuffColorFilterWrapper(blendARGB(it.fabColor, BLACK, 0.65f))
+  }
+}
+
+fun <T : ProgressBar> themed(view: T): T = view.apply {
+  themeAware {
+    view.indeterminateTintList = ColorStateList.valueOf(it.accentColor)
   }
 }

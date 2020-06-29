@@ -1,6 +1,6 @@
 package me.saket.press.shared.note
 
-import me.saket.press.shared.settings.customTypeSetting
+import me.saket.press.shared.settings.Setting
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
@@ -21,7 +21,7 @@ internal class SharedNoteComponent {
       )
     }
     factory(named("prepopulated_notes")) {
-      customTypeSetting(
+      Setting.create(
           settings = get(),
           key = "prepopulated_notes_inserted",
           from = { PrePopulatedNotesInserted(it.toBoolean()) },

@@ -1,6 +1,10 @@
 package me.saket.press.shared.settings
 
-import com.russhwolf.settings.Settings
+import com.badoo.reaktive.disposable.Disposable
+import com.badoo.reaktive.observable.Observable
+import com.badoo.reaktive.observable.observable
+import com.russhwolf.settings.ExperimentalListener
+import com.russhwolf.settings.ObservableSettings
 import com.russhwolf.settings.set
 
 /**
@@ -8,26 +12,42 @@ import com.russhwolf.settings.set
  * store, letting usages fetch and save its value without requiring to know about
  * the setting key.
  */
-interface Setting<T> {
-  fun get(): T
-  fun set(value: T)
-}
+@OptIn(ExperimentalListener::class)
+interface Setting<T : Any> {
+  fun get(): T?
+  fun set(value: T?)
+  fun listen(): Observable<T?>
 
-fun <T> customTypeSetting(
-  settings: Settings,
-  key: String,
-  from: (String) -> T,
-  to: (T) -> String,
-  defaultValue: T
-): Setting<T> {
-  return object : Setting<T> {
-    override fun get(): T {
-      val saved = settings.getStringOrNull(key)
-      return if (saved != null) from(saved) else defaultValue
-    }
+  companion object {
+    fun <T : Any> create(
+      settings: ObservableSettings,
+      key: String,
+      from: (String) -> T,
+      to: (T) -> String,
+      defaultValue: T?
+    ): Setting<T> {
+      return object : Setting<T> {
+        override fun get(): T? {
+          val saved = settings.getStringOrNull(key)
+          return if (saved != null) from(saved) else defaultValue
+        }
 
-    override fun set(value: T) {
-      settings[key] = to(value)
+        override fun set(value: T?) {
+          settings[key] = if (value != null) to(value) else null
+        }
+
+        override fun listen(): Observable<T?> {
+          return observable { emitter ->
+            val listener = settings.addListener(key) {
+              emitter.onNext(get())
+            }
+            emitter.setDisposable(Disposable {
+              listener.deactivate()
+            })
+            emitter.onNext(get()) // initial value.
+          }
+        }
+      }
     }
   }
 }

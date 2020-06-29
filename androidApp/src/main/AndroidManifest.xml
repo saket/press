@@ -33,7 +33,11 @@
 
     <activity
       android:name="press.sync.PreferencesActivity"
-      android:exported="true"
+      android:launchMode="singleTask"
+      android:windowSoftInputMode="adjustResize" />
+
+    <activity
+      android:name="press.sync.GitHostAuthActivity"
       android:launchMode="singleTask"
       android:windowSoftInputMode="adjustResize">
       <intent-filter>

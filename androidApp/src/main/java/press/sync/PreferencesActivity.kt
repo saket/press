@@ -14,29 +14,12 @@ import kotlin.LazyThreadSafetyMode.NONE
 class PreferencesActivity : ThemeAwareActivity() {
 
   @Inject lateinit var viewFactory: SyncPreferencesView.Factory
-  private val syncPreferencesView by lazy(NONE) { viewFactory.create(this, onDismiss = ::finish) }
-
   @Inject lateinit var deepLinks: DeepLinks
 
   override fun onCreate(savedInstanceState: Bundle?) {
     App.component.inject(this)
     super.onCreate(savedInstanceState)
-    setContentView(syncPreferencesView)
-
-    // The DeepLink will usually be dispatched through onNewIntent(),
-    // but it's possible that Press gets killed while in background.
-    maybeReadDeepLink(intent)
-  }
-
-  override fun onNewIntent(intent: Intent) {
-    super.onNewIntent(intent)
-    maybeReadDeepLink(intent)
-  }
-
-  private fun maybeReadDeepLink(intent: Intent) {
-    if (intent.action == ACTION_VIEW && intent.data != null) {
-      deepLinks.broadcast(DeepLink(intent.dataString!!))
-    }
+    setContentView(viewFactory.create(this, onDismiss = ::finish))
   }
 
   companion object {
