@@ -20,6 +20,7 @@ import me.saket.press.shared.sync.git.GitHostAuthPresenter
 import me.saket.press.shared.sync.git.GitHostAuthToken
 import me.saket.press.shared.sync.git.GitSyncer
 import me.saket.press.shared.sync.git.GitSyncerConfig
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 class SharedSyncComponent {
@@ -39,12 +40,12 @@ class SharedSyncComponent {
         )
       }
     }
-    factory { GitHostAuthPresenter(get(), get(), get(), get()) }
+    factory { GitHostAuthPresenter(get(), get(), get(), get(), get(), get(named("io"))) }
 
     factory<Git> { RealGit() }
     factory<Syncer> { get<GitSyncer>() }
     factory { gitSyncerConfig(get(), get()) }
-    factory { GitSyncer(get(), get(), get(), get(), get(), get()) }
+    factory { GitSyncer(get(), get(), get(), get(), get()) }
   }
 
   private fun httpClient(json: Json): HttpClient {
@@ -54,7 +55,7 @@ class SharedSyncComponent {
       }
       install(Logging) {
         logger = Logger.SIMPLE
-        level = LogLevel.ALL
+        level = LogLevel.INFO
       }
     }
   }
@@ -72,5 +73,6 @@ class SharedSyncComponent {
 
   companion object {
     fun gitHostAuthPresenter(): GitHostAuthPresenter = koin()
+    fun syncer(): Syncer = koin()
   }
 }

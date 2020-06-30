@@ -15,6 +15,7 @@ import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.press.shared.sync.GitHostAuthEvent.GitRepositoryClicked
 import me.saket.press.shared.sync.GitHostAuthEvent.RetryClicked
 import me.saket.press.shared.sync.GitHostAuthUiEffect
@@ -90,7 +91,7 @@ class GitHostAuthView @AssistedInject constructor(
 
     presenter.uiUpdates()
         .takeUntil(detaches())
-        .observeOn(AndroidSchedulers.mainThread())
+        .observeOn(mainThread())
         .subscribe(models = ::render, effects = ::render)
   }
 

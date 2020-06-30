@@ -183,7 +183,9 @@ internal actual class RealGitRepository actual constructor(
       if (transport !is SshTransport) return@TransportConfigCallback
 
       transport.sshSessionFactory = object : JschConfigSessionFactory() {
-        override fun configure(host: Host, session: Session) = Unit
+        override fun configure(host: Host, session: Session) {
+          session.setConfig("StrictHostKeyChecking", "no")
+        }
 
         override fun createSession(hc: Host?, user: String?, host: String?, port: Int, fs: FS?): Session {
           // JSCH picks up SSH keys from ~/.ssh/config
@@ -207,7 +209,12 @@ internal actual class RealGitRepository actual constructor(
   }
 
   override fun addRemote(name: String, url: String) {
-    check(jgit.remoteList().call().size == 0) { "Multiple remotes aren't supported" }
+    val existingRemote = jgit.remoteList().call()
+        .map { it.name to it.urIs.single().toString() }
+        .singleOrNull()
+
+    if (existingRemote == name to url) return
+    else if (existingRemote != null) error("Multiple remotes aren't supported")
 
     jgit.remoteAdd()
         .setName(name)

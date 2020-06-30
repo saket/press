@@ -38,14 +38,14 @@ import me.saket.wysiwyg.atomicLazy
 //   - commit deleted notes.
 class GitSyncer(
   git: Git,
-  config: Setting<GitSyncerConfig>,
-  private val directory: File,
+  private val config: Setting<GitSyncerConfig>,
   private val database: PressDatabase,
   private val deviceInfo: DeviceInfo,
   private val clock: Clock
 ) : Syncer {
 
   private val noteQueries get() = database.noteQueries
+  private val directory = File(deviceInfo.appStorage, "git")
   private val register = FileNameRegister(directory)
   private val gitAuthor = GitAuthor("Saket", "pressapp@saket.me")
 
@@ -61,6 +61,10 @@ class GitSyncer(
   private enum class Result {
     DONE,
     SKIPPED
+  }
+
+  override fun isEnabled(): Boolean {
+    return config.get() != null
   }
 
   override fun sync() {

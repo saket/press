@@ -21,7 +21,6 @@ import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLD
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.localization.ENGLISH_STRINGS
-import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.note.FakeNoteRepository
 import me.saket.wysiwyg.formatting.TextSelection
 import kotlin.test.Test

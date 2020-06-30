@@ -12,8 +12,6 @@ import assertk.assertions.isNotInstanceOf
 import assertk.assertions.isTrue
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.hours
-import me.saket.kgit.Git
-import me.saket.kgit.GitRepository
 import me.saket.kgit.PushResult.Failure
 import me.saket.kgit.RealGit
 import me.saket.kgit.SshPrivateKey
@@ -45,7 +43,6 @@ class GitSyncerTest : BaseDatabaeTest() {
 
   private val deviceInfo = testDeviceInfo()
   private val noteQueries get() = database.noteQueries
-  private val gitDirectory = File(deviceInfo.appStorage, "git")
   private val git = RealGit()
   private val clock = FakeClock()
   private val syncerConfig = GitSyncerConfig(
@@ -59,7 +56,6 @@ class GitSyncerTest : BaseDatabaeTest() {
   private val syncer = GitSyncer(
       git = git,
       config = FakeSetting(syncerConfig),
-      directory = gitDirectory,
       database = database,
       deviceInfo = deviceInfo,
       clock = clock

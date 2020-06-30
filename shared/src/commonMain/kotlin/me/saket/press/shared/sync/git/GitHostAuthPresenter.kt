@@ -1,6 +1,8 @@
 package me.saket.press.shared.sync.git
 
+import com.badoo.reaktive.completable.andThen
 import com.badoo.reaktive.completable.asObservable
+import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.ObservableWrapper
 import com.badoo.reaktive.observable.filter
@@ -14,6 +16,7 @@ import com.badoo.reaktive.observable.switchMap
 import com.badoo.reaktive.observable.switchMapSingle
 import com.badoo.reaktive.observable.take
 import com.badoo.reaktive.observable.wrap
+import com.badoo.reaktive.scheduler.Scheduler
 import com.badoo.reaktive.single.asObservable
 import com.badoo.reaktive.single.map
 import com.badoo.reaktive.single.onErrorReturnValue
@@ -48,8 +51,10 @@ import me.saket.press.shared.ui.Presenter
 class GitHostAuthPresenter(
   httpClient: HttpClient,
   authToken: (GitHost) -> Setting<GitHostAuthToken>,
+  private val syncer: GitSyncer,
   private val syncerConfig: Setting<GitSyncerConfig>,
-  private val deepLinks: DeepLinks
+  private val deepLinks: DeepLinks,
+  private val ioScheduler: Scheduler
 ) : Presenter<GitHostAuthEvent, GitHostAuthUiModel, GitHostAuthUiEffect>() {
 
   private val gitHost: GitHost = GITHUB   // todo: get from View
@@ -74,8 +79,8 @@ class GitHostAuthPresenter(
 
   private fun requestAuthorization(): Observable<OpenAuthorizationUrl> {
     return authToken.listen()
-        .filterNull()
         .take(1)
+        .filterNull()
         .map { OpenAuthorizationUrl(gitHostService.generateAuthUrl()) }
   }
 
@@ -111,21 +116,15 @@ class GitHostAuthPresenter(
         .repeatOnRetry(events, kind = AddingDeployKey)
         .switchMap { repo ->
           val sshKey = SshKeygen.generateRsa(comment = "(Created by Press)")
-          println("ssh: $sshKey")
-
           gitHostService
               .addDeployKey(token = authToken.get()!!, repository = repo, key = sshKey)
-              .asObservable<GitHostAuthUiModel>()
-              .consumeOnNext<GitHostAuthUiModel, GitHostAuthUiModel> {
+              .andThen(completableFromFunction {
                 println("TODO: Close screen")
-                syncerConfig.set(
-                    GitSyncerConfig(
-                        remote = repo,
-                        sshKey = sshKey.privateKey
-                    )
-                )
                 authToken.set(null)
-              }
+                syncerConfig.set(GitSyncerConfig(remote = repo, sshKey = sshKey.privateKey))
+                syncer.sync()
+              })
+              .asObservable<GitHostAuthUiModel>()
               .onErrorReturnValue(ShowFailure(kind = AddingDeployKey))
               .startWithValue(ShowProgress)
         }
