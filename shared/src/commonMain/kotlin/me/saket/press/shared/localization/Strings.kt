@@ -60,7 +60,7 @@ val ENGLISH_STRINGS = Strings(
     ),
     sync = Sync(
         title = "Sync",
-        confirmSelectionMessage = "Are you sure you want to give Press access to %s?",
+        confirmSelectionMessage = "Are you sure you want to give Press access to <b>%s</b>?",
         confirmSelectionConfirmButton = "Let's go",
         confirmSelectionCancelButton = "Wait no"
     )

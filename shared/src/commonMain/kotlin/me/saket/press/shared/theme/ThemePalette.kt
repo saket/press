@@ -9,6 +9,7 @@ import me.saket.wysiwyg.style.WysiwygStyle.ThematicBreak
 import kotlin.math.roundToInt
 
 abstract class ThemePalette(
+  val isLightTheme: Boolean,
   val primaryColor: Int,
   val primaryColorDark: Int,
   val accentColor: Int,
@@ -20,7 +21,19 @@ abstract class ThemePalette(
   val textColorSecondary: Int,
   val textColorHint: Int,
   val fabColor: Int
-)
+) {
+
+  private companion object {
+    private const val BLACK = 0x000000
+    private const val WHITE = 0xFFFFFF
+  }
+
+  val fabIcon: Int
+    get() = fabColor.blendWith(if (isLightTheme) WHITE else BLACK, ratio = 0.65f)
+
+  val separator: Int
+    get() = window.backgroundColor.blendWith(BLACK, ratio = 0.2f)
+}
 
 data class WindowPalette(
   val backgroundColor: Int,

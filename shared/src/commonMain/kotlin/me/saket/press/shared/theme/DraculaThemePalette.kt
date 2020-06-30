@@ -12,6 +12,7 @@ private val COLOR_PERFUME = "#CCAEF9".parseColor()
 private val COLOR_PERFUME_TRANSLUCENT = "#7FC9B0FF".parseColor()
 
 object DraculaThemePalette : ThemePalette(
+    isLightTheme = false,
     primaryColor = COLOR_TUNA,
     primaryColorDark = COLOR_TUNA,
     accentColor = COLOR_PERFUME,

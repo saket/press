@@ -24,6 +24,7 @@ import me.saket.press.shared.sync.GitHostAuthUiModel.SelectRepo
 import me.saket.press.shared.sync.GitHostAuthUiModel.ShowFailure
 import me.saket.press.shared.sync.GitHostAuthUiModel.ShowProgress
 import me.saket.press.shared.sync.git.GitHostAuthPresenter
+import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import press.theme.themeAware
@@ -82,9 +83,9 @@ class GitHostAuthView @AssistedInject constructor(
     super.onAttachedToWindow()
 
     repoAdapter.onClick = {
-      ConfirmRepoSelectionDialog(context, repo = it, onConfirm = {
+      ConfirmRepoSelectionDialog.show(context, repo = it, onConfirm = {
         presenter.dispatch(GitRepositoryClicked(it))
-      }).show()
+      })
     }
 
     presenter.uiUpdates()

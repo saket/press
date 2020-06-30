@@ -1,7 +1,6 @@
 package press.sync
 
 import android.content.Context
-import android.view.Gravity
 import android.view.Gravity.CENTER_HORIZONTAL
 import android.widget.Button
 import android.widget.TextView
@@ -11,7 +10,7 @@ import press.theme.themed
 
 class ErrorView(context: Context) : ContourLayout(context) {
 
-  val titleView = themed(TextView(context)).apply {
+  private val messageView = themed(TextView(context)).apply {
     gravity = CENTER_HORIZONTAL
     text = context.strings().common.genericError
     applyLayout(
@@ -24,7 +23,7 @@ class ErrorView(context: Context) : ContourLayout(context) {
     text = context.strings().common.retry
     applyLayout(
         x = centerHorizontallyTo { parent.centerX() },
-        y = topTo { titleView.bottom() + 8.ydip }
+        y = topTo { messageView.bottom() + 8.ydip }
     )
   }
 

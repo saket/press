@@ -92,7 +92,7 @@ fun themed(toolbar: Toolbar) = toolbar.apply {
 fun themed(view: FloatingActionButton) = view.apply {
   themeAware {
     backgroundTintList = ColorStateList.valueOf(it.fabColor)
-    colorFilter = PorterDuffColorFilterWrapper(blendARGB(it.fabColor, BLACK, 0.65f))
+    colorFilter = PorterDuffColorFilterWrapper(it.fabIcon)
   }
 }
 
