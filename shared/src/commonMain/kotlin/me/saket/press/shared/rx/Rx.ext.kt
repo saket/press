@@ -9,6 +9,8 @@ import com.badoo.reaktive.observable.filter
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observableInterval
+import com.badoo.reaktive.observable.startWithValue
+import com.badoo.reaktive.observable.switchMap
 import com.badoo.reaktive.observable.withLatestFrom
 import com.badoo.reaktive.scheduler.Scheduler
 import com.soywiz.klock.TimeSpan
@@ -52,3 +54,9 @@ internal fun <T> Observable<T?>.filterNull(): Observable<T?> =
 internal fun <T> Observable<T?>.filterNotNull(): Observable<T> =
   filter { it != null }
       .map { it!! }
+
+internal fun <T> Observable<T>.repeatWhen(other: Observable<*>): Observable<T> {
+  return switchMap { item ->
+    other.map { item }.startWithValue(item)
+  }
+}

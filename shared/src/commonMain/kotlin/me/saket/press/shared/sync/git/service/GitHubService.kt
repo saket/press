@@ -5,28 +5,23 @@ import com.badoo.reaktive.coroutinesinterop.completableFromCoroutine
 import com.badoo.reaktive.coroutinesinterop.singleFromCoroutine
 import com.badoo.reaktive.single.Single
 import io.ktor.client.HttpClient
+import io.ktor.client.call.receive
 import io.ktor.client.request.accept
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.readText
 import io.ktor.http.ContentType.Application
 import io.ktor.http.URLBuilder
 import io.ktor.http.Url
 import io.ktor.http.contentType
 import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.parseList
 import me.saket.press.shared.BuildKonfig
 import me.saket.press.shared.sync.git.GitHostAuthToken
 
-class GitHubService(
-  private val client: HttpClient,
-  private val json: Json
-) : GitHostService {
+class GitHubService(private val client: HttpClient) : GitHostService {
 
   override fun generateAuthUrl(): String {
     return URLBuilder("https://github.com/login/oauth/authorize").apply {
@@ -66,7 +61,7 @@ class GitHubService(
             parameter("page", "${pageNum++}")
           }
 
-          val responseBody = json.parseList<GitHubRepo>(response.readText())
+          val responseBody = response.receive<List<GitHubRepo>>()
           addAll(responseBody.map { GitRepositoryInfo(it.full_name) })
 
           hasNextPage = "rel=\"next\"" in response.headers["Link"].orEmpty()

@@ -1,7 +1,6 @@
 package me.saket.press.shared.sync.git
 
 import io.ktor.client.HttpClient
-import kotlinx.serialization.json.Json
 import me.saket.press.shared.sync.git.service.GitHostService
 import me.saket.press.shared.sync.git.service.GitHubService
 
@@ -16,9 +15,8 @@ import me.saket.press.shared.sync.git.service.GitHubService
  */
 enum class GitHost {
   GITHUB {
-    override fun service(http: HttpClient, json: Json) =
-      GitHubService(http, json)
+    override fun service(http: HttpClient) = GitHubService(http)
   };
 
-  abstract fun service(http: HttpClient, json: Json): GitHostService
+  abstract fun service(http: HttpClient): GitHostService
 }

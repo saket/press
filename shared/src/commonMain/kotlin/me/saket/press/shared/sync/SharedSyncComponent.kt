@@ -19,17 +19,16 @@ import org.koin.dsl.module
 class SharedSyncComponent {
 
   val module = module {
-    single { httpClient(get()) }
-    single { Json(Stable.copy(prettyPrint = true, ignoreUnknownKeys = true)) }
-
-    factory { GitHostAuthPresenter(get(), get(), get(), get()) }
+    single { httpClient() }
+    factory { GitHostAuthPresenter(get(), get(), get()) }
     factory { RealGit().repository(get<DeviceInfo>().appStorage.path) }
     factory<Syncer> { GitSyncer(get(), get(), get(), get()) }
   }
 
-  private fun httpClient(json: Json): HttpClient {
+  private fun httpClient(): HttpClient {
     return HttpClient {
       install(JsonFeature) {
+        val json = Json(Stable.copy(prettyPrint = true, ignoreUnknownKeys = true))
         serializer = KotlinxSerializer(json)
       }
       install(Logging) {

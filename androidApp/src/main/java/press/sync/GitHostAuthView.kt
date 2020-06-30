@@ -16,13 +16,14 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import io.reactivex.android.schedulers.AndroidSchedulers
 import me.saket.press.shared.sync.GitHostAuthEvent.GitRepositoryClicked
+import me.saket.press.shared.sync.GitHostAuthEvent.RetryClicked
 import me.saket.press.shared.sync.git.GitHostAuthPresenter
 import me.saket.press.shared.sync.GitHostAuthUiEffect
 import me.saket.press.shared.sync.GitHostAuthUiEffect.OpenAuthorizationUrl
 import me.saket.press.shared.sync.GitHostAuthUiModel
-import me.saket.press.shared.sync.GitHostAuthUiModel.FullscreenError
-import me.saket.press.shared.sync.GitHostAuthUiModel.Loading
+import me.saket.press.shared.sync.GitHostAuthUiModel.ShowProgress
 import me.saket.press.shared.sync.GitHostAuthUiModel.SelectRepo
+import me.saket.press.shared.sync.GitHostAuthUiModel.ShowFailure
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import press.theme.themeAware
@@ -81,6 +82,7 @@ class GitHostAuthView @AssistedInject constructor(
     super.onAttachedToWindow()
 
     repoAdapter.onClick = {
+      // todo: show a confirmation dialog.
       presenter.dispatch(GitRepositoryClicked(it))
     }
 
@@ -96,17 +98,17 @@ class GitHostAuthView @AssistedInject constructor(
       addTarget(errorView)
     })
 
-    progressView.isGone = model !is Loading
-    errorView.isGone = model !is FullscreenError
+    progressView.isGone = model !is ShowProgress
+    errorView.isGone = model !is ShowFailure
 
     return when (model) {
-      is Loading -> Unit
-      is SelectRepo -> repoAdapter.submitList(model.repositories)
-      is FullscreenError -> {
+      is ShowProgress -> Unit
+      is ShowFailure -> {
         errorView.retryButton.setOnClickListener {
-          model.onRetry()
+          presenter.dispatch(RetryClicked(model.kind))
         }
       }
+      is SelectRepo -> repoAdapter.submitList(model.repositories)
     }
   }
 

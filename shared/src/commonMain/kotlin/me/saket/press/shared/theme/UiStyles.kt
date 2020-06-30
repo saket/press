@@ -4,7 +4,6 @@ import me.saket.press.shared.theme.TextStyles.Primary
 import me.saket.press.shared.theme.TextStyles.Secondary
 import me.saket.press.shared.theme.UiStyles.FontFamily.WORK_SANS
 import me.saket.press.shared.theme.UiStyles.FontVariant.REGULAR
-import me.saket.press.shared.theme.UiStyles.Text
 
 object HomeUiStyles {
   object NoteRow {
