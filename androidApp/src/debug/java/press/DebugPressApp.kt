@@ -24,6 +24,7 @@ class DebugPressApp : PressApp() {
       val client = AndroidFlipperClient.getInstance(this)
       client.addPlugin(InspectorFlipperPlugin(this, DescriptorMapping.withDefaults()))
       client.addPlugin(DatabasesFlipperPlugin(this))
+      client.addPlugin(SharedPreferencesFlipperPlugin(this))
       client.start()
     }
   }
