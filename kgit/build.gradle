@@ -1,3 +1,7 @@
+plugins {
+  id 'org.jetbrains.kotlin.plugin.serialization' version '1.3.70'
+}
+
 apply plugin: 'org.jetbrains.kotlin.multiplatform'
 
 repositories {
@@ -19,6 +23,7 @@ kotlin {
       dependencies {
         implementation kotlin('stdlib-common')
         implementation deps.statelyConcurrency
+        implementation deps.kotlinxSerialization.common
       }
     }
     commonTest {
@@ -31,6 +36,7 @@ kotlin {
       dependencies {
         implementation kotlin('stdlib-jdk8')
         implementation "org.eclipse.jgit:org.eclipse.jgit:5.7.0.202003110725-r"
+        implementation deps.kotlinxSerialization.jvm
       }
     }
     jvmTest {
@@ -39,7 +45,12 @@ kotlin {
         implementation kotlin('test-junit')
       }
     }
-    nativeMain { dependsOn(commonMain) }
+    nativeMain {
+      dependsOn(commonMain)
+      dependencies {
+        implementation deps.kotlinxSerialization.native
+      }
+    }
     nativeTest { dependsOn(commonTest) }
 
     macosMain { dependsOn(nativeMain) }

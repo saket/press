@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
+import assertk.assertions.isIn
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import com.badoo.reaktive.test.base.assertNotError
@@ -19,6 +20,7 @@ import me.saket.press.shared.editor.EditorPresenter.Args
 import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.fakedata.fakeNote
+import me.saket.press.shared.localization.ENGLISH_STRINGS
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.note.FakeNoteRepository
 import me.saket.wysiwyg.formatting.TextSelection
@@ -30,11 +32,6 @@ class EditorPresenterTest {
   private val repository = FakeNoteRepository()
   private val testScheduler = TestScheduler()
   private val config = EditorConfig(autoSaveEvery = 5.seconds)
-  private val strings = Strings.Editor(
-      newNoteHints = listOf("New note heading hint"),
-      openUrl = "Open",
-      editUrl = "Edit"
-  )
 
   private fun presenter(
     openMode: EditorOpenMode,
@@ -45,7 +42,7 @@ class EditorPresenterTest {
         noteRepository = repository,
         ioScheduler = TestScheduler(),
         computationScheduler = testScheduler,
-        strings = strings,
+        strings = ENGLISH_STRINGS,
         config = config
     )
   }
@@ -155,22 +152,22 @@ class EditorPresenterTest {
         .uiModels()
         .test()
 
-    val hintText = { uiModels.values.last().hintText }
+    val hintText = { uiModels.values.last().hintText?.drop("# ".length) }
 
     presenter.dispatch(NoteTextChanged(NEW_NOTE_PLACEHOLDER))
-    assertThat(hintText()).isEqualTo("# New note heading hint")
+    assertThat(hintText()).isIn(ENGLISH_STRINGS.editor.newNoteHints)
 
     presenter.dispatch(NoteTextChanged(""))
     assertThat(hintText()).isNull()
 
     presenter.dispatch(NoteTextChanged(NEW_NOTE_PLACEHOLDER))
-    assertThat(hintText()).isEqualTo("# New note heading hint")
+    assertThat(hintText()).isIn(ENGLISH_STRINGS.editor.newNoteHints)
 
     presenter.dispatch(NoteTextChanged("  $NEW_NOTE_PLACEHOLDER"))
     assertThat(hintText()).isNull()
 
     presenter.dispatch(NoteTextChanged("$NEW_NOTE_PLACEHOLDER  "))
-    assertThat(hintText()).isEqualTo("# New note heading hint")
+    assertThat(hintText()).isIn(ENGLISH_STRINGS.editor.newNoteHints)
 
     uiModels.assertNotError()
   }

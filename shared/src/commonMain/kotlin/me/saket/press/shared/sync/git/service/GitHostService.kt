@@ -2,8 +2,9 @@ package me.saket.press.shared.sync.git.service
 
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.single.Single
-import me.saket.press.shared.sync.git.GitHostAuthToken
+import me.saket.kgit.SshKeyPair
 import me.saket.press.shared.sync.git.GitHost
+import me.saket.press.shared.sync.git.GitHostAuthToken
 
 /** See [GitHost]. */
 interface GitHostService {
@@ -27,10 +28,8 @@ interface GitHostService {
   fun fetchUserRepos(token: GitHostAuthToken): Single<List<GitRepositoryInfo>>
 
   /**
-   * Add a deploy key to [repositoryName] so that Press
+   * Add a deploy key to [repository] so that Press
    * can read and write commits for syncing notes.
    */
-  fun addDeployKey(token: GitHostAuthToken, repositoryName: String, sshPublicKey: String): Completable
+  fun addDeployKey(token: GitHostAuthToken, repository: GitRepositoryInfo, key: SshKeyPair): Completable
 }
-
-data class GitRepositoryInfo(val name: String)

@@ -1,11 +1,10 @@
 package me.saket.press.shared.sync.git
 
-import co.touchlab.stately.concurrency.AtomicReference
 import com.soywiz.klock.DateTime
 import kotlinx.coroutines.Runnable
+import me.saket.kgit.Git
 import me.saket.kgit.GitAuthor
 import me.saket.kgit.GitCommit
-import me.saket.kgit.GitRepository
 import me.saket.kgit.GitTreeDiff
 import me.saket.kgit.GitTreeDiff.Change.Add
 import me.saket.kgit.GitTreeDiff.Change.Copy
@@ -18,40 +17,50 @@ import me.saket.kgit.RebaseResult
 import me.saket.kgit.UtcTimestamp
 import me.saket.press.PressDatabase
 import me.saket.press.shared.db.NoteId
+import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.sync.SyncState.IN_FLIGHT
 import me.saket.press.shared.sync.SyncState.SYNCED
 import me.saket.press.shared.sync.Syncer
 import me.saket.press.shared.sync.git.GitSyncer.Result.DONE
 import me.saket.press.shared.sync.git.GitSyncer.Result.SKIPPED
 import me.saket.press.shared.time.Clock
+import me.saket.wysiwyg.atomicLazy
 
-// TODO: commit deleted and archived notes as well.
-// TODO: commit only un-synced notes.
-// TODO: add logging.
-// TODO: figure out git author name/email.
-// TODO: set both author and committer time.
-// TODO: handle all GitTreeDiff.Change types.
-// TODO: Broadcast an event when a merge conflict is resolved.
+// TODO:
+//  Stop ship
+//   - read default branch name from the repository instead of hardcoding to 'master.
+//   - handle all GitTreeDiff.Change types.
+//   - broadcast an event when a merge conflict is resolved.
+//  Others
+//   - figure out git author name/email.
+//   - set both author and committer time.
+//   - add logging.
+//   - commit deleted notes.
 class GitSyncer(
-  private val git: GitRepository,
+  git: Git,
+  config: Setting<GitSyncerConfig>,
+  private val directory: File,
   private val database: PressDatabase,
   private val deviceInfo: DeviceInfo,
   private val clock: Clock
 ) : Syncer {
 
   private val noteQueries get() = database.noteQueries
-  private val directory = File(git.directoryPath)
   private val register = FileNameRegister(directory)
-  private val remoteSet = AtomicReference(false)
   private val gitAuthor = GitAuthor("Saket", "pressapp@saket.me")
+
+  // Lazy to avoid reading anything on the main thread.
+  private val git by atomicLazy {
+    with(config.get()!!) {
+      git.repository(sshKey = sshKey, path = directory.path).apply {
+        addRemote("origin", remote.sshUrl)
+      }
+    }
+  }
 
   private enum class Result {
     DONE,
     SKIPPED
-  }
-
-  init {
-    git.workaroundJgitBug = true
   }
 
   override fun sync() {
@@ -122,8 +131,6 @@ class GitSyncer(
   }
 
   private fun pull(): Result {
-    require(remoteSet.get())
-
     git.fetch()
     val localHead = git.headCommit()!!  // non-null because of ensureInitialCommit().
     val upstreamHead = git.headCommit(onBranch = "origin/master")
@@ -290,11 +297,6 @@ class GitSyncer(
     require(pushResult !is PushResult.Failure) { "Failed to push: $pushResult" }
 
     noteQueries.swapSyncStates(old = IN_FLIGHT, new = SYNCED)
-  }
-
-  fun setRemote(remoteUrl: String) {
-    git.addRemote("origin", remoteUrl)
-    remoteSet.set(true)
   }
 }
 

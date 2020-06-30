@@ -43,15 +43,14 @@ import org.eclipse.jgit.merge.MergeStrategy as JgitMergeStrategy
  * JGit is garbage. Try replacing it with [github.com/git24j/git24j].
  */
 internal actual class RealGitRepository actual constructor(
-  private val git: Git,
-  override val directoryPath: String
-) : GitRepository(directoryPath) {
+  directoryPath: String,
+  private val sshKey: SshPrivateKey
+) : GitRepository {
 
   private val jgit: JGit by lazy {
     // Initializing a directory that already has git will no-op.
     JGit.init().setDirectory(File(directoryPath)).call()
   }
-  override var workaroundJgitBug: Boolean = false
 
   override fun isStagingAreaDirty(): Boolean {
     val status = jgit.status().call()
@@ -70,16 +69,16 @@ internal actual class RealGitRepository actual constructor(
       PersonIdent(author.name, author.email, Date(it.millis), TimeZone.getTimeZone("UTC"))
     }
 
-    if (workaroundJgitBug && headCommit() == null) {
+    if (headCommit() == null) {
       val message = """
-              |JGit bug workaround
-              |
-              |Press uses JGit for syncing notes on Android, but it has an annoying
-              |bug where commits without a parent get dropped after a rebase, which 
-              |is always going to be true for the first commit. As a workaround, 
-              |Press adds a dummy commit that sacrifices itself to protect an actual
-              |commit. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=563805.
-              """.trimMargin()
+          |JGit bug workaround
+          |
+          |Press uses JGit for syncing notes on Android, but it has an annoying
+          |bug where commits without a parent get dropped after a rebase, which 
+          |is always going to be true for the first commit. As a workaround, 
+          |Press adds a dummy commit that sacrifices itself to protect an actual
+          |commit. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=563805.
+          """.trimMargin()
       jgit.commit()
           .setAllowEmpty(true)
           .setMessage(message)
@@ -182,8 +181,6 @@ internal actual class RealGitRepository actual constructor(
   private fun sshTransport(): TransportConfigCallback {
     return TransportConfigCallback { transport ->
       if (transport !is SshTransport) return@TransportConfigCallback
-      val sshConfig = git.ssh
-      requireNotNull(sshConfig)
 
       transport.sshSessionFactory = object : JschConfigSessionFactory() {
         override fun configure(host: Host, session: Session) = Unit
@@ -198,10 +195,10 @@ internal actual class RealGitRepository actual constructor(
         override fun createDefaultJSch(fs: FS): JSch {
           return super.createDefaultJSch(fs).apply {
             addIdentity(
-                "ssh-key" /* name */,
-                sshConfig.privateKey.toByteArray(),
-                null  /* public key */,
-                sshConfig.passphrase?.toByteArray()
+                "deploy_key" /* name */,
+                sshKey.key.toByteArray(),
+                null        /* public key */,
+                null        /* passphrase */
             )
           }
         }

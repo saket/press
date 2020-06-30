@@ -12,9 +12,11 @@ import assertk.assertions.isNotInstanceOf
 import assertk.assertions.isTrue
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.hours
+import me.saket.kgit.Git
+import me.saket.kgit.GitRepository
 import me.saket.kgit.PushResult.Failure
 import me.saket.kgit.RealGit
-import me.saket.kgit.SshConfig
+import me.saket.kgit.SshPrivateKey
 import me.saket.press.data.shared.Note
 import me.saket.press.data.shared.NoteQueries
 import me.saket.press.shared.BuildKonfig
@@ -24,13 +26,15 @@ import me.saket.press.shared.containsOnly
 import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakedata.fakeNote
+import me.saket.press.shared.settings.FakeSetting
 import me.saket.press.shared.sync.SyncState.PENDING
 import me.saket.press.shared.sync.SyncState.SYNCED
 import me.saket.press.shared.sync.git.File
 import me.saket.press.shared.sync.git.FileName
 import me.saket.press.shared.sync.git.GitSyncer
+import me.saket.press.shared.sync.git.GitSyncerConfig
 import me.saket.press.shared.sync.git.UtcTimestamp
-import me.saket.press.shared.sync.git.repository
+import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 import me.saket.press.shared.testDeviceInfo
 import me.saket.press.shared.time.FakeClock
 import kotlin.test.AfterTest
@@ -43,21 +47,23 @@ class GitSyncerTest : BaseDatabaeTest() {
   private val noteQueries get() = database.noteQueries
   private val gitDirectory = File(deviceInfo.appStorage, "git")
   private val git = RealGit()
-  private val syncer: GitSyncer
   private val clock = FakeClock()
-
-  init {
-    println()
-    git.ssh = SshConfig(privateKey = BuildKonfig.GITHUB_SSH_PRIV_KEY)
-
-    syncer = GitSyncer(
-        git = git.repository(gitDirectory),
-        database = database,
-        deviceInfo = deviceInfo,
-        clock = clock
-    )
-    syncer.setRemote("git@github.com:saket/PressSyncPlayground.git")
-  }
+  private val syncerConfig = GitSyncerConfig(
+      remote = GitRepositoryInfo( // todo: read everything from build config.
+          name = "saket/PressSyncPlayground",
+          sshUrl = "git@github.com:saket/PressSyncPlayground.git",
+          defaultBranch = "master"
+      ),
+      sshKey = SshPrivateKey(BuildKonfig.GITHUB_SSH_PRIV_KEY)
+  )
+  private val syncer = GitSyncer(
+      git = git,
+      config = FakeSetting(syncerConfig),
+      directory = gitDirectory,
+      database = database,
+      deviceInfo = deviceInfo,
+      clock = clock
+  )
 
   private fun canRunTests(): Boolean {
     // todo: make tests work for native platforms.
@@ -66,6 +72,7 @@ class GitSyncerTest : BaseDatabaeTest() {
 
   @BeforeTest
   fun setUp() {
+    println()
     RemoteRepositoryRobot {
       commitFiles(message = "Emptiness", add = emptyList())
       forcePush()
@@ -423,7 +430,7 @@ class GitSyncerTest : BaseDatabaeTest() {
 
   private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit = {}) {
     val directory = File(deviceInfo.appStorage, "temp").apply { makeDirectory() }
-    private val gitRepo = git.repository(directory)
+    private val gitRepo = git.repository(syncerConfig.sshKey, directory.path)
 
     init {
       gitRepo.addRemote("origin", "git@github.com:saket/PressSyncPlayground.git")

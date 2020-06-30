@@ -18,8 +18,9 @@ import com.badoo.reaktive.single.asObservable
 import com.badoo.reaktive.single.map
 import com.badoo.reaktive.single.onErrorReturnValue
 import com.russhwolf.settings.ExperimentalListener
-import com.russhwolf.settings.ObservableSettings
 import io.ktor.client.HttpClient
+import me.saket.kgit.SshKeygen
+import me.saket.kgit.generateRsa
 import me.saket.press.shared.DeepLinks
 import me.saket.press.shared.rx.consumeOnNext
 import me.saket.press.shared.rx.filterNotNull
@@ -44,24 +45,16 @@ import me.saket.press.shared.sync.git.service.GitHostService
 import me.saket.press.shared.ui.Presenter
 
 @OptIn(ExperimentalListener::class)
-class GitHostAuthPresenter constructor(
+class GitHostAuthPresenter(
   httpClient: HttpClient,
-  settings: ObservableSettings,
+  authToken: (GitHost) -> Setting<GitHostAuthToken>,
+  private val syncerConfig: Setting<GitSyncerConfig>,
   private val deepLinks: DeepLinks
 ) : Presenter<GitHostAuthEvent, GitHostAuthUiModel, GitHostAuthUiEffect>() {
 
-  private val gitHost: GitHost = GITHUB
+  private val gitHost: GitHost = GITHUB   // todo: get from View
+  private val authToken: Setting<GitHostAuthToken> = authToken(gitHost)
   private val gitHostService: GitHostService = gitHost.service(httpClient)
-
-  // The token is persisted so that the user doesn't
-  // have to login again on an orientation change.
-  private val authToken = Setting.create(
-      settings = settings,
-      key = "${gitHost.name}_auth_token",
-      from = ::GitHostAuthToken,
-      to = GitHostAuthToken::value,
-      defaultValue = null
-  )
 
   override fun defaultUiModel() = ShowProgress
 
@@ -114,13 +107,23 @@ class GitHostAuthPresenter constructor(
 
   private fun selectRepository(events: Observable<GitHostAuthEvent>): Observable<GitHostAuthUiModel> {
     return events.ofType<GitRepositoryClicked>()
+        .map { it.repo }
         .repeatOnRetry(events, kind = AddingDeployKey)
-        .switchMap {
+        .switchMap { repo ->
+          val sshKey = SshKeygen.generateRsa(comment = "(Created by Press)")
+          println("ssh: $sshKey")
+
           gitHostService
-              .addDeployKey(token = authToken.get()!!, repositoryName = it.repo.name, sshPublicKey = "foo")
+              .addDeployKey(token = authToken.get()!!, repository = repo, key = sshKey)
               .asObservable<GitHostAuthUiModel>()
               .consumeOnNext<GitHostAuthUiModel, GitHostAuthUiModel> {
                 println("TODO: Close screen")
+                syncerConfig.set(
+                    GitSyncerConfig(
+                        remote = repo,
+                        sshKey = sshKey.privateKey
+                    )
+                )
                 authToken.set(null)
               }
               .onErrorReturnValue(ShowFailure(kind = AddingDeployKey))

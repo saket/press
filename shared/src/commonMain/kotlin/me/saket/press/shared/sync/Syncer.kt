@@ -1,6 +1,6 @@
 package me.saket.press.shared.sync
 
-/** Syncs notes to a remote destination. */
+/** Syncs notes with a remote destination. */
 interface Syncer {
 
   /**

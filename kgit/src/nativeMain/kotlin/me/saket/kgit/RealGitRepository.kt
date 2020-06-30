@@ -1,9 +1,9 @@
 package me.saket.kgit
 
 internal actual class RealGitRepository actual constructor(
-  git: Git,
-  directoryPath: String
-) : GitRepository(directoryPath) {
+  directoryPath: String,
+  sshKey: SshPrivateKey
+) : GitRepository {
   override fun isStagingAreaDirty(): Boolean = TODO()
   override fun commitAll(message: String, author: GitAuthor?, timestamp: UtcTimestamp?, allowEmpty: Boolean) = TODO()
   override fun pull(rebase: Boolean): PullResult = TODO()

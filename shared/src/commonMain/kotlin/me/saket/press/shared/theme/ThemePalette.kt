@@ -24,8 +24,8 @@ abstract class ThemePalette(
 ) {
 
   private companion object {
-    private const val BLACK = 0x000000
-    private const val WHITE = 0xFFFFFF
+    private const val BLACK = 0xFF000000.toInt()
+    private const val WHITE = 0xFFFFFFFF.toInt()
   }
 
   val fabIcon: Int

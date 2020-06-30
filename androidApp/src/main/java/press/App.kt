@@ -7,6 +7,7 @@ import io.reactivex.android.plugins.RxAndroidPlugins
 import io.reactivex.android.schedulers.AndroidSchedulers
 import me.saket.press.shared.di.SharedComponent
 
+// todo: rename to PressApp
 abstract class App : Application() {
 
   companion object {
@@ -21,6 +22,8 @@ abstract class App : Application() {
     RxAndroidPlugins.setInitMainThreadSchedulerHandler {
       AndroidSchedulers.from(Looper.getMainLooper(), true)
     }
+
+    // todo: use workmanager to schedule syncing in the background.
   }
 
   abstract fun buildDependencyGraph(): AppComponent

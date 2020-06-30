@@ -18,10 +18,11 @@ import io.ktor.http.Url
 import io.ktor.http.contentType
 import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.Serializable
+import me.saket.kgit.SshKeyPair
 import me.saket.press.shared.BuildKonfig
 import me.saket.press.shared.sync.git.GitHostAuthToken
 
-class GitHubService(private val client: HttpClient) : GitHostService {
+class GitHubService(private val http: HttpClient) : GitHostService {
 
   override fun generateAuthUrl(): String {
     return URLBuilder("https://github.com/login/oauth/authorize").apply {
@@ -34,7 +35,7 @@ class GitHubService(private val client: HttpClient) : GitHostService {
 
   override fun completeAuth(callbackUrl: String): Single<GitHostAuthToken> {
     return singleFromCoroutine {
-      val response = client.post<GetAccessTokenResponse>("https://github.com/login/oauth/access_token") {
+      val response = http.post<GetAccessTokenResponse>("https://github.com/login/oauth/access_token") {
         contentType(Application.Json)
         body = GetAccessTokenRequest(
             client_id = BuildKonfig.GITHUB_CLIENT_ID,
@@ -54,7 +55,7 @@ class GitHubService(private val client: HttpClient) : GitHostService {
 
       return@singleFromCoroutine buildList {
         while (hasNextPage) {
-          val response = client.get<HttpResponse>("https://api.github.com/user/repos") {
+          val response = http.get<HttpResponse>("https://api.github.com/user/repos") {
             accept(Application.Json)
             header("Authorization", "token ${token.value}")
             parameter("per_page", "50")
@@ -62,7 +63,13 @@ class GitHubService(private val client: HttpClient) : GitHostService {
           }
 
           val responseBody = response.receive<List<GitHubRepo>>()
-          addAll(responseBody.map { GitRepositoryInfo(it.full_name) })
+          addAll(responseBody.map {
+            GitRepositoryInfo(
+                name = it.full_name,
+                sshUrl = it.ssh_url,
+                defaultBranch = it.default_branch
+            )
+          })
 
           hasNextPage = "rel=\"next\"" in response.headers["Link"].orEmpty()
         }
@@ -70,15 +77,15 @@ class GitHubService(private val client: HttpClient) : GitHostService {
     }
   }
 
-  override fun addDeployKey(token: GitHostAuthToken, repositoryName: String, sshPublicKey: String): Completable {
+  override fun addDeployKey(token: GitHostAuthToken, repository: GitRepositoryInfo, key: SshKeyPair): Completable {
     return completableFromCoroutine {
-      check('/' in repositoryName)  // <user>/<repo-name>
-      val response = client.post<String>("https://api.github.com/repos/$repositoryName/keys") {
+      check('/' in repository.name)  // <user>/<repo-name>
+      val response = http.post<String>("https://api.github.com/repos/${repository.name}/keys") {
         header("Authorization", "token ${token.value}")
         contentType(Application.Json)
         body = CreateDeployKeyRequest(
-            title = "Press",
-            key = sshPublicKey,
+            title = "Press deploy key",
+            key = key.publicKey,
             read_only = false
         )
       }
@@ -101,7 +108,9 @@ private data class GetAccessTokenResponse(
 
 @Serializable
 private data class GitHubRepo(
-  val full_name: String
+  val full_name: String,
+  val ssh_url: String,
+  val default_branch: String
 )
 
 @Serializable
