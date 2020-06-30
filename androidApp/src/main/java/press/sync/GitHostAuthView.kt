@@ -17,13 +17,13 @@ import com.squareup.inject.assisted.AssistedInject
 import io.reactivex.android.schedulers.AndroidSchedulers
 import me.saket.press.shared.sync.GitHostAuthEvent.GitRepositoryClicked
 import me.saket.press.shared.sync.GitHostAuthEvent.RetryClicked
-import me.saket.press.shared.sync.git.GitHostAuthPresenter
 import me.saket.press.shared.sync.GitHostAuthUiEffect
 import me.saket.press.shared.sync.GitHostAuthUiEffect.OpenAuthorizationUrl
 import me.saket.press.shared.sync.GitHostAuthUiModel
-import me.saket.press.shared.sync.GitHostAuthUiModel.ShowProgress
 import me.saket.press.shared.sync.GitHostAuthUiModel.SelectRepo
 import me.saket.press.shared.sync.GitHostAuthUiModel.ShowFailure
+import me.saket.press.shared.sync.GitHostAuthUiModel.ShowProgress
+import me.saket.press.shared.sync.git.GitHostAuthPresenter
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import press.theme.themeAware
@@ -82,8 +82,9 @@ class GitHostAuthView @AssistedInject constructor(
     super.onAttachedToWindow()
 
     repoAdapter.onClick = {
-      // todo: show a confirmation dialog.
-      presenter.dispatch(GitRepositoryClicked(it))
+      ConfirmRepoSelectionDialog(context, repo = it, onConfirm = {
+        presenter.dispatch(GitRepositoryClicked(it))
+      }).show()
     }
 
     presenter.uiUpdates()
@@ -94,12 +95,12 @@ class GitHostAuthView @AssistedInject constructor(
 
   private fun render(model: GitHostAuthUiModel) {
     TransitionManager.beginDelayedTransition(this, AutoTransition().apply {
-      addTarget(progressView)
-      addTarget(errorView)
+      excludeChildren(recyclerView, true)
     })
 
     progressView.isGone = model !is ShowProgress
     errorView.isGone = model !is ShowFailure
+    recyclerView.isGone = model !is SelectRepo
 
     return when (model) {
       is ShowProgress -> Unit

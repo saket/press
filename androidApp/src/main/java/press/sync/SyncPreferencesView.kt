@@ -17,7 +17,7 @@ class SyncPreferencesView @AssistedInject constructor(
 ) : ContourLayout(context) {
 
   private val toolbar = themed(PressToolbar(context)).apply {
-    title = context.strings().syncPreferences.title
+    title = context.strings().sync.title
     setNavigationOnClickListener { onDismiss() }
     applyLayout(
         x = matchParentX(),

@@ -24,7 +24,7 @@ class ErrorView(context: Context) : ContourLayout(context) {
     text = context.strings().common.retry
     applyLayout(
         x = centerHorizontallyTo { parent.centerX() },
-        y = topTo { titleView.bottom() }
+        y = topTo { titleView.bottom() + 8.ydip }
     )
   }
 

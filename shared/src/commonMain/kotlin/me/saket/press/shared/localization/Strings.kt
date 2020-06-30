@@ -3,13 +3,13 @@ package me.saket.press.shared.localization
 import me.saket.press.shared.localization.Strings.Common
 import me.saket.press.shared.localization.Strings.Editor
 import me.saket.press.shared.localization.Strings.Home
-import me.saket.press.shared.localization.Strings.SyncPreferences
+import me.saket.press.shared.localization.Strings.Sync
 
 data class Strings(
   val common: Common,
   val home: Home,
   val editor: Editor,
-  val syncPreferences: SyncPreferences
+  val sync: Sync
 ) {
   data class Common(
     val closeNavIconDescription: String,
@@ -27,8 +27,11 @@ data class Strings(
     val editUrl: String
   )
 
-  data class SyncPreferences(
-    val title: String
+  data class Sync(
+    val title: String,
+    val confirmSelectionMessage: String,
+    val confirmSelectionConfirmButton: String,
+    val confirmSelectionCancelButton: String
   )
 }
 
@@ -55,7 +58,10 @@ val ENGLISH_STRINGS = Strings(
         openUrl = "Open",
         editUrl = "Edit"
     ),
-    syncPreferences = SyncPreferences(
-        title = "Sync"
+    sync = Sync(
+        title = "Sync",
+        confirmSelectionMessage = "Are you sure you want to give Press access to %s?",
+        confirmSelectionConfirmButton = "Let's go",
+        confirmSelectionCancelButton = "Wait no"
     )
 )

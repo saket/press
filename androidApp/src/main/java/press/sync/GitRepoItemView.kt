@@ -16,12 +16,12 @@ import press.theme.themeAware
 import press.util.withOpacity
 import press.widgets.attr
 
-class RepoItemView(context: Context) : ContourLayout(context) {
+class GitRepoItemView(context: Context) : ContourLayout(context) {
 
   val nameView = TextView(context).apply {
     TextStyles.Secondary.applyStyle(this)
     applyLayout(
-        x = matchParentX(marginLeft = 20.dip, marginRight = 20.dip),
+        x = matchParentX(marginLeft = 22.dip, marginRight = 22.dip),
         y = topTo { parent.top() + 8.ydip }
     )
   }
