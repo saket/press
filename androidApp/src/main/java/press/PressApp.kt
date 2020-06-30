@@ -7,8 +7,7 @@ import io.reactivex.android.plugins.RxAndroidPlugins
 import io.reactivex.android.schedulers.AndroidSchedulers
 import me.saket.press.shared.di.SharedComponent
 
-// todo: rename to PressApp
-abstract class App : Application() {
+abstract class PressApp : Application() {
 
   companion object {
     lateinit var component: AppComponent

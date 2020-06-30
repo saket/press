@@ -1,7 +1,6 @@
 package press.theme
 
 import android.content.res.ColorStateList
-import android.graphics.Color.BLACK
 import android.graphics.PorterDuff.Mode.SRC_IN
 import android.graphics.drawable.ColorDrawable
 import android.view.View
@@ -14,13 +13,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.graphics.ColorUtils.blendARGB
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.attaches
 import com.jakewharton.rxbinding3.view.detaches
-import press.App
+import press.PressApp
 import press.util.onDestroys
 import press.widgets.PorterDuffColorFilterWrapper
 import press.widgets.findTitleView
@@ -29,7 +27,7 @@ import me.saket.press.shared.theme.ThemePalette
 import me.saket.press.R
 import press.widgets.ScrollViewCompat
 
-fun themePalette() = App.component.themePalette()
+fun themePalette() = PressApp.component.themePalette()
 
 fun View.themeAware(onThemeChange: (ThemePalette) -> Unit) {
   attaches()

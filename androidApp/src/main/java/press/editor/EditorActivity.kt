@@ -20,7 +20,7 @@ import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
-import press.App
+import press.PressApp
 import press.animation.FabTransform
 import press.util.withOpacity
 import press.widgets.ThemeAwareActivity
@@ -39,7 +39,7 @@ class EditorActivity : ThemeAwareActivity() {
   private val openMode: EditorOpenMode by lazy(NONE) { readOpenMode(intent) }
 
   override fun onCreate(savedInstanceState: Bundle?) {
-    App.component.inject(this)
+    PressApp.component.inject(this)
     super.onCreate(savedInstanceState)
     setContentView(wrapInExpandableLayout(editorView))
 

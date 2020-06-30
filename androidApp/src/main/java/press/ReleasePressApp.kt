@@ -6,7 +6,7 @@ import press.di.DaggerAppComponent
 
 @Suppress("unused")
 @SuppressLint("Registered")
-class ReleaseApp : App() {
+class ReleasePressApp : PressApp() {
 
   override fun buildDependencyGraph(): AppComponent =
     DaggerAppComponent.builder().build()
