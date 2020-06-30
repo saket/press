@@ -48,6 +48,7 @@ class GitSyncerTest : BaseDatabaeTest() {
   private val syncerConfig = GitSyncerConfig(
       remote = GitRepositoryInfo( // todo: read everything from build config.
           name = "saket/PressSyncPlayground",
+          url = "https://github.com/saket/PressSyncPlayground",
           sshUrl = "git@github.com:saket/PressSyncPlayground.git",
           defaultBranch = "master"
       ),

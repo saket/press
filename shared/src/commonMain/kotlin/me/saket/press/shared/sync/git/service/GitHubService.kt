@@ -66,6 +66,7 @@ class GitHubService(private val http: HttpClient) : GitHostService {
           addAll(responseBody.map {
             GitRepositoryInfo(
                 name = it.full_name,
+                url = it.html_url,
                 sshUrl = it.ssh_url,
                 defaultBranch = it.default_branch
             )
@@ -109,6 +110,7 @@ private data class GetAccessTokenResponse(
 @Serializable
 private data class GitHubRepo(
   val full_name: String,
+  val html_url: String,
   val ssh_url: String,
   val default_branch: String
 )
