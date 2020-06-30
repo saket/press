@@ -1,7 +1,9 @@
-package me.saket.press.shared.sync.git
+package me.saket.press.shared.sync.git.service
 
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.single.Single
+import me.saket.press.shared.sync.git.GitHostAuthToken
+import me.saket.press.shared.sync.git.GitHost
 
 /** See [GitHost]. */
 interface GitHostService {

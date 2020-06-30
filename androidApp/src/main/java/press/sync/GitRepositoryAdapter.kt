@@ -5,7 +5,7 @@ import androidx.core.view.isGone
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import me.saket.press.shared.sync.git.GitRepositoryInfo
+import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 
 class GitRepositoryAdapter : ListAdapter<GitRepositoryInfo, RepoViewHolder>(ItemDiffer) {
   lateinit var onClick: (GitRepositoryInfo) -> Unit

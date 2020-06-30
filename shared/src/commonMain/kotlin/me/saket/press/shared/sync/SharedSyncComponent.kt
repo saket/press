@@ -13,29 +13,24 @@ import me.saket.kgit.RealGit
 import me.saket.press.shared.di.koin
 import me.saket.press.shared.sync.git.DeviceInfo
 import me.saket.press.shared.sync.git.GitHostAuthPresenter
-import me.saket.press.shared.sync.git.GitHostService
-import me.saket.press.shared.sync.git.GitHubService
 import me.saket.press.shared.sync.git.GitSyncer
 import org.koin.dsl.module
 
 class SharedSyncComponent {
 
   val module = module {
-    single { httpClient() }
-    factory { GitHostAuthPresenter(get(), get(), get()) }
-    factory<GitHostService> { GitHubService(get()) }
+    single { httpClient(get()) }
+    single { Json(Stable.copy(prettyPrint = true, ignoreUnknownKeys = true)) }
 
+    factory { GitHostAuthPresenter(get(), get(), get(), get()) }
     factory { RealGit().repository(get<DeviceInfo>().appStorage.path) }
     factory<Syncer> { GitSyncer(get(), get(), get(), get()) }
   }
 
-  private fun httpClient(): HttpClient {
+  private fun httpClient(json: Json): HttpClient {
     return HttpClient {
       install(JsonFeature) {
-        serializer = KotlinxSerializer(Json(Stable.copy(
-            prettyPrint = true,
-            ignoreUnknownKeys = true
-        )))
+        serializer = KotlinxSerializer(json)
       }
       install(Logging) {
         logger = Logger.SIMPLE

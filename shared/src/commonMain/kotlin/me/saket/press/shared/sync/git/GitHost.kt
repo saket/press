@@ -1,6 +1,9 @@
 package me.saket.press.shared.sync.git
 
 import io.ktor.client.HttpClient
+import kotlinx.serialization.json.Json
+import me.saket.press.shared.sync.git.service.GitHostService
+import me.saket.press.shared.sync.git.service.GitHubService
 
 /**
  * A git host let's the user grant Press access to one of their repositories to sync notes with.
@@ -13,8 +16,9 @@ import io.ktor.client.HttpClient
  */
 enum class GitHost {
   GITHUB {
-    override fun service(http: HttpClient) = GitHubService(http)
+    override fun service(http: HttpClient, json: Json) =
+      GitHubService(http, json)
   };
 
-  abstract fun service(http: HttpClient): GitHostService
+  abstract fun service(http: HttpClient, json: Json): GitHostService
 }

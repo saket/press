@@ -1,6 +1,6 @@
 package me.saket.press.shared.sync
 
-import me.saket.press.shared.sync.git.GitRepositoryInfo
+import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 
 interface GitHostAuthEvent {
   data class GitRepositoryClicked(val repo: GitRepositoryInfo) : GitHostAuthEvent

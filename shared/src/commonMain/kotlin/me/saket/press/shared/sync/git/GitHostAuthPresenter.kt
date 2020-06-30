@@ -25,6 +25,7 @@ import com.badoo.reaktive.single.onErrorReturn
 import com.russhwolf.settings.ExperimentalListener
 import com.russhwolf.settings.ObservableSettings
 import io.ktor.client.HttpClient
+import kotlinx.serialization.json.Json
 import me.saket.press.shared.DeepLinks
 import me.saket.press.shared.rx.consumeOnNext
 import me.saket.press.shared.rx.filterNotNull
@@ -39,17 +40,19 @@ import me.saket.press.shared.sync.GitHostAuthUiModel.FullscreenError
 import me.saket.press.shared.sync.GitHostAuthUiModel.Loading
 import me.saket.press.shared.sync.GitHostAuthUiModel.SelectRepo
 import me.saket.press.shared.sync.git.GitHost.GITHUB
+import me.saket.press.shared.sync.git.service.GitHostService
 import me.saket.press.shared.ui.Presenter
 
 @OptIn(ExperimentalListener::class)
 class GitHostAuthPresenter constructor(
   httpClient: HttpClient,
+  json: Json,
   settings: ObservableSettings,
   private val deepLinks: DeepLinks
 ) : Presenter<GitHostAuthEvent, GitHostAuthUiModel, GitHostAuthUiEffect>() {
 
   private val gitHost: GitHost = GITHUB
-  private val gitHostService: GitHostService = gitHost.service(httpClient)
+  private val gitHostService: GitHostService = gitHost.service(httpClient, json)
 
   private val authToken = Setting.create(
       settings = settings,
