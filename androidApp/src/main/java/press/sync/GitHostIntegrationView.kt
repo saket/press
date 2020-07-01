@@ -14,28 +14,26 @@ import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
-import me.saket.press.shared.sync.GitHostAuthEvent.GitRepositoryClicked
-import me.saket.press.shared.sync.GitHostAuthEvent.RetryClicked
-import me.saket.press.shared.sync.GitHostAuthUiEffect
-import me.saket.press.shared.sync.GitHostAuthUiEffect.OpenAuthorizationUrl
-import me.saket.press.shared.sync.GitHostAuthUiModel
-import me.saket.press.shared.sync.GitHostAuthUiModel.SelectRepo
-import me.saket.press.shared.sync.GitHostAuthUiModel.ShowFailure
-import me.saket.press.shared.sync.GitHostAuthUiModel.ShowProgress
-import me.saket.press.shared.sync.git.GitHostAuthPresenter
-import me.saket.press.shared.sync.git.service.GitRepositoryInfo
+import me.saket.press.shared.sync.git.GitHostIntegrationEvent.GitRepositoryClicked
+import me.saket.press.shared.sync.git.GitHostIntegrationEvent.RetryClicked
+import me.saket.press.shared.sync.git.GitHostIntegrationUiEffect
+import me.saket.press.shared.sync.git.GitHostIntegrationUiEffect.OpenAuthorizationUrl
+import me.saket.press.shared.sync.git.GitHostIntegrationUiModel
+import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.SelectRepo
+import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowFailure
+import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowProgress
+import me.saket.press.shared.sync.git.GitHostIntegrationPresenter
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import press.theme.themeAware
 import press.theme.themed
 import press.widgets.PressToolbar
 
-class GitHostAuthView @AssistedInject constructor(
+class GitHostIntegrationView @AssistedInject constructor(
   @Assisted context: Context,
   @Assisted onDismiss: () -> Unit,
-  private val presenter: GitHostAuthPresenter
+  private val presenter: GitHostIntegrationPresenter
 ) : ContourLayout(context) {
 
   private val toolbar = themed(PressToolbar(context)).apply {
@@ -95,7 +93,7 @@ class GitHostAuthView @AssistedInject constructor(
         .subscribe(models = ::render, effects = ::render)
   }
 
-  private fun render(model: GitHostAuthUiModel) {
+  private fun render(model: GitHostIntegrationUiModel) {
     TransitionManager.beginDelayedTransition(this, AutoTransition().apply {
       excludeChildren(recyclerView, true)
     })
@@ -115,7 +113,7 @@ class GitHostAuthView @AssistedInject constructor(
     }
   }
 
-  private fun render(effect: GitHostAuthUiEffect) {
+  private fun render(effect: GitHostIntegrationUiEffect) {
     return when (effect) {
       is OpenAuthorizationUrl -> CustomTabsIntent.Builder()
           .addDefaultShareMenuItem()
@@ -126,6 +124,6 @@ class GitHostAuthView @AssistedInject constructor(
 
   @AssistedInject.Factory
   interface Factory {
-    fun create(context: Context, onDismiss: () -> Unit): GitHostAuthView
+    fun create(context: Context, onDismiss: () -> Unit): GitHostIntegrationView
   }
 }

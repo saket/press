@@ -37,7 +37,7 @@
       android:windowSoftInputMode="adjustResize" />
 
     <activity
-      android:name="press.sync.GitHostAuthActivity"
+      android:name="press.sync.GitHostIntegrationActivity"
       android:launchMode="singleTask"
       android:windowSoftInputMode="adjustResize">
       <intent-filter>

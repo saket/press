@@ -28,7 +28,7 @@ class SyncPreferencesView @AssistedInject constructor(
   private val authorizeButton = AppCompatButton(context).apply {
     text = "Log into GitHub"
     setOnClickListener {
-      context.startActivity(GitHostAuthActivity.intent(context))
+      context.startActivity(GitHostIntegrationActivity.intent(context))
     }
     applyLayout(
         x = centerHorizontallyTo { parent.centerX() },

@@ -10,9 +10,9 @@ import press.PressApp
 import press.widgets.ThemeAwareActivity
 import javax.inject.Inject
 
-class GitHostAuthActivity : ThemeAwareActivity() {
+class GitHostIntegrationActivity : ThemeAwareActivity() {
 
-  @Inject lateinit var viewFactory: GitHostAuthView.Factory
+  @Inject lateinit var viewFactory: GitHostIntegrationView.Factory
   @Inject lateinit var deepLinks: DeepLinks
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,6 +37,6 @@ class GitHostAuthActivity : ThemeAwareActivity() {
   }
 
   companion object {
-    fun intent(context: Context) = Intent(context, GitHostAuthActivity::class.java)
+    fun intent(context: Context) = Intent(context, GitHostIntegrationActivity::class.java)
   }
 }

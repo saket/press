@@ -16,7 +16,7 @@ import me.saket.kgit.RealGit
 import me.saket.press.shared.di.koin
 import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.sync.git.GitHost
-import me.saket.press.shared.sync.git.GitHostAuthPresenter
+import me.saket.press.shared.sync.git.GitHostIntegrationPresenter
 import me.saket.press.shared.sync.git.GitHostAuthToken
 import me.saket.press.shared.sync.git.GitSyncer
 import me.saket.press.shared.sync.git.GitSyncerConfig
@@ -40,7 +40,7 @@ class SharedSyncComponent {
         )
       }
     }
-    factory { GitHostAuthPresenter(get(), get(), get(), get(), get(), get(named("io"))) }
+    factory { GitHostIntegrationPresenter(get(), get(), get(), get(), get(), get(named("io"))) }
 
     factory<Git> { RealGit() }
     factory<Syncer> { get<GitSyncer>() }
@@ -72,7 +72,7 @@ class SharedSyncComponent {
   }
 
   companion object {
-    fun gitHostAuthPresenter(): GitHostAuthPresenter = koin()
+    fun gitHostAuthPresenter(): GitHostIntegrationPresenter = koin()
     fun syncer(): Syncer = koin()
   }
 }

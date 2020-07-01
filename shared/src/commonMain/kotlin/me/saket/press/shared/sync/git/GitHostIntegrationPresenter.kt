@@ -3,6 +3,7 @@ package me.saket.press.shared.sync.git
 import com.badoo.reaktive.completable.andThen
 import com.badoo.reaktive.completable.asObservable
 import com.badoo.reaktive.completable.completableFromFunction
+import com.badoo.reaktive.completable.subscribeOn
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.ObservableWrapper
 import com.badoo.reaktive.observable.filter
@@ -30,32 +31,28 @@ import me.saket.press.shared.rx.filterNotNull
 import me.saket.press.shared.rx.filterNull
 import me.saket.press.shared.rx.repeatWhen
 import me.saket.press.shared.settings.Setting
-import me.saket.press.shared.sync.FailureKind
-import me.saket.press.shared.sync.FailureKind.AddingDeployKey
-import me.saket.press.shared.sync.FailureKind.Authorization
-import me.saket.press.shared.sync.FailureKind.FetchingRepos
-import me.saket.press.shared.sync.GitHostAuthEvent
-import me.saket.press.shared.sync.GitHostAuthEvent.GitRepositoryClicked
-import me.saket.press.shared.sync.GitHostAuthEvent.RetryClicked
-import me.saket.press.shared.sync.GitHostAuthUiEffect
-import me.saket.press.shared.sync.GitHostAuthUiEffect.OpenAuthorizationUrl
-import me.saket.press.shared.sync.GitHostAuthUiModel
-import me.saket.press.shared.sync.GitHostAuthUiModel.SelectRepo
-import me.saket.press.shared.sync.GitHostAuthUiModel.ShowFailure
-import me.saket.press.shared.sync.GitHostAuthUiModel.ShowProgress
+import me.saket.press.shared.sync.git.FailureKind.AddingDeployKey
+import me.saket.press.shared.sync.git.FailureKind.Authorization
+import me.saket.press.shared.sync.git.FailureKind.FetchingRepos
+import me.saket.press.shared.sync.git.GitHostIntegrationEvent.GitRepositoryClicked
+import me.saket.press.shared.sync.git.GitHostIntegrationEvent.RetryClicked
+import me.saket.press.shared.sync.git.GitHostIntegrationUiEffect.OpenAuthorizationUrl
+import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.SelectRepo
+import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowFailure
+import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowProgress
 import me.saket.press.shared.sync.git.GitHost.GITHUB
 import me.saket.press.shared.sync.git.service.GitHostService
 import me.saket.press.shared.ui.Presenter
 
 @OptIn(ExperimentalListener::class)
-class GitHostAuthPresenter(
+class GitHostIntegrationPresenter(
   httpClient: HttpClient,
   authToken: (GitHost) -> Setting<GitHostAuthToken>,
   private val syncer: GitSyncer,
   private val syncerConfig: Setting<GitSyncerConfig>,
   private val deepLinks: DeepLinks,
   private val ioScheduler: Scheduler
-) : Presenter<GitHostAuthEvent, GitHostAuthUiModel, GitHostAuthUiEffect>() {
+) : Presenter<GitHostIntegrationEvent, GitHostIntegrationUiModel, GitHostIntegrationUiEffect>() {
 
   private val gitHost: GitHost = GITHUB   // todo: get from View
   private val authToken: Setting<GitHostAuthToken> = authToken(gitHost)
@@ -63,7 +60,7 @@ class GitHostAuthPresenter(
 
   override fun defaultUiModel() = ShowProgress
 
-  override fun uiModels(): ObservableWrapper<GitHostAuthUiModel> {
+  override fun uiModels(): ObservableWrapper<GitHostIntegrationUiModel> {
     return viewEvents().publish { events ->
       merge(
           completeAuthorization(events),
@@ -73,7 +70,7 @@ class GitHostAuthPresenter(
     }.wrap()
   }
 
-  override fun uiEffects(): ObservableWrapper<GitHostAuthUiEffect> {
+  override fun uiEffects(): ObservableWrapper<GitHostIntegrationUiEffect> {
     return requestAuthorization().wrap()
   }
 
@@ -84,21 +81,21 @@ class GitHostAuthPresenter(
         .map { OpenAuthorizationUrl(gitHostService.generateAuthUrl()) }
   }
 
-  private fun completeAuthorization(events: Observable<GitHostAuthEvent>): Observable<GitHostAuthUiModel> {
+  private fun completeAuthorization(events: Observable<GitHostIntegrationEvent>): Observable<GitHostIntegrationUiModel> {
     return deepLinks.listen()
         .filter { it.url.startsWith("intent://press/authorization-granted") }
         .repeatOnRetry(events, kind = Authorization)
         .switchMap { link ->
           gitHostService.completeAuth(link.url)
               .asObservable()
-              .consumeOnNext<GitHostAuthToken, GitHostAuthUiModel> {
+              .consumeOnNext<GitHostAuthToken, GitHostIntegrationUiModel> {
                 authToken.set(it)
               }
               .onErrorReturnValue(ShowFailure(kind = Authorization))
         }
   }
 
-  private fun populateRepositories(events: Observable<GitHostAuthEvent>): Observable<GitHostAuthUiModel> {
+  private fun populateRepositories(events: Observable<GitHostIntegrationEvent>): Observable<GitHostIntegrationUiModel> {
     return authToken.listen()
         .filterNotNull()
         .take(1)
@@ -110,7 +107,7 @@ class GitHostAuthPresenter(
         }
   }
 
-  private fun selectRepository(events: Observable<GitHostAuthEvent>): Observable<GitHostAuthUiModel> {
+  private fun selectRepository(events: Observable<GitHostIntegrationEvent>): Observable<GitHostIntegrationUiModel> {
     return events.ofType<GitRepositoryClicked>()
         .map { it.repo }
         .repeatOnRetry(events, kind = AddingDeployKey)
@@ -118,20 +115,21 @@ class GitHostAuthPresenter(
           val sshKey = SshKeygen.generateRsa(comment = "(Created by Press)")
           gitHostService
               .addDeployKey(token = authToken.get()!!, repository = repo, key = sshKey)
+              .subscribeOn(ioScheduler)
               .andThen(completableFromFunction {
                 println("TODO: Close screen")
                 authToken.set(null)
                 syncerConfig.set(GitSyncerConfig(remote = repo, sshKey = sshKey.privateKey))
                 syncer.sync()
               })
-              .asObservable<GitHostAuthUiModel>()
+              .asObservable<GitHostIntegrationUiModel>()
               .onErrorReturnValue(ShowFailure(kind = AddingDeployKey))
               .startWithValue(ShowProgress)
         }
   }
 
   private fun <T> Observable<T>.repeatOnRetry(
-    events: Observable<GitHostAuthEvent>,
+    events: Observable<GitHostIntegrationEvent>,
     kind: FailureKind
   ) = repeatWhen(events.ofType<RetryClicked>().filter { it.failure == kind })
 }
