@@ -46,8 +46,11 @@ abstract class PressApp : Application() {
           }
         }
         .observeOn(io())
-        .flatMapCompletable { syncer.syncRx2() }
-        .doOnError { e -> Timber.e(e, "Failed to sync notes") }
+        .flatMapCompletable {
+          syncer.syncRx2()
+              .doOnError { e -> Timber.e(e, "Failed to sync notes") }
+              .onErrorComplete()
+        }
         .subscribe()
   }
 
