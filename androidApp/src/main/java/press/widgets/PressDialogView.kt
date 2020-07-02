@@ -34,9 +34,7 @@ class PressDialogView private constructor(context: Context) : ContourLayout(cont
   }
 
   private val negativeButtonView = themed(Button(context)).apply {
-    padding = 16.dip
-    isAllCaps = false
-    background = attr(R.attr.selectableItemBackground).asDrawable()
+    padding = dp(16)
     themeAware { textColor = it.textColorSecondary }
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.centerX() },
@@ -45,10 +43,8 @@ class PressDialogView private constructor(context: Context) : ContourLayout(cont
   }
 
   private val positiveButtonView = themed(Button(context)).apply {
-    padding = 16.dip
+    padding = dp(16)
     isSingleLine = true
-    isAllCaps = false
-    background = attr(R.attr.selectableItemBackground).asDrawable()
     themeAware { textColor = it.accentColor }
     applyLayout(
         x = leftTo { parent.centerX() }.rightTo { parent.right() },

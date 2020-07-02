@@ -3,6 +3,9 @@ package me.saket.press.shared.sync.git
 import com.badoo.reaktive.completable.andThen
 import com.badoo.reaktive.completable.asObservable
 import com.badoo.reaktive.completable.completableFromFunction
+import com.badoo.reaktive.completable.doOnAfterComplete
+import com.badoo.reaktive.completable.onErrorComplete
+import com.badoo.reaktive.completable.subscribe
 import com.badoo.reaktive.completable.subscribeOn
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.ObservableWrapper
@@ -40,12 +43,12 @@ import me.saket.press.shared.sync.git.GitHostIntegrationUiEffect.OpenAuthorizati
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.SelectRepo
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowFailure
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowProgress
-import me.saket.press.shared.sync.git.GitHost.GITHUB
 import me.saket.press.shared.sync.git.service.GitHostService
 import me.saket.press.shared.ui.Presenter
 
 @OptIn(ExperimentalListener::class)
 class GitHostIntegrationPresenter(
+  args: Args,
   httpClient: HttpClient,
   authToken: (GitHost) -> Setting<GitHostAuthToken>,
   private val syncer: GitSyncer,
@@ -54,9 +57,8 @@ class GitHostIntegrationPresenter(
   private val ioScheduler: Scheduler
 ) : Presenter<GitHostIntegrationEvent, GitHostIntegrationUiModel, GitHostIntegrationUiEffect>() {
 
-  private val gitHost: GitHost = GITHUB   // todo: get from View
-  private val authToken: Setting<GitHostAuthToken> = authToken(gitHost)
-  private val gitHostService: GitHostService = gitHost.service(httpClient)
+  private val authToken: Setting<GitHostAuthToken> = authToken(args.host)
+  private val gitHostService: GitHostService = args.host.service(httpClient)
 
   override fun defaultUiModel() = ShowProgress
 
@@ -120,16 +122,29 @@ class GitHostIntegrationPresenter(
                 println("TODO: Close screen")
                 authToken.set(null)
                 syncerConfig.set(GitSyncerConfig(remote = repo, sshKey = sshKey.privateKey))
-                syncer.sync()
               })
+              .doOnAfterComplete { syncNotesAsync() }
               .asObservable<GitHostIntegrationUiModel>()
               .onErrorReturnValue(ShowFailure(kind = AddingDeployKey))
               .startWithValue(ShowProgress)
         }
   }
 
+  private fun syncNotesAsync() {
+    syncer.sync()
+        .subscribeOn(ioScheduler)
+        .onErrorComplete()
+        .subscribe()
+  }
+
   private fun <T> Observable<T>.repeatOnRetry(
     events: Observable<GitHostIntegrationEvent>,
     kind: FailureKind
   ) = repeatWhen(events.ofType<RetryClicked>().filter { it.failure == kind })
+
+  interface Factory {
+    fun create(args: Args): GitHostIntegrationPresenter
+  }
+
+  data class Args(val host: GitHost)
 }

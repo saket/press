@@ -58,7 +58,7 @@ class GitHubService(private val http: HttpClient) : GitHostService {
           val response = http.get<HttpResponse>("https://api.github.com/user/repos") {
             accept(Application.Json)
             header("Authorization", "token ${token.value}")
-            parameter("per_page", "50")
+            parameter("per_page", "100")
             parameter("page", "${pageNum++}")
           }
 

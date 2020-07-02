@@ -33,6 +33,12 @@ abstract class ThemePalette(
 
   val separator: Int
     get() = window.backgroundColor.blendWith(BLACK, ratio = 0.2f)
+
+  val buttonNormal: Int
+    get() = window.backgroundColor.blendWith(if (isLightTheme) WHITE else BLACK, ratio = 0.2f)
+
+  val buttonPressed: Int
+    get() = window.backgroundColor.blendWith(if (isLightTheme) WHITE else BLACK, ratio = 0.5f)
 }
 
 data class WindowPalette(

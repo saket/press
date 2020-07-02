@@ -3,6 +3,7 @@ package press
 import android.app.Application
 import android.os.Looper
 import com.soywiz.klock.seconds
+import io.reactivex.Observable
 import io.reactivex.android.plugins.RxAndroidPlugins
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -10,6 +11,9 @@ import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers.io
 import me.saket.press.shared.di.SharedComponent
 import me.saket.press.shared.sync.Syncer
+import me.saket.press.shared.sync.Syncer.Status.Disabled
+import me.saket.press.shared.sync.git.statusRx2
+import me.saket.press.shared.sync.git.syncRx2
 import press.di.AppComponent
 import press.util.interval
 import timber.log.Timber
@@ -34,18 +38,17 @@ abstract class PressApp : Application() {
     }
 
     // todo: use workmanager to schedule syncing in the background.
-    syncDisposable = Observables.interval(30.seconds)
-        .startWith(0)
-        .observeOn(io())
-        .subscribe {
-          if (syncer.isEnabled()) {
-            try {
-              syncer.sync()
-            } catch (e: Throwable) {
-              Timber.e(e, "Failed to sync notes")
-            }
+    syncDisposable = syncer.statusRx2()
+        .switchMap { status ->
+          when (status) {
+            is Disabled -> Observable.empty()
+            else -> Observables.interval(30.seconds).startWith(0)
           }
         }
+        .observeOn(io())
+        .flatMapCompletable { syncer.syncRx2() }
+        .doOnError { e -> Timber.e(e, "Failed to sync notes") }
+        .subscribe()
   }
 
   abstract fun buildDependencyGraph(): AppComponent

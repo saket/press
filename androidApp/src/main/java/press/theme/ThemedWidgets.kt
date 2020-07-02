@@ -4,6 +4,7 @@ import android.content.res.ColorStateList
 import android.graphics.PorterDuff.Mode.SRC_IN
 import android.graphics.drawable.ColorDrawable
 import android.view.View
+import android.widget.Button
 import android.widget.EdgeEffect
 import android.widget.EditText
 import android.widget.ProgressBar
@@ -18,14 +19,17 @@ import androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.attaches
 import com.jakewharton.rxbinding3.view.detaches
+import me.saket.press.R
+import me.saket.press.shared.theme.ThemePalette
 import press.PressApp
 import press.util.onDestroys
 import press.widgets.PorterDuffColorFilterWrapper
+import press.widgets.ScrollViewCompat
+import press.widgets.attr
+import press.widgets.dp
 import press.widgets.findTitleView
 import press.widgets.textColor
-import me.saket.press.shared.theme.ThemePalette
-import me.saket.press.R
-import press.widgets.ScrollViewCompat
+import press.widgets.updatePadding
 
 fun themePalette() = PressApp.component.themePalette()
 
@@ -42,7 +46,7 @@ fun AppCompatActivity.themeAware(onThemeChange: (ThemePalette) -> Unit) {
       .subscribe { onThemeChange(it) }
 }
 
-fun <T: TextView> themed(view: T): T = view.apply {
+fun <T : TextView> themed(view: T): T = view.apply {
   typeface = ResourcesCompat.getFont(context, R.font.work_sans_regular)
 
   themeAware {
@@ -50,7 +54,16 @@ fun <T: TextView> themed(view: T): T = view.apply {
   }
 }
 
-fun <T: EditText> themed(view: T): T = view.apply {
+fun <T : Button> themed(view: T): T = view.apply {
+  minHeight = 0
+  minimumHeight = 0
+  isAllCaps = false
+  typeface = ResourcesCompat.getFont(context, R.font.work_sans_regular)
+  updatePadding(horizontal = dp(16), vertical = dp(8))
+  background = attr(R.attr.selectableItemBackground).asDrawable()
+}
+
+fun <T : EditText> themed(view: T): T = view.apply {
   require(view !is AppCompatEditText) { "Cursor tinting doesn't work with AppCompatEditText, not sure why." }
 
   typeface = ResourcesCompat.getFont(context, R.font.work_sans_regular)

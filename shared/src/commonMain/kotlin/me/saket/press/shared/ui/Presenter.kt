@@ -23,6 +23,7 @@ abstract class Presenter<Event, Model, Effect> {
   }
 
   /**
+   * todo: get rid of this and use null on SwiftUI.
    * Used only by SwiftUI right now. Rendering of Android
    * layouts are delayed until [uiModels] emits a value.
    */

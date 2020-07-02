@@ -34,6 +34,10 @@ fun View.dp(value: Float): Float {
   return Dp(value).px(context)
 }
 
+fun View.dp(value: Int): Int {
+  return Dp(value.toFloat()).px(context).toInt()
+}
+
 fun View.sp(value: Float): Float {
   return Sp(value).px(context)
 }

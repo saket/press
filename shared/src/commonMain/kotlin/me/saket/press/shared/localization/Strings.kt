@@ -5,6 +5,7 @@ import me.saket.press.shared.localization.Strings.Editor
 import me.saket.press.shared.localization.Strings.Home
 import me.saket.press.shared.localization.Strings.Sync
 
+// todo: rename all to underscore case.
 data class Strings(
   val common: Common,
   val home: Home,
@@ -31,7 +32,9 @@ data class Strings(
     val title: String,
     val confirmSelectionMessage: String,
     val confirmSelectionConfirmButton: String,
-    val confirmSelectionCancelButton: String
+    val confirmSelectionCancelButton: String,
+    val setup_sync_with_host: String,
+    val sync_disabled_message: String
   )
 }
 
@@ -62,6 +65,8 @@ val ENGLISH_STRINGS = Strings(
         title = "Sync",
         confirmSelectionMessage = "Are you sure you want to give Press access to <b>%s</b>?",
         confirmSelectionConfirmButton = "Let's go",
-        confirmSelectionCancelButton = "Wait no"
+        confirmSelectionCancelButton = "Wait no",
+        sync_disabled_message = "Press can sync notes between your devices through a git repository.",
+        setup_sync_with_host = "Sync with %s"
     )
 )

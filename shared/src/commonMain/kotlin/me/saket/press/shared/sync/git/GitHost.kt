@@ -13,10 +13,9 @@ import me.saket.press.shared.sync.git.service.GitHubService
  * this if someone's willing to contribute the code. No UI changes are needed for adding new hosts.
  * Press will display a button in for each host automatically.
  */
-enum class GitHost {
-  GITHUB {
-    override fun service(http: HttpClient) = GitHubService(http)
-  };
-
-  abstract fun service(http: HttpClient): GitHostService
+enum class GitHost(val displayName: String, val service: (HttpClient) -> GitHostService) {
+  GITHUB(
+      displayName = "GitHub",
+      service = { http -> GitHubService(http) }
+  );
 }

@@ -16,10 +16,11 @@ import me.saket.kgit.RealGit
 import me.saket.press.shared.di.koin
 import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.sync.git.GitHost
-import me.saket.press.shared.sync.git.GitHostIntegrationPresenter
 import me.saket.press.shared.sync.git.GitHostAuthToken
+import me.saket.press.shared.sync.git.GitHostIntegrationPresenter
 import me.saket.press.shared.sync.git.GitSyncer
 import me.saket.press.shared.sync.git.GitSyncerConfig
+import org.koin.core.parameter.parametersOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
@@ -40,7 +41,18 @@ class SharedSyncComponent {
         )
       }
     }
-    factory { GitHostIntegrationPresenter(get(), get(), get(), get(), get(), get(named("io"))) }
+    factory { SyncPreferencesPresenter(get()) }
+    factory { (args: GitHostIntegrationPresenter.Args) ->
+      GitHostIntegrationPresenter(
+          args = args,
+          httpClient = get(),
+          authToken = get(),
+          syncer = get(),
+          syncerConfig = get(),
+          deepLinks = get(),
+          ioScheduler = get(named("io"))
+      )
+    }
 
     factory<Git> { RealGit() }
     factory<Syncer> { get<GitSyncer>() }
@@ -72,7 +84,10 @@ class SharedSyncComponent {
   }
 
   companion object {
-    fun gitHostAuthPresenter(): GitHostIntegrationPresenter = koin()
     fun syncer(): Syncer = koin()
+    fun preferencesPresenter(): SyncPreferencesPresenter = koin()
+
+    fun integrationPresenter(args: GitHostIntegrationPresenter.Args) =
+      koin<GitHostIntegrationPresenter> { parametersOf(args) }
   }
 }

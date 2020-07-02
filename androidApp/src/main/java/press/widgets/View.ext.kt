@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package press.widgets
 
 import android.graphics.Rect
@@ -8,6 +10,7 @@ import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
+import android.view.ViewGroup.MarginLayoutParams
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
@@ -15,12 +18,14 @@ import androidx.annotation.AttrRes
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import me.saket.wysiwyg.widgets.SimpleTextWatcher
 import kotlin.DeprecationLevel.ERROR
 
-fun View.string(@StringRes stringRes: Int) = resources.getString(stringRes)
+inline fun View.string(@StringRes stringRes: Int) = resources.getString(stringRes)
 
-fun View.attr(@AttrRes resId: Int) = Attr(resId, context)
+inline fun View.attr(@AttrRes resId: Int) = Attr(resId, context)
 
 @get:Deprecated(message = "Impossible", level = ERROR)
 var EditText.hintRes: Int
@@ -48,13 +53,13 @@ var TextView.textSizePx: Float
     setTextSize(COMPLEX_UNIT_PX, size)
   }
 
-inline fun fromOreo(block: () -> Unit) {
+inline fun fromOreo(crossinline block: () -> Unit) {
   if (SDK_INT >= 26) {
     block()
   }
 }
 
-fun Toolbar.findTitleView(): TextView {
+inline fun Toolbar.findTitleView(): TextView {
   if (subtitle != null && subtitle.isNotBlank()) {
     throw UnsupportedOperationException("TODO")
   }
@@ -76,7 +81,7 @@ fun View.hideKeyboard() {
   inputManager.hideSoftInputFromWindow(windowToken, 0)
 }
 
-fun View.locationOnScreen(): Rect {
+inline fun View.locationOnScreen(): Rect {
   val loc = IntArray(2)
   getLocationOnScreen(loc)
   return Rect(loc[0], loc[1], loc[0] + width, loc[1] + height)
@@ -101,4 +106,14 @@ inline fun View.doOnAttach(crossinline action: () -> Unit) {
         action()
       }
   })
+}
+
+inline fun View.updateMargins(bottom: Int) {
+  updateLayoutParams<MarginLayoutParams> {
+    bottomMargin = bottom
+  }
+}
+
+inline fun View.updatePadding(horizontal: Int, vertical: Int) {
+  updatePadding(left = horizontal, right = horizontal, top = vertical, bottom = vertical)
 }

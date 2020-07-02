@@ -1,5 +1,8 @@
 package me.saket.press.shared.sync.git
 
+import com.badoo.reaktive.completable.completableFromFunction
+import com.badoo.reaktive.observable.Observable
+import com.badoo.reaktive.observable.map
 import com.soywiz.klock.DateTime
 import kotlinx.coroutines.Runnable
 import me.saket.kgit.Git
@@ -21,6 +24,8 @@ import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.sync.SyncState.IN_FLIGHT
 import me.saket.press.shared.sync.SyncState.SYNCED
 import me.saket.press.shared.sync.Syncer
+import me.saket.press.shared.sync.Syncer.Status.Disabled
+import me.saket.press.shared.sync.Syncer.Status.Idle
 import me.saket.press.shared.sync.git.GitSyncer.Result.DONE
 import me.saket.press.shared.sync.git.GitSyncer.Result.SKIPPED
 import me.saket.press.shared.time.Clock
@@ -42,7 +47,7 @@ class GitSyncer(
   private val database: PressDatabase,
   private val deviceInfo: DeviceInfo,
   private val clock: Clock
-) : Syncer {
+) : Syncer() {
 
   private val noteQueries get() = database.noteQueries
   private val directory = File(deviceInfo.appStorage, "git")
@@ -63,11 +68,14 @@ class GitSyncer(
     SKIPPED
   }
 
-  override fun isEnabled(): Boolean {
-    return config.get() != null
+  // todo: emit in_flight status when syncing is ongoing.
+  override fun status(): Observable<Status> {
+    return config.listen().map { config ->
+      if (config == null) Disabled else Idle(lastSyncedAt = null)
+    }
   }
 
-  override fun sync() {
+  override fun sync() = completableFromFunction {
     maybeMakeInitialCommit()
     directory.makeDirectory()
 

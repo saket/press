@@ -10,6 +10,9 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotInstanceOf
 import assertk.assertions.isTrue
+import com.badoo.reaktive.completable.Completable
+import com.badoo.reaktive.completable.asSingle
+import com.badoo.reaktive.single.blockingGet
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.hours
 import me.saket.kgit.PushResult.Failure
@@ -112,7 +115,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     // Given: User hasn't saved any notes on this device yet.
     assertThat(noteQueries.visibleNotes().executeAsList()).isEmpty()
 
-    syncer.sync()
+    syncer.sync().blockingAwait()
 
     // Check that the notes were pulled and saved into DB.
     val notesAfterSync = noteQueries.visibleNotes().executeAsList()
@@ -153,7 +156,7 @@ class GitSyncerTest : BaseDatabaeTest() {
         )
     )
 
-    syncer.sync()
+    syncer.sync().blockingAwait()
 
     // Check that the local note(s) were pushed to remote.
     assertThat(remote.fetchNoteFiles()).containsOnly(
@@ -204,7 +207,7 @@ class GitSyncerTest : BaseDatabaeTest() {
         .sortedBy { it.updatedAt }
         .forEach { println("${it.id} ${it.content.replace("\n", " ")}") }
 
-    syncer.sync()
+    syncer.sync().blockingAwait()
 
     // Check: both local and remote have same notes with same timestamps.
     val localNotes = noteQueries.visibleNotes()
@@ -240,7 +243,7 @@ class GitSyncerTest : BaseDatabaeTest() {
       )
       forcePush()
     }
-    syncer.sync()
+    syncer.sync().blockingAwait()
 
     // Given: the same note was edited locally.
     val locallyEditedNote = noteQueries.visibleNotes().executeAsOne()
@@ -263,7 +266,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     }
 
     // The conflict should get auto-resolved here.
-    syncer.sync()
+    syncer.sync().blockingAwait()
 
     val localNotes = noteQueries.visibleNotes().executeAsList().sortedBy { it.updatedAt }
 
@@ -292,7 +295,7 @@ class GitSyncerTest : BaseDatabaeTest() {
         fakeNote(updatedAt = now + 3.hours, content = "Note without heading"),
         fakeNote(updatedAt = now + 4.hours, content = "Another note without heading")
     )
-    syncer.sync()
+    syncer.sync().blockingAwait()
 
     val remoteFiles = RemoteRepositoryRobot().fetchNoteFiles()
     assertThat(remoteFiles).containsOnly(
@@ -312,7 +315,7 @@ class GitSyncerTest : BaseDatabaeTest() {
         createdAt = clock.nowUtc(),
         updatedAt = clock.nowUtc()
     )
-    syncer.sync()
+    syncer.sync().blockingAwait()
 
     val savedNotes = { noteQueries.allNotes().executeAsList() }
     assertThat(savedNotes()).isNotEmpty()
@@ -327,7 +330,7 @@ class GitSyncerTest : BaseDatabaeTest() {
       )
       forcePush()
     }
-    syncer.sync()
+    syncer.sync().blockingAwait()
 
     assertThat(savedNotes()).isEmpty()
   }
@@ -349,7 +352,7 @@ class GitSyncerTest : BaseDatabaeTest() {
         fakeNote(content = "# The Last of Us II", syncState = SYNCED, clock = clock),
         fakeNote(content = "# Horizon Zero Dawn", syncState = PENDING, clock = clock)
     )
-    syncer.sync()
+    syncer.sync().blockingAwait()
 
     val remoteFiles = RemoteRepositoryRobot().fetchNoteFiles()
     assertThat(remoteFiles).containsOnly(
@@ -370,7 +373,7 @@ class GitSyncerTest : BaseDatabaeTest() {
             """.trimMargin()
         )
     )
-    syncer.sync()
+    syncer.sync().blockingAwait()
 
     val remote = RemoteRepositoryRobot()
     assertThat(remote.fetchNoteFiles()).containsOnly(
@@ -386,7 +389,7 @@ class GitSyncerTest : BaseDatabaeTest() {
         |I'm thinking I'm back
         """.trimMargin()
     )
-    syncer.sync()
+    syncer.sync().blockingAwait()
 
     assertThat(remote.fetchNoteFiles()).containsOnly(
         "john_wick.md" to "# John Wick\nI'm thinking I'm back"
@@ -399,7 +402,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     val note1 = fakeNote("# Horizon Zero Dawn")
     val note2 = fakeNote("# Uncharted")
     noteQueries.testInsert(note1, note2)
-    syncer.sync()
+    syncer.sync().blockingAwait()
 
     // Archive both notes: One on local and the other on remote.
     noteQueries.markAsArchived(id = note1.id, updatedAt = clock.nowUtc())
@@ -413,7 +416,7 @@ class GitSyncerTest : BaseDatabaeTest() {
       )
       forcePush()
     }
-    syncer.sync()
+    syncer.sync().blockingAwait()
 
     val notes = noteQueries.allNotes().executeAsList()
     println("Local notes after syncing:"); notes.forEach { println(it) }
@@ -476,4 +479,8 @@ class GitSyncerTest : BaseDatabaeTest() {
 
 private fun NoteQueries.testInsert(vararg notes: Note) {
   notes.forEach { testInsert(it) }
+}
+
+private fun Completable.blockingAwait() {
+  return asSingle(Unit).blockingGet()
 }

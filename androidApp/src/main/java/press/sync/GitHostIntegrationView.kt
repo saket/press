@@ -15,15 +15,17 @@ import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import me.saket.press.shared.sync.git.GitHost
 import me.saket.press.shared.sync.git.GitHostIntegrationEvent.GitRepositoryClicked
 import me.saket.press.shared.sync.git.GitHostIntegrationEvent.RetryClicked
+import me.saket.press.shared.sync.git.GitHostIntegrationPresenter
+import me.saket.press.shared.sync.git.GitHostIntegrationPresenter.Args
 import me.saket.press.shared.sync.git.GitHostIntegrationUiEffect
 import me.saket.press.shared.sync.git.GitHostIntegrationUiEffect.OpenAuthorizationUrl
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.SelectRepo
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowFailure
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowProgress
-import me.saket.press.shared.sync.git.GitHostIntegrationPresenter
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import press.theme.themeAware
@@ -33,8 +35,11 @@ import press.widgets.PressToolbar
 class GitHostIntegrationView @AssistedInject constructor(
   @Assisted context: Context,
   @Assisted onDismiss: () -> Unit,
-  private val presenter: GitHostIntegrationPresenter
+  @Assisted private val host: GitHost,
+  presenterFactory: GitHostIntegrationPresenter.Factory
 ) : ContourLayout(context) {
+
+  private val presenter = presenterFactory.create(Args(host))
 
   private val toolbar = themed(PressToolbar(context)).apply {
     title = "GitHub"
@@ -124,6 +129,10 @@ class GitHostIntegrationView @AssistedInject constructor(
 
   @AssistedInject.Factory
   interface Factory {
-    fun create(context: Context, onDismiss: () -> Unit): GitHostIntegrationView
+    fun create(
+      context: Context,
+      host: GitHost,
+      onDismiss: () -> Unit
+    ): GitHostIntegrationView
   }
 }
