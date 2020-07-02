@@ -29,6 +29,7 @@ import io.ktor.client.HttpClient
 import me.saket.kgit.SshKeygen
 import me.saket.kgit.generateRsa
 import me.saket.press.shared.DeepLinks
+import me.saket.press.shared.rx.Schedulers
 import me.saket.press.shared.rx.consumeOnNext
 import me.saket.press.shared.rx.filterNotNull
 import me.saket.press.shared.rx.filterNull
@@ -54,7 +55,7 @@ class GitHostIntegrationPresenter(
   private val syncer: GitSyncer,
   private val syncerConfig: Setting<GitSyncerConfig>,
   private val deepLinks: DeepLinks,
-  private val ioScheduler: Scheduler
+  private val schedulers: Schedulers
 ) : Presenter<GitHostIntegrationEvent, GitHostIntegrationUiModel, GitHostIntegrationUiEffect>() {
 
   private val authToken: Setting<GitHostAuthToken> = authToken(args.host)
@@ -117,7 +118,6 @@ class GitHostIntegrationPresenter(
           val sshKey = SshKeygen.generateRsa(comment = "(Created by Press)")
           gitHostService
               .addDeployKey(token = authToken.get()!!, repository = repo, key = sshKey)
-              .subscribeOn(ioScheduler)
               .andThen(completableFromFunction {
                 println("TODO: Close screen")
                 authToken.set(null)
@@ -132,7 +132,7 @@ class GitHostIntegrationPresenter(
 
   private fun syncNotesAsync() {
     syncer.sync()
-        .subscribeOn(ioScheduler)
+        .subscribeOn(schedulers.io)
         .onErrorComplete()
         .subscribe()
   }

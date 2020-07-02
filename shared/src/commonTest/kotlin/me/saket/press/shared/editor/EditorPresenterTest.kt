@@ -12,6 +12,7 @@ import com.badoo.reaktive.test.observable.assertValue
 import com.badoo.reaktive.test.observable.test
 import com.badoo.reaktive.test.scheduler.TestScheduler
 import com.soywiz.klock.seconds
+import me.saket.press.shared.FakeSchedulers
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
@@ -39,8 +40,7 @@ class EditorPresenterTest {
     return EditorPresenter(
         args = Args(openMode, archiveEmptyNoteOnExit),
         noteRepository = repository,
-        ioScheduler = TestScheduler(),
-        computationScheduler = testScheduler,
+        schedulers = FakeSchedulers(computation = testScheduler),
         strings = ENGLISH_STRINGS,
         config = config
     )

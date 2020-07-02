@@ -50,7 +50,7 @@ class SharedSyncComponent {
           syncer = get(),
           syncerConfig = get(),
           deepLinks = get(),
-          ioScheduler = get(named("io"))
+          schedulers = get()
       )
     }
 

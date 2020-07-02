@@ -5,6 +5,7 @@ import com.badoo.reaktive.completable.subscribeOn
 import com.badoo.reaktive.scheduler.Scheduler
 import com.benasher44.uuid.uuidFrom
 import me.saket.press.shared.db.NoteId
+import me.saket.press.shared.rx.Schedulers
 import me.saket.press.shared.settings.Setting
 
 data class PrePopulatedNotesInserted(val inserted: Boolean)
@@ -13,7 +14,7 @@ data class PrePopulatedNotesInserted(val inserted: Boolean)
 class PrePopulatedNotes(
   private val setting: Setting<PrePopulatedNotesInserted>,
   private val repository: NoteRepository,
-  private val ioScheduler: Scheduler
+  private val schedulers: Schedulers
 ) {
 
   /**
@@ -95,7 +96,7 @@ class PrePopulatedNotes(
 
     if (inserted.not()) {
       repository.create(WELCOME, MARKDOWN_GUIDE)
-          .subscribeOn(ioScheduler)
+          .subscribeOn(schedulers.io)
           .subscribe {
             setting.set(PrePopulatedNotesInserted(true))
           }

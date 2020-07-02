@@ -29,6 +29,7 @@ import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.note.NoteRepository
+import me.saket.press.shared.rx.Schedulers
 import me.saket.press.shared.rx.mapToOptional
 import me.saket.press.shared.rx.mapToSome
 import me.saket.press.shared.rx.observableInterval
@@ -40,8 +41,7 @@ import me.saket.wysiwyg.formatting.TextSelection
 class EditorPresenter(
   val args: Args,
   private val noteRepository: NoteRepository,
-  private val ioScheduler: Scheduler,
-  private val computationScheduler: Scheduler,
+  private val schedulers: Schedulers,
   private val strings: Strings,
   private val config: EditorConfig
 ) : Presenter<EditorEvent, EditorUiModel, EditorUiEffect>() {
@@ -138,7 +138,7 @@ class EditorPresenter(
     return noteStream
         .take(1)
         .flatMapCompletable { note ->
-          observableInterval(config.autoSaveEvery, computationScheduler)
+          observableInterval(config.autoSaveEvery, schedulers.computation)
               .withLatestFrom(textChanges) { _, text -> text }
               .distinctUntilChanged()
               .flatMapCompletable { text -> noteRepository.update(note.id, text) }
@@ -148,7 +148,7 @@ class EditorPresenter(
 
   fun saveEditorContentOnExit(content: String) {
     updateOrArchiveNote(content)
-        .subscribeOn(ioScheduler)
+        .subscribeOn(schedulers.io)
         .subscribe()
   }
 

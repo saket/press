@@ -11,6 +11,7 @@ import com.badoo.reaktive.scheduler.Scheduler
 import me.saket.press.data.shared.Note
 import me.saket.press.data.shared.NoteQueries
 import me.saket.press.shared.db.NoteId
+import me.saket.press.shared.rx.Schedulers
 import me.saket.press.shared.rx.asObservable
 import me.saket.press.shared.rx.mapToList
 import me.saket.press.shared.rx.mapToOneOrOptional
@@ -20,19 +21,19 @@ import me.saket.press.shared.util.Optional
 
 internal class RealNoteRepository(
   private val noteQueries: NoteQueries,
-  private val ioScheduler: Scheduler,
+  private val schedulers: Schedulers,
   private val clock: Clock
 ) : NoteRepository {
 
   override fun note(id: NoteId): Observable<Optional<Note>> {
     return noteQueries.note(id)
-        .asObservable(ioScheduler)
+        .asObservable(schedulers.io)
         .mapToOneOrOptional()
   }
 
   override fun visibleNotes(): Observable<List<Note>> {
     return noteQueries.visibleNotes()
-        .asObservable(ioScheduler)
+        .asObservable(schedulers.io)
         .mapToList()
   }
 
