@@ -48,7 +48,7 @@ class SharedSyncComponent {
           httpClient = get(),
           authToken = get(),
           syncer = get(),
-          syncerConfig = get(),
+          syncerConfig = get(named("gitsyncer_config")),
           deepLinks = get(),
           schedulers = get()
       )
@@ -56,8 +56,14 @@ class SharedSyncComponent {
 
     factory<Git> { RealGit() }
     factory<Syncer> { get<GitSyncer>() }
-    factory { gitSyncerConfig(get(), get()) }
-    factory { GitSyncer(get(), get(), get(), get(), get()) }
+    factory(named("gitsyncer_config")) { gitSyncerConfig(get(), get()) }
+    factory { GitSyncer(
+        git = get(),
+        config = get(named("gitsyncer_config")),
+        database = get(),
+        deviceInfo = get(),
+        clock = get()
+    ) }
   }
 
   private fun httpClient(json: Json): HttpClient {
