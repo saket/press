@@ -6,15 +6,12 @@ import android.graphics.drawable.ColorDrawable
 import android.view.View
 import android.widget.TextView
 import androidx.core.graphics.ColorUtils
-import androidx.core.graphics.toColorLong
 import com.squareup.contour.ContourLayout
 import me.saket.press.R
 import me.saket.press.shared.theme.TextStyles
-import me.saket.press.shared.theme.UiStyles
 import me.saket.press.shared.theme.applyStyle
 import press.theme.themeAware
-import press.util.withOpacity
-import press.widgets.attr
+import press.extensions.attr
 
 class GitRepoItemView(context: Context) : ContourLayout(context) {
 

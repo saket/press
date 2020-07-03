@@ -6,18 +6,18 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.PaintDrawable
 import android.view.Gravity
 import android.view.View
-import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.setMargins
 import androidx.core.view.updateLayoutParams
 import com.squareup.contour.ContourLayout
-import me.saket.press.R
 import me.saket.press.shared.theme.TextStyles
 import me.saket.press.shared.theme.applyStyle
 import press.theme.themeAware
 import press.theme.themed
+import press.extensions.padding
+import press.extensions.textColor
 
 /**
  * Rounded corners and theme colors, because [AlertDialog] offer
@@ -33,7 +33,7 @@ class PressDialogView private constructor(context: Context) : ContourLayout(cont
     )
   }
 
-  private val negativeButtonView = themed(Button(context)).apply {
+  private val negativeButtonView = themed(PressBorderlessButton(context)).apply {
     padding = dp(16)
     themeAware { textColor = it.textColorSecondary }
     applyLayout(
@@ -42,7 +42,7 @@ class PressDialogView private constructor(context: Context) : ContourLayout(cont
     )
   }
 
-  private val positiveButtonView = themed(Button(context)).apply {
+  private val positiveButtonView = themed(PressBorderlessButton(context)).apply {
     padding = dp(16)
     isSingleLine = true
     themeAware { textColor = it.accentColor }

@@ -7,6 +7,7 @@ import android.widget.TextView
 import com.squareup.contour.ContourLayout
 import me.saket.press.shared.localization.strings
 import press.theme.themed
+import press.widgets.PressButton
 
 class ErrorView(context: Context) : ContourLayout(context) {
 
@@ -19,7 +20,7 @@ class ErrorView(context: Context) : ContourLayout(context) {
     )
   }
 
-  val retryButton = themed(Button(context)).apply {
+  val retryButton = themed(PressButton(context)).apply {
     text = context.strings().common.retry
     applyLayout(
         x = centerHorizontallyTo { parent.centerX() },

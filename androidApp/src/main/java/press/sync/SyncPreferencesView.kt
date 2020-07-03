@@ -3,7 +3,6 @@ package press.sync
 import android.content.Context
 import android.graphics.drawable.ColorDrawable
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.LinearLayout.VERTICAL
 import android.widget.TextView
@@ -20,17 +19,16 @@ import me.saket.press.shared.sync.SyncPreferencesPresenter
 import me.saket.press.shared.sync.SyncPreferencesUiModel
 import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncingDisabled
 import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncingEnabled
-import me.saket.press.shared.sync.git.GitHost
 import me.saket.press.shared.theme.TextStyles
 import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
-import press.theme.PressButtonDrawable
 import press.theme.themeAware
 import press.theme.themed
+import press.widgets.PressButton
 import press.widgets.PressToolbar
 import press.widgets.dp
-import press.widgets.updateMargins
+import press.extensions.updateMargins
 
 class SyncPreferencesView @AssistedInject constructor(
   @Assisted context: Context,
@@ -119,11 +117,8 @@ private class SyncingDisabledView(context: Context) : ContourLayout(context) {
   fun render(model: SyncingDisabled) {
     gitHostButtons.removeAllViews()
     model.availableGitHosts.forEach { host ->
-      val button = themed(Button(context)).apply {
+      val button = themed(PressButton(context)).apply {
         text = context.strings().sync.setup_sync_with_host.format(host.displayName)
-        themeAware {
-          background = PressButtonDrawable(color = it.buttonNormal, pressedColor = it.buttonPressed)
-        }
         setOnClickListener {
           context.startActivity(GitHostIntegrationActivity.intent(context, host))
         }
@@ -151,11 +146,8 @@ private class SyncingEnabledView(context: Context) : ContourLayout(context) {
     )
   }
 
-  val disableButton = themed(Button(context)).apply {
+  val disableButton = themed(PressButton(context)).apply {
     text = "Disable sync on this device"
-    themeAware {
-      background = PressButtonDrawable(color = it.buttonNormal, pressedColor = it.buttonPressed)
-    }
     applyLayout(
         x = leftTo { parent.left() },
         y = topTo { statusView.bottom() + 20.ydip }

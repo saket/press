@@ -24,12 +24,10 @@ import me.saket.press.shared.theme.ThemePalette
 import press.PressApp
 import press.extensions.onDestroys
 import press.widgets.PorterDuffColorFilterWrapper
+import press.widgets.PressButton
 import press.widgets.ScrollViewCompat
-import press.widgets.attr
-import press.widgets.dp
-import press.widgets.findTitleView
-import press.widgets.textColor
-import press.widgets.updatePadding
+import press.extensions.findTitleView
+import press.extensions.textColor
 
 fun themePalette() = PressApp.component.themePalette()
 
@@ -55,12 +53,8 @@ fun <T : TextView> themed(view: T): T = view.apply {
 }
 
 fun <T : Button> themed(view: T): T = view.apply {
-  minHeight = 0
-  minimumHeight = 0
-  isAllCaps = false
+  check(view is PressButton) { "Use PressButton instead" }
   typeface = ResourcesCompat.getFont(context, R.font.work_sans_regular)
-  updatePadding(horizontal = dp(16), vertical = dp(8))
-  background = attr(R.attr.selectableItemBackground).asDrawable()
 }
 
 fun <T : EditText> themed(view: T): T = view.apply {
