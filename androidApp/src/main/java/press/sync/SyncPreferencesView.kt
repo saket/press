@@ -2,10 +2,12 @@ package press.sync
 
 import android.content.Context
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.LinearLayout
 import android.widget.LinearLayout.VERTICAL
 import android.widget.TextView
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.view.isGone
 import androidx.transition.TransitionManager
 import com.jakewharton.rxbinding3.view.detaches
@@ -15,20 +17,24 @@ import com.squareup.inject.assisted.AssistedInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.sync.SyncPreferencesEvent.DisableSyncClicked
+import me.saket.press.shared.sync.SyncPreferencesEvent.SetupHostClicked
 import me.saket.press.shared.sync.SyncPreferencesPresenter
+import me.saket.press.shared.sync.SyncPreferencesUiEffect
+import me.saket.press.shared.sync.SyncPreferencesUiEffect.OpenUrl
 import me.saket.press.shared.sync.SyncPreferencesUiModel
 import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncingDisabled
 import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncingEnabled
+import me.saket.press.shared.sync.git.GitHost
 import me.saket.press.shared.theme.TextStyles
 import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
+import press.extensions.updateMargins
 import press.theme.themeAware
 import press.theme.themed
 import press.widgets.PressButton
 import press.widgets.PressToolbar
 import press.widgets.dp
-import press.extensions.updateMargins
 
 class SyncPreferencesView @AssistedInject constructor(
   @Assisted context: Context,
@@ -72,7 +78,7 @@ class SyncPreferencesView @AssistedInject constructor(
     presenter.uiUpdates()
         .takeUntil(detaches())
         .observeOn(mainThread())
-        .subscribe(models = ::render)
+        .subscribe(models = ::render, effects = ::render)
   }
 
   private fun render(model: SyncPreferencesUiModel) {
@@ -81,8 +87,19 @@ class SyncPreferencesView @AssistedInject constructor(
     syncingDisabledView.isGone = model !is SyncingDisabled
 
     return when (model) {
-      is SyncingDisabled -> syncingDisabledView.render(model)
+      is SyncingDisabled -> syncingDisabledView.render(model, onClick = { host ->
+        presenter.dispatch(SetupHostClicked(host))
+      })
       is SyncingEnabled -> syncingEnabledView.render(model)
+    }
+  }
+
+  private fun render(effect: SyncPreferencesUiEffect) {
+    return when (effect) {
+      is OpenUrl -> CustomTabsIntent.Builder()
+          .addDefaultShareMenuItem()
+          .build()
+          .launchUrl(context, Uri.parse(effect.url))
     }
   }
 
@@ -114,14 +131,12 @@ private class SyncingDisabledView(context: Context) : ContourLayout(context) {
     contourHeightOf { gitHostButtons.bottom() }
   }
 
-  fun render(model: SyncingDisabled) {
+  fun render(model: SyncingDisabled, onClick: (GitHost) -> Unit) {
     gitHostButtons.removeAllViews()
     model.availableGitHosts.forEach { host ->
       val button = themed(PressButton(context)).apply {
-        text = context.strings().sync.setup_sync_with_host.format(host.displayName)
-        setOnClickListener {
-          context.startActivity(GitHostIntegrationActivity.intent(context, host))
-        }
+        text = context.strings().sync.setup_sync_with_host.format(host.displayName())
+        setOnClickListener { onClick(host) }
       }
       gitHostButtons.addView(button, WRAP_CONTENT, WRAP_CONTENT)
       button.updateMargins(bottom = dp(8))

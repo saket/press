@@ -7,6 +7,7 @@ interface GitHostIntegrationEvent {
   data class RetryClicked(val failure: FailureKind) : GitHostIntegrationEvent
 }
 
+// todo: flatten and add 'screen title'.
 sealed class GitHostIntegrationUiModel {
   object ShowProgress : GitHostIntegrationUiModel()
   data class ShowFailure(val kind: FailureKind) : GitHostIntegrationUiModel()
@@ -17,8 +18,4 @@ sealed class FailureKind {
   object Authorization : FailureKind()
   object FetchingRepos : FailureKind()
   object AddingDeployKey : FailureKind()
-}
-
-sealed class GitHostIntegrationUiEffect {
-  data class OpenAuthorizationUrl(val url: String) : GitHostIntegrationUiEffect()
 }

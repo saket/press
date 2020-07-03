@@ -24,11 +24,12 @@ import me.saket.press.shared.sync.git.GitHostAuthToken
 
 class GitHubService(private val http: HttpClient) : GitHostService {
 
-  override fun generateAuthUrl(): String {
+  override fun generateAuthUrl(redirectUrl: String): String {
     return URLBuilder("https://github.com/login/oauth/authorize").apply {
       parameters.apply {
         append("client_id", BuildKonfig.GITHUB_CLIENT_ID)
         append("scope", "repo")
+        append("redirect_uri", redirectUrl)
       }
     }.buildString()
   }

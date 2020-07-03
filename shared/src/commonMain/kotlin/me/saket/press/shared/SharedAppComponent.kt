@@ -17,13 +17,11 @@ class SharedAppComponent {
     single { ENGLISH_STRINGS }
     single<KeyboardShortcuts> { RealKeyboardShortcuts() }
     single<Clock> { RealClock() }
-    single<DeepLinks> { RealDeepLinks() }
     factory { Schedulers(io = ioScheduler, computation = computationScheduler) }
   }
 
   companion object {
     fun strings(): Strings = koin()
     fun keyboardShortcuts(): KeyboardShortcuts = koin()
-    fun deepLinks(): DeepLinks = koin()
   }
 }

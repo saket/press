@@ -3,7 +3,6 @@ package press.di
 import com.squareup.inject.assisted.dagger2.AssistedModule
 import dagger.Module
 import dagger.Provides
-import me.saket.press.shared.DeepLinks
 import me.saket.press.shared.SharedAppComponent
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.sync.SharedSyncComponent
@@ -24,9 +23,6 @@ import press.theme.ThemeModule
 object AppModule {
   @Provides
   fun strings(): Strings = SharedAppComponent.strings()
-
-  @Provides
-  fun deepLinks(): DeepLinks = SharedAppComponent.deepLinks()
 
   @Provides
   fun syncer(): Syncer = SharedSyncComponent.syncer()

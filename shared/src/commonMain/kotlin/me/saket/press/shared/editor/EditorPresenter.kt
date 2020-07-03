@@ -19,7 +19,6 @@ import com.badoo.reaktive.observable.replay
 import com.badoo.reaktive.observable.take
 import com.badoo.reaktive.observable.withLatestFrom
 import com.badoo.reaktive.observable.wrap
-import com.badoo.reaktive.scheduler.Scheduler
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote

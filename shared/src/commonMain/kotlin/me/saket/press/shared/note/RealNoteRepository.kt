@@ -7,7 +7,6 @@ import com.badoo.reaktive.observable.asCompletable
 import com.badoo.reaktive.observable.filter
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.take
-import com.badoo.reaktive.scheduler.Scheduler
 import me.saket.press.data.shared.Note
 import me.saket.press.data.shared.NoteQueries
 import me.saket.press.shared.db.NoteId

@@ -11,8 +11,10 @@ interface GitHostService {
   /**
    * Generate a URL that will let the user log into their account
    * and grant Press "write" access to their repositories.
+   *
+   * @param redirectUrl URL to open once Press has been granted access.
    */
-  fun generateAuthUrl(): String
+  fun generateAuthUrl(redirectUrl: String): String
 
   /**
    * Called once the user has granted Press access to their repositories
