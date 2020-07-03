@@ -1,4 +1,4 @@
-package press.util
+package press.extensions
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle.Event.ON_DESTROY

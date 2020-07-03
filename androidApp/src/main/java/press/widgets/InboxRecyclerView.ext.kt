@@ -10,7 +10,7 @@ import me.saket.inboxrecyclerview.page.ExpandablePageLayout.PageState.EXPANDED
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout.PageState.EXPANDING
 import me.saket.inboxrecyclerview.page.PageStateChangeCallbacks
 import me.saket.inboxrecyclerview.page.SimplePageStateChangeCallbacks
-import press.util.suspendWhile
+import press.extensions.suspendWhile
 
 fun ExpandablePageLayout.addStateChangeCallbacks(
   first: PageStateChangeCallbacks,

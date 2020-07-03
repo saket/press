@@ -4,7 +4,7 @@ import android.graphics.drawable.Drawable
 import android.os.Build.VERSION
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
-import press.util.reflect
+import press.extensions.reflect
 
 object TextViewCompat {
 

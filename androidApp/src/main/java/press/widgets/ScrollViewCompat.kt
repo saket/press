@@ -4,7 +4,7 @@ import android.os.Build.VERSION
 import android.widget.EdgeEffect
 import android.widget.ScrollView
 import androidx.annotation.ColorInt
-import press.util.reflect
+import press.extensions.reflect
 
 object ScrollViewCompat {
 

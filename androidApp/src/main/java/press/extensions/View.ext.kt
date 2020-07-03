@@ -1,14 +1,12 @@
 @file:Suppress("NOTHING_TO_INLINE")
 
-package press.widgets
+package press.extensions
 
 import android.graphics.Rect
 import android.os.Build.VERSION.SDK_INT
 import android.text.Editable
 import android.util.TypedValue.COMPLEX_UNIT_PX
 import android.view.View
-import android.view.View.GONE
-import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.inputmethod.InputMethodManager
@@ -21,6 +19,7 @@ import androidx.core.view.children
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import me.saket.wysiwyg.widgets.SimpleTextWatcher
+import press.widgets.Attr
 import kotlin.DeprecationLevel.ERROR
 
 inline fun View.string(@StringRes stringRes: Int) = resources.getString(stringRes)

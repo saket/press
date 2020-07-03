@@ -22,12 +22,12 @@ import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import press.PressApp
 import press.animation.FabTransform
-import press.util.withOpacity
+import press.extensions.withOpacity
 import press.widgets.ThemeAwareActivity
 import press.widgets.dp
-import press.widgets.hideKeyboard
+import press.extensions.hideKeyboard
 import press.widgets.interceptPullToCollapseOnView
-import press.widgets.showKeyboard
+import press.extensions.showKeyboard
 import java.util.concurrent.TimeUnit.MILLISECONDS
 import javax.inject.Inject
 import kotlin.LazyThreadSafetyMode.NONE

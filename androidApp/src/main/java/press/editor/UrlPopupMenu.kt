@@ -7,7 +7,7 @@ import android.view.View
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.PopupMenu
 import me.saket.press.shared.localization.strings
-import press.util.reflect
+import press.extensions.reflect
 
 class UrlPopupMenu(
   context: Context,

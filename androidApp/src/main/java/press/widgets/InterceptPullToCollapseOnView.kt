@@ -4,6 +4,7 @@ import android.view.View
 import me.saket.inboxrecyclerview.page.InterceptResult.IGNORED
 import me.saket.inboxrecyclerview.page.InterceptResult.INTERCEPTED
 import me.saket.inboxrecyclerview.page.OnPullToCollapseInterceptor
+import press.extensions.locationOnScreen
 
 fun interceptPullToCollapseOnView(view: View): OnPullToCollapseInterceptor {
   return { downX, downY, upwardPull ->

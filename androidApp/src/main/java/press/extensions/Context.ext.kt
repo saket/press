@@ -1,4 +1,4 @@
-package press.widgets
+package press.extensions
 
 import android.content.Context
 import android.graphics.drawable.Drawable

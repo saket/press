@@ -22,7 +22,7 @@ import com.jakewharton.rxbinding3.view.detaches
 import me.saket.press.R
 import me.saket.press.shared.theme.ThemePalette
 import press.PressApp
-import press.util.onDestroys
+import press.extensions.onDestroys
 import press.widgets.PorterDuffColorFilterWrapper
 import press.widgets.ScrollViewCompat
 import press.widgets.attr

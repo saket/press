@@ -1,4 +1,4 @@
-package press.util
+package press.extensions
 
 import com.soywiz.klock.TimeSpan
 import com.soywiz.klock.seconds

@@ -1,4 +1,4 @@
-package press.util
+package press.extensions
 
 import java.lang.reflect.Field
 import java.lang.reflect.Method

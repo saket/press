@@ -1,8 +1,7 @@
-package press.util
+package press.extensions
 
 import com.soywiz.klock.TimeSpan
 import io.reactivex.Observable
-import io.reactivex.Scheduler
 import io.reactivex.rxkotlin.Observables
 import java.util.concurrent.TimeUnit.MILLISECONDS
 

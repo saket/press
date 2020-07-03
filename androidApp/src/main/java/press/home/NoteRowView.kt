@@ -10,7 +10,7 @@ import me.saket.press.shared.theme.HomeUiStyles
 import me.saket.press.shared.theme.applyStyle
 import press.theme.themeAware
 import press.theme.themed
-import press.widgets.textColor
+import press.extensions.textColor
 
 class NoteRowView(context: Context) : ContourLayout(context) {
 

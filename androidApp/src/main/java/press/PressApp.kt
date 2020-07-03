@@ -15,7 +15,7 @@ import me.saket.press.shared.sync.Syncer.Status.Disabled
 import me.saket.press.shared.sync.git.statusRx2
 import me.saket.press.shared.sync.git.syncRx2
 import press.di.AppComponent
-import press.util.interval
+import press.extensions.interval
 import timber.log.Timber
 import javax.inject.Inject
 

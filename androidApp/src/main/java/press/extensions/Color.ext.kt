@@ -1,4 +1,4 @@
-package press.util
+package press.extensions
 
 import android.graphics.Color
 import androidx.annotation.FloatRange

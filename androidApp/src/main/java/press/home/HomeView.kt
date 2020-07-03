@@ -41,23 +41,23 @@ import press.editor.EditorView
 import press.sync.PreferencesActivity
 import press.theme.themeAware
 import press.theme.themed
-import press.util.heightOf
-import press.util.second
-import press.util.suspendWhile
-import press.util.throttleFirst
+import press.extensions.heightOf
+import press.extensions.second
+import press.extensions.suspendWhile
+import press.extensions.throttleFirst
 import press.widgets.BackPressInterceptResult
 import press.widgets.BackPressInterceptResult.BACK_PRESS_IGNORED
 import press.widgets.BackPressInterceptResult.BACK_PRESS_INTERCEPTED
 import press.widgets.SpacingBetweenItemsDecoration
 import press.widgets.addStateChangeCallbacks
-import press.widgets.attr
-import press.widgets.doOnAttach
+import press.extensions.attr
+import press.extensions.doOnAttach
 import press.widgets.doOnNextAboutToCollapse
 import press.widgets.doOnNextCollapse
-import press.widgets.getDrawable
-import press.widgets.hideKeyboard
+import press.extensions.getDrawable
+import press.extensions.hideKeyboard
 import press.widgets.interceptPullToCollapseOnView
-import press.widgets.parentView
+import press.extensions.parentView
 import press.widgets.suspendWhileExpanded
 
 class HomeView @AssistedInject constructor(

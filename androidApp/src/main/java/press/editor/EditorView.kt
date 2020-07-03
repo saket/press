@@ -48,10 +48,10 @@ import press.theme.themePalette
 import press.theme.themed
 import press.widgets.PressToolbar
 import press.widgets.Truss
-import press.widgets.doOnTextChange
-import press.widgets.fromOreo
-import press.widgets.textColor
-import press.widgets.textSizePx
+import press.extensions.doOnTextChange
+import press.extensions.fromOreo
+import press.extensions.textColor
+import press.extensions.textSizePx
 
 class EditorView @AssistedInject constructor(
   @Assisted context: Context,
