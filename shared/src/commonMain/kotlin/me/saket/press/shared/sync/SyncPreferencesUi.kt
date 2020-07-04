@@ -8,11 +8,11 @@ interface SyncPreferencesEvent {
 }
 
 sealed class SyncPreferencesUiModel {
-  data class SyncingDisabled(
+  data class SyncDisabled(
     val availableGitHosts: List<GitHost>
   ) : SyncPreferencesUiModel()
 
-  data class SyncingEnabled(
+  data class SyncEnabled(
     val setupInfo: String,
     val status: String
   ) : SyncPreferencesUiModel()

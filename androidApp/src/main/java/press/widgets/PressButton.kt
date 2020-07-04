@@ -3,6 +3,7 @@ package press.widgets
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.Color.BLACK
 import android.graphics.Color.TRANSPARENT
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.PaintDrawable
@@ -26,20 +27,26 @@ open class PressButton(context: Context) : AppCompatButton(context) {
 
 class PressBorderlessButton(context: Context) : PressButton(context) {
   init {
+    elevation = 0f
+    stateListAnimator = null
     themeAware {
-      background = pressButtonDrawable(TRANSPARENT, pressedColor = it.buttonPressed)
+      background = pressButtonDrawable(TRANSPARENT, pressedColor = it.buttonPressed, rounded = false)
     }
   }
 }
 
 @Suppress("FunctionName")
-fun View.pressButtonDrawable(color: Int, pressedColor: Int): Drawable {
+fun View.pressButtonDrawable(color: Int, pressedColor: Int, rounded: Boolean = true): Drawable {
   val rippleColor = ColorStateList.valueOf(pressedColor)
   val shape = PaintDrawable(color).apply {
-    setCornerRadius(dp(20f))
+    if (rounded) {
+      setCornerRadius(dp(20f))
+    }
   }
-  val mask = PaintDrawable(Color.BLACK).apply {
-    setCornerRadius(dp(20f))
+  val mask = PaintDrawable(BLACK).apply {
+    if (rounded) {
+      setCornerRadius(dp(20f))
+    }
   }
   return RippleDrawable(rippleColor, shape, mask)
 }

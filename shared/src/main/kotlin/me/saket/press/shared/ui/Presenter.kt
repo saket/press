@@ -11,7 +11,7 @@ import io.reactivex.Observable as RxJavaObservable
 
 fun <EV, M, EF> Presenter<EV, M, EF>.uiUpdates(): RxJavaObservable<UiUpdate<out M, out EF>> {
   return merge(
-      merge(defaultUiModel().toObservable(), uiModels()).map(::UiModel),
+      uiModels().map(::UiModel),
       uiEffects().map(::UiEffect)
   ).asRxJava2Observable()
 }

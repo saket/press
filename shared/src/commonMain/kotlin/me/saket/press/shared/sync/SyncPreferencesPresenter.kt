@@ -15,8 +15,8 @@ import me.saket.press.shared.rx.mergeWith
 import me.saket.press.shared.sync.SyncPreferencesEvent.DisableSyncClicked
 import me.saket.press.shared.sync.SyncPreferencesEvent.SetupHostClicked
 import me.saket.press.shared.sync.SyncPreferencesUiEffect.OpenUrl
-import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncingDisabled
-import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncingEnabled
+import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncDisabled
+import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncEnabled
 import me.saket.press.shared.sync.Syncer.Status.Disabled
 import me.saket.press.shared.sync.git.GitHost
 import me.saket.press.shared.ui.Presenter
@@ -28,17 +28,17 @@ class SyncPreferencesPresenter(
 ) : Presenter<SyncPreferencesEvent, SyncPreferencesUiModel, SyncPreferencesUiEffect>() {
 
   override fun defaultUiModel(): SyncPreferencesUiModel {
-    return SyncingDisabled(availableGitHosts = emptyList())
+    return SyncDisabled(availableGitHosts = emptyList())
   }
 
   override fun uiModels(): ObservableWrapper<SyncPreferencesUiModel> {
     val models = syncer.status()
         .map { status ->
           when (status) {
-            Disabled -> SyncingDisabled(
+            Disabled -> SyncDisabled(
                 availableGitHosts = GitHost.values().toList()
             )
-            else -> SyncingEnabled(
+            else -> SyncEnabled(
                 setupInfo = "Syncing is enabled",
                 status = "Last synced x seconds ago."
             )

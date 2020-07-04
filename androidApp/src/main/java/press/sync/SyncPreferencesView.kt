@@ -7,14 +7,14 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.LinearLayout
 import android.widget.LinearLayout.VERTICAL
 import android.widget.TextView
+import android.widget.ViewFlipper
 import androidx.browser.customtabs.CustomTabsIntent
-import androidx.core.view.isGone
-import androidx.transition.TransitionManager
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.sync.SyncPreferencesEvent.DisableSyncClicked
 import me.saket.press.shared.sync.SyncPreferencesEvent.SetupHostClicked
@@ -22,13 +22,15 @@ import me.saket.press.shared.sync.SyncPreferencesPresenter
 import me.saket.press.shared.sync.SyncPreferencesUiEffect
 import me.saket.press.shared.sync.SyncPreferencesUiEffect.OpenUrl
 import me.saket.press.shared.sync.SyncPreferencesUiModel
-import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncingDisabled
-import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncingEnabled
+import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncDisabled
+import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncEnabled
 import me.saket.press.shared.sync.git.GitHost
+import me.saket.press.shared.sync.git.GitHost.GITHUB
 import me.saket.press.shared.theme.TextStyles
 import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
+import press.extensions.setDisplayedChild
 import press.extensions.updateMargins
 import press.theme.themeAware
 import press.theme.themed
@@ -51,27 +53,31 @@ class SyncPreferencesView @AssistedInject constructor(
     )
   }
 
-  private val syncingDisabledView = SyncingDisabledView(context)
-  private val syncingEnabledView = SyncingEnabledView(context)
+  private val syncDisabledView = SyncDisabledView(context)
+  private val syncEnabledView = SyncEnabledView(context)
+
+  private val contentFlipperView = ViewFlipper(context).apply {
+    animateFirstView = false
+    setInAnimation(context, R.anim.slide_and_fade_in_from_bottom)
+    setOutAnimation(context, R.anim.slide_and_fade_out_to_top)
+    addView(syncDisabledView)
+    addView(syncEnabledView)
+    applyLayout(
+        x = matchParentX(marginLeft = 22.dip, marginRight = 22.dip),
+        y = topTo { toolbar.bottom() + 8.ydip }.bottomTo { parent.bottom() }
+    )
+  }
 
   init {
     themeAware {
       background = ColorDrawable(it.window.backgroundColor)
-    }
-
-    arrayOf(syncingEnabledView, syncingDisabledView).forEach {
-      it.isGone = true
-      it.applyLayout(
-          x = matchParentX(marginLeft = 22.dip, marginRight = 22.dip),
-          y = topTo { toolbar.bottom() + 8.ydip }.bottomTo { parent.bottom() }
-      )
     }
   }
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
 
-    syncingEnabledView.disableButton.setOnClickListener {
+    syncEnabledView.disableButton.setOnClickListener {
       presenter.dispatch(DisableSyncClicked)
     }
 
@@ -82,15 +88,19 @@ class SyncPreferencesView @AssistedInject constructor(
   }
 
   private fun render(model: SyncPreferencesUiModel) {
-    TransitionManager.beginDelayedTransition(this)
-    syncingEnabledView.isGone = model !is SyncingEnabled
-    syncingDisabledView.isGone = model !is SyncingDisabled
+    println("Rendering $model")
 
     return when (model) {
-      is SyncingDisabled -> syncingDisabledView.render(model, onClick = { host ->
-        presenter.dispatch(SetupHostClicked(host))
-      })
-      is SyncingEnabled -> syncingEnabledView.render(model)
+      is SyncDisabled -> {
+        contentFlipperView.setDisplayedChild(syncDisabledView)
+        syncDisabledView.render(model, onClick = { host ->
+          presenter.dispatch(SetupHostClicked(host))
+        })
+      }
+      is SyncEnabled -> {
+        contentFlipperView.setDisplayedChild(syncEnabledView)
+        syncEnabledView.render(model)
+      }
     }
   }
 
@@ -109,7 +119,7 @@ class SyncPreferencesView @AssistedInject constructor(
   }
 }
 
-private class SyncingDisabledView(context: Context) : ContourLayout(context) {
+private class SyncDisabledView(context: Context) : ContourLayout(context) {
   private val messageView = themed(TextView(context)).apply {
     text = context.strings().sync.sync_disabled_message
     TextStyles.Secondary.applyStyle(this)
@@ -131,7 +141,7 @@ private class SyncingDisabledView(context: Context) : ContourLayout(context) {
     contourHeightOf { gitHostButtons.bottom() }
   }
 
-  fun render(model: SyncingDisabled, onClick: (GitHost) -> Unit) {
+  fun render(model: SyncDisabled, onClick: (GitHost) -> Unit) {
     gitHostButtons.removeAllViews()
     model.availableGitHosts.forEach { host ->
       val button = themed(PressButton(context)).apply {
@@ -144,7 +154,7 @@ private class SyncingDisabledView(context: Context) : ContourLayout(context) {
   }
 }
 
-private class SyncingEnabledView(context: Context) : ContourLayout(context) {
+private class SyncEnabledView(context: Context) : ContourLayout(context) {
   private val setupInfoView = themed(TextView(context)).apply {
     TextStyles.Secondary.applyStyle(this)
     applyLayout(
@@ -173,7 +183,7 @@ private class SyncingEnabledView(context: Context) : ContourLayout(context) {
     contourHeightOf { disableButton.bottom() }
   }
 
-  fun render(model: SyncingEnabled) {
+  fun render(model: SyncEnabled) {
     setupInfoView.text = model.setupInfo
     statusView.text = model.status
   }

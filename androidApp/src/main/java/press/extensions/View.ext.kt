@@ -12,6 +12,8 @@ import android.view.ViewGroup.MarginLayoutParams
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.ViewAnimator
+import android.widget.ViewFlipper
 import androidx.annotation.AttrRes
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
@@ -115,4 +117,8 @@ inline fun View.updateMargins(bottom: Int) {
 
 inline fun View.updatePadding(horizontal: Int, vertical: Int) {
   updatePadding(left = horizontal, right = horizontal, top = vertical, bottom = vertical)
+}
+
+fun ViewFlipper.setDisplayedChild(child: View) {
+  displayedChild = indexOfChild(child)
 }
