@@ -15,6 +15,8 @@ abstract class Syncer {
    */
   internal abstract fun sync(): Completable
 
+  abstract fun disable(): Completable
+
   sealed class Status {
     object Disabled : Status()
     object InFlight : Status()

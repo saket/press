@@ -15,6 +15,7 @@ import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import me.saket.press.shared.sync.git.GitHost
 import me.saket.press.shared.sync.git.GitHostIntegrationEvent
 import me.saket.press.shared.sync.git.GitHostIntegrationEvent.GitRepositoryClicked
 import me.saket.press.shared.sync.git.GitHostIntegrationEvent.RetryClicked
@@ -40,7 +41,7 @@ class GitHostIntegrationView @AssistedInject constructor(
   private val presenter = presenterFactory.create(Args(deepLink))
 
   private val toolbar = themed(PressToolbar(context)).apply {
-    title = "GitHub"
+    title = GitHost.readHostFromDeepLink(deepLink).displayName()
     setNavigationOnClickListener { onDismiss() }
     applyLayout(
         x = matchParentX(),

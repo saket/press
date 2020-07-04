@@ -41,7 +41,7 @@ class SharedSyncComponent {
         )
       }
     }
-    factory { SyncPreferencesPresenter(get(), get()) }
+    factory { SyncPreferencesPresenter(get(), get(), get()) }
     factory { (args: GitHostIntegrationPresenter.Args) ->
       GitHostIntegrationPresenter(
           args = args,

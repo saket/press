@@ -71,7 +71,10 @@ class GitSyncer(
   // todo: emit in_flight status when syncing is ongoing.
   override fun status(): Observable<Status> {
     return config.listen().map { config ->
-      if (config == null) Disabled else Idle(lastSyncedAt = null)
+      when (config) {
+        null -> Disabled
+        else -> Idle(lastSyncedAt = null)
+      }
     }
   }
 
@@ -85,6 +88,11 @@ class GitSyncer(
     if (commitResult == DONE || pullResult == DONE) {
       push()
     }
+  }
+
+  override fun disable() = completableFromFunction {
+    config.set(null)
+    directory.delete(recursively = true)
   }
 
   private fun commitAllChanges(): Result {
