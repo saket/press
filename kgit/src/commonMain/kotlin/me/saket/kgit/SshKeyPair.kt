@@ -8,4 +8,6 @@ data class SshKeyPair(
 )
 
 @Serializable
-data class SshPrivateKey(val key: String)
+data class SshPrivateKey(val key: String) {
+  override fun toString() = "██████████"
+}
