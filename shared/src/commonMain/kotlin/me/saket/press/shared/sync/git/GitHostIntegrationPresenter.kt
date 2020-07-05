@@ -80,6 +80,7 @@ class GitHostIntegrationPresenter(
                 authToken.set(it)
               }
               .onErrorReturnValue(ShowFailure(kind = Authorization))
+              .startWithValue(defaultUiModel())
         }
   }
 
@@ -88,10 +89,12 @@ class GitHostIntegrationPresenter(
         .filterNotNull()
         .take(1)
         .repeatOnRetry(events, kind = FetchingRepos)
-        .switchMapSingle { token ->
+        .switchMap { token ->
           gitHostService.fetchUserRepos(token)
               .map { repos -> SelectRepo(repos) }
+              .asObservable()
               .onErrorReturnValue(ShowFailure(kind = FetchingRepos))
+              .startWithValue(defaultUiModel())
         }
   }
 

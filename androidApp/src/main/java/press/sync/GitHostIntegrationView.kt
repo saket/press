@@ -98,10 +98,6 @@ class GitHostIntegrationView @AssistedInject constructor(
   }
 
   private fun render(model: GitHostIntegrationUiModel) {
-    TransitionManager.beginDelayedTransition(this, AutoTransition().apply {
-      excludeChildren(recyclerView, true)
-    })
-
     progressView.isGone = model !is ShowProgress
     errorView.isGone = model !is ShowFailure
     recyclerView.isGone = model !is SelectRepo

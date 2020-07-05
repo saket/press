@@ -12,6 +12,7 @@ import com.badoo.reaktive.observable.wrap
 import io.ktor.client.HttpClient
 import me.saket.press.shared.rx.Schedulers
 import me.saket.press.shared.rx.mergeWith
+import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.sync.SyncPreferencesEvent.DisableSyncClicked
 import me.saket.press.shared.sync.SyncPreferencesEvent.SetupHostClicked
 import me.saket.press.shared.sync.SyncPreferencesUiEffect.OpenUrl
@@ -19,12 +20,14 @@ import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncDisabled
 import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncEnabled
 import me.saket.press.shared.sync.Syncer.Status.Disabled
 import me.saket.press.shared.sync.git.GitHost
+import me.saket.press.shared.sync.git.GitHostAuthToken
 import me.saket.press.shared.ui.Presenter
 
 class SyncPreferencesPresenter(
   private val http: HttpClient,
   private val syncer: Syncer,
-  private val schedulers: Schedulers
+  private val schedulers: Schedulers,
+  private val authToken: (GitHost) -> Setting<GitHostAuthToken>
 ) : Presenter<SyncPreferencesEvent, SyncPreferencesUiModel, SyncPreferencesUiEffect>() {
 
   override fun defaultUiModel(): SyncPreferencesUiModel {
@@ -61,6 +64,7 @@ class SyncPreferencesPresenter(
     return viewEvents()
         .ofType<SetupHostClicked>()
         .map { (host) ->
+          authToken(host).set(null)
           val service = host.service(http)
           OpenUrl(service.generateAuthUrl(host.deepLink()))
         }

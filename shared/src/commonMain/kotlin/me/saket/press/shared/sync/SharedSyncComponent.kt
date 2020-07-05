@@ -41,7 +41,7 @@ class SharedSyncComponent {
         )
       }
     }
-    factory { SyncPreferencesPresenter(get(), get(), get()) }
+    factory { SyncPreferencesPresenter(get(), get(), get(), get()) }
     factory { (args: GitHostIntegrationPresenter.Args) ->
       GitHostIntegrationPresenter(
           args = args,
@@ -72,7 +72,7 @@ class SharedSyncComponent {
       }
       install(Logging) {
         logger = Logger.SIMPLE
-        level = LogLevel.INFO
+        level = LogLevel.ALL
       }
     }
   }
