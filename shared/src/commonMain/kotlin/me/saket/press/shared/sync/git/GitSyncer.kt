@@ -36,7 +36,6 @@ import me.saket.wysiwyg.atomicLazy
 // TODO:
 //  Stop ship
 //   - read default branch name from the repository instead of hardcoding to 'master.
-//   - handle all GitTreeDiff.Change types.
 //   - broadcast an event when a merge conflict is resolved.
 //  Others
 //   - figure out git author name/email.
@@ -237,6 +236,7 @@ class GitSyncer(
       val commitTime = diffPathTimestamps[diff.path]!!
 
       dbOperations += when (diff) {
+        is Copy,
         is Rename,
           // Renaming of note files are ignored. Press
           // generates a name as per the note's heading.
@@ -304,7 +304,6 @@ class GitSyncer(
             }
           }
         }
-        is Copy -> TODO("handle copy of ${diff.fromPath} -> ${diff.toPath}")
       }
     }
 
