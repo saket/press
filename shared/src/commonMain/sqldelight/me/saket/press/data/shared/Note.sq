@@ -52,8 +52,8 @@ VALUES (?, ?, ?, ?);
 
 updateContent:
 UPDATE note
-SET content = ?, updatedAt = ?
-WHERE id = ?;
+SET content = :content, updatedAt = ?
+WHERE id = ? AND TRIM(content) != TRIM(:content);
 
 updateSyncState:
 UPDATE note

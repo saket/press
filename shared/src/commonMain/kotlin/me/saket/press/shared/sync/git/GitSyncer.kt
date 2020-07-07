@@ -125,16 +125,15 @@ class GitSyncer(
           )
         }
       })
-      noteFile.write(note.content)
 
-      // changes when the same notes are written to files.
-      if (git.isStagingAreaDirty()) {
-        git.commitAll(
-            message = "Update '${noteFile.name}'",
-            author = gitAuthor,
-            timestamp = UtcTimestamp(note.updatedAt)
-        )
-      }
+      noteFile.write(note.content)
+      check(git.isStagingAreaDirty())
+
+      git.commitAll(
+          message = "Update '${noteFile.name}'",
+          author = gitAuthor,
+          timestamp = UtcTimestamp(note.updatedAt)
+      )
     }
     return DONE
   }

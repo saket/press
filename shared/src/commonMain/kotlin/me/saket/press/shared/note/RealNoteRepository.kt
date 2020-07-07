@@ -55,7 +55,6 @@ internal class RealNoteRepository(
     return note(id)
         .take(1)
         .mapToSome()
-        .filter { note -> note.content.trim() != content.trim() }
         .map {
           noteQueries.updateContent(
               id = id,
