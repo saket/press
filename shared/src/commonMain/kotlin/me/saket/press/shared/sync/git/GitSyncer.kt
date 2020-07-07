@@ -15,6 +15,7 @@ import me.saket.kgit.GitTreeDiff.Change.Copy
 import me.saket.kgit.GitTreeDiff.Change.Delete
 import me.saket.kgit.GitTreeDiff.Change.Modify
 import me.saket.kgit.GitTreeDiff.Change.Rename
+import me.saket.kgit.MergeConflict
 import me.saket.kgit.MergeStrategy.OURS
 import me.saket.kgit.PushResult.Failure
 import me.saket.kgit.RebaseResult
@@ -198,7 +199,7 @@ class GitSyncer(
     // on every sync on the other device.
     //
     // This file will get processed after rebase.
-    val conflicts = git.mergeConflicts(with = upstreamHead).filter { it.path.endsWith(".md") }
+    val conflicts = git.mergeConflicts(with = upstreamHead).filterNoteConflicts()
     if (conflicts.isNotEmpty()) {
       log("\nAuto-resolving merge conflicts: ")
 
@@ -359,6 +360,14 @@ class GitSyncer(
         }
       }
       else -> true
+    }
+  }
+
+  private fun List<MergeConflict>.filterNoteConflicts() = filter { diff ->
+    val path = diff.path
+    when {
+      path.startsWith(".press/") -> false   // Meta-files, ignore.
+      else -> path.endsWith(".md")
     }
   }
 

@@ -2,7 +2,6 @@ package me.saket.press.shared.ui
 
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
-import com.badoo.reaktive.observable.toObservable
 import com.badoo.reaktive.rxjavainterop.asRxJava2Observable
 import io.reactivex.disposables.Disposable
 import me.saket.press.shared.ui.UiUpdate.UiEffect
