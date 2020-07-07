@@ -25,4 +25,12 @@ actual class GitCommit(internal val commit: RevCommit) {
   override fun toString(): String {
     return "GitCommit[${sha1.abbreviated} - $message]"
   }
+
+  override fun equals(other: Any?): Boolean {
+    return sha1 == (other as? GitCommit)?.sha1
+  }
+
+  override fun hashCode(): Int {
+    return sha1.hashCode()
+  }
 }
