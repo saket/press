@@ -163,13 +163,6 @@ internal actual class RealGitRepository actual constructor(
         .setTransportConfigCallback(sshTransport())
         .call()
 
-    pullResult.rebaseResult?.run {
-      println("Rebase result: $status")
-      if (conflicts != null) println("Conflicts: $conflicts")
-      if (failingPaths != null) println("Failing paths: $failingPaths")
-      if (uncommittedChanges != null) println("Uncommitted changes: $uncommittedChanges")
-    }
-
     return when {
       pullResult.isSuccessful -> PullResult.Success
       else -> PullResult.Failure(reason = pullResult.toString())

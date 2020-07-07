@@ -34,6 +34,7 @@ import me.saket.press.shared.sync.git.File
 import me.saket.press.shared.sync.git.FileName
 import me.saket.press.shared.sync.git.GitSyncer
 import me.saket.press.shared.sync.git.GitSyncerConfig
+import me.saket.press.shared.sync.git.PrintLnSyncLogger
 import me.saket.press.shared.sync.git.UtcTimestamp
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 import me.saket.press.shared.testDeviceInfo
@@ -78,6 +79,8 @@ class GitSyncerTest : BaseDatabaeTest() {
       forcePush()
       directory.delete(recursively = true)
     }
+
+    syncer.loggers.add(PrintLnSyncLogger)
   }
 
   @AfterTest

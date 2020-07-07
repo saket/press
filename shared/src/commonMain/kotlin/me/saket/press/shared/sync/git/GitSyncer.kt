@@ -16,11 +16,13 @@ import me.saket.kgit.GitTreeDiff.Change.Delete
 import me.saket.kgit.GitTreeDiff.Change.Modify
 import me.saket.kgit.GitTreeDiff.Change.Rename
 import me.saket.kgit.MergeStrategy.OURS
-import me.saket.kgit.PushResult
+import me.saket.kgit.PushResult.Failure
 import me.saket.kgit.RebaseResult
 import me.saket.kgit.UtcTimestamp
+import me.saket.kgit.abbreviated
 import me.saket.press.PressDatabase
 import me.saket.press.shared.db.NoteId
+import me.saket.press.shared.home.SplitHeadingAndBody
 import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.sync.SyncState.IN_FLIGHT
 import me.saket.press.shared.sync.SyncState.SYNCED
@@ -40,7 +42,6 @@ import me.saket.wysiwyg.atomicLazy
 //  Others
 //   - figure out git author name/email.
 //   - set both author and committer time.
-//   - add logging.
 //   - commit deleted notes.
 class GitSyncer(
   git: Git,
@@ -54,6 +55,7 @@ class GitSyncer(
   private val directory = File(deviceInfo.appStorage, "git")
   private val register = FileNameRegister(directory)
   private val gitAuthor = GitAuthor("Saket", "pressapp@saket.me")
+  val loggers = SyncLoggers(FileBasedSyncLogger(directory))
 
   // Lazy to avoid reading anything on the main thread.
   private val git by atomicLazy {
@@ -81,6 +83,8 @@ class GitSyncer(
   }
 
   override fun sync() = completableFromFunction {
+    loggers.onSyncStart()
+
     maybeMakeInitialCommit()
     directory.makeDirectory()
 
@@ -100,6 +104,7 @@ class GitSyncer(
   private fun commitAllChanges(): Result {
     val pendingSyncNotes = noteQueries.pendingSyncNotes().executeAsList()
     if (pendingSyncNotes.isEmpty()) {
+      log("Nothing to commit")
       return SKIPPED
     }
 
@@ -110,6 +115,8 @@ class GitSyncer(
         ids = pendingSyncNotes.map { it.id },
         syncState = IN_FLIGHT
     )
+
+    log("Committing changes to notes:")
 
     for (note in pendingSyncNotes) {
       val noteFile = register.fileFor(note, renameListener = object : OnRenameListener {
@@ -126,6 +133,8 @@ class GitSyncer(
           )
         }
       })
+
+      log(" • ${noteFile.name} (heading: '${SplitHeadingAndBody.split(note.content).first}')")
 
       noteFile.write(note.content)
       check(git.isStagingAreaDirty())
@@ -152,7 +161,8 @@ class GitSyncer(
           "Press uses files in this directory for storing meta-data of your synced notes. " +
               "They are auto-generated and shouldn't be modified. If you run into any " +
               "issues with syncing of notes, feel free to file a [bug report here]" +
-              "(https://github.com/saket/press/issues)."
+              "(https://github.com/saket/press/issues) and attach [sync logs](sync_log.txt)" +
+              " after removing/redacting any private info."
       )
     }
 
@@ -169,8 +179,10 @@ class GitSyncer(
     val localHead = git.headCommit()!!  // non-null because of ensureInitialCommit().
     val upstreamHead = git.headCommit(onBranch = "origin/master")
 
+    log("\nFetching upstream. Local head: $localHead, upstream head: $upstreamHead")
     if (localHead == upstreamHead || upstreamHead == null) {
       // Nothing to fetch.
+      log("Nothing to pull")
       return SKIPPED
     }
 
@@ -188,10 +200,14 @@ class GitSyncer(
     // This file will get processed after rebase.
     val conflicts = git.mergeConflicts(with = upstreamHead).filter { it.path.endsWith(".md") }
     if (conflicts.isNotEmpty()) {
+      log("\nAuto-resolving merge conflicts: ")
+
       for (conflict in conflicts) {
         val conflictingNote = File(directory, conflict.path)
         val newName = register.findNewNameOnConflict(conflictingNote)
         conflictingNote.copy(newName, recursively = true)
+
+        log(" • ${conflictingNote.relativePathIn(directory)} → $newName")
       }
 
       git.commitAll(
@@ -216,8 +232,13 @@ class GitSyncer(
   }
 
   private fun processNotesFromCommits(from: GitCommit?, to: GitCommit) {
+    log("\nProcessing commits from ${from?.sha1?.abbreviated} to ${to.sha1.abbreviated}")
+
+    val commits = git.commitsBetween(from = from, toInclusive = to)
+    commits.forEach { log(" • ${it.sha1.abbreviated} - ${it.message.lines().first()}") }
+
     // Press stores updated-at timestamp of notes in each commit.
-    val diffPathTimestamps = git.commitsBetween(from = from, toInclusive = to)
+    val diffPathTimestamps = commits
         .flatMap { commit ->
           git.changesIn(commit)
               .filterNoteChanges()
@@ -229,10 +250,12 @@ class GitSyncer(
     // avoid locking the DB in a transaction for long.
     val dbOperations = mutableListOf<Runnable>()
 
-    println("\n-------------------------")
+    val diffs = git.diffBetween(from, to).filterNoteChanges()
 
-    for (diff in git.diffBetween(from, to).filterNoteChanges()) {
-      println("$diff")
+    log("\nChanges (${diffs.size}):")
+    if (diffs.isNotEmpty()) log(diffs.joinToString(prefix = " • ", postfix = "\n"))
+
+    for (diff in diffs) {
       val commitTime = diffPathTimestamps[diff.path]!!
 
       dbOperations += when (diff) {
@@ -250,7 +273,7 @@ class GitSyncer(
           val isArchived = record?.noteFolder == "archived"
 
           if (existingId != null) {
-            println("Updating $existingId (${diff.path}), isArchived? $isArchived")
+            log("Updating $existingId (${diff.path}), isArchived? $isArchived")
             Runnable {
               noteQueries.updateContent(
                   id = existingId,
@@ -269,7 +292,7 @@ class GitSyncer(
             }
           } else {
             val newId = NoteId.generate()
-            println("Creating new note $newId for (${diff.path}), isArchived? $isArchived")
+            log("Creating new note $newId for (${diff.path}), isArchived? $isArchived")
             register.createNewRecordFor(file, newId)
             Runnable {
               noteQueries.insert(
@@ -296,7 +319,7 @@ class GitSyncer(
             // Commit has already been processed earlier.
             Runnable {}
           } else {
-            println("Permanently deleting $noteId (${diff.path})")
+            log("Permanently deleting $noteId (${diff.path})")
             Runnable {
               noteQueries.markAsPendingDeletion(noteId)
               noteQueries.updateSyncState(ids = listOf(noteId), syncState = IN_FLIGHT)
@@ -340,11 +363,17 @@ class GitSyncer(
   }
 
   private fun push() {
-    val pushResult = git.push()
-    require(pushResult !is PushResult.Failure) { "Failed to push: $pushResult" }
+    loggers.onSyncComplete()
+    if (git.isStagingAreaDirty()) {
+      git.commitAll("Save sync logs", author = gitAuthor, timestamp = UtcTimestamp(clock))
+    }
 
+    val pushResult = git.push()
+    require(pushResult !is Failure) { "Failed to push: $pushResult" }
     noteQueries.swapSyncStates(old = IN_FLIGHT, new = SYNCED)
   }
+
+  private fun log(message: String) = loggers.log(message)
 }
 
 @Suppress("FunctionName")

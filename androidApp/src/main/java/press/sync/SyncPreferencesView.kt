@@ -88,8 +88,6 @@ class SyncPreferencesView @AssistedInject constructor(
   }
 
   private fun render(model: SyncPreferencesUiModel) {
-    println("Rendering $model")
-
     return when (model) {
       is SyncDisabled -> {
         contentFlipperView.setDisplayedChild(syncDisabledView)
