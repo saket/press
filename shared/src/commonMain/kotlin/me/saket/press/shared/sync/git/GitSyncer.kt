@@ -187,7 +187,7 @@ class GitSyncer(
     // on every sync on the other device.
     //
     // This file will get processed after rebase.
-    val conflicts = git.mergeConflicts(with = upstreamHead)
+    val conflicts = git.mergeConflicts(with = upstreamHead).filter { it.path.endsWith(".md") }
     if (conflicts.isNotEmpty()) {
       for (conflict in conflicts) {
         val conflictingNote = File(directory, conflict.path)
