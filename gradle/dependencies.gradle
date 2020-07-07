@@ -150,9 +150,13 @@ buildscript {
           'jvm': "com.soywiz.korlibs.klock:klock-jvm:$versions.klock",
           'android': "com.soywiz.korlibs.klock:klock-android:$versions.klock",
       ],
-      'stately': "co.touchlab:stately-common:$versions.stately",
-      'statelyCollections': "co.touchlab:stately-collections:$versions.stately",
-      'statelyConcurrency': "co.touchlab:stately-concurrency:$versions.stately",
+      'stately': [
+        'common': "co.touchlab:stately-common:$versions.stately",
+        'collections': "co.touchlab:stately-collections:$versions.stately",
+        'isolate': "co.touchlab:stately-isolate:1.0.2-a4",
+        'isoCollections': "co.touchlab:stately-iso-collections:1.0.2-a4",
+        'concurrency': "co.touchlab:stately-concurrency:$versions.stately"
+      ],
       'flipper': [
           'debug': [
               'core': "com.facebook.flipper:flipper:$versions.flipper",

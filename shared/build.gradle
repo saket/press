@@ -74,8 +74,10 @@ kotlin {
         implementation deps.multiplatformUuid
         implementation deps.klock.common
         implementation deps.sqlDelight.runtime.common
-        implementation deps.stately
-        implementation deps.statelyConcurrency
+        implementation deps.stately.common
+        implementation deps.stately.concurrency
+        implementation deps.stately.isolate
+        implementation deps.stately.isoCollections
         implementation deps.multiplatformSettings.core
         implementation deps.ktor.client.common
         implementation deps.ktor.kotlinxSerialization.common
@@ -92,7 +94,6 @@ kotlin {
         implementation deps.multiplatformSettings.testing
         implementation deps.assertK.common
         implementation deps.assertK.opentest4j // https://youtrack.jetbrains.com/issue/IDEA-214533
-        implementation deps.statelyCollections
       }
     }
     androidMain {

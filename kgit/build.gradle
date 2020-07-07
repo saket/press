@@ -22,7 +22,7 @@ kotlin {
     commonMain {
       dependencies {
         implementation kotlin('stdlib-common')
-        implementation deps.statelyConcurrency
+        implementation deps.stately.concurrency
         implementation deps.kotlinxSerialization.common
       }
     }

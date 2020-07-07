@@ -1,6 +1,6 @@
 package me.saket.press.shared.note
 
-import co.touchlab.stately.collections.frozenCopyOnWriteList
+import co.touchlab.stately.collections.IsoMutableList
 import co.touchlab.stately.concurrency.AtomicInt
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.completableFromFunction
@@ -19,7 +19,7 @@ import kotlin.test.assertTrue
 
 class FakeNoteRepository : NoteRepository {
   // todo: can this be replaced by a Map?
-  val savedNotes = frozenCopyOnWriteList<Note>()
+  val savedNotes = IsoMutableList<Note>()
 
   private val _updateCount = AtomicInt(0)
   val updateCount: Int get() = _updateCount.get()
