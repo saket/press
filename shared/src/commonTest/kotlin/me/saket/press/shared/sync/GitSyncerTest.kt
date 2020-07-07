@@ -360,7 +360,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     )
   }
 
-  @Test fun `sync notes with changing heading`() {
+  @Test fun `sync notes with renamed heading`() {
     if (!canRunTests()) return
 
     val noteId = NoteId.generate()

@@ -26,6 +26,7 @@ import me.saket.press.shared.sync.SyncState.SYNCED
 import me.saket.press.shared.sync.Syncer
 import me.saket.press.shared.sync.Syncer.Status.Disabled
 import me.saket.press.shared.sync.Syncer.Status.Idle
+import me.saket.press.shared.sync.git.FileNameRegister.OnRenameListener
 import me.saket.press.shared.sync.git.GitSyncer.Result.DONE
 import me.saket.press.shared.sync.git.GitSyncer.Result.SKIPPED
 import me.saket.press.shared.time.Clock
@@ -110,7 +111,20 @@ class GitSyncer(
     )
 
     for (note in pendingSyncNotes) {
-      val noteFile = register.fileFor(note)
+      val noteFile = register.fileFor(note, renameListener = object : OnRenameListener {
+        override fun onRename(oldName: String, newName: String) {
+          // Git identifies renames implicitly at runtime rather than explicitly.
+          // It applies heuristic by comparing file names and content and tries to
+          // guess renames, but it can possibly fail to do so and show them as
+          // different files which will result in Press duplicating the notes.
+          // Try to help git by committing renames separately.
+          git.commitAll(
+              message = "Rename '$oldName'",
+              author = gitAuthor,
+              timestamp = UtcTimestamp(note.updatedAt)
+          )
+        }
+      })
       noteFile.write(note.content)
 
       // changes when the same notes are written to files.
@@ -143,7 +157,7 @@ class GitSyncer(
     }
 
     git.commitAll(
-        message = "Setup syncing on ${deviceInfo.deviceName()}",
+        message = "Setup syncing on '${deviceInfo.deviceName()}'",
         author = gitAuthor,
         timestamp = UtcTimestamp(clock),
         allowEmpty = true

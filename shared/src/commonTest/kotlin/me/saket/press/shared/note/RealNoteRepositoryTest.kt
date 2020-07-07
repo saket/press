@@ -8,6 +8,7 @@ import com.badoo.reaktive.scheduler.trampolineScheduler
 import com.badoo.reaktive.test.completable.test
 import com.soywiz.klock.hours
 import com.soywiz.klock.seconds
+import me.saket.press.shared.FakeSchedulers
 import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakedata.fakeNote
@@ -21,7 +22,7 @@ class RealNoteRepositoryTest : BaseDatabaeTest() {
 
   private fun repository() = RealNoteRepository(
       noteQueries = noteQueries,
-      ioScheduler = trampolineScheduler,
+      schedulers = FakeSchedulers(),
       clock = clock
   )
 

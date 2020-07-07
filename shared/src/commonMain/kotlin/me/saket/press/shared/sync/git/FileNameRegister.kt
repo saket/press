@@ -90,8 +90,13 @@ internal class FileNameRegister(private val notesDirectory: File) {
     return recordFor(relativePath)?.noteId
   }
 
+  // todo: use functional interface when kotlin 1.4 is released.
+  interface OnRenameListener {
+    fun onRename(oldName: String, newName: String)
+  }
+
   @Suppress("CascadeIf")
-  fun fileFor(note: Note): File {
+  fun fileFor(note: Note, renameListener: OnRenameListener? = null): File {
     val oldRecord = recordFor(note)
     val oldNoteFile = oldRecord?.noteFileIn(notesDirectory).existsOrNull()
 
@@ -113,6 +118,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
       // A file already exists, but the heading was changed. Rename the file.
       oldNoteFile.renameTo(File(notesDirectory, newNoteName)).also {
         println("Renaming to $newNoteName")
+        renameListener?.onRename(oldName = oldNoteFile.name, newName = newNoteName)
         oldRecord!!.registerFileIn(registerDirectory).delete()
         createNewRecordFor(it, note.id)
       }

@@ -3,6 +3,7 @@ package me.saket.press.shared.note
 import assertk.assertThat
 import assertk.assertions.hasSize
 import com.badoo.reaktive.test.scheduler.TestScheduler
+import me.saket.press.shared.FakeSchedulers
 import me.saket.press.shared.settings.FakeSetting
 import kotlin.test.Test
 
@@ -14,7 +15,7 @@ class PrePopulatedNotesTest {
   private val prePopulatedNotes = PrePopulatedNotes(
       setting = setting,
       repository = repository,
-      ioScheduler = TestScheduler()
+      schedulers = FakeSchedulers()
   )
 
   @Test fun `notes are pre-populated on first app launch`() {
