@@ -4,7 +4,6 @@ import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.asCompletable
-import com.badoo.reaktive.observable.filter
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.take
 import me.saket.press.data.shared.Note

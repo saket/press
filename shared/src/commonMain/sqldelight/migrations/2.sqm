@@ -37,8 +37,24 @@ RENAME TO note;
 CREATE INDEX note_content ON note(content);
 
 -- Mark as pending-sync when content is updated.
-CREATE TRIGGER mark_as_pending_sync
+CREATE TRIGGER pending_sync_on_content_update
 AFTER UPDATE OF content ON note
+BEGIN
+	UPDATE note
+  SET syncState = 'PENDING'
+  WHERE id = new.id;
+END;
+
+CREATE TRIGGER pending_sync_on_archived_update
+AFTER UPDATE OF isArchived ON note
+BEGIN
+	UPDATE note
+  SET syncState = 'PENDING'
+  WHERE id = new.id;
+END;
+
+CREATE TRIGGER pending_sync_on_deletion_update
+AFTER UPDATE OF isPendingDeletion ON note
 BEGIN
 	UPDATE note
   SET syncState = 'PENDING'

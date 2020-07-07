@@ -260,6 +260,10 @@ class GitSyncer(
                   isArchived = isArchived,
                   updatedAt = commitTime
               )
+              noteQueries.updateSyncState(
+                  ids = listOf(existingId),
+                  syncState = SYNCED
+              )
             }
           } else {
             val newId = NoteId.generate()
@@ -277,16 +281,25 @@ class GitSyncer(
                   isArchived = isArchived,
                   updatedAt = commitTime
               )
+              noteQueries.updateSyncState(
+                  ids = listOf(newId),
+                  syncState = SYNCED
+              )
             }
           }
         }
         is Delete -> {
           val noteId = register.noteIdFor(diff.path)
-          requireNotNull(noteId) { "Deleting non-existent note: $noteId" }
-          println("Permanently deleting $noteId (${diff.path})")
-          Runnable {
-            noteQueries.markAsPendingDeletion(noteId)
-            noteQueries.deleteNote(noteId)
+          if (noteId == null) {
+            // Commit has already been processed earlier.
+            Runnable {}
+          } else {
+            println("Permanently deleting $noteId (${diff.path})")
+            Runnable {
+              noteQueries.markAsPendingDeletion(noteId)
+              noteQueries.updateSyncState(ids = listOf(noteId), syncState = IN_FLIGHT)
+              noteQueries.deleteNote(noteId)
+            }
           }
         }
         is Copy -> TODO("handle copy of ${diff.fromPath} -> ${diff.toPath}")

@@ -14,7 +14,7 @@ fun Assert<Iterable<*>>.containsOnly(vararg elements: Any?) = given { actual ->
   }
 
   expected(buildString {
-    append("Expected to contain only:")
+    append("to contain only:")
     elements.toList().appendFlatString(this)
 
     append("\n\nBut was:")

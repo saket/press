@@ -15,9 +15,25 @@ CREATE TABLE note (
 
 CREATE INDEX note_content ON note(content);
 
--- Mark as pending-sync when content is updated.
-CREATE TRIGGER mark_as_pending_sync
+-- Mark as pending-sync when notes are updated.
+CREATE TRIGGER pending_sync_on_content_update
 AFTER UPDATE OF content ON note
+BEGIN
+	UPDATE note
+  SET syncState = 'PENDING'
+  WHERE id = new.id;
+END;
+
+CREATE TRIGGER pending_sync_on_archived_update
+AFTER UPDATE OF isArchived ON note
+BEGIN
+	UPDATE note
+  SET syncState = 'PENDING'
+  WHERE id = new.id;
+END;
+
+CREATE TRIGGER pending_sync_on_deletion_update
+AFTER UPDATE OF isPendingDeletion ON note
 BEGIN
 	UPDATE note
   SET syncState = 'PENDING'
@@ -39,6 +55,12 @@ pendingSyncNotes:
 SELECT *
 FROM note
 WHERE syncState = 'PENDING'
+ORDER BY updatedAt ASC;
+
+notesInState:
+SELECT *
+FROM note
+WHERE syncState = ?
 ORDER BY updatedAt ASC;
 
 note:
@@ -68,17 +90,17 @@ WHERE syncState = :old;
 markAsArchived:
 UPDATE note
 SET isArchived = 1, updatedAt = ?
-WHERE id = ?;
+WHERE id = ? AND isArchived != 1;
 
 setArchived:
 UPDATE note
-SET isArchived = ?, updatedAt = ?
-WHERE id = ?;
+SET isArchived = :isArchived, updatedAt = ?
+WHERE id = ? AND isArchived != :isArchived;
 
 markAsPendingDeletion:
 UPDATE note
 SET isPendingDeletion = 1
-WHERE id = ?;
+WHERE id = ? AND isPendingDeletion != 1;
 
 deleteNote:
 DELETE

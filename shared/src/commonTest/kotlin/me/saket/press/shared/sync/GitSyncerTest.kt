@@ -83,6 +83,13 @@ class GitSyncerTest : BaseDatabaeTest() {
   @AfterTest
   fun cleanUp() {
     deviceInfo.appStorage.delete(recursively = true)
+
+    val unsyncedNotes = noteQueries.allNotes().executeAsList().filter { it.syncState != SYNCED }
+    if (unsyncedNotes.isNotEmpty()) {
+      println("\nUNSYNCED NOTES FOUND: ")
+      unsyncedNotes.forEach { println(it) }
+      error("Unsynced notes found on completion of test")
+    }
   }
 
   @Test fun `pull notes from a non-empty repo`() {
@@ -404,7 +411,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     noteQueries.testInsert(note1, note2)
     syncer.sync().blockingAwait()
 
-    // Archive both notes: One on local and the other on remote.
+    // Archive both notes: one on local and the other on remote.
     noteQueries.markAsArchived(id = note1.id, updatedAt = clock.nowUtc())
     val remote = RemoteRepositoryRobot {
       pull()
