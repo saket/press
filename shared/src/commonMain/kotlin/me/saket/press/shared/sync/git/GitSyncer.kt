@@ -8,6 +8,7 @@ import kotlinx.coroutines.Runnable
 import me.saket.kgit.Git
 import me.saket.kgit.GitAuthor
 import me.saket.kgit.GitCommit
+import me.saket.kgit.GitConfig
 import me.saket.kgit.GitTreeDiff
 import me.saket.kgit.GitTreeDiff.Change.Add
 import me.saket.kgit.GitTreeDiff.Change.Copy
@@ -60,6 +61,7 @@ class GitSyncer(
     with(config.get()!!) {
       git.repository(sshKey = sshKey, path = directory.path).apply {
         addRemote("origin", remote.sshUrl)
+        resetUserConfigTo(GitConfig("diff" to listOf("renames" to "true")))
       }
     }
   }

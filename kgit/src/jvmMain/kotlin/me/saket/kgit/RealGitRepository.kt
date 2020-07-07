@@ -38,6 +38,7 @@ import java.util.TimeZone
 import org.eclipse.jgit.api.Git as JGit
 import org.eclipse.jgit.lib.Repository as JRepository
 import org.eclipse.jgit.merge.MergeStrategy as JgitMergeStrategy
+import org.eclipse.jgit.util.SystemReader as JgitSystemReader
 
 /**
  * JGit is garbage. Try replacing it with [github.com/git24j/git24j].
@@ -50,6 +51,19 @@ internal actual class RealGitRepository actual constructor(
   private val jgit: JGit by lazy {
     // Initializing a directory that already has git will no-op.
     JGit.init().setDirectory(File(directoryPath)).call()
+  }
+
+  override fun resetUserConfigTo(config: GitConfig) {
+    // Note to self: if this doesn't work, try using something
+    // from https://stackoverflow.com/q/33804097/2511884.
+    val userConfig = JgitSystemReader.getInstance().userConfig
+    userConfig.clear()
+
+    for (section in config.sections) {
+      for ((key, value) in section.values) {
+        userConfig.setString(section.name, null, key, value)
+      }
+    }
   }
 
   override fun isStagingAreaDirty(): Boolean {

@@ -3,6 +3,14 @@ package me.saket.kgit
 internal expect class RealGitRepository(directoryPath: String, sshKey: SshPrivateKey) : GitRepository
 
 interface GitRepository {
+
+  /**
+   * Avoid reading any config from [~/.gitconfig] that will lead to non-deterministic
+   * behavior on the host machine. For e.g., following of renames may be disabled for
+   * computing file diffs.
+   */
+  fun resetUserConfigTo(config: GitConfig)
+
   fun isStagingAreaDirty(): Boolean
 
   /**

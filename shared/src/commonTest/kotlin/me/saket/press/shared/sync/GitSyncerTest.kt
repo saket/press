@@ -72,7 +72,7 @@ class GitSyncerTest : BaseDatabaeTest() {
 
   @BeforeTest
   fun setUp() {
-    println()
+    println("======================================")
     RemoteRepositoryRobot {
       commitFiles(message = "Emptiness", add = emptyList())
       forcePush()
@@ -435,6 +435,34 @@ class GitSyncerTest : BaseDatabaeTest() {
     )
   }
 
+  @Test fun `file renames are followed correctly`() {
+    if (!canRunTests()) return
+
+    noteQueries.insert(
+        id = NoteId.generate(),
+        content = "# Horizon Zero Dawn",
+        createdAt = clock.nowUtc(),
+        updatedAt = clock.nowUtc()
+    )
+    syncer.sync().blockingAwait()
+
+    // kgit should be able to identify an ADD + DELETE as a RENAME.
+    RemoteRepositoryRobot {
+      pull()
+      commitFiles(
+          message = "Delete notes",
+          time = clock.nowUtc(),
+          delete = listOf("horizon_zero_dawn.md"),
+          add = listOf("archived/horizon_zero_dawn.md" to "# Horizon Zero Dawn")
+      )
+      forcePush()
+    }
+    syncer.sync().blockingAwait()
+
+    val savedNote = noteQueries.allNotes().executeAsOne()
+    assertThat(savedNote.isArchived).isTrue()
+  }
+
   private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit = {}) {
     val directory = File(deviceInfo.appStorage, "temp").apply { makeDirectory() }
     private val gitRepo = git.repository(syncerConfig.sshKey, directory.path)
@@ -460,7 +488,10 @@ class GitSyncerTest : BaseDatabaeTest() {
       rename: List<Pair<FileName, String>> = emptyList()
     ) {
       add.forEach { (name, body) ->
-        File(directory, name).write(body)
+        File(directory, name).apply {
+          parent!!.makeDirectory(recursively = true)
+          write(body)
+        }
       }
       delete.forEach { path ->
         File(directory, path).delete()
