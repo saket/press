@@ -4,7 +4,6 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
-import com.badoo.reaktive.scheduler.trampolineScheduler
 import com.badoo.reaktive.test.completable.test
 import com.soywiz.klock.hours
 import com.soywiz.klock.seconds

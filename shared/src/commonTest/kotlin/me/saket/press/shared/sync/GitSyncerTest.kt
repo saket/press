@@ -63,7 +63,8 @@ class GitSyncerTest : BaseDatabaeTest() {
       config = FakeSetting(syncerConfig),
       database = database,
       deviceInfo = deviceInfo,
-      clock = clock
+      clock = clock,
+      status = FakeSetting(null)
   )
 
   private fun canRunTests(): Boolean {

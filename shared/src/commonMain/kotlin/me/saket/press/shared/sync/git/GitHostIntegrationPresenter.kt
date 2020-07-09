@@ -18,12 +18,10 @@ import com.badoo.reaktive.observable.onErrorReturnValue
 import com.badoo.reaktive.observable.publish
 import com.badoo.reaktive.observable.startWithValue
 import com.badoo.reaktive.observable.switchMap
-import com.badoo.reaktive.observable.switchMapSingle
 import com.badoo.reaktive.observable.take
 import com.badoo.reaktive.observable.wrap
 import com.badoo.reaktive.single.asObservable
 import com.badoo.reaktive.single.map
-import com.badoo.reaktive.single.onErrorReturnValue
 import com.russhwolf.settings.ExperimentalListener
 import io.ktor.client.HttpClient
 import me.saket.kgit.SshKeygen

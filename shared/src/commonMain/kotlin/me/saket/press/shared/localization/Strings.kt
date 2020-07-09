@@ -34,7 +34,15 @@ data class Strings(
     val confirmSelectionConfirmButton: String,
     val confirmSelectionCancelButton: String,
     val setup_sync_with_host: String,
-    val sync_disabled_message: String
+    val sync_disabled_message: String,
+    val status_in_flight: String,
+    val status_last_synced_never: String,
+    val status_last_synced_x_ago: String,
+    val timestamp_now: String,
+    val timestamp_minutes: PluralString,
+    val timestamp_hours: PluralString,
+    val timestamp_days: PluralString,
+    val timestamp_a_while_ago: String
   )
 }
 
@@ -66,7 +74,15 @@ val ENGLISH_STRINGS = Strings(
         confirmSelectionMessage = "Are you sure you want to give Press access to <b>%s</b>?",
         confirmSelectionConfirmButton = "Let's go",
         confirmSelectionCancelButton = "Wait no",
+        setup_sync_with_host = "Sync with %s",
         sync_disabled_message = "Press can sync notes between your devices through a git repository.",
-        setup_sync_with_host = "Sync with %s"
+        status_in_flight = "Syncing…",
+        status_last_synced_never = "Last synced: never",
+        status_last_synced_x_ago = "Last synced %s",
+        timestamp_now = "just now",
+        timestamp_minutes = PluralString(one = "%s min ago", many = "%s mins ago"),
+        timestamp_hours = PluralString(one = "%s hr ago", many = "%s hrs ago"),
+        timestamp_days = PluralString(one = "%s day ago", many = "%s days ago"),
+        timestamp_a_while_ago = "a while ago"
     )
 )

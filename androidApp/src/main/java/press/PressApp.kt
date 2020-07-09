@@ -39,9 +39,11 @@ abstract class PressApp : Application() {
 
     // todo: use workmanager to schedule syncing in the background.
     syncDisposable = syncer.statusRx2()
-        .switchMap { status ->
-          when (status) {
-            is Disabled -> Observable.empty()
+        .map { it is Disabled }
+        .distinctUntilChanged()
+        .switchMap { disabled ->
+          when {
+            disabled -> Observable.empty()
             else -> Observables.interval(30.seconds).startWith(0)
           }
         }

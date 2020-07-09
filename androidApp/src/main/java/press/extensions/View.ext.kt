@@ -120,5 +120,8 @@ inline fun View.updatePadding(horizontal: Int, vertical: Int) {
 }
 
 fun ViewFlipper.setDisplayedChild(child: View) {
-  displayedChild = indexOfChild(child)
+  val childIndex = indexOfChild(child)
+  if (displayedChild != childIndex) {     // otherwise ViewFlipper plays animation even if the same child is set.
+    displayedChild = childIndex
+  }
 }

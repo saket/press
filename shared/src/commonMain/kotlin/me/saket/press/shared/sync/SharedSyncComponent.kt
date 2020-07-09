@@ -15,6 +15,7 @@ import me.saket.kgit.Git
 import me.saket.kgit.RealGit
 import me.saket.press.shared.di.koin
 import me.saket.press.shared.settings.Setting
+import me.saket.press.shared.sync.Syncer.Status
 import me.saket.press.shared.sync.git.GitHost
 import me.saket.press.shared.sync.git.GitHostAuthToken
 import me.saket.press.shared.sync.git.GitHostIntegrationPresenter
@@ -28,7 +29,13 @@ class SharedSyncComponent {
 
   val module = module {
     single { httpClient(get()) }
-    single { Json(Stable.copy(prettyPrint = true, ignoreUnknownKeys = true)) }
+    single {
+      Json(Stable.copy(
+        prettyPrint = true,
+        ignoreUnknownKeys = true,
+        useArrayPolymorphism = true
+      ))
+    }
 
     factory {
       { host: GitHost ->
@@ -41,7 +48,7 @@ class SharedSyncComponent {
         )
       }
     }
-    factory { SyncPreferencesPresenter(get(), get(), get(), get()) }
+    factory { SyncPreferencesPresenter(get(), get(), get(), get(), get(), get()) }
     factory { (args: GitHostIntegrationPresenter.Args) ->
       GitHostIntegrationPresenter(
           args = args,
@@ -56,13 +63,26 @@ class SharedSyncComponent {
     factory<Git> { RealGit() }
     factory<Syncer> { get<GitSyncer>() }
     factory(named("gitsyncer_config")) { gitSyncerConfig(get(), get()) }
-    factory { GitSyncer(
-        git = get(),
-        config = get(named("gitsyncer_config")),
-        database = get(),
-        deviceInfo = get(),
-        clock = get()
-    ) }
+    factory(named("sync_status")) {
+      val json = get<Json>()
+      Setting.create(
+          settings = get(),
+          key = "sync_status",
+          from = { serialized -> json.parse(Status.serializer(), serialized) },
+          to = { deserialized -> json.stringify(Status.serializer(), deserialized) },
+          defaultValue = null
+      )
+    }
+    factory {
+      GitSyncer(
+          git = get(),
+          config = get(named("gitsyncer_config")),
+          database = get(),
+          deviceInfo = get(),
+          clock = get(),
+          status = get(named("sync_status"))
+      )
+    }
   }
 
   private fun httpClient(json: Json): HttpClient {

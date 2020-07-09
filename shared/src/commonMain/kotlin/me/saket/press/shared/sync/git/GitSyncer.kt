@@ -2,7 +2,7 @@ package me.saket.press.shared.sync.git
 
 import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.observable.Observable
-import com.badoo.reaktive.observable.map
+import com.badoo.reaktive.observable.combineLatest
 import com.soywiz.klock.DateTime
 import kotlinx.coroutines.Runnable
 import me.saket.kgit.Git
@@ -30,6 +30,7 @@ import me.saket.press.shared.sync.SyncState.SYNCED
 import me.saket.press.shared.sync.Syncer
 import me.saket.press.shared.sync.Syncer.Status.Disabled
 import me.saket.press.shared.sync.Syncer.Status.Idle
+import me.saket.press.shared.sync.Syncer.Status.InFlight
 import me.saket.press.shared.sync.git.FileNameRegister.OnRenameListener
 import me.saket.press.shared.sync.git.GitSyncer.Result.DONE
 import me.saket.press.shared.sync.git.GitSyncer.Result.SKIPPED
@@ -49,7 +50,8 @@ class GitSyncer(
   private val config: Setting<GitSyncerConfig>,
   private val database: PressDatabase,
   private val deviceInfo: DeviceInfo,
-  private val clock: Clock
+  private val clock: Clock,
+  private val status: Setting<Status>
 ) : Syncer() {
 
   private val noteQueries get() = database.noteQueries
@@ -73,27 +75,36 @@ class GitSyncer(
     SKIPPED
   }
 
-  // todo: emit in_flight status when syncing is ongoing.
   override fun status(): Observable<Status> {
-    return config.listen().map { config ->
+    return combineLatest(config.listen(), status.listen()) { config, status ->
       when (config) {
         null -> Disabled
-        else -> Idle(lastSyncedAt = null)
+        else -> status ?: Idle(lastSyncedAt = null)
       }
     }
   }
 
   override fun sync() = completableFromFunction {
+    val rollBackToStatus = status.get()
+    status.set(InFlight)
     loggers.onSyncStart()
 
-    maybeMakeInitialCommit()
-    directory.makeDirectory()
+    try {
+      maybeMakeInitialCommit()
+      directory.makeDirectory()
 
-    val commitResult = commitAllChanges()
-    val pullResult = pull()
+      val commitResult = commitAllChanges()
+      val pullResult = pull()
 
-    if (commitResult == DONE || pullResult == DONE) {
-      push()
+      if (commitResult == DONE || pullResult == DONE) {
+        push()
+      }
+      status.set(Idle(lastSyncedAt = clock.nowUtc()))
+
+    } catch (e: Throwable) {
+      println("Error, rolling back to $rollBackToStatus")
+      status.set(rollBackToStatus)
+      throw e
     }
   }
 
