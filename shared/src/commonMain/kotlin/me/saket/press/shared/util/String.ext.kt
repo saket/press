@@ -6,3 +6,5 @@ enum class Locale { US }
 expect fun String.toLowerCase(locale: Locale): String
 
 expect inline fun Char.isLetterOrDigit(): Boolean
+
+expect fun String.format(vararg args: Any): String
