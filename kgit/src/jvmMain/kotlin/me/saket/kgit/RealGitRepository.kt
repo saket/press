@@ -8,6 +8,7 @@ import me.saket.kgit.GitTreeDiff.Change.Delete
 import me.saket.kgit.GitTreeDiff.Change.Modify
 import me.saket.kgit.GitTreeDiff.Change.Rename
 import me.saket.kgit.MergeStrategy.OURS
+import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM
 import org.eclipse.jgit.api.RebaseResult.Status.STOPPED
 import org.eclipse.jgit.api.TransportConfigCallback
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.ADD
@@ -59,9 +60,10 @@ internal actual class RealGitRepository actual constructor(
     val userConfig = JgitSystemReader.getInstance().userConfig
     userConfig.clear()
 
+    val repoConfig = jgit.repository.config
     for (section in config.sections) {
       for ((key, value) in section.values) {
-        userConfig.setString(section.name, null, key, value)
+        repoConfig.setString(section.name, null, key, value)
       }
     }
   }
@@ -69,6 +71,15 @@ internal actual class RealGitRepository actual constructor(
   override fun isStagingAreaDirty(): Boolean {
     val status = jgit.status().call()
     return !status.isClean
+  }
+
+  override fun checkout(branch: String, create: Boolean) {
+    if (currentBranch().name == branch) return
+
+    jgit.checkout().setName(branch)
+        .setCreateBranch(create)
+        .setUpstreamMode(SET_UPSTREAM)
+        .call()
   }
 
   @Suppress("NAME_SHADOWING")
@@ -178,7 +189,7 @@ internal actual class RealGitRepository actual constructor(
         .also { check(it.size == 1) { "Did not expect multiple push results: $it" } }
         .single()
 
-    return when (val status = pushResult.getRemoteUpdate("refs/heads/master").status) {
+    return when (val status = pushResult.remoteUpdates.single().status) {
       RemoteRefUpdate.Status.OK -> PushResult.Success
       RemoteRefUpdate.Status.UP_TO_DATE -> PushResult.AlreadyUpToDate
       else -> PushResult.Failure(status.toString())

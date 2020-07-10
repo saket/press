@@ -34,17 +34,19 @@ import me.saket.press.shared.sync.Syncer.Status.InFlight
 import me.saket.press.shared.sync.git.FileNameRegister.OnRenameListener
 import me.saket.press.shared.sync.git.GitSyncer.Result.DONE
 import me.saket.press.shared.sync.git.GitSyncer.Result.SKIPPED
+import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 import me.saket.press.shared.time.Clock
 import me.saket.wysiwyg.atomicLazy
 
 // TODO:
 //  Stop ship
-//   - read default branch name from the repository instead of hardcoding to 'master.
 //   - broadcast an event when a merge conflict is resolved.
+//   - close GitHostIntegrationView when sync is setup.
 //  Others
 //   - figure out git author name/email.
 //   - set both author and committer time.
 //   - commit deleted notes.
+//   - show errors in status UI
 class GitSyncer(
   git: Git,
   private val config: Setting<GitSyncerConfig>,
@@ -58,6 +60,7 @@ class GitSyncer(
   private val directory = File(deviceInfo.appStorage, "git")
   private val register = FileNameRegister(directory)
   private val gitAuthor = GitAuthor("Saket", "pressapp@saket.me")
+  private val remote: GitRepositoryInfo? get() = config.get()?.remote
   val loggers = SyncLoggers(FileBasedSyncLogger(directory))
 
   // Lazy to avoid reading anything on the main thread.
@@ -90,8 +93,8 @@ class GitSyncer(
     loggers.onSyncStart()
 
     try {
+      directory.makeDirectory(recursively = true)
       maybeMakeInitialCommit()
-      directory.makeDirectory()
 
       val commitResult = commitAllChanges()
       val pullResult = pull()
@@ -111,6 +114,36 @@ class GitSyncer(
   override fun disable() = completableFromFunction {
     config.set(null)
     directory.delete(recursively = true)
+  }
+
+  /** Commit announcing that syncing has been setup. */
+  private fun maybeMakeInitialCommit() {
+    if (git.headCommit() != null) {
+      return
+    }
+
+    with(File(directory, ".press/")) {
+      makeDirectory(recursively = true)
+      File(this, "README.md").write(
+          "Press uses files in this directory for storing meta-data of your synced notes. " +
+              "They are auto-generated and shouldn't be modified. If you run into any " +
+              "issues with syncing of notes, feel free to file a [bug report here]" +
+              "(https://github.com/saket/press/issues) and attach [sync logs](sync_log.txt)" +
+              " after removing/redacting any private info."
+      )
+    }
+
+    git.commitAll(
+        message = "Setup syncing on '${deviceInfo.deviceName()}'",
+        author = gitAuthor,
+        timestamp = UtcTimestamp(clock),
+        allowEmpty = true
+    )
+
+    // JGit doesn't offer a way to set the initial branch name and it
+    // won't let us change the branch without committing anything either
+    // so we change it after committing something.
+    git.checkout(remote!!.defaultBranch, create = true)
   }
 
   private fun commitAllChanges(): Result {
@@ -160,36 +193,10 @@ class GitSyncer(
     return DONE
   }
 
-  /** Commit announcing that syncing has been setup. */
-  private fun maybeMakeInitialCommit() {
-    check(git.currentBranch().name == "master")
-    val head = git.headCommit()
-    if (head != null) return
-
-    // Empty commits get thrown away on a rebase so gotta add something -_-.
-    with(File(directory, ".press/")) {
-      makeDirectory(recursively = true)
-      File(this, "README.md").write(
-          "Press uses files in this directory for storing meta-data of your synced notes. " +
-              "They are auto-generated and shouldn't be modified. If you run into any " +
-              "issues with syncing of notes, feel free to file a [bug report here]" +
-              "(https://github.com/saket/press/issues) and attach [sync logs](sync_log.txt)" +
-              " after removing/redacting any private info."
-      )
-    }
-
-    git.commitAll(
-        message = "Setup syncing on '${deviceInfo.deviceName()}'",
-        author = gitAuthor,
-        timestamp = UtcTimestamp(clock),
-        allowEmpty = true
-    )
-  }
-
   private fun pull(): Result {
     git.fetch()
-    val localHead = git.headCommit()!!  // non-null because of ensureInitialCommit().
-    val upstreamHead = git.headCommit(onBranch = "origin/master")
+    val localHead = git.headCommit()!!  // non-null because of maybeMakeInitialCommit().
+    val upstreamHead = git.headCommit(onBranch = "origin/${git.currentBranch().name}")
 
     log("\nFetching upstream. Local head: $localHead, upstream head: $upstreamHead")
     if (localHead == upstreamHead || upstreamHead == null) {

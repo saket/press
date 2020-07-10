@@ -472,7 +472,9 @@ class GitSyncerTest : BaseDatabaeTest() {
     private val gitRepo = git.repository(syncerConfig.sshKey, directory.path)
 
     init {
-      gitRepo.addRemote("origin", "git@github.com:saket/PressSyncPlayground.git")
+      gitRepo.addRemote("origin", syncerConfig.remote.sshUrl)
+      gitRepo.commitAll("Initial commit", timestamp = UtcTimestamp(clock), allowEmpty = true)
+      gitRepo.checkout(syncerConfig.remote.defaultBranch)
       prepare()
     }
 

@@ -13,6 +13,8 @@ interface GitRepository {
 
   fun isStagingAreaDirty(): Boolean
 
+  fun checkout(branch: String, create: Boolean = true)
+
   /**
    * Add all files to staging and commit.
    *

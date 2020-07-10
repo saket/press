@@ -6,6 +6,7 @@ internal actual class RealGitRepository actual constructor(
 ) : GitRepository {
   override fun resetUserConfigTo(config: GitConfig): Unit = TODO()
   override fun isStagingAreaDirty(): Boolean = TODO()
+  override fun checkout(branch: String, create: Boolean): Unit = TODO()
   override fun commitAll(message: String, author: GitAuthor?, timestamp: UtcTimestamp?, allowEmpty: Boolean) = TODO()
   override fun pull(rebase: Boolean): PullResult = TODO()
   override fun fetch(): Unit = TODO()
