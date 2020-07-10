@@ -50,13 +50,13 @@ class GitSyncerTest : BaseDatabaeTest() {
   private val git = RealGit()
   private val clock = FakeClock()
   private val syncerConfig = GitSyncerConfig(
-      remote = GitRepositoryInfo( // todo: read everything from build config.
-          name = "saket/PressSyncPlayground",
-          url = "https://github.com/saket/PressSyncPlayground",
-          sshUrl = "git@github.com:saket/PressSyncPlayground.git",
-          defaultBranch = "master"
+      remote = GitRepositoryInfo(
+          name = "ignored",
+          url = "ignored",
+          sshUrl = BuildKonfig.GIT_TEST_REPO_SSH_URL,
+          defaultBranch = BuildKonfig.GIT_TEST_REPO_BRANCH
       ),
-      sshKey = SshPrivateKey(BuildKonfig.GITHUB_SSH_PRIV_KEY)
+      sshKey = SshPrivateKey(BuildKonfig.GIT_TEST_SSH_PRIV_KEY)
   )
   private val syncer = GitSyncer(
       git = git,
@@ -69,7 +69,7 @@ class GitSyncerTest : BaseDatabaeTest() {
 
   private fun canRunTests(): Boolean {
     // todo: make tests work for native platforms.
-    return BuildKonfig.GITHUB_SSH_PRIV_KEY.isNotBlank() && Platform.host == Android
+    return BuildKonfig.GIT_TEST_SSH_PRIV_KEY.isNotBlank() && Platform.host == Android
   }
 
   @BeforeTest

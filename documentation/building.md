@@ -22,3 +22,10 @@ Press uses GitHub for syncing notes with a git repository. If you wish, you can 
 github_client_id=...
 github_client_secret=...
 ```
+
+For ensuring sync is working as expected, Press runs its [tests](https://github.com/saket/press/blob/master/shared/src/commonTest/kotlin/me/saket/press/shared/sync/GitSyncerTest.kt) on a real repository. If the tests need to be run locally, you can specify your repository:
+
+```groovy
+git_test_repo_ssh_url=git@github.com:user/ExampleRepository.git
+git_test_repo_branch=main
+```

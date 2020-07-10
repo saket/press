@@ -169,7 +169,9 @@ buildkonfig {
   defaultConfigs {
     buildConfigField "String", "GITHUB_CLIENT_ID", secrets["github_client_id"] ?: "nicolas_cage"
     buildConfigField "String", "GITHUB_CLIENT_SECRET", secrets["github_client_secret"] ?: "nicolas_cage"
-    buildConfigField "String", "GITHUB_SSH_PRIV_KEY", secrets["github_ssh_private_key"] ?: ""
+    buildConfigField "String", "GIT_TEST_SSH_PRIV_KEY", secrets["git_test_ssh_private_key"] ?: ""
+    buildConfigField "String", "GIT_TEST_REPO_SSH_URL", secrets["git_test_repo_ssh_url"] ?: ""
+    buildConfigField "String", "GIT_TEST_REPO_BRANCH", secrets["git_test_repo_branch"] ?: ""
   }
 }
 
