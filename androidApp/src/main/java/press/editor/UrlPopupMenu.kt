@@ -16,8 +16,8 @@ class UrlPopupMenu(
 ) : PopupMenu(context, anchor) {
 
   init {
-    val openString = context.strings().editor.openUrl
-    val editString = context.strings().editor.editUrl
+    val openString = context.strings().editor.open_url
+    val editString = context.strings().editor.edit_url
 
     menu.add(openString)
     menu.add(editString)

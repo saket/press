@@ -119,7 +119,7 @@ class EditorPresenter(
   }
 
   private fun Observable<EditorEvent>.toggleHintText(): Observable<Optional<String>> {
-    val randomHint = strings.editor.newNoteHints.shuffled().first()
+    val randomHint = strings.editor.new_note_hints.shuffled().first()
 
     return ofType<NoteTextChanged>()
         .distinctUntilChanged()

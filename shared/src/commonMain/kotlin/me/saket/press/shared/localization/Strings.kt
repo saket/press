@@ -5,7 +5,6 @@ import me.saket.press.shared.localization.Strings.Editor
 import me.saket.press.shared.localization.Strings.Home
 import me.saket.press.shared.localization.Strings.Sync
 
-// todo: rename all to underscore case.
 data class Strings(
   val common: Common,
   val home: Home,
@@ -13,8 +12,8 @@ data class Strings(
   val sync: Sync
 ) {
   data class Common(
-    val closeNavIconDescription: String,
-    val genericError: String,
+    val close_nav_icon_description: String,
+    val generic_error: String,
     val retry: String
   )
 
@@ -23,16 +22,16 @@ data class Strings(
   )
 
   data class Editor(
-    val newNoteHints: List<String>,
-    val openUrl: String,
-    val editUrl: String
+    val new_note_hints: List<String>,
+    val open_url: String,
+    val edit_url: String
   )
 
   data class Sync(
     val title: String,
-    val confirmSelectionMessage: String,
-    val confirmSelectionConfirmButton: String,
-    val confirmSelectionCancelButton: String,
+    val confirm_repo_message: String,
+    val confirm_repo_confirm_button: String,
+    val confirm_repo_cancel_button: String,
     val setup_sync_with_host: String,
     val sync_disabled_message: String,
     val status_in_flight: String,
@@ -48,15 +47,15 @@ data class Strings(
 
 val ENGLISH_STRINGS = Strings(
     common = Common(
-        closeNavIconDescription = "Go back",
-        genericError = "Something went wrong, try again?",
+        close_nav_icon_description = "Go back",
+        generic_error = "Something went wrong, try again?",
         retry = "Retry"
     ),
     home = Home(
         preferences = "Preferences"
     ),
     editor = Editor(
-        newNoteHints = listOf(
+        new_note_hints = listOf(
             "A wonderful note",
             "It begins with a word",
             "This is the beginning",
@@ -66,14 +65,14 @@ val ENGLISH_STRINGS = Strings(
             "Here we go",
             "Type your heart out"
         ),
-        openUrl = "Open",
-        editUrl = "Edit"
+        open_url = "Open",
+        edit_url = "Edit"
     ),
     sync = Sync(
         title = "Sync",
-        confirmSelectionMessage = "Are you sure you want to give Press access to <b>%s</b>?",
-        confirmSelectionConfirmButton = "Let's go",
-        confirmSelectionCancelButton = "Wait no",
+        confirm_repo_message = "Are you sure you want to give Press access to <b>%s</b>?",
+        confirm_repo_confirm_button = "Let's go",
+        confirm_repo_cancel_button = "Wait no",
         setup_sync_with_host = "Sync with %s",
         sync_disabled_message = "Press can sync notes between your devices through a git repository.",
         status_in_flight = "Syncing…",

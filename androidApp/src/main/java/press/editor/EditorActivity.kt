@@ -97,7 +97,6 @@ class EditorActivity : ThemeAwareActivity() {
   }
 
   companion object {
-    // TODO: store EditorOpenMode in the intent directly instead.
     private const val EXTRA_IS_NEW_NOTE = "press:is_new_note"
     private const val EXTRA_NOTE_ID = "press:new_note_id"
 

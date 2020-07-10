@@ -2,7 +2,6 @@ package press.sync
 
 import android.content.Context
 import android.view.Gravity.CENTER_HORIZONTAL
-import android.widget.Button
 import android.widget.TextView
 import com.squareup.contour.ContourLayout
 import me.saket.press.shared.localization.strings
@@ -13,7 +12,7 @@ class ErrorView(context: Context) : ContourLayout(context) {
 
   private val messageView = themed(TextView(context)).apply {
     gravity = CENTER_HORIZONTAL
-    text = context.strings().common.genericError
+    text = context.strings().common.generic_error
     applyLayout(
         x = matchParentX(),
         y = topTo { parent.top() }

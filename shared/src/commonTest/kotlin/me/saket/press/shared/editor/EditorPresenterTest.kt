@@ -154,19 +154,19 @@ class EditorPresenterTest {
     val hintText = { uiModels.values.last().hintText?.drop("# ".length) }
 
     presenter.dispatch(NoteTextChanged(NEW_NOTE_PLACEHOLDER))
-    assertThat(hintText()).isIn(ENGLISH_STRINGS.editor.newNoteHints)
+    assertThat(hintText()).isIn(ENGLISH_STRINGS.editor.new_note_hints)
 
     presenter.dispatch(NoteTextChanged(""))
     assertThat(hintText()).isNull()
 
     presenter.dispatch(NoteTextChanged(NEW_NOTE_PLACEHOLDER))
-    assertThat(hintText()).isIn(ENGLISH_STRINGS.editor.newNoteHints)
+    assertThat(hintText()).isIn(ENGLISH_STRINGS.editor.new_note_hints)
 
     presenter.dispatch(NoteTextChanged("  $NEW_NOTE_PLACEHOLDER"))
     assertThat(hintText()).isNull()
 
     presenter.dispatch(NoteTextChanged("$NEW_NOTE_PLACEHOLDER  "))
-    assertThat(hintText()).isIn(ENGLISH_STRINGS.editor.newNoteHints)
+    assertThat(hintText()).isIn(ENGLISH_STRINGS.editor.new_note_hints)
 
     uiModels.assertNotError()
   }

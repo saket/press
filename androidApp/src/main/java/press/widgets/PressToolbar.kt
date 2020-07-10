@@ -9,7 +9,7 @@ import press.extensions.getDrawable
 
 class PressToolbar(context: Context) : Toolbar(context) {
   init {
-    navigationContentDescription = context.strings().common.closeNavIconDescription
+    navigationContentDescription = context.strings().common.close_nav_icon_description
     themeAware {
       navigationIcon = context.getDrawable(drawable.ic_close_24dp, it.accentColor)
     }
