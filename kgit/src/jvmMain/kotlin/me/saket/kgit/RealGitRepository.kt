@@ -241,8 +241,8 @@ internal actual class RealGitRepository actual constructor(
   }
 
   override fun headCommit(onBranch: String?): GitCommit? {
-    val branch = onBranch ?: currentBranch().name
-    val head = jgit.repository.resolve(branch) ?: return null
+    val revision = onBranch ?: "HEAD"
+    val head = jgit.repository.resolve(revision) ?: return null
 
     RevWalk(jgit.repository).use { walk ->
       val commit = walk.parseCommit(head)
