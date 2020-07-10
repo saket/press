@@ -23,16 +23,18 @@ import me.saket.press.data.shared.Note
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
-import me.saket.press.shared.editor.EditorUiEffect.CloseNote
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.note.NoteRepository
 import me.saket.press.shared.rx.Schedulers
+import me.saket.press.shared.rx.consumeOnNext
 import me.saket.press.shared.rx.mapToOptional
 import me.saket.press.shared.rx.mapToSome
 import me.saket.press.shared.rx.observableInterval
+import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
+import me.saket.press.shared.ui.ScreenKey.Close
 import me.saket.press.shared.util.Optional
 import me.saket.press.shared.util.filterNone
 import me.saket.wysiwyg.formatting.TextSelection
@@ -58,14 +60,11 @@ class EditorPresenter(
 
     val autoSave = viewEvents().autoSaveContent()
 
-    return merge(uiModels, autoSave).wrap()
+    return merge(uiModels, autoSave, closeIfNoteGetsDeleted()).wrap()
   }
 
   override fun uiEffects(): ObservableWrapper<EditorUiEffect> {
-    return merge(
-        populateExistingNoteOnStart(),
-        closeIfNoteGetsDeleted()
-    ).wrap()
+    return populateExistingNoteOnStart().wrap()
   }
 
   private fun createOrFetchNote(): Observable<Note> {
@@ -111,11 +110,13 @@ class EditorPresenter(
   /**
    * Can happen if the note was deleted outside of the app (e.g., on another device).
    */
-  private fun closeIfNoteGetsDeleted(): Observable<EditorUiEffect> {
+  private fun closeIfNoteGetsDeleted(): Observable<EditorUiModel> {
     return noteStream
         .filter { it.isPendingDeletion }
         .take(1)
-        .map { CloseNote }
+        .consumeOnNext {
+          args.navigator.lfg(Close)
+        }
   }
 
   private fun Observable<EditorEvent>.toggleHintText(): Observable<Optional<String>> {
@@ -186,7 +187,9 @@ class EditorPresenter(
     /**
      * Should be kept in sync with [HomePresenter.Args.includeEmptyNotes].
      */
-    val archiveEmptyNoteOnExit: Boolean
+    val archiveEmptyNoteOnExit: Boolean,
+
+    val navigator: Navigator
   )
 
   companion object {

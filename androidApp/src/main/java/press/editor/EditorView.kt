@@ -28,7 +28,6 @@ import me.saket.press.shared.editor.EditorOpenMode
 import me.saket.press.shared.editor.EditorPresenter
 import me.saket.press.shared.editor.EditorPresenter.Args
 import me.saket.press.shared.editor.EditorUiEffect
-import me.saket.press.shared.editor.EditorUiEffect.CloseNote
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.editor.EditorUiModel
 import me.saket.press.shared.settings.Setting
@@ -43,15 +42,16 @@ import me.saket.wysiwyg.formatting.TextSelection
 import me.saket.wysiwyg.parser.node.HeadingLevel.H1
 import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.widgets.addTextChangedListener
+import press.extensions.doOnTextChange
+import press.extensions.fromOreo
+import press.extensions.textColor
+import press.extensions.textSizePx
+import press.navigator
 import press.theme.themeAware
 import press.theme.themePalette
 import press.theme.themed
 import press.widgets.PressToolbar
 import press.widgets.Truss
-import press.extensions.doOnTextChange
-import press.extensions.fromOreo
-import press.extensions.textColor
-import press.extensions.textSizePx
 
 class EditorView @AssistedInject constructor(
   @Assisted context: Context,
@@ -120,7 +120,8 @@ class EditorView @AssistedInject constructor(
 
   private val presenter = presenterFactory.create(Args(
       openMode = openMode,
-      archiveEmptyNoteOnExit = true
+      archiveEmptyNoteOnExit = true,
+      navigator = navigator()
   ))
 
   init {
@@ -183,7 +184,6 @@ class EditorView @AssistedInject constructor(
   private fun render(uiUpdate: EditorUiEffect) {
     return when (uiUpdate) {
       is UpdateNoteText -> editorEditText.setText(uiUpdate.newText, uiUpdate.newSelection)
-      is CloseNote -> onDismiss()
     }
   }
 

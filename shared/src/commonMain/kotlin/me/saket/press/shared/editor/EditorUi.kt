@@ -29,6 +29,4 @@ sealed class EditorUiEffect {
     val newText: String,
     val newSelection: TextSelection?
   ) : EditorUiEffect()
-
-  object CloseNote : EditorUiEffect()
 }

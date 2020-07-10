@@ -41,7 +41,6 @@ import me.saket.wysiwyg.atomicLazy
 // TODO:
 //  Stop ship
 //   - broadcast an event when a merge conflict is resolved.
-//   - close GitHostIntegrationView when sync is setup.
 //  Others
 //   - figure out git author name/email.
 //   - set both author and committer time.

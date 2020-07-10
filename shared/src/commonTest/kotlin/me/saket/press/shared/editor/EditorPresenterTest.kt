@@ -1,6 +1,7 @@
 package me.saket.press.shared.editor
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
@@ -23,6 +24,7 @@ import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.localization.ENGLISH_STRINGS
 import me.saket.press.shared.note.FakeNoteRepository
+import me.saket.press.shared.ui.FakeNavigator
 import me.saket.wysiwyg.formatting.TextSelection
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -32,13 +34,14 @@ class EditorPresenterTest {
   private val repository = FakeNoteRepository()
   private val testScheduler = TestScheduler()
   private val config = EditorConfig(autoSaveEvery = 5.seconds)
+  private val navigator = FakeNavigator()
 
   private fun presenter(
     openMode: EditorOpenMode,
     archiveEmptyNoteOnExit: Boolean = true
   ): EditorPresenter {
     return EditorPresenter(
-        args = Args(openMode, archiveEmptyNoteOnExit),
+        args = Args(openMode, archiveEmptyNoteOnExit, navigator),
         noteRepository = repository,
         schedulers = FakeSchedulers(computation = testScheduler),
         strings = ENGLISH_STRINGS,
@@ -154,19 +157,19 @@ class EditorPresenterTest {
     val hintText = { uiModels.values.last().hintText?.drop("# ".length) }
 
     presenter.dispatch(NoteTextChanged(NEW_NOTE_PLACEHOLDER))
-    assertThat(hintText()).isIn(ENGLISH_STRINGS.editor.new_note_hints)
+    assertThat(ENGLISH_STRINGS.editor.new_note_hints).contains(hintText())
 
     presenter.dispatch(NoteTextChanged(""))
     assertThat(hintText()).isNull()
 
     presenter.dispatch(NoteTextChanged(NEW_NOTE_PLACEHOLDER))
-    assertThat(hintText()).isIn(ENGLISH_STRINGS.editor.new_note_hints)
+    assertThat(ENGLISH_STRINGS.editor.new_note_hints).contains(hintText())
 
     presenter.dispatch(NoteTextChanged("  $NEW_NOTE_PLACEHOLDER"))
     assertThat(hintText()).isNull()
 
     presenter.dispatch(NoteTextChanged("$NEW_NOTE_PLACEHOLDER  "))
-    assertThat(hintText()).isIn(ENGLISH_STRINGS.editor.new_note_hints)
+    assertThat(ENGLISH_STRINGS.editor.new_note_hints).contains(hintText())
 
     uiModels.assertNotError()
   }

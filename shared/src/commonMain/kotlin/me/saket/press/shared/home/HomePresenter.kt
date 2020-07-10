@@ -1,11 +1,12 @@
 package me.saket.press.shared.home
 
 import com.badoo.reaktive.completable.andThen
+import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.observable.Observable
-import com.badoo.reaktive.observable.flatMap
+import com.badoo.reaktive.observable.flatMapCompletable
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
-import com.badoo.reaktive.observable.observableOf
+import com.badoo.reaktive.observable.observableOfEmpty
 import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.wrap
 import me.saket.press.data.shared.Note
@@ -13,37 +14,37 @@ import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorPresenter
 import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
-import me.saket.press.shared.home.HomeUiEffect.ComposeNewNote
 import me.saket.press.shared.keyboard.KeyboardShortcuts
 import me.saket.press.shared.keyboard.KeyboardShortcuts.Companion.newNote
 import me.saket.press.shared.note.NoteRepository
 import me.saket.press.shared.rx.mergeWith
+import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
 
 class HomePresenter(
   private val args: Args,
   private val repository: NoteRepository,
   private val keyboardShortcuts: KeyboardShortcuts
-) : Presenter<HomeEvent, HomeUiModel, HomeUiEffect>() {
+) : Presenter<HomeEvent, HomeUiModel, Nothing>() {
 
   override fun defaultUiModel() =
     HomeUiModel(notes = emptyList())
 
   override fun uiModels() =
-    merge(populateNotes()).wrap()
+    merge(populateNotes(), openNewNoteScreen()).wrap()
 
-  override fun uiEffects() =
-    viewEvents().openNewNoteScreen().wrap()
-
-  private fun Observable<HomeEvent>.openNewNoteScreen(): Observable<HomeUiEffect> {
-    return ofType<NewNoteClicked>()
+  private fun openNewNoteScreen(): Observable<HomeUiModel> {
+    return viewEvents().ofType<NewNoteClicked>()
         .mergeWith(keyboardShortcuts.listen(newNote))
-        .flatMap {
+        .flatMapCompletable {
           val newNoteId = NoteId.generate()
           repository
               .create(newNoteId, NEW_NOTE_PLACEHOLDER)
-              .andThen(observableOf(ComposeNewNote(newNoteId)))
+              .andThen(completableFromFunction {
+                args.navigator.lfg(ComposeNewNote(newNoteId))
+              })
         }
+        .andThen(observableOfEmpty())
   }
 
   private fun populateNotes(): Observable<HomeUiModel> {
@@ -80,6 +81,8 @@ class HomePresenter(
      *
      * Should be kept in sync with [EditorPresenter.Args.archiveEmptyNoteOnExit].
      */
-    val includeEmptyNotes: Boolean
+    val includeEmptyNotes: Boolean,
+
+    val navigator: Navigator
   )
 }

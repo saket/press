@@ -3,7 +3,6 @@ package me.saket.press.shared.sync.git
 import com.badoo.reaktive.completable.andThen
 import com.badoo.reaktive.completable.asObservable
 import com.badoo.reaktive.completable.completableFromFunction
-import com.badoo.reaktive.completable.doOnAfterComplete
 import com.badoo.reaktive.completable.onErrorComplete
 import com.badoo.reaktive.completable.subscribe
 import com.badoo.reaktive.completable.subscribeOn
@@ -40,7 +39,9 @@ import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.SelectRepo
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowFailure
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowProgress
 import me.saket.press.shared.sync.git.service.GitHostService
+import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
+import me.saket.press.shared.ui.ScreenKey.Close
 
 @OptIn(ExperimentalListener::class)
 class GitHostIntegrationPresenter(
@@ -105,11 +106,12 @@ class GitHostIntegrationPresenter(
           gitHostService
               .addDeployKey(token = authToken.get()!!, repository = repo, key = sshKey)
               .andThen(completableFromFunction {
-                println("TODO: Close screen")
                 authToken.set(null)
                 syncerConfig.set(GitSyncerConfig(remote = repo, sshKey = sshKey.privateKey))
+                syncNotesAsync()
+
+                args.navigator.lfg(Close)
               })
-              .doOnAfterComplete { syncNotesAsync() }
               .asObservable<GitHostIntegrationUiModel>()
               .onErrorReturnValue(ShowFailure(kind = AddingDeployKey))
               .startWithValue(ShowProgress)
@@ -132,5 +134,8 @@ class GitHostIntegrationPresenter(
     fun create(args: Args): GitHostIntegrationPresenter
   }
 
-  data class Args(val deepLink: String)
+  data class Args(
+    val deepLink: String,
+    val navigator: Navigator
+  )
 }

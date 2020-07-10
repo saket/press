@@ -2,21 +2,16 @@ package press.sync
 
 import android.content.Context
 import android.graphics.drawable.ColorDrawable
-import android.net.Uri
 import android.widget.ProgressBar
-import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.view.isGone
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.transition.AutoTransition
-import androidx.transition.TransitionManager
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.press.shared.sync.git.GitHost
-import me.saket.press.shared.sync.git.GitHostIntegrationEvent
 import me.saket.press.shared.sync.git.GitHostIntegrationEvent.GitRepositoryClicked
 import me.saket.press.shared.sync.git.GitHostIntegrationEvent.RetryClicked
 import me.saket.press.shared.sync.git.GitHostIntegrationPresenter
@@ -27,6 +22,7 @@ import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowFailure
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowProgress
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
+import press.navigator
 import press.theme.themeAware
 import press.theme.themed
 import press.widgets.PressToolbar
@@ -38,7 +34,10 @@ class GitHostIntegrationView @AssistedInject constructor(
   presenterFactory: GitHostIntegrationPresenter.Factory
 ) : ContourLayout(context) {
 
-  private val presenter = presenterFactory.create(Args(deepLink))
+  private val presenter = presenterFactory.create(Args(
+      deepLink = deepLink,
+      navigator = navigator()
+  ))
 
   private val toolbar = themed(PressToolbar(context)).apply {
     title = GitHost.readHostFromDeepLink(deepLink).displayName()
@@ -111,10 +110,6 @@ class GitHostIntegrationView @AssistedInject constructor(
       }
       is SelectRepo -> repoAdapter.submitList(model.repositories)
     }
-  }
-
-  companion object {
-    const val REQ_CODE_AUTH = 42
   }
 
   @AssistedInject.Factory

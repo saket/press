@@ -26,38 +26,39 @@ import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.R
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
+import me.saket.press.shared.home.ComposeNewNote
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomeEvent.WindowFocusChanged
 import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.home.HomePresenter.Args
-import me.saket.press.shared.home.HomeUiEffect
-import me.saket.press.shared.home.HomeUiEffect.ComposeNewNote
 import me.saket.press.shared.home.HomeUiModel
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import press.editor.EditorActivity
 import press.editor.EditorView
-import press.sync.PreferencesActivity
-import press.theme.themeAware
-import press.theme.themed
+import press.extensions.attr
+import press.extensions.doOnAttach
+import press.extensions.getDrawable
 import press.extensions.heightOf
+import press.extensions.hideKeyboard
+import press.extensions.parentView
 import press.extensions.second
 import press.extensions.suspendWhile
 import press.extensions.throttleFirst
+import press.handle
+import press.navigator
+import press.sync.PreferencesActivity
+import press.theme.themeAware
+import press.theme.themed
 import press.widgets.BackPressInterceptResult
 import press.widgets.BackPressInterceptResult.BACK_PRESS_IGNORED
 import press.widgets.BackPressInterceptResult.BACK_PRESS_INTERCEPTED
 import press.widgets.SpacingBetweenItemsDecoration
 import press.widgets.addStateChangeCallbacks
-import press.extensions.attr
-import press.extensions.doOnAttach
 import press.widgets.doOnNextAboutToCollapse
 import press.widgets.doOnNextCollapse
-import press.extensions.getDrawable
-import press.extensions.hideKeyboard
 import press.widgets.interceptPullToCollapseOnView
-import press.extensions.parentView
 import press.widgets.suspendWhileExpanded
 
 class HomeView @AssistedInject constructor(
@@ -153,7 +154,12 @@ class HomeView @AssistedInject constructor(
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
 
-    val presenter = presenter.create(Args(includeEmptyNotes = false))
+    val presenter = presenter.create(Args(
+        includeEmptyNotes = false,
+        navigator = navigator().handle<ComposeNewNote> {
+          openNewNoteScreen(it.noteId)
+        }
+    ))
     presenter.uiUpdates()
         // These two suspend calls skip updates while an
         // existing note or the new-note screen is open.
@@ -161,7 +167,7 @@ class HomeView @AssistedInject constructor(
         .suspendWhile(windowFocusChanges) { it.hasFocus.not() }
         .takeUntil(detaches())
         .observeOn(mainThread())
-        .subscribe(models = ::render, effects = ::render)
+        .subscribe(::render)
 
     newNoteFab.setOnClickListener {
       presenter.dispatch(NewNoteClicked)
@@ -219,12 +225,6 @@ class HomeView @AssistedInject constructor(
 
   private fun render(model: HomeUiModel) {
     noteAdapter.submitList(model.notes)
-  }
-
-  private fun render(effect: HomeUiEffect) {
-    return when (effect) {
-      is ComposeNewNote -> openNewNoteScreen(effect.noteId)
-    }
   }
 
   private fun openNewNoteScreen(noteId: NoteId) {
