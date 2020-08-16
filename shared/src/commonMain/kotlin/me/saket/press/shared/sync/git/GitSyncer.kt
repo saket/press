@@ -124,6 +124,7 @@ class GitSyncer(
   override fun disable() = completableFromFunction {
     config.set(null)
     directory.delete(recursively = true)
+    noteQueries.swapSyncStates(old = SyncState.values().toList(), new = PENDING)
   }
 
   /** Commit announcing that syncing has been setup. */
