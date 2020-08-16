@@ -13,7 +13,7 @@ import com.badoo.reaktive.subject.publish.PublishSubject
  *                 model. For e.g., updating a text field just once, showing a toast or
  *                 navigating to a new screen.
  */
-abstract class Presenter<Event, Model, Effect> {
+abstract class Presenter<Event : Any, Model : Any, Effect : Any> {
 
   private val viewEvents = PublishSubject<Event>()
   protected fun viewEvents(): Observable<Event> = viewEvents

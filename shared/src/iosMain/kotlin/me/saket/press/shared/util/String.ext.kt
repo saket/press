@@ -18,5 +18,6 @@ actual inline fun Char.isLetterOrDigit(): Boolean {
 }
 
 actual fun String.format(vararg args: Any): String {
-  return NSString.stringWithFormat(this, args)
+  TODO()
+  //return NSString.stringWithFormat(this, args)
 }
