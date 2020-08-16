@@ -41,7 +41,7 @@ struct EditorView: View {
         .onDisappear {
           /// TODO: this is dangerous. Saving the editor content before it's
           /// populated from the DB will cause it to get overridden.
-          self.presenter.saveEditorContentOnExit(content: self.editorText.value)
+          self.presenter.saveEditorContentOnClose(content: self.editorText.value)
         }
     }
       .frame(maxWidth: 750)

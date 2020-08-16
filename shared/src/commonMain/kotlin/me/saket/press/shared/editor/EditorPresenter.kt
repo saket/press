@@ -146,7 +146,7 @@ class EditorPresenter(
         .andThen(observableOfEmpty())
   }
 
-  fun saveEditorContentOnExit(content: String) {
+  fun saveEditorContentOnClose(content: String) {
     updateOrArchiveNote(content)
         .subscribeOn(schedulers.io)
         .subscribe()

@@ -109,7 +109,6 @@ class GitHostIntegrationPresenter(
                 authToken.set(null)
                 syncerConfig.set(GitSyncerConfig(remote = repo, sshKey = sshKey.privateKey))
                 syncNotesAsync()
-
                 args.navigator.lfg(Close)
               })
               .asObservable<GitHostIntegrationUiModel>()

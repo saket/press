@@ -5,7 +5,6 @@ import assertk.assertions.contains
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
-import assertk.assertions.isIn
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import com.badoo.reaktive.test.base.assertNotError
@@ -105,43 +104,43 @@ class EditorPresenterTest {
     observer.assertNotError()
   }
 
-  @Test fun `updating an existing note on exit when its content is non-blank`() {
+  @Test fun `updating an existing note on close when its content is non-blank`() {
     repository.savedNotes += fakeNote(
         id = noteId,
         content = "Existing note"
     )
 
     val presenter = presenter(NewNote(noteId))
-    presenter.saveEditorContentOnExit("Updated note")
+    presenter.saveEditorContentOnClose("Updated note")
 
     val savedNote = repository.savedNotes.last()
     assertEquals("Updated note", savedNote.content)
   }
 
-  @Test fun `archive blank note on exit when enabled`() {
+  @Test fun `archive blank note on close when enabled`() {
     repository.savedNotes += fakeNote(
         id = noteId,
         content = "Existing note"
     )
 
     val presenter = presenter(ExistingNote(noteId), archiveEmptyNoteOnExit = true)
-    presenter.saveEditorContentOnExit("  \n ")
-    presenter.saveEditorContentOnExit("  ")
-    presenter.saveEditorContentOnExit("")
+    presenter.saveEditorContentOnClose("  \n ")
+    presenter.saveEditorContentOnClose("  ")
+    presenter.saveEditorContentOnClose("")
 
     val archivedNote = repository.savedNotes.last()
     assertThat(archivedNote.content).isEqualTo("")
     assertThat(archivedNote.isArchived).isTrue()
   }
 
-  @Test fun `avoid archiving blank note on exit when disabled`() {
+  @Test fun `avoid archiving blank note on close when disabled`() {
     repository.savedNotes += fakeNote(
         id = noteId,
         content = "Existing note"
     )
 
     val presenter = presenter(ExistingNote(noteId), archiveEmptyNoteOnExit = false)
-    presenter.saveEditorContentOnExit("")
+    presenter.saveEditorContentOnClose("")
 
     val archivedNote = repository.savedNotes.last()
     assertThat(archivedNote.content).isEqualTo("")

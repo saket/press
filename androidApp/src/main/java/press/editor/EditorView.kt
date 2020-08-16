@@ -165,7 +165,7 @@ class EditorView @AssistedInject constructor(
 
   override fun onDetachedFromWindow() {
     super.onDetachedFromWindow()
-    presenter.saveEditorContentOnExit(editorEditText.text.toString())
+    presenter.saveEditorContentOnClose(editorEditText.text.toString())
   }
 
   private fun render(model: EditorUiModel) {
