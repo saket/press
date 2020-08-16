@@ -29,6 +29,9 @@ abstract class Syncer {
     object InFlight : Status()
 
     @Serializable
+    object Failed : Status()
+
+    @Serializable
     @Suppress("DataClassPrivateConstructor")
     data class Idle private constructor(internal val lastSyncedAtString: String?) : Status() {
       constructor(lastSyncedAt: DateTime?) : this(lastSyncedAt?.let(DateTimeAdapter::encode))

@@ -20,7 +20,7 @@ import press.extensions.padding
 import press.extensions.textColor
 
 /**
- * Rounded corners and theme colors, because [AlertDialog] offer
+ * Rounded corners and theme colors, because [AlertDialog] isn't very customizable.
  * Essentially copies dialogs from [https://cash.app]'s Android app.
  */
 class PressDialogView private constructor(context: Context) : ContourLayout(context) {

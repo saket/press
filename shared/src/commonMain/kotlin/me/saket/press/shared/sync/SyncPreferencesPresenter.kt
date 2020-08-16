@@ -24,6 +24,7 @@ import me.saket.press.shared.sync.SyncPreferencesUiEffect.OpenUrl
 import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncDisabled
 import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncEnabled
 import me.saket.press.shared.sync.Syncer.Status.Disabled
+import me.saket.press.shared.sync.Syncer.Status.Failed
 import me.saket.press.shared.sync.Syncer.Status.Idle
 import me.saket.press.shared.sync.Syncer.Status.InFlight
 import me.saket.press.shared.sync.git.GitHost
@@ -56,6 +57,7 @@ class SyncPreferencesPresenter(
               val statusText = when (status) {
                 is Disabled -> error("can't")
                 is InFlight -> strings.sync.status_in_flight
+                is Failed -> strings.sync.status_failed
                 is Idle -> relativeSyncTimestamp(status.lastSyncedAt)
               }
               SyncEnabled(
