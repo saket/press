@@ -85,7 +85,7 @@ WHERE id IN :ids;
 swapSyncStates:
 UPDATE note
 SET syncState = :new
-WHERE syncState = :old;
+WHERE syncState IN :old;
 
 markAsArchived:
 UPDATE note

@@ -26,7 +26,8 @@ class SyncLoggers(private vararg val defaultLoggers: SyncLogger) : SyncLogger {
 
 object PrintLnSyncLogger : SyncLogger {
   override fun log(message: String) = println(message)
-  override fun onSyncComplete(): Unit = println("Sync complete")
+  override fun onSyncStart() = println("======================================")
+  override fun onSyncComplete() = Unit
 }
 
 /**
@@ -36,6 +37,7 @@ object PrintLnSyncLogger : SyncLogger {
  */
 class FileBasedSyncLogger(private val notesDirectory: File) : SyncLogger {
   private val buffer = IsoMutableList<String>()
+  private val file get() = File(notesDirectory, ".press/sync_log.txt")
 
   override fun log(message: String) {
     buffer.add(message)
@@ -43,13 +45,12 @@ class FileBasedSyncLogger(private val notesDirectory: File) : SyncLogger {
 
   override fun onSyncStart() {
     buffer.clear()
+    if (file.exists) file.delete()
     log("Starting sync on ${DateTime.now()}\n")
   }
 
   override fun onSyncComplete() {
     log("Finished sync on ${DateTime.now()}\n")
-
-    val file = File(notesDirectory, ".press/sync_log.txt")
     file.write(buffer.joinToString(separator = "\n"))
     buffer.clear()
   }

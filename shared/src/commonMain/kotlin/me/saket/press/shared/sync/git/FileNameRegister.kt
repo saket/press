@@ -54,7 +54,9 @@ internal class FileNameRegister(private val notesDirectory: File) {
     for (file in allRegisterFiles(folderName)) {
       val record = Record.from(registerDirectory, file)
       if (record.noteFileName == fileName) {
-        return record
+        return record.also {
+          println("Record for $relativePath is $record")
+        }
       }
     }
     return null
@@ -117,10 +119,10 @@ internal class FileNameRegister(private val notesDirectory: File) {
     } else {
       // A file already exists, but the heading was changed. Rename the file.
       oldNoteFile.renameTo(File(notesDirectory, newNoteName)).also {
-        println("Renaming to $newNoteName")
-        renameListener?.onRename(oldName = oldNoteFile.name, newName = newNoteName)
+        println("Deleting $oldRecord")
         oldRecord!!.registerFileIn(registerDirectory).delete()
         createNewRecordFor(it, note.id)
+        renameListener?.onRename(oldName = oldNoteFile.name, newName = newNoteName)
       }
     }
   }
@@ -132,6 +134,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
       registerDirectory.makeDirectory(recursively = true)
     }
     val serializedName = Record.generateSavePath(notesDirectory, noteFile, id)
+    println("Creating record $serializedName")
     return File(registerDirectory, serializedName).let {
       it.touch()
       Record.from(registerDirectory, it)
@@ -219,7 +222,7 @@ private inline fun <T> File?.hideAndRun(crossinline run: () -> T): T {
  * file relative to directory where register files are stored.
  * E.g., "archived/uncharted___<uuid>".
  */
-internal class Record @Deprecated("Use Record.forFile()") constructor(
+internal data class Record @Deprecated("Use Record.forFile()") constructor(
   private val relativePathWithoutExt: String
 ) {
   companion object {
