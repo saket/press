@@ -245,7 +245,10 @@ class GitSyncer(
     }
 
     val rebaseResult = git.rebase(with = upstreamHead, strategy = OURS)
-    require(rebaseResult !is RebaseResult.Failure) { "Failed to rebase: $rebaseResult" }
+    if (rebaseResult is RebaseResult.Failure) {
+      rebaseResult.abort()
+      throw error("Failed to rebase: $rebaseResult")
+    }
 
     // A rebase will cause the history to be re-written, so we need
     // to find the first common ancestor of local and upstream. All
@@ -398,11 +401,6 @@ class GitSyncer(
   }
 
   private fun push() {
-    loggers.onSyncComplete()
-    if (git.isStagingAreaDirty()) {
-      git.commitAll("Save sync logs", author = gitAuthor, timestamp = UtcTimestamp(clock))
-    }
-
     val pushResult = git.push()
     require(pushResult !is Failure) { "Failed to push: $pushResult" }
     noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = SYNCED)

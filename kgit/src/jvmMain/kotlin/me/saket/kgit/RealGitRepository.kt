@@ -156,11 +156,22 @@ internal actual class RealGitRepository actual constructor(
         .setStrategy(strategy.toJgit())
         .call()
 
+    val onAbort = {
+      jgit.rebase().setOperation(ABORT).call()
+      Unit
+    }
+
     return with(rebaseResult) {
       when {
         status.isSuccessful -> RebaseResult.Success
-        status == STOPPED -> RebaseResult.Failure(details = "Merge conflicts")
-        else -> RebaseResult.Failure(details = "Unknown. Failing: $failingPaths, uncommitted: $uncommittedChanges")
+        status == STOPPED -> RebaseResult.Failure(
+            details = "Merge conflicts",
+            abort = onAbort
+        )
+        else -> RebaseResult.Failure(
+            details = "Unknown. Failing: $failingPaths, uncommitted: $uncommittedChanges",
+            abort = onAbort
+        )
       }
     }
   }
@@ -174,9 +185,13 @@ internal actual class RealGitRepository actual constructor(
         .setTransportConfigCallback(sshTransport())
         .call()
 
+    val onAbort = {
+      Unit
+    }
+
     return when {
       pullResult.isSuccessful -> PullResult.Success
-      else -> PullResult.Failure(reason = pullResult.toString())
+      else -> PullResult.Failure(reason = pullResult.toString(), abort = onAbort)
     }
   }
 
