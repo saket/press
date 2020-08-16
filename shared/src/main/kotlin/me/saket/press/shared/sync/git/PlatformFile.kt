@@ -42,14 +42,14 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
     check(this.path != newFile.path)
     check(this.exists) { "$path doesn't exist" }
 
-    val renamedFile = File(newFile.path).apply {
-      check(!exists)
-      if (!parent!!.exists) parent!!.makeDirectory(recursively = true)
+    check(!newFile.exists)
+    if (!newFile.parent!!.exists) {
+      newFile.parent!!.makeDirectory(recursively = true)
     }
 
-    val renamed = delegate.renameTo(JavaFile(renamedFile.path))
+    val renamed = delegate.renameTo(JavaFile(newFile.path))
     check(renamed) { "Couldn't rename ($this) to $newFile" }
-    return renamedFile
+    return newFile
   }
 
   override fun makeDirectory(recursively: Boolean) {

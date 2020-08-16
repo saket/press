@@ -55,7 +55,12 @@ interface File {
     return path.drop(ancestor.path.length + 1)  // +1 for the trailing "/".
   }
 
+  /** @return the same [newFile] for convenience. */
   fun renameTo(newFile: File): File
+
+  fun renameTo(newName: String): File {
+    return renameTo(newFile = File(parent!!, newName))
+  }
 }
 
 fun File.touch(): File {
