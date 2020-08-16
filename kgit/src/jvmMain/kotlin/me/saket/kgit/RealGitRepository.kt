@@ -9,7 +9,10 @@ import me.saket.kgit.GitTreeDiff.Change.Modify
 import me.saket.kgit.GitTreeDiff.Change.Rename
 import me.saket.kgit.MergeStrategy.OURS
 import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM
+import org.eclipse.jgit.api.MergeCommand.FastForwardMode.FF
+import org.eclipse.jgit.api.RebaseCommand.Operation.ABORT
 import org.eclipse.jgit.api.RebaseResult.Status.STOPPED
+import org.eclipse.jgit.api.ResetCommand.ResetType
 import org.eclipse.jgit.api.TransportConfigCallback
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.ADD
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.COPY
@@ -17,6 +20,8 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType.DELETE
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.MODIFY
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.RENAME
 import org.eclipse.jgit.lib.BranchConfig.BranchRebaseMode.REBASE
+import org.eclipse.jgit.lib.ObjectId
+import org.eclipse.jgit.lib.ObjectLoader
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.UserConfig
 import org.eclipse.jgit.merge.ResolveMerger
@@ -31,15 +36,19 @@ import org.eclipse.jgit.transport.SshTransport
 import org.eclipse.jgit.transport.URIish
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.EmptyTreeIterator
+import org.eclipse.jgit.treewalk.TreeWalk
+import org.eclipse.jgit.treewalk.filter.PathFilter
 import org.eclipse.jgit.util.FS
-import java.io.File
+import java.nio.charset.Charset
 import java.time.Duration
 import java.util.Date
 import java.util.TimeZone
+import kotlin.LazyThreadSafetyMode.NONE
 import org.eclipse.jgit.api.Git as JGit
 import org.eclipse.jgit.lib.Repository as JRepository
 import org.eclipse.jgit.merge.MergeStrategy as JgitMergeStrategy
 import org.eclipse.jgit.util.SystemReader as JgitSystemReader
+import java.io.File as JavaFile
 
 /**
  * JGit is garbage. Try replacing it with [github.com/git24j/git24j].
@@ -186,8 +195,9 @@ internal actual class RealGitRepository actual constructor(
     val pullResult = jgit.pull()
         .apply {
           if (rebase) setRebase(REBASE)
-          else TODO()
+          else setFastForward(FF)
         }
+        .setStrategy(OURS.toJgit())
         .setTransportConfigCallback(sshTransport())
         .call()
 
@@ -199,6 +209,59 @@ internal actual class RealGitRepository actual constructor(
       pullResult.isSuccessful -> PullResult.Success
       else -> PullResult.Failure(reason = pullResult.toString(), abort = onAbort)
     }
+  }
+
+  override fun merge(with: GitCommit): PullResult {
+    val mergeResult = jgit.merge()
+        .include(with.commit)
+        .setFastForward(FF)
+        //.setStrategy(org.eclipse.jgit.merge.MergeStrategy.THEIRS)
+        //.setCommit(false)
+        .call()
+
+    val onAbort = {
+      // https://stackoverflow.com/a/29815444/2511884
+      jgit.repository.writeMergeCommitMsg(null)
+      jgit.repository.writeMergeHeads(null)
+      jgit.reset().setMode(ResetType.HARD).call()
+      Unit
+    }
+
+    println("\nConflicting files:")
+    for (conflictPath in mergeResult.conflicts?.keys ?: emptySet<String>()) {
+      val content = readFile(conflictPath, with)
+      println("$conflictPath -> ${content.replace("\n", "\\n")}")
+    }
+
+    return when {
+      mergeResult.mergeStatus.isSuccessful -> PullResult.Success
+      else -> PullResult.Failure(reason = mergeResult.toString(), abort = onAbort)
+    }
+  }
+
+  fun readFile(path: String, inCommit: GitCommit): String {
+    val repository = jgit.repository
+    var fileContent: String? = null
+
+    RevWalk(repository).use { revWalk ->
+      val tree = revWalk.parseCommit(inCommit.commit).tree
+
+      TreeWalk(repository).use { treeWalk ->
+        treeWalk.addTree(tree)
+        treeWalk.isRecursive = true
+        treeWalk.filter = PathFilter.create(path)
+        check(treeWalk.next()) { "Did not find expected file '$path'" }
+
+        val objectId: ObjectId = treeWalk.getObjectId(0)
+        val loader: ObjectLoader = repository.open(objectId)
+
+        // and then one can the loader to read the file
+        fileContent = String(loader.bytes)
+      }
+      revWalk.dispose()
+    }
+
+    return fileContent!!
   }
 
   override fun push(force: Boolean): PushResult {

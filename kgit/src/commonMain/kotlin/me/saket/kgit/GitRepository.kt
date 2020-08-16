@@ -1,5 +1,7 @@
 package me.saket.kgit
 
+import me.saket.kgit.MergeStrategy.OURS
+
 internal expect class RealGitRepository(directoryPath: String, sshKey: SshPrivateKey) : GitRepository
 
 interface GitRepository {
@@ -29,6 +31,8 @@ interface GitRepository {
   )
 
   fun pull(rebase: Boolean): PullResult
+
+  fun merge(with: GitCommit): PullResult
 
   fun fetch()
 
