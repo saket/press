@@ -235,17 +235,26 @@ class GitSyncer(
 
       for (conflict in conflicts) {
         val conflictingNote = File(directory, conflict.path)
-        val newName = register.findNewNameOnConflict(conflictingNote)
-        conflictingNote.copy(newName, recursively = true)
+        if (conflictingNote.exists) {
+          val newName = register.findNewNameOnConflict(conflictingNote)
+          conflictingNote.renameTo(newName)
+          log(" • ${conflictingNote.relativePathIn(directory)} → $newName")
 
-        log(" • ${conflictingNote.relativePathIn(directory)} → $newName")
+        } else {
+          File(directory, conflict.path).touch()
+
+          // File was possibly renamed locally, but remote continued editing it.
+          log(" • ${conflictingNote.relativePathIn(directory)} → skipped")
+        }
       }
 
-      git.commitAll(
-          message = "Auto-resolve merge conflicts",
-          author = gitAuthor,
-          timestamp = UtcTimestamp(clock)
-      )
+      if (git.isStagingAreaDirty()) {
+        git.commitAll(
+            message = "Auto-resolve merge conflicts",
+            author = gitAuthor,
+            timestamp = UtcTimestamp(clock)
+        )
+      }
     }
 
     val rebaseResult = git.rebase(with = upstreamHead, strategy = OURS)
