@@ -1,198 +1,198 @@
 buildscript {
   ext.versions = [
-      minSdk: 26,
-      compileSdk: 29,
-      dagger: '2.27',
-      butterKnife: '8.8.1',
-      kotlin: '1.3.72',
-      sqlDelight: '1.4.0',
-      moshi: '1.9.2',
-      okhttp: '4.0.1',
-      squareInject: '0.5.2',
-      coroutines: '1.3.2',
-      flexmark: '0.50.26',
-      reaktive: '1.1.16',
-      koin: '3.0.0-alpha-9',
-      flipper: '0.43.0',
-      klock: '1.9.1',
-      multiplatformSettings: '0.5.1',
-      androidXTest: '1.2.0',
-      androidXTestJUnit: '1.1.2-alpha02',
-      betterLinkMovementMethod: '2.2.0',
-      multiplatformUuid: '0.2.0',
-      stately: '1.0.2',
-      assertK: '0.22',
-      contour: '0.1.6',
-      ktor: '1.3.2',
-      kotlinxSerialization: '0.20.0',
-      buildKonfig: '0.6.0',
-      okio: '2.6.0',
+    minSdk: 26,
+    compileSdk: 29,
+    dagger: '2.27',
+    butterKnife: '8.8.1',
+    kotlin: '1.3.72',
+    sqlDelight: '1.4.0',
+    moshi: '1.9.2',
+    okhttp: '4.0.1',
+    squareInject: '0.5.2',
+    coroutines: '1.3.2',
+    flexmark: '0.50.26',
+    reaktive: '1.1.16',
+    koin: '3.0.0-alpha-9',
+    flipper: '0.43.0',
+    klock: '1.9.1',
+    multiplatformSettings: '0.5.1',
+    androidXTest: '1.2.0',
+    androidXTestJUnit: '1.1.2-alpha02',
+    betterLinkMovementMethod: '2.2.0',
+    multiplatformUuid: '0.2.0',
+    stately: '1.0.2',
+    assertK: '0.22',
+    contour: '0.1.6',
+    ktor: '1.3.2',
+    kotlinxSerialization: '0.20.0',
+    buildKonfig: '0.6.0',
+    okio: '2.6.0',
   ]
 
   ext.deps = [
-      'androidx': [
-          'appCompat': 'androidx.appcompat:appcompat:1.0.2',
-          'recyclerView': 'androidx.recyclerview:recyclerview:1.0.0',
-          'ktx': "androidx.core:core-ktx:1.0.1",
-          'annotations': 'androidx.annotation:annotation:1.1.0',
-          'preferences': 'androidx.preference:preference:1.1.0',
-          'browser': 'androidx.browser:browser:1.2.0',
-          'test': [
-              'core': "androidx.test:core:$versions.androidXTest",
-              'runner': "androidx.test:runner:$versions.androidXTest",
-              'jUnit': "androidx.test.ext:junit:$versions.androidXTestJUnit",
-              'jUnitKtx': "androidx.test.ext:junit-ktx:$versions.androidXTestJUnit"
-          ]
+    'androidx': [
+      'appCompat': 'androidx.appcompat:appcompat:1.0.2',
+      'recyclerView': 'androidx.recyclerview:recyclerview:1.0.0',
+      'ktx': "androidx.core:core-ktx:1.0.1",
+      'annotations': 'androidx.annotation:annotation:1.1.0',
+      'preferences': 'androidx.preference:preference:1.1.0',
+      'browser': 'androidx.browser:browser:1.2.0',
+      'test': [
+        'core': "androidx.test:core:$versions.androidXTest",
+        'runner': "androidx.test:runner:$versions.androidXTest",
+        'jUnit': "androidx.test.ext:junit:$versions.androidXTestJUnit",
+        'jUnitKtx': "androidx.test.ext:junit-ktx:$versions.androidXTestJUnit"
+      ]
+    ],
+    'material': [
+      'core': 'com.google.android.material:material:1.0.0'
+    ],
+    'moshi': [
+      'core': "com.squareup.moshi:moshi:${versions.moshi}",
+      'kotlinCodegen': "com.squareup.moshi:moshi-kotlin-codegen:${versions.moshi}",
+    ],
+    'okio': "com.squareup.okio:okio:$versions.okio",
+    'okhttp': [
+      'core': "com.squareup.okhttp3:okhttp:${versions.okhttp}",
+      'loggingInterceptor': "com.squareup.okhttp3:logging-interceptor:${versions.okhttp}",
+    ],
+    'assistedInject': [
+      'annotations': "com.squareup.inject:assisted-inject-annotations-dagger2:${versions.squareInject}",
+      'processor': "com.squareup.inject:assisted-inject-processor-dagger2:${versions.squareInject}",
+    ],
+    'inflationInject': [
+      'runtime': "com.squareup.inject:inflation-inject:${versions.squareInject}",
+      'processor': "com.squareup.inject:inflation-inject-processor:${versions.squareInject}",
+    ],
+    'sqlDelight': [
+      'runtime': [
+        'common': "com.squareup.sqldelight:runtime:${versions.sqlDelight}",
+        'jdk': "com.squareup.sqldelight:runtime-jvm:${versions.sqlDelight}",
       ],
-      'material': [
-          'core': 'com.google.android.material:material:1.0.0'
+      'driver': [
+        'jvm': "com.squareup.sqldelight:sqlite-driver:${versions.sqlDelight}",
+        'android': "com.squareup.sqldelight:android-driver:${versions.sqlDelight}",
+        'native': "com.squareup.sqldelight:native-driver:${versions.sqlDelight}"
       ],
-      'moshi': [
-          'core': "com.squareup.moshi:moshi:${versions.moshi}",
-          'kotlinCodegen': "com.squareup.moshi:moshi-kotlin-codegen:${versions.moshi}",
-      ],
-      'okio': "com.squareup.okio:okio:$versions.okio",
-      'okhttp': [
-          'core': "com.squareup.okhttp3:okhttp:${versions.okhttp}",
-          'loggingInterceptor': "com.squareup.okhttp3:logging-interceptor:${versions.okhttp}",
-      ],
-      'assistedInject': [
-          'annotations': "com.squareup.inject:assisted-inject-annotations-dagger2:${versions.squareInject}",
-          'processor': "com.squareup.inject:assisted-inject-processor-dagger2:${versions.squareInject}",
-      ],
-      'inflationInject': [
-          'runtime': "com.squareup.inject:inflation-inject:${versions.squareInject}",
-          'processor': "com.squareup.inject:inflation-inject-processor:${versions.squareInject}",
-      ],
-      'sqlDelight': [
-          'runtime': [
-              'common': "com.squareup.sqldelight:runtime:${versions.sqlDelight}",
-              'jdk': "com.squareup.sqldelight:runtime-jvm:${versions.sqlDelight}",
-          ],
-          'driver': [
-              'jvm': "com.squareup.sqldelight:sqlite-driver:${versions.sqlDelight}",
-              'android': "com.squareup.sqldelight:android-driver:${versions.sqlDelight}",
-              'native': "com.squareup.sqldelight:native-driver:${versions.sqlDelight}"
-          ],
-          'rx2': "com.squareup.sqldelight:rxjava2-extensions:${versions.sqlDelight}",
-          'paging': "com.squareup.sqldelight:android-paging-extensions:${versions.sqlDelight}",
-      ],
-      'dagger': [
-          'runtime': "com.google.dagger:dagger:${versions.dagger}",
-          'compiler': "com.google.dagger:dagger-compiler:${versions.dagger}"
-      ],
-      'rx2': [
-          'core': 'io.reactivex.rxjava2:rxjava:2.2.5',
-          'android': 'io.reactivex.rxjava2:rxandroid:2.1.0',
-          'binding': 'com.jakewharton.rxbinding3:rxbinding:3.0.0-alpha2',
-          'relay': 'com.jakewharton.rxrelay2:rxrelay:2.1.0',
-          'kotlin': 'io.reactivex.rxjava2:rxkotlin:2.2.0',
-          'traceur': 'com.tspoon.traceur:traceur:1.0.1'
-      ],
-      'junit': 'junit:junit:4.12',
-      'truth': 'com.google.truth:truth:0.40',
-      'timber': 'com.jakewharton.timber:timber:4.7.1',
-      'inboxRecyclerView': 'me.saket:inboxrecyclerview:2.0.0-SNAPSHOT',
-      'kotlinTime': 'com.github.kizitonwose.time:time-android:1.0.2',
-      'threeTenBp': [
-          'core': 'org.threeten:threetenbp:1.3.8:no-tzdb',
-          'lazy': 'com.gabrielittner.threetenbp:lazythreetenbp:0.5.0',
-      ],
+      'rx2': "com.squareup.sqldelight:rxjava2-extensions:${versions.sqlDelight}",
+      'paging': "com.squareup.sqldelight:android-paging-extensions:${versions.sqlDelight}",
+    ],
+    'dagger': [
+      'runtime': "com.google.dagger:dagger:${versions.dagger}",
+      'compiler': "com.google.dagger:dagger-compiler:${versions.dagger}"
+    ],
+    'rx2': [
+      'core': 'io.reactivex.rxjava2:rxjava:2.2.5',
+      'android': 'io.reactivex.rxjava2:rxandroid:2.1.0',
+      'binding': 'com.jakewharton.rxbinding3:rxbinding:3.0.0-alpha2',
+      'relay': 'com.jakewharton.rxrelay2:rxrelay:2.1.0',
+      'kotlin': 'io.reactivex.rxjava2:rxkotlin:2.2.0',
+      'traceur': 'com.tspoon.traceur:traceur:1.0.1'
+    ],
+    'junit': 'junit:junit:4.12',
+    'truth': 'com.google.truth:truth:0.40',
+    'timber': 'com.jakewharton.timber:timber:4.7.1',
+    'inboxRecyclerView': 'me.saket:inboxrecyclerview:2.0.0-SNAPSHOT',
+    'kotlinTime': 'com.github.kizitonwose.time:time-android:1.0.2',
+    'threeTenBp': [
+      'core': 'org.threeten:threetenbp:1.3.8:no-tzdb',
+      'lazy': 'com.gabrielittner.threetenbp:lazythreetenbp:0.5.0',
+    ],
 
-      'kotlin': [
-          'stdlib': [
-              'jdk8': "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions.kotlin}",
-              'common': "org.jetbrains.kotlin:kotlin-stdlib-common:${versions.kotlin}",
-          ],
+    'kotlin': [
+      'stdlib': [
+        'jdk8': "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions.kotlin}",
+        'common': "org.jetbrains.kotlin:kotlin-stdlib-common:${versions.kotlin}",
       ],
-      'contour': "app.cash.contour:contour:$versions.contour",
-      'flexmark': [
-          'core': "com.vladsch.flexmark:flexmark-java:$versions.flexmark",
-          'strikethrough': "com.vladsch.flexmark:flexmark-ext-gfm-strikethrough:$versions.flexmark",
-          'autoLink': "com.vladsch.flexmark:flexmark-ext-autolink:$versions.flexmark"
+    ],
+    'contour': "app.cash.contour:contour:$versions.contour",
+    'flexmark': [
+      'core': "com.vladsch.flexmark:flexmark-java:$versions.flexmark",
+      'strikethrough': "com.vladsch.flexmark:flexmark-ext-gfm-strikethrough:$versions.flexmark",
+      'autoLink': "com.vladsch.flexmark:flexmark-ext-autolink:$versions.flexmark"
+    ],
+    'reaktive': [
+      'core': [
+        'common': "com.badoo.reaktive:reaktive:$versions.reaktive",
+        'android': "com.badoo.reaktive:reaktive-android:$versions.reaktive",
+        'iOSSimulator': "com.badoo.reaktive:reaktive-sim:$versions.reaktive",
+        'iOS32': "com.badoo.reaktive:reaktive-ios32:$versions.reaktive",
+        'iOS64': "com.badoo.reaktive:reaktive-ios64:$versions.reaktive",
+        'macOS': "com.badoo.reaktive:reaktive-macosx64:$versions.reaktive"
       ],
-      'reaktive': [
-          'core': [
-              'common': "com.badoo.reaktive:reaktive:$versions.reaktive",
-              'android': "com.badoo.reaktive:reaktive-android:$versions.reaktive",
-              'iOSSimulator': "com.badoo.reaktive:reaktive-sim:$versions.reaktive",
-              'iOS32': "com.badoo.reaktive:reaktive-ios32:$versions.reaktive",
-              'iOS64': "com.badoo.reaktive:reaktive-ios64:$versions.reaktive",
-              'macOS': "com.badoo.reaktive:reaktive-macosx64:$versions.reaktive"
-          ],
-          'testing': [
-              'common': "com.badoo.reaktive:reaktive-testing:$versions.reaktive",
-              // Unit tests fail without this. This shouldn't be needed explicitly.
-              // Report an issue on https://github.com/badoo/Reaktive/issues.
-              'utils': "com.badoo.reaktive:utils:$versions.reaktive"
-          ],
-          'interop': [
-              'rxJava2': "com.badoo.reaktive:rxjava2-interop:$versions.reaktive",
-              'coroutines': "com.badoo.reaktive:coroutines-interop:$versions.reaktive"
-          ]
+      'testing': [
+        'common': "com.badoo.reaktive:reaktive-testing:$versions.reaktive",
+        // Unit tests fail without this. This shouldn't be needed explicitly.
+        // Report an issue on https://github.com/badoo/Reaktive/issues.
+        'utils': "com.badoo.reaktive:utils:$versions.reaktive"
       ],
-      'koin': [
-          'core': [
-              'common': "org.koin:koin-core:$versions.koin",
-              'jvm': "org.koin:koin-core-jvm:$versions.koin",
-              'ios64': "org.koin:koin-core-iosarm64:$versions.koin",
-              'ios32': "org.koin:koin-core-iosarm32:$versions.koin"
-          ]
+      'interop': [
+        'rxJava2': "com.badoo.reaktive:rxjava2-interop:$versions.reaktive",
+        'coroutines': "com.badoo.reaktive:coroutines-interop:$versions.reaktive"
+      ]
+    ],
+    'koin': [
+      'core': [
+        'common': "org.koin:koin-core:$versions.koin",
+        'jvm': "org.koin:koin-core-jvm:$versions.koin",
+        'ios64': "org.koin:koin-core-iosarm64:$versions.koin",
+        'ios32': "org.koin:koin-core-iosarm32:$versions.koin"
+      ]
+    ],
+    'multiplatformUuid': "com.benasher44:uuid:$versions.multiplatformUuid",
+    'klock': [
+      'common': "com.soywiz.korlibs.klock:klock:$versions.klock",
+      'jvm': "com.soywiz.korlibs.klock:klock-jvm:$versions.klock",
+      'android': "com.soywiz.korlibs.klock:klock-android:$versions.klock",
+    ],
+    'stately': [
+      'common': "co.touchlab:stately-common:$versions.stately",
+      'collections': "co.touchlab:stately-collections:$versions.stately",
+      'isolate': "co.touchlab:stately-isolate:1.0.2-a4",
+      'isoCollections': "co.touchlab:stately-iso-collections:1.0.2-a4",
+      'concurrency': "co.touchlab:stately-concurrency:$versions.stately"
+    ],
+    'flipper': [
+      'debug': [
+        'core': "com.facebook.flipper:flipper:$versions.flipper",
+        'soLoader': "com.facebook.soloader:soloader:0.5.1"
       ],
-      'multiplatformUuid': "com.benasher44:uuid:$versions.multiplatformUuid",
-      'klock': [
-          'common': "com.soywiz.korlibs.klock:klock:$versions.klock",
-          'jvm': "com.soywiz.korlibs.klock:klock-jvm:$versions.klock",
-          'android': "com.soywiz.korlibs.klock:klock-android:$versions.klock",
+      'release': [
+        'core': "com.facebook.flipper:flipper-noop:$versions.flipper"
+      ]
+    ],
+    'itemAnimators': "com.mikepenz:itemanimators:1.1.0",
+    'multiplatformSettings': [
+      'core': "com.russhwolf:multiplatform-settings:$versions.multiplatformSettings",
+      'testing': "com.russhwolf:multiplatform-settings-test:$versions.multiplatformSettings"
+    ],
+    'assertK': [
+      'common': "com.willowtreeapps.assertk:assertk:$versions.assertK",
+      'opentest4j': "org.opentest4j:opentest4j:1.1.1"
+    ],
+    'betterLinkMovementMethod': "me.saket:better-link-movement-method:$versions.betterLinkMovementMethod",
+    'ktor': [
+      'client': [
+        'common': "io.ktor:ktor-client-core:$versions.ktor",
+        'okHttp': "io.ktor:ktor-client-okhttp:$versions.ktor",
+        'native': "io.ktor:ktor-client-core-native:$versions.ktor",
+        'curl': "io.ktor:ktor-client-curl:$versions.ktor"
       ],
-      'stately': [
-        'common': "co.touchlab:stately-common:$versions.stately",
-        'collections': "co.touchlab:stately-collections:$versions.stately",
-        'isolate': "co.touchlab:stately-isolate:1.0.2-a4",
-        'isoCollections': "co.touchlab:stately-iso-collections:1.0.2-a4",
-        'concurrency': "co.touchlab:stately-concurrency:$versions.stately"
-      ],
-      'flipper': [
-          'debug': [
-              'core': "com.facebook.flipper:flipper:$versions.flipper",
-              'soLoader': "com.facebook.soloader:soloader:0.5.1"
-          ],
-          'release': [
-              'core': "com.facebook.flipper:flipper-noop:$versions.flipper"
-          ]
-      ],
-      'itemAnimators': "com.mikepenz:itemanimators:1.1.0",
-      'multiplatformSettings': [
-          'core': "com.russhwolf:multiplatform-settings:$versions.multiplatformSettings",
-          'testing': "com.russhwolf:multiplatform-settings-test:$versions.multiplatformSettings"
-      ],
-      'assertK': [
-          'common': "com.willowtreeapps.assertk:assertk:$versions.assertK",
-          'opentest4j': "org.opentest4j:opentest4j:1.1.1"
-      ],
-      'betterLinkMovementMethod': "me.saket:better-link-movement-method:$versions.betterLinkMovementMethod",
-      'ktor': [
-          'client': [
-              'common': "io.ktor:ktor-client-core:$versions.ktor",
-              'okHttp': "io.ktor:ktor-client-okhttp:$versions.ktor",
-              'native': "io.ktor:ktor-client-core-native:$versions.ktor",
-              'curl': "io.ktor:ktor-client-curl:$versions.ktor"
-          ],
-          'logger': [
-              'common': "io.ktor:ktor-client-logging:$versions.ktor",
-              'jvm': "io.ktor:ktor-client-logging-jvm:$versions.ktor",
-              'native': "io.ktor:ktor-client-logging-native:$versions.ktor"
-          ],
-          'kotlinxSerialization': [
-              'common': "io.ktor:ktor-client-serialization:$versions.ktor",
-              'jvm': "io.ktor:ktor-client-serialization-jvm:$versions.ktor",
-              'native': "io.ktor:ktor-client-serialization-native:$versions.ktor"
-          ]
+      'logger': [
+        'common': "io.ktor:ktor-client-logging:$versions.ktor",
+        'jvm': "io.ktor:ktor-client-logging-jvm:$versions.ktor",
+        'native': "io.ktor:ktor-client-logging-native:$versions.ktor"
       ],
       'kotlinxSerialization': [
-          'common': "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$versions.kotlinxSerialization",
-          'jvm': "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$versions.kotlinxSerialization",
-          'native': "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$versions.kotlinxSerialization"
+        'common': "io.ktor:ktor-client-serialization:$versions.ktor",
+        'jvm': "io.ktor:ktor-client-serialization-jvm:$versions.ktor",
+        'native': "io.ktor:ktor-client-serialization-native:$versions.ktor"
       ]
+    ],
+    'kotlinxSerialization': [
+      'common': "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$versions.kotlinxSerialization",
+      'jvm': "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$versions.kotlinxSerialization",
+      'native': "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$versions.kotlinxSerialization"
+    ]
   ]
 }
