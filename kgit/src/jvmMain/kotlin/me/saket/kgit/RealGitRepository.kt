@@ -49,19 +49,25 @@ internal actual class RealGitRepository actual constructor(
   private val sshKey: SshPrivateKey
 ) : GitRepository {
 
-  private val jgit: JGit by lazy {
-    // Initializing a directory that already has git will no-op.
-    JGit.init().setDirectory(File(directoryPath)).call()
+  private val directory = JavaFile(directoryPath)
+  private val jgit: JGit by lazy(NONE) {
+    JGit.init().setDirectory(directory).call()
   }
 
-  override fun resetUserConfigTo(config: GitConfig) {
+  override fun maybeInit(config: () -> GitConfig) {
+    if (JavaFile(directory, ".git").exists()) {
+      return
+    }
+
+    JGit.init().setDirectory(directory).call()
+
     // Note to self: if this doesn't work, try using something
     // from https://stackoverflow.com/q/33804097/2511884.
     val userConfig = JgitSystemReader.getInstance().userConfig
     userConfig.clear()
 
     val repoConfig = jgit.repository.config
-    for (section in config.sections) {
+    for (section in config().sections) {
       for ((key, value) in section.values) {
         repoConfig.setString(section.name, null, key, value)
       }

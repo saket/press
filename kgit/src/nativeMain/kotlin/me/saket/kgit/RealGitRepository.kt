@@ -4,7 +4,7 @@ internal actual class RealGitRepository actual constructor(
   directoryPath: String,
   sshKey: SshPrivateKey
 ) : GitRepository {
-  override fun resetUserConfigTo(config: GitConfig): Unit = TODO()
+  override fun maybeInit(config: () -> GitConfig): Unit = TODO()
   override fun isStagingAreaDirty(): Boolean = TODO()
   override fun checkout(branch: String, create: Boolean): Unit = TODO()
   override fun commitAll(message: String, author: GitAuthor?, timestamp: UtcTimestamp?, allowEmpty: Boolean) = TODO()

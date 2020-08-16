@@ -49,7 +49,7 @@ class GitSyncerTest : BaseDatabaeTest() {
   private val noteQueries get() = database.noteQueries
   private val git = RealGit()
   private val clock = FakeClock()
-  private val syncerConfig = GitSyncerConfig(
+  private val config = GitSyncerConfig(
       remote = GitRepositoryInfo(
           name = "ignored",
           url = "ignored",
@@ -58,9 +58,10 @@ class GitSyncerTest : BaseDatabaeTest() {
       ),
       sshKey = SshPrivateKey(BuildKonfig.GIT_TEST_SSH_PRIV_KEY)
   )
+  private val configSetting = FakeSetting(config)
   private val syncer = GitSyncer(
       git = git,
-      config = FakeSetting(syncerConfig),
+      config = configSetting,
       database = database,
       deviceInfo = deviceInfo,
       clock = clock,
@@ -468,13 +469,13 @@ class GitSyncerTest : BaseDatabaeTest() {
   }
 
   private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit = {}) {
-    val directory = File(deviceInfo.appStorage, "temp").apply { makeDirectory() }
-    private val gitRepo = git.repository(syncerConfig.sshKey, directory.path)
+    private val directory = File(deviceInfo.appStorage, "temp").apply { makeDirectory() }
+    private val gitRepo = git.repository(config.sshKey, directory.path)
 
     init {
-      gitRepo.addRemote("origin", syncerConfig.remote.sshUrl)
+      gitRepo.addRemote("origin", config.remote.sshUrl)
       gitRepo.commitAll("Initial commit", timestamp = UtcTimestamp(clock), allowEmpty = true)
-      gitRepo.checkout(syncerConfig.remote.defaultBranch)
+      gitRepo.checkout(config.remote.defaultBranch)
       prepare()
     }
 

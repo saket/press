@@ -70,7 +70,6 @@ class GitSyncer(
     with(config.get()!!) {
       git.repository(sshKey = sshKey, path = directory.path).apply {
         addRemote("origin", remote.sshUrl)
-        resetUserConfigTo(GitConfig("diff" to listOf("renames" to "true")))
       }
     }
   }
@@ -95,6 +94,10 @@ class GitSyncer(
     loggers.onSyncStart()
 
     try {
+      git.maybeInit(config = {
+        GitConfig("diff" to listOf("renames" to "true"))
+      })
+
       directory.makeDirectory(recursively = true)
       maybeMakeInitialCommit()
 

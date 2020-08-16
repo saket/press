@@ -9,7 +9,7 @@ interface GitRepository {
    * behavior on the host machine. For e.g., following of renames may be disabled for
    * computing file diffs.
    */
-  fun resetUserConfigTo(config: GitConfig)
+  fun maybeInit(config: () -> GitConfig)
 
   fun isStagingAreaDirty(): Boolean
 
