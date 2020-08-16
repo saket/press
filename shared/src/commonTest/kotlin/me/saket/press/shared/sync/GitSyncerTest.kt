@@ -34,7 +34,6 @@ import me.saket.press.shared.sync.git.File
 import me.saket.press.shared.sync.git.FileName
 import me.saket.press.shared.sync.git.GitSyncer
 import me.saket.press.shared.sync.git.GitSyncerConfig
-import me.saket.press.shared.sync.git.PrintLnSyncLogger
 import me.saket.press.shared.sync.git.UtcTimestamp
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 import me.saket.press.shared.testDeviceInfo
@@ -75,14 +74,9 @@ class GitSyncerTest : BaseDatabaeTest() {
 
   @BeforeTest
   fun setUp() {
-    println("======================================")
     RemoteRepositoryRobot {
-      commitFiles(message = "Emptiness", add = emptyList())
-      forcePush()
-      directory.delete(recursively = true)
+      deleteEverything()
     }
-
-    syncer.loggers.add(PrintLnSyncLogger)
   }
 
   @AfterTest
@@ -174,6 +168,30 @@ class GitSyncerTest : BaseDatabaeTest() {
     assertThat(remote.fetchNoteFiles()).containsOnly(
         "nicolas_cage.md" to "# Nicolas Cage \nis a national treasure",
         "witcher_3.md" to "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures"
+    )
+  }
+
+  @Test fun `pull remote notes with same content but different filename`() {
+    if (!canRunTests()) return
+
+    RemoteRepositoryRobot {
+      commitFiles(
+          message = "Create test.md",
+          time = clock.nowUtc(),
+          add = listOf(
+              "test.md" to "# Test",
+              "test2.md" to "# Test"
+          )
+      )
+      forcePush()
+    }
+
+    syncer.sync().blockingAwait()
+
+    val localNotes = noteQueries.visibleNotes().executeAsList().map { it.content }
+    assertThat(localNotes).containsOnly(
+        "# Test",
+        "# Test"
     )
   }
 
@@ -290,6 +308,99 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     assertThat(localNotes[1].content).isEqualTo("# Uncharted\nLocal edit")
     assertThat(localNotes[1].id).isNotEqualTo(locallyEditedNote.id)
+  }
+
+  @Test fun `merge local and remote notes with delete conflict`() {
+    if (!canRunTests()) return
+
+    clock.rewindTimeBy(10.hours)
+
+    // Given: a note was created on another device.
+    val remote = RemoteRepositoryRobot {
+      commitFiles(
+          message = "First commit",
+          time = clock.nowUtc(),
+          add = listOf("uncharted.md" to "# Uncharted")
+      )
+      forcePush()
+    }
+    syncer.sync().blockingAwait()
+
+    // Given: the same note was renamed locally, effectively DELETING the file.
+    val locallyEditedNote = noteQueries.visibleNotes().executeAsOne()
+    clock.advanceTimeBy(1.hours)
+    noteQueries.updateContent(
+        id = locallyEditedNote.id,
+        content = "# Uncharted2\nLocal edit",
+        updatedAt = clock.nowUtc()
+    )
+
+    // Given: the same note was edited on remote
+    clock.advanceTimeBy(1.hours)
+    with(remote) {
+      pull()
+      commitFiles(
+          message = "Second commit",
+          time = clock.nowUtc(),
+          add = listOf("uncharted.md" to "# Uncharted\nRemote edit")
+      )
+      forcePush()
+    }
+
+    // The conflict should get auto-resolved here.
+    syncer.sync().blockingAwait()
+
+    val localNotes = noteQueries.visibleNotes().executeAsList().sortedBy { it.updatedAt }
+
+    // The local note should get duplicated as a new note and then
+    // the local note should get overridden by the server copy.
+    assertThat(localNotes).hasSize(2)
+    assertThat(localNotes[0].content).isEqualTo("# Uncharted\nRemote edit")
+    assertThat(localNotes[0].id).isEqualTo(locallyEditedNote.id)
+
+    assertThat(localNotes[1].content).isEqualTo("# Uncharted2\nLocal edit")
+    assertThat(localNotes[1].id).isNotEqualTo(locallyEditedNote.id)
+
+//    clock.rewindTimeBy(10.hours)
+//
+//    val remote = RemoteRepositoryRobot {
+//      commitFiles(
+//          message = "First commit",
+//          time = clock.nowUtc(),
+//          add = listOf("uncharted.md" to "# Uncharted")
+//      )
+//      forcePush()
+//    }
+//    syncer.sync().blockingAwait()
+//
+//    clock.advanceTimeBy(1.hours)
+//    val locallyEditedNote = noteQueries.visibleNotes().executeAsOne()
+//    noteQueries.updateContent(
+//        id = locallyEditedNote.id,
+//        content = "# Uncharted2",
+//        updatedAt = clock.nowUtc()
+//    )
+//
+//    clock.advanceTimeBy(2.hours)
+//    with(remote) {
+//      pull()
+//      commitFiles(
+//          message = "Create 'test.md' on remote",
+//          time = clock.nowUtc(),
+//          add = listOf("test.md" to "# Test")
+//      )
+//      forcePush()
+//    }
+//
+//    clock.advanceTimeBy(2.hours)
+//    noteQueries.updateContent("# Test2", updatedAt = clock.nowUtc(), id = note.id)
+//    syncer.sync().blockingAwait()
+//
+//    val localNotes = noteQueries.visibleNotes().executeAsList().map { it.content }
+//    assertThat(localNotes).containsOnly(
+//        "# Test",
+//        "# Test2"
+//    )
   }
 
   // TODO
@@ -468,6 +579,29 @@ class GitSyncerTest : BaseDatabaeTest() {
     assertThat(savedNote.isArchived).isTrue()
   }
 
+  @Test fun `notes are re-synced when syncing is re-enabled`() {
+    val note = fakeNote(content = "# Potter\nYou're a wizard Harry", clock = clock)
+    noteQueries.testInsert(note)
+
+    RemoteRepositoryRobot().let { remote1 ->
+      syncer.sync().blockingAwait()
+      assertThat(remote1.fetchNoteFiles()).containsOnly("potter.md" to "# Potter\nYou're a wizard Harry")
+      remote1.deleteEverything()
+    }
+
+    syncer.disable().blockingAwait()
+
+    RemoteRepositoryRobot().let { remote2 ->
+      assertThat(remote2.fetchNoteFiles()).isEmpty()
+
+      configSetting.set(config)
+      syncer.sync().blockingAwait()
+      assertThat(remote2.fetchNoteFiles()).containsOnly(
+          "potter.md" to "# Potter\nYou're a wizard Harry"
+      )
+    }
+  }
+
   private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit = {}) {
     private val directory = File(deviceInfo.appStorage, "temp").apply { makeDirectory() }
     private val gitRepo = git.repository(config.sshKey, directory.path)
@@ -518,6 +652,13 @@ class GitSyncerTest : BaseDatabaeTest() {
           .children(recursively = true)
           .filter { it.extension == "md" && !it.relativePathIn(directory).startsWith(".") }
           .map { it.relativePathIn(directory) to it.read() }
+    }
+
+    fun deleteEverything() {
+      directory.children().filter { it.name != ".git" }.forEach { it.delete(recursively = true) }
+      commitFiles(message = "Emptiness", add = emptyList())
+      forcePush()
+      directory.delete(recursively = true)
     }
   }
 }

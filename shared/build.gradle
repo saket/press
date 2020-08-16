@@ -67,7 +67,7 @@ kotlin {
       dependencies {
         implementation kotlin('stdlib-common')
         implementation project(':wysiwyg')
-        api project(':kgit')
+        implementation project(':kgit')
         implementation deps.reaktive.core.common
         implementation deps.reaktive.interop.coroutines
         implementation deps.koin.core.common

@@ -17,6 +17,7 @@ import me.saket.kgit.GitTreeDiff.Change.Modify
 import me.saket.kgit.GitTreeDiff.Change.Rename
 import me.saket.kgit.MergeConflict
 import me.saket.kgit.MergeStrategy.OURS
+import me.saket.kgit.PullResult
 import me.saket.kgit.PushResult.Failure
 import me.saket.kgit.RebaseResult
 import me.saket.kgit.UtcTimestamp
@@ -63,7 +64,7 @@ class GitSyncer(
   private val register = FileNameRegister(directory)
   private val gitAuthor = GitAuthor("Saket", "pressapp@saket.me")
   private val remote: GitRepositoryInfo? get() = config.get()?.remote
-  val loggers = SyncLoggers(FileBasedSyncLogger(directory))
+  val loggers = SyncLoggers(PrintLnSyncLogger)
 
   // Lazy to avoid reading anything on the main thread.
   private val git by atomicLazy {
@@ -257,11 +258,20 @@ class GitSyncer(
       }
     }
 
+    //printRegisters()
+
     val rebaseResult = git.rebase(with = upstreamHead, strategy = OURS)
     if (rebaseResult is RebaseResult.Failure) {
       rebaseResult.abort()
       throw error("Failed to rebase: $rebaseResult")
     }
+//    val pullResult = git.merge(with = upstreamHead)
+//    if (pullResult is PullResult.Failure) {
+//      pullResult.abort()
+//      throw error("Failed to pull: $pullResult")
+//    }
+
+    //printRegisters()
 
     // A rebase will cause the history to be re-written, so we need
     // to find the first common ancestor of local and upstream. All
@@ -273,6 +283,12 @@ class GitSyncer(
     )
     return DONE
   }
+
+//  private fun printRegisters() {
+//    val registersDir = File(directory, ".press/registers")
+//    val registers = registersDir.children(recursively = true).joinToString { it.relativePathIn(registersDir) }
+//    log("\nRegister files: $registers\n")
+//  }
 
   private fun processNotesFromCommits(from: GitCommit?, to: GitCommit) {
     log("\nProcessing commits from ${from?.sha1?.abbreviated} to ${to.sha1.abbreviated}")
