@@ -23,6 +23,7 @@ import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.localization.ENGLISH_STRINGS
 import me.saket.press.shared.note.FakeNoteRepository
+import me.saket.press.shared.sync.FakeSyncer
 import me.saket.press.shared.ui.FakeNavigator
 import me.saket.wysiwyg.formatting.TextSelection
 import kotlin.test.Test
@@ -34,6 +35,7 @@ class EditorPresenterTest {
   private val testScheduler = TestScheduler()
   private val config = EditorConfig(autoSaveEvery = 5.seconds)
   private val navigator = FakeNavigator()
+  val syncer = FakeSyncer()
 
   private fun presenter(
     openMode: EditorOpenMode,
@@ -44,7 +46,8 @@ class EditorPresenterTest {
         noteRepository = repository,
         schedulers = FakeSchedulers(computation = testScheduler),
         strings = ENGLISH_STRINGS,
-        config = config
+        config = config,
+        syncer = syncer
     )
   }
 
@@ -212,5 +215,13 @@ class EditorPresenterTest {
           assertValue(UpdateNoteText(newText = note, newSelection = null))
           assertNotError()
         }
+  }
+
+  @Test fun `sync notes on close`() {
+    assertThat(syncer.syncCalled).isFalse()
+
+    presenter(ExistingNote(noteId)).saveEditorContentOnClose("nic")
+
+    assertThat(syncer.syncCalled).isTrue()
   }
 }
