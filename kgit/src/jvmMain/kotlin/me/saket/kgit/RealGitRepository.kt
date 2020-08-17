@@ -7,6 +7,7 @@ import me.saket.kgit.GitTreeDiff.Change.Copy
 import me.saket.kgit.GitTreeDiff.Change.Delete
 import me.saket.kgit.GitTreeDiff.Change.Modify
 import me.saket.kgit.GitTreeDiff.Change.Rename
+import me.saket.kgit.MergeConflict.TheirContent
 import me.saket.kgit.MergeStrategy.OURS
 import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM
 import org.eclipse.jgit.api.MergeCommand.FastForwardMode.FF
@@ -39,7 +40,6 @@ import org.eclipse.jgit.treewalk.EmptyTreeIterator
 import org.eclipse.jgit.treewalk.TreeWalk
 import org.eclipse.jgit.treewalk.filter.PathFilter
 import org.eclipse.jgit.util.FS
-import java.nio.charset.Charset
 import java.time.Duration
 import java.util.Date
 import java.util.TimeZone
@@ -162,7 +162,13 @@ internal actual class RealGitRepository actual constructor(
     check(merger.unmergedPaths.isNotEmpty()) {
       "Merge will fail despite having zero conflicts. Failing paths: ${merger.failingPaths}"
     }
-    return merger.unmergedPaths.map(::MergeConflict)
+    return merger.unmergedPaths.map { path ->
+      MergeConflict(path, theirContent = {
+        val content = readFile(path, with)
+        if (content != null) TheirContent.Modified(content)
+        else TheirContent.Deleted
+      })
+    }
   }
 
   override fun rebase(with: GitCommit, strategy: MergeStrategy): RebaseResult {
@@ -230,7 +236,7 @@ internal actual class RealGitRepository actual constructor(
     println("\nConflicting files:")
     for (conflictPath in mergeResult.conflicts?.keys ?: emptySet<String>()) {
       val content = readFile(conflictPath, with)
-      println("$conflictPath -> ${content.replace("\n", "\\n")}")
+      println("$conflictPath -> ${content?.replace("\n", "\\n")}")
     }
 
     return when {
@@ -239,7 +245,8 @@ internal actual class RealGitRepository actual constructor(
     }
   }
 
-  fun readFile(path: String, inCommit: GitCommit): String {
+  // TODO: return File directly.
+  private fun readFile(path: String, inCommit: GitCommit): String? {
     val repository = jgit.repository
     var fileContent: String? = null
 
@@ -250,18 +257,16 @@ internal actual class RealGitRepository actual constructor(
         treeWalk.addTree(tree)
         treeWalk.isRecursive = true
         treeWalk.filter = PathFilter.create(path)
-        check(treeWalk.next()) { "Did not find expected file '$path'" }
-
-        val objectId: ObjectId = treeWalk.getObjectId(0)
-        val loader: ObjectLoader = repository.open(objectId)
-
-        // and then one can the loader to read the file
-        fileContent = String(loader.bytes)
+        if (treeWalk.next()) {
+          val objectId: ObjectId = treeWalk.getObjectId(0)
+          val loader: ObjectLoader = repository.open(objectId)
+          fileContent = String(loader.bytes)
+        }
       }
       revWalk.dispose()
     }
 
-    return fileContent!!
+    return fileContent
   }
 
   override fun push(force: Boolean): PushResult {

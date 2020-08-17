@@ -16,6 +16,8 @@ import me.saket.kgit.GitTreeDiff.Change.Delete
 import me.saket.kgit.GitTreeDiff.Change.Modify
 import me.saket.kgit.GitTreeDiff.Change.Rename
 import me.saket.kgit.MergeConflict
+import me.saket.kgit.MergeConflict.TheirContent.Deleted
+import me.saket.kgit.MergeConflict.TheirContent.Modified
 import me.saket.kgit.MergeStrategy.OURS
 import me.saket.kgit.PullResult
 import me.saket.kgit.PushResult.Failure
@@ -232,20 +234,34 @@ class GitSyncer(
     // These files will get processed after rebase.
     val conflicts = git.mergeConflicts(with = upstreamHead).filterNoteConflicts()
     if (conflicts.isNotEmpty()) {
+      println("\nConflicts: ")
+      conflicts.forEach { println(" • ${it.path} -> ${it.theirContent()}") }
+    }
+
+    if (conflicts.isNotEmpty()) {
       log("\nAuto-resolving merge conflicts: ")
 
       for (conflict in conflicts) {
+        val theirContent = conflict.theirContent()
         val conflictingNote = File(directory, conflict.path)
-        if (conflictingNote.exists) {
-          val newName = register.findNewNameOnConflict(conflictingNote)
-          conflictingNote.renameTo(newName)
-          log(" • ${conflictingNote.relativePathIn(directory)} → $newName")
 
-        } else {
-          File(directory, conflict.path).touch()
+        val exhaustive = when (theirContent) {
+          is Modified -> {
+            if (conflictingNote.exists) {
+              val localBackupName = register.findNewNameOnConflict(conflictingNote)
+              conflictingNote.renameTo(localBackupName)
+              log(" • ${conflictingNote.relativePathIn(directory)} → $localBackupName")
+            } else {
+              log(" • undo delete ${conflict.path}")
+            }
+            conflictingNote.write(theirContent.content)
+          }
+          is Deleted -> {
+            File(directory, conflict.path).delete()
 
-          // File was possibly renamed locally, but remote continued editing it.
-          log(" • ${conflictingNote.relativePathIn(directory)} → skipped")
+            // File was possibly renamed locally, but remote continued editing it.
+            log(" • ${conflictingNote.relativePathIn(directory)} → deleted")
+          }
         }
       }
 
@@ -259,6 +275,12 @@ class GitSyncer(
     }
 
     //printRegisters()
+
+    log("\nFiles before rebase:")
+    directory.children(true)
+        .map { it.relativePathIn(directory) }
+        .filter { !it.startsWith(".") }
+        .forEach { log(" • $it") }
 
     val rebaseResult = git.rebase(with = upstreamHead, strategy = OURS)
     if (rebaseResult is RebaseResult.Failure) {
@@ -330,6 +352,12 @@ class GitSyncer(
           val record = register.recordFor(diff.path, oldPath = oldPath)
           val existingId = record?.noteId
           val isArchived = record?.noteFolder == "archived"
+
+          if (diff is Add) {
+            check(existingId == null) {
+              "existingId is non-null for Add diff: $existingId"
+            }
+          }
 
           if (existingId != null) {
             log("Updating $existingId (${diff.path}), isArchived? $isArchived")

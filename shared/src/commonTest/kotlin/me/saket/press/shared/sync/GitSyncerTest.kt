@@ -326,7 +326,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     }
     syncer.sync().blockingAwait()
 
-    // Given: the same note was renamed locally, effectively DELETING the file.
+    // Given: the same note was renamed locally, effectively DELETING the old file.
     val locallyEditedNote = noteQueries.visibleNotes().executeAsOne()
     clock.advanceTimeBy(1.hours)
     noteQueries.updateContent(
@@ -355,11 +355,11 @@ class GitSyncerTest : BaseDatabaeTest() {
     // The local note should get duplicated as a new note and then
     // the local note should get overridden by the server copy.
     assertThat(localNotes).hasSize(2)
-    assertThat(localNotes[0].content).isEqualTo("# Uncharted\nRemote edit")
-    assertThat(localNotes[0].id).isEqualTo(locallyEditedNote.id)
+    assertThat(localNotes[0].content).isEqualTo("# Uncharted2\nLocal edit")
+    assertThat(localNotes[0].id).isNotEqualTo(locallyEditedNote.id)
 
-    assertThat(localNotes[1].content).isEqualTo("# Uncharted2\nLocal edit")
-    assertThat(localNotes[1].id).isNotEqualTo(locallyEditedNote.id)
+    assertThat(localNotes[1].content).isEqualTo("# Uncharted\nRemote edit")
+    assertThat(localNotes[1].id).isEqualTo(locallyEditedNote.id)
 
 //    clock.rewindTimeBy(10.hours)
 //

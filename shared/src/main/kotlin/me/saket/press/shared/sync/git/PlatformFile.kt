@@ -39,7 +39,7 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
   }
 
   override fun renameTo(newFile: File): File {
-    check(this.path != newFile.path)
+    check(this.path != newFile.path) { "Same path: $path vs ${newFile.path}" }
     check(this.exists) { "$path doesn't exist" }
 
     check(!newFile.exists)
