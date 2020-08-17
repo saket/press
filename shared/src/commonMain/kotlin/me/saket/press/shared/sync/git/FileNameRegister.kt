@@ -25,7 +25,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
     private const val MAX_NAME_LENGTH = 240
   }
 
-  private val registerDirectory = File(notesDirectory, ".press/registers").also {
+  internal val registerDirectory = File(notesDirectory, ".press/registers").also {
     it.makeDirectory(recursively = true)
   }
 
@@ -48,12 +48,11 @@ internal class FileNameRegister(private val notesDirectory: File) {
     // }
 
     // Example: "archived/uncharted.md"
-    val fileName = relativePath.substringBeforeLast(".").substringAfterLast("/")    // e.g., "uncharted"
     val folderName = relativePath.substringBefore("/", missingDelimiterValue = "")  // e.g., "archived"
 
     for (file in allRegisterFiles(folderName)) {
       val record = Record.from(registerDirectory, file)
-      if (record.noteFileName == fileName) {
+      if (record.noteFilePath == relativePath) {
         return record.also {
           println("Record for $relativePath is $record")
         }
@@ -68,7 +67,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
     return if (oldRecord == null) {
       recordFor(relativePath)
     } else {
-      oldRecord.registerFileIn(registerDirectory).delete()
+      oldRecord.registerFile.delete()
       createNewRecordFor(
           noteFile = File(notesDirectory, relativePath),
           id = oldRecord.noteId
@@ -120,7 +119,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
       // A file already exists, but the heading was changed. Rename the file.
       oldNoteFile.renameTo(File(notesDirectory, newNoteName)).also {
         println("Deleting $oldRecord")
-        oldRecord!!.registerFileIn(registerDirectory).delete()
+        oldRecord!!.registerFile.delete()
         createNewRecordFor(it, note.id)
         renameListener?.onRename(oldName = oldNoteFile.name, newName = newNoteName)
       }
@@ -133,6 +132,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
     if (!registerDirectory.exists) {
       registerDirectory.makeDirectory(recursively = true)
     }
+
     val recordFile = Record.writeToFile(registerDirectory, notesDirectory, noteFile, id)
     println("Creating record ${recordFile.name}")
     return Record.from(registerDirectory, recordFile)
@@ -219,41 +219,44 @@ private inline fun <T> File?.hideAndRun(crossinline run: () -> T): T {
  * file relative to directory where register files are stored.
  * E.g., "archived/uncharted___<uuid>".
  */
+// todo: change to inline class.
 internal data class Record @Deprecated("Use Record.forFile()") constructor(
-  private val relativePathWithoutExt: String
+  private val registersDirectory: File,
+  val registerFile: File
 ) {
   companion object {
-    private const val SEPARATOR = "___"
-
     @Suppress("DEPRECATION")
     fun from(registersDirectory: File, registerFile: File): Record {
-      check(registerFile.name.contains(SEPARATOR))
-      return Record(registerFile.relativePathIn(registersDirectory))
+      return Record(registersDirectory, registerFile)
     }
 
     fun writeToFile(registerDirectory: File, notesDirectory: File, noteFile: File, id: NoteId): File {
-      val relativeName = noteFile.relativePathIn(notesDirectory).dropLast(".md".length)
-      return File(registerDirectory, "$relativeName$SEPARATOR${id.value}").also {
-        it.touch()
+      val relativePath = noteFile.relativePathIn(notesDirectory)
+      val relativeFolder = noteFile.parent?.relativePathIn(notesDirectory) ?: ""
+
+      return File(File(registerDirectory, relativeFolder), "${id.value}").also {
+        it.parent?.let { p -> if (!p.exists) p.makeDirectory(recursively = true) }
+        it.write(relativePath)
       }
     }
   }
 
-  internal val noteFileName: String
-    get() = relativePathWithoutExt.substringBefore(SEPARATOR).substringAfter("/")
+  internal val noteFilePath: String
+    get() = registerFile.read()
 
   internal val noteId: NoteId
     get() = NoteId.from(noteIdString)
 
   internal val noteIdString: String
-    get() = relativePathWithoutExt.substringAfter(SEPARATOR)
+    get() = registerFile.name
 
   internal val noteFolder: String
-    get() = relativePathWithoutExt.substringBefore("/", missingDelimiterValue = "")
+    get() {
+      val relativePath = registerFile.relativePathIn(registersDirectory)
+      return relativePath.substringBefore("/", missingDelimiterValue = "")
+    }
 
-  internal fun registerFileIn(registersDirectory: File): File =
-    File(registersDirectory, relativePathWithoutExt)
-
-  internal fun noteFileIn(notesDirectory: File): File =
-    File(File(notesDirectory, noteFolder), "$noteFileName.md")
+  internal fun noteFileIn(notesDirectory: File): File {
+    return File(notesDirectory, noteFilePath)
+  }
 }

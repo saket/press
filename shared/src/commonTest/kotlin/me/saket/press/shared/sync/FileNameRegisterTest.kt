@@ -19,21 +19,35 @@ class FileNameRegisterTest {
   private val directory = testDeviceInfo().appStorage
   private val register = FileNameRegister(directory)
 
+  @Test fun canary() {
+    val archivedDir = File(directory, "archived").apply { makeDirectory() }
+    val noteFile = File(archivedDir, "uncharted.md").apply { write("A Thief's End") }
+    val noteId = NoteId.generate()
+
+    val record = register.createNewRecordFor(noteFile, noteId)
+
+    assertThat(record.noteFilePath).isEqualTo("archived/uncharted.md")
+    assertThat(record.noteFolder).isEqualTo("archived")
+    assertThat(record.noteId).isEqualTo(noteId)
+    assertThat(record.noteFileIn(directory).path).isEqualTo(noteFile.path)
+    assertThat(record.registerFile.relativePathIn(register.registerDirectory)).isEqualTo("archived/${noteId.value}")
+  }
+
   @Test fun `generates unique file names to avoid conflicts`() {
     with(register) {
       val note = fakeNote(id = NoteId.generate(), content = "# abc")
       assertThat(fileFor(note).name).isEqualTo("abc.md")
       assertThat(noteIdFor("abc.md")).isEqualTo(note.id)
 
-      // Same note, updated content.
+      // Same note ID, different content.
       val updatedNote1 = note.copy(content = "# abc def")
       assertThat(fileFor(updatedNote1).name).isEqualTo("abc_def.md")
       assertThat(noteIdFor("abc_def.md")).isEqualTo(updatedNote1.id)
 
-      // Different note, same content.
-      val note3 = fakeNote(id = NoteId.generate(), content = note.content)
-      assertThat(fileFor(note3).name).isEqualTo("abc_2.md")
-      assertThat(noteIdFor("abc_2.md")).isEqualTo(note3.id)
+      // Different note ID, same content.
+      val note3 = fakeNote(id = NoteId.generate(), content = updatedNote1.content)
+      assertThat(fileFor(note3).name).isEqualTo("abc_def_2.md")
+      assertThat(noteIdFor("abc_def_2.md")).isEqualTo(note3.id)
     }
   }
 
