@@ -41,12 +41,6 @@ internal class FileNameRegister(private val notesDirectory: File) {
     require(relativePath.endsWith("md")) { "Not a note: $relativePath" }
     require(!relativePath.hasMultipleOf('/')) { "Nested folders aren't supported yet" }
 
-    // if (!registerDirectory.exists) {
-    //   // Likely checking out a remote commit that
-    //   // doesn't have the registers directory yet.
-    //   return null
-    // }
-
     // Example: "archived/uncharted.md"
     val folderName = relativePath.substringBefore("/", missingDelimiterValue = "")  // e.g., "archived"
 
@@ -54,7 +48,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
       val record = Record.from(registerDirectory, file)
       if (record.noteFilePath == relativePath) {
         return record.also {
-          println("Record for $relativePath is $record")
+          //println("Record for $relativePath is $record")
         }
       }
     }
@@ -118,7 +112,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
     } else {
       // A file already exists, but the heading was changed. Rename the file.
       oldNoteFile.renameTo(File(notesDirectory, newNoteName)).also {
-        println("Deleting $oldRecord")
+        //println("Deleting $oldRecord")
         oldRecord!!.registerFile.delete()
         createNewRecordFor(it, note.id)
         renameListener?.onRename(oldName = oldNoteFile.name, newName = newNoteName)
@@ -134,7 +128,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
     }
 
     val recordFile = Record.writeToFile(registerDirectory, notesDirectory, noteFile, id)
-    println("Creating record ${recordFile.name}")
+    //println("Creating record ${recordFile.name}")
     return Record.from(registerDirectory, recordFile)
   }
 

@@ -27,7 +27,7 @@ class SyncLoggers(private vararg val defaultLoggers: SyncLogger) : SyncLogger {
 object PrintLnSyncLogger : SyncLogger {
   override fun log(message: String) = println(message)
   override fun onSyncStart() = println("======================================")
-  override fun onSyncComplete() = Unit
+  override fun onSyncComplete() = println()
 }
 
 /**

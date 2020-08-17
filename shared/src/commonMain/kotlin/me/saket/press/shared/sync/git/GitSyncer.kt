@@ -194,16 +194,18 @@ class GitSyncer(
         }
       })
 
-      log(" • committing ${noteFile.name} (heading: '${SplitHeadingAndBody.split(note.content).first}')")
+      log(" • committing ${noteFile.relativePathIn(directory)} (heading: '${SplitHeadingAndBody.split(note.content).first}')")
 
       noteFile.write(note.content)
-      check(git.isStagingAreaDirty())
 
-      git.commitAll(
-          message = "Update '${noteFile.name}'",
-          author = gitAuthor,
-          timestamp = UtcTimestamp(note.updatedAt)
-      )
+      // There may be no changes in case the file was only renamed.
+      if (git.isStagingAreaDirty()) {
+        git.commitAll(
+            message = "Update '${noteFile.name}'",
+            author = gitAuthor,
+            timestamp = UtcTimestamp(note.updatedAt)
+        )
+      }
     }
     return DONE
   }
@@ -276,7 +278,7 @@ class GitSyncer(
 
     //printRegisters()
 
-    log("\nFiles before rebase:")
+    //log("\nFiles before rebase:")
     directory.children(true)
         .map { it.relativePathIn(directory) }
         .filter { !it.startsWith(".") }
@@ -353,11 +355,10 @@ class GitSyncer(
           val existingId = record?.noteId
           val isArchived = record?.noteFolder == "archived"
 
-          if (diff is Add) {
-            check(existingId == null) {
-              "existingId is non-null for Add diff: $existingId"
-            }
-          }
+          // This can be uncommented if we start merging instead of rebasing.
+          //if (diff is Add) {
+          //  check(existingId == null) { "existingId is non-null for Add diff: $existingId" }
+          //}
 
           if (existingId != null) {
             log("Updating $existingId (${diff.path}), isArchived? $isArchived")
