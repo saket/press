@@ -120,6 +120,11 @@ internal class FileNameRegister(private val notesDirectory: File) {
     }
   }
 
+  fun deleteRecordFor(noteFile: File) {
+    val record = recordFor(noteFile.relativePathIn(notesDirectory))!!
+    record.registerFile.delete()
+  }
+
   fun createNewRecordFor(noteFile: File, id: NoteId): Record {
     require(noteFile.extension == "md")
 
@@ -128,7 +133,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
     }
 
     val recordFile = Record.writeToFile(registerDirectory, notesDirectory, noteFile, id)
-    //println("Creating record ${recordFile.name}")
+    println("Creating record ${recordFile.name} -> ${recordFile.read()}")
     return Record.from(registerDirectory, recordFile)
   }
 

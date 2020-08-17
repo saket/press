@@ -16,8 +16,8 @@ import me.saket.kgit.GitTreeDiff.Change.Delete
 import me.saket.kgit.GitTreeDiff.Change.Modify
 import me.saket.kgit.GitTreeDiff.Change.Rename
 import me.saket.kgit.MergeConflict
-import me.saket.kgit.MergeConflict.TheirContent.Deleted
-import me.saket.kgit.MergeConflict.TheirContent.Modified
+import me.saket.kgit.MergeConflict.TheirContent.DeletedOnRemote
+import me.saket.kgit.MergeConflict.TheirContent.ModifiedOnRemote
 import me.saket.kgit.MergeStrategy.OURS
 import me.saket.kgit.PullResult
 import me.saket.kgit.PushResult.Failure
@@ -248,17 +248,19 @@ class GitSyncer(
         val conflictingNote = File(directory, conflict.path)
 
         val exhaustive = when (theirContent) {
-          is Modified -> {
+          is ModifiedOnRemote -> {
             if (conflictingNote.exists) {
               val localBackupName = register.findNewNameOnConflict(conflictingNote)
               conflictingNote.renameTo(localBackupName)
+              register.deleteRecordFor(conflictingNote)
+
               log(" • ${conflictingNote.relativePathIn(directory)} → $localBackupName")
             } else {
               log(" • undo delete ${conflict.path}")
             }
             conflictingNote.write(theirContent.content)
           }
-          is Deleted -> {
+          is DeletedOnRemote -> {
             File(directory, conflict.path).delete()
 
             // File was possibly renamed locally, but remote continued editing it.
@@ -278,12 +280,14 @@ class GitSyncer(
 
     //printRegisters()
 
-    //log("\nFiles before rebase:")
-    directory.children(true)
-        .map { it.relativePathIn(directory) }
-        .filter { !it.startsWith(".") }
-        .forEach { log(" • $it") }
+//    log("\nFiles before rebase:")
+//    directory.children(true)
+//        .map { it.relativePathIn(directory) }
+//        .filter { !it.startsWith(".") }
+//        .forEach { log(" • $it") }
 
+    // todo: use rebase once the underlying git library supports OURS
+    //  strategy for file deletion (i.e., jgit is replaced with git24j.
     val rebaseResult = git.rebase(with = upstreamHead, strategy = OURS)
     if (rebaseResult is RebaseResult.Failure) {
       rebaseResult.abort()
@@ -360,7 +364,17 @@ class GitSyncer(
           //  check(existingId == null) { "existingId is non-null for Add diff: $existingId" }
           //}
 
-          if (existingId != null) {
+          val isNewNote = when(diff) {
+            is Add, is Copy -> true
+            is Modify, is Rename -> false
+            is Delete -> error("cant")
+          }
+
+          if (!isNewNote) {
+            check(existingId != null) {
+              "existingId: $existingId, diff: $diff, content: ${File(directory, diff.path).read().replace("\n", " ")}"
+            }
+
             log("Updating $existingId (${diff.path}), isArchived? $isArchived")
             Runnable {
               noteQueries.updateContent(
@@ -379,7 +393,7 @@ class GitSyncer(
               )
             }
           } else {
-            val newId = NoteId.generate()
+            val newId = existingId ?: NoteId.generate()
             log("Creating new note $newId for (${diff.path}), isArchived? $isArchived")
             register.createNewRecordFor(file, newId)
             Runnable {

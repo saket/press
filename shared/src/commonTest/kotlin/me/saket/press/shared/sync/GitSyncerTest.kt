@@ -32,6 +32,7 @@ import me.saket.press.shared.sync.SyncState.PENDING
 import me.saket.press.shared.sync.SyncState.SYNCED
 import me.saket.press.shared.sync.git.File
 import me.saket.press.shared.sync.git.FileName
+import me.saket.press.shared.sync.git.FileNameRegister
 import me.saket.press.shared.sync.git.GitSyncer
 import me.saket.press.shared.sync.git.GitSyncerConfig
 import me.saket.press.shared.sync.git.UtcTimestamp
@@ -310,7 +311,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     assertThat(localNotes[1].id).isNotEqualTo(locallyEditedNote.id)
   }
 
-  @Test fun `merge local and remote notes with delete conflict`() {
+  @Test fun `merge local and remote notes with delete conflict (without remote register)`() {
     if (!canRunTests()) return
 
     clock.rewindTimeBy(10.hours)
@@ -356,51 +357,66 @@ class GitSyncerTest : BaseDatabaeTest() {
     // the local note should get overridden by the server copy.
     assertThat(localNotes).hasSize(2)
     assertThat(localNotes[0].content).isEqualTo("# Uncharted2\nLocal edit")
+    assertThat(localNotes[0].id).isEqualTo(locallyEditedNote.id)
+
+    assertThat(localNotes[1].content).isEqualTo("# Uncharted\nRemote edit")
+    assertThat(localNotes[1].id).isNotEqualTo(locallyEditedNote.id)
+  }
+
+  @Test fun `merge local and remote notes with delete conflict (with remote register)`() {
+    if (!canRunTests()) return
+
+    clock.rewindTimeBy(10.hours)
+
+    // Given: a note was created on another device.
+    val remoteNoteId = "ebc77dbc-9201-4902-bd4b-2ce8a99059a7"
+    val remote = RemoteRepositoryRobot {
+      commitFiles(
+          message = "First commit",
+          time = clock.nowUtc(),
+          add = listOf(
+              "uncharted.md" to "# Uncharted",
+              ".press/registers/$remoteNoteId" to "uncharted.md"
+          )
+      )
+      forcePush()
+    }
+    syncer.sync().blockingAwait()
+
+    // Given: the same note was renamed locally, effectively DELETING the old file.
+    val locallyEditedNote = noteQueries.visibleNotes().executeAsOne()
+    clock.advanceTimeBy(1.hours)
+    noteQueries.updateContent(
+        id = locallyEditedNote.id,
+        content = "# Uncharted2\nLocal edit",
+        updatedAt = clock.nowUtc()
+    )
+
+    // Given: the same note was edited on remote
+    clock.advanceTimeBy(1.hours)
+    with(remote) {
+      pull()
+      commitFiles(
+          message = "Second commit",
+          time = clock.nowUtc(),
+          add = listOf("uncharted.md" to "# Uncharted\nRemote edit")
+      )
+      forcePush()
+    }
+
+    // The conflict should get auto-resolved here.
+    syncer.sync().blockingAwait()
+
+    val localNotes = noteQueries.visibleNotes().executeAsList().sortedBy { it.updatedAt }
+
+    // The local note should get duplicated as a new note and then
+    // the local note should get overridden by the server copy.
+    assertThat(localNotes).hasSize(2)
+    assertThat(localNotes[0].content).isEqualTo("# Uncharted2\nLocal edit")
     assertThat(localNotes[0].id).isNotEqualTo(locallyEditedNote.id)
 
     assertThat(localNotes[1].content).isEqualTo("# Uncharted\nRemote edit")
-    assertThat(localNotes[1].id).isEqualTo(locallyEditedNote.id)
-
-//    clock.rewindTimeBy(10.hours)
-//
-//    val remote = RemoteRepositoryRobot {
-//      commitFiles(
-//          message = "First commit",
-//          time = clock.nowUtc(),
-//          add = listOf("uncharted.md" to "# Uncharted")
-//      )
-//      forcePush()
-//    }
-//    syncer.sync().blockingAwait()
-//
-//    clock.advanceTimeBy(1.hours)
-//    val locallyEditedNote = noteQueries.visibleNotes().executeAsOne()
-//    noteQueries.updateContent(
-//        id = locallyEditedNote.id,
-//        content = "# Uncharted2",
-//        updatedAt = clock.nowUtc()
-//    )
-//
-//    clock.advanceTimeBy(2.hours)
-//    with(remote) {
-//      pull()
-//      commitFiles(
-//          message = "Create 'test.md' on remote",
-//          time = clock.nowUtc(),
-//          add = listOf("test.md" to "# Test")
-//      )
-//      forcePush()
-//    }
-//
-//    clock.advanceTimeBy(2.hours)
-//    noteQueries.updateContent("# Test2", updatedAt = clock.nowUtc(), id = note.id)
-//    syncer.sync().blockingAwait()
-//
-//    val localNotes = noteQueries.visibleNotes().executeAsList().map { it.content }
-//    assertThat(localNotes).containsOnly(
-//        "# Test",
-//        "# Test2"
-//    )
+    assertThat(localNotes[1].id.value).isEqualTo(remoteNoteId)
   }
 
   // TODO

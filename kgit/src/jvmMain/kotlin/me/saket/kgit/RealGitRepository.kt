@@ -165,8 +165,8 @@ internal actual class RealGitRepository actual constructor(
     return merger.unmergedPaths.map { path ->
       MergeConflict(path, theirContent = {
         val content = readFile(path, with)
-        if (content != null) TheirContent.Modified(content)
-        else TheirContent.Deleted
+        if (content != null) TheirContent.ModifiedOnRemote(content)
+        else TheirContent.DeletedOnRemote
       })
     }
   }
@@ -233,10 +233,12 @@ internal actual class RealGitRepository actual constructor(
       Unit
     }
 
-    println("\nConflicting files:")
-    for (conflictPath in mergeResult.conflicts?.keys ?: emptySet<String>()) {
-      val content = readFile(conflictPath, with)
-      println("$conflictPath -> ${content?.replace("\n", "\\n")}")
+    if (mergeResult.conflicts != null) {
+      println("\nConflicting files:")
+      for (conflictPath in mergeResult.conflicts?.keys ?: emptySet<String>()) {
+        val content = readFile(conflictPath, with)
+        println("$conflictPath -> ${content?.replace("\n", "\\n")}")
+      }
     }
 
     return when {

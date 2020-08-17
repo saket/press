@@ -6,9 +6,12 @@ data class MergeConflict(
 ) {
 
   sealed class TheirContent {
-    data class Modified(val content: String) : TheirContent() {
-      override fun toString() = "Modified(content=${content.replace("\n", " ")})"
+    data class ModifiedOnRemote(val content: String) : TheirContent() {
+      override fun toString() = "ModifiedOnRemote(content=${content.replace("\n", " ")})"
     }
-    object Deleted : TheirContent()
+
+    object DeletedOnRemote : TheirContent() {
+      override fun toString() = "DeletedOnRemote"
+    }
   }
 }
