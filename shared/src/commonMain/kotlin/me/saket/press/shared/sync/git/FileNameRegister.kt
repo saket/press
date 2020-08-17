@@ -133,12 +133,9 @@ internal class FileNameRegister(private val notesDirectory: File) {
     if (!registerDirectory.exists) {
       registerDirectory.makeDirectory(recursively = true)
     }
-    val serializedName = Record.generateSavePath(notesDirectory, noteFile, id)
-    println("Creating record $serializedName")
-    return File(registerDirectory, serializedName).let {
-      it.touch()
-      Record.from(registerDirectory, it)
-    }
+    val recordFile = Record.writeToFile(registerDirectory, notesDirectory, noteFile, id)
+    println("Creating record ${recordFile.name}")
+    return Record.from(registerDirectory, recordFile)
   }
 
   private fun allRegisterFiles(folder: String = ""): List<File> =
@@ -234,9 +231,11 @@ internal data class Record @Deprecated("Use Record.forFile()") constructor(
       return Record(registerFile.relativePathIn(registersDirectory))
     }
 
-    fun generateSavePath(notesDirectory: File, noteFile: File, id: NoteId): String {
+    fun writeToFile(registerDirectory: File, notesDirectory: File, noteFile: File, id: NoteId): File {
       val relativeName = noteFile.relativePathIn(notesDirectory).dropLast(".md".length)
-      return "$relativeName$SEPARATOR${id.value}"
+      return File(registerDirectory, "$relativeName$SEPARATOR${id.value}").also {
+        it.touch()
+      }
     }
   }
 
