@@ -9,5 +9,5 @@ data class SshKeyPair(
 
 @Serializable
 data class SshPrivateKey(val key: String) {
-  override fun toString() = "██████████"
+  override fun toString() = key.map { "█" }.joinToString(separator = "")
 }
