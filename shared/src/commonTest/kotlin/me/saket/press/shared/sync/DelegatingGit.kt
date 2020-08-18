@@ -9,6 +9,7 @@ import me.saket.kgit.SshPrivateKey
 
 class DelegatingGit(private val delegate: Git) : Git {
   var pushResult: PushResult? = null
+  var pushCount = 0
 
   override fun repository(
     path: String,
@@ -25,6 +26,7 @@ class DelegatingGit(private val delegate: Git) : Git {
   ) : GitRepository by delegate {
 
     override fun push(force: Boolean): PushResult {
+      git.pushCount++
       return git.pushResult ?: delegate.push(force)
     }
   }

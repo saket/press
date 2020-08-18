@@ -1,6 +1,5 @@
 package me.saket.press.shared.sync.git
 
-import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.combineLatest
 import com.soywiz.klock.DateTime
@@ -34,6 +33,8 @@ import me.saket.press.shared.sync.Syncer.Status.Disabled
 import me.saket.press.shared.sync.Syncer.Status.Failed
 import me.saket.press.shared.sync.Syncer.Status.Idle
 import me.saket.press.shared.sync.Syncer.Status.InFlight
+import me.saket.press.shared.sync.git.GitSyncer.CommitResult.Done
+import me.saket.press.shared.sync.git.GitSyncer.CommitResult.Skipped
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 import me.saket.press.shared.time.Clock
 
@@ -87,9 +88,9 @@ class GitSyncer(
     try {
       with(GitScope(git())) {
         val pullResult = pull()
-        commitAllChanges(pullResult)
+        val commitResult = commitAllChanges(pullResult)
         processCommits(pullResult)
-        push(revertToOnFailure = pullResult.headBefore)
+        push(pullResult, commitResult)
       }
 
       status.set(Idle(lastSyncedAt = clock.nowUtc()))
@@ -142,16 +143,26 @@ class GitSyncer(
     git.checkout(remote!!.defaultBranch, create = true)
   }
 
-  private data class GitResult(
+  private data class PullResult(
     val headBefore: GitCommit,
     val headAfter: GitCommit
   )
 
-  private fun GitScope.pull(): GitResult {
+  private fun GitScope.pull(): PullResult {
     maybeMakeInitialCommit(git)
     val localHead = git.headCommit()!!  // non-null because of maybeMakeInitialCommit().
 
-    return when (val it = git.pull(rebase = true)) {
+    fun printLog(msg: String) {
+      val commits = git.commitsBetween(null, git.headCommit()!!)
+      println("\n$msg")
+      commits.forEach { log(" • ${it.sha1.abbreviated} - ${it.message.lines().first()}") }
+    }
+
+//    printLog("Commits before pull")
+    val pullResult = git.pull(rebase = true)
+//    printLog("Commits after pull")
+
+    return when (val it = pullResult) {
       is GitPullResult.Success -> {
         val upstreamHead = git.headCommit()!!
         if (upstreamHead != localHead) {
@@ -159,7 +170,7 @@ class GitSyncer(
         } else {
           log("Nothing to pull.")
         }
-        GitResult(headBefore = localHead, headAfter = upstreamHead)
+        PullResult(headBefore = localHead, headAfter = upstreamHead)
       }
       is GitPullResult.Failure -> {
         throw error("Failed to rebase: $it")
@@ -167,12 +178,17 @@ class GitSyncer(
     }
   }
 
+  private enum class CommitResult {
+    Skipped,
+    Done
+  }
+
   @Suppress("CascadeIf")
-  private fun GitScope.commitAllChanges(pullResult: GitResult) {
+  private fun GitScope.commitAllChanges(pullResult: PullResult): CommitResult {
     val pendingSyncNotes = noteQueries.pendingSyncNotes().executeAsList()
     if (pendingSyncNotes.isEmpty()) {
-      log("Nothing to commit")
-      return
+      log("Nothing to commit.")
+      return Skipped
     }
 
     // Having an intermediate sync state between PENDING and SYNCED
@@ -241,10 +257,16 @@ class GitSyncer(
           timestamp = UtcTimestamp(note.updatedAt)
       )
     }
+    return Done
   }
 
   @Suppress("NAME_SHADOWING")
-  private fun GitScope.processCommits(pullResult: GitResult) {
+  private fun GitScope.processCommits(pullResult: PullResult) {
+    if (pullResult.headBefore == pullResult.headAfter) {
+      log("Nothing to process.")
+      return
+    }
+
     val to = git.headCommit()!!
     val from = git.commonAncestor(first = pullResult.headBefore, second = to)
 
@@ -381,11 +403,15 @@ class GitSyncer(
     }
   }
 
-  private fun GitScope.push(revertToOnFailure: GitCommit) {
+  private fun GitScope.push(pullResult: PullResult, commitResult: CommitResult) {
     check(git.currentBranch().name == remote!!.defaultBranch)
     check(!git.isStagingAreaDirty())
 
-    return when (git.push()) {
+    return if (commitResult == Skipped) {
+      noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = SYNCED)
+      log("\nNothing to push.")
+
+    } else when (git.push()) {
       is Success, is AlreadyUpToDate -> {
         noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = SYNCED)
         log("\nChanges pushed")
@@ -393,9 +419,9 @@ class GitSyncer(
       // Merge conflicts can only be avoided if we always the latest version of upstream.
       // If push fails, discard any new commits. They'll be recreated on the next sync.
       is Failure -> {
-        git.hardResetTo(revertToOnFailure)
+        git.hardResetTo(pullResult.headAfter)
         noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = PENDING)
-        log("\nCouldn't push. Reverting to $revertToOnFailure")
+        log("\nCouldn't push. Reverted to ${git.headCommit()}")
       }
     }
   }

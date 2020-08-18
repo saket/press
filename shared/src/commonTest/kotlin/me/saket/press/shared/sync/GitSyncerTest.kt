@@ -645,6 +645,27 @@ class GitSyncerTest : BaseDatabaeTest() {
     expectUnSyncedNotes += newNote.id
   }
 
+  @Test fun `skip pushing if nothing was pulled or committed`() {
+    if (!canRunTests()) return
+
+    syncer.sync()
+    assertThat(git.pushCount).isEqualTo(0)
+  }
+
+  @Test fun `skip pushing if nothing was committed`() {
+    if (!canRunTests()) return
+
+    RemoteRepositoryRobot {
+      commitFiles(
+          message = "Create 'nicolas.md'",
+          add = listOf("nicolas.md" to "# Nicolas")
+      )
+      forcePush()
+    }
+    syncer.sync()
+    assertThat(git.pushCount).isEqualTo(0)
+  }
+
   private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit = {}) {
     private val directory = File(deviceInfo.appStorage, "temp").apply { makeDirectory() }
     private val register = FileNameRegister(directory)
