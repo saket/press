@@ -1,5 +1,6 @@
 package me.saket.press.shared.settings
 
+import com.badoo.reaktive.base.setCancellable
 import com.badoo.reaktive.disposable.Disposable
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.observable
@@ -38,12 +39,8 @@ interface Setting<T : Any> {
 
         override fun listen(): Observable<T?> {
           return observable { emitter ->
-            val listener = settings.addListener(key) {
-              emitter.onNext(get())
-            }
-            emitter.setDisposable(Disposable {
-              listener.deactivate()
-            })
+            val listener = settings.addListener(key) { emitter.onNext(get()) }
+            emitter.setCancellable { listener.deactivate() }
             emitter.onNext(get()) // initial value.
           }
         }

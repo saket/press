@@ -12,6 +12,7 @@ import assertk.assertions.isNotInstanceOf
 import assertk.assertions.isTrue
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.asSingle
+import com.badoo.reaktive.completable.blockingAwait
 import com.badoo.reaktive.single.blockingGet
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.hours
@@ -691,8 +692,4 @@ class GitSyncerTest : BaseDatabaeTest() {
 
 private fun NoteQueries.testInsert(vararg notes: Note) {
   notes.forEach { testInsert(it) }
-}
-
-private fun Completable.blockingAwait() {
-  return asSingle(Unit).blockingGet()
 }
