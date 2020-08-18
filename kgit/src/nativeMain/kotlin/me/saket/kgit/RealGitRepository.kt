@@ -2,9 +2,10 @@ package me.saket.kgit
 
 internal actual class RealGitRepository actual constructor(
   directoryPath: String,
+  userConfig: GitConfig,
+  remote: GitRemote,
   sshKey: SshPrivateKey
 ) : GitRepository {
-  override fun maybeInit(config: () -> GitConfig): Unit = TODO()
   override fun isStagingAreaDirty(): Boolean = TODO()
   override fun checkout(branch: String, create: Boolean): Unit = TODO()
   override fun commitAll(message: String, author: GitAuthor?, timestamp: UtcTimestamp?, allowEmpty: Boolean) = TODO()
@@ -14,7 +15,6 @@ internal actual class RealGitRepository actual constructor(
   override fun rebase(with: GitCommit, strategy: MergeStrategy): RebaseResult = TODO()
   override fun push(force: Boolean): PushResult = TODO()
   override fun hardResetTo(commit: GitCommit): Unit = TODO()
-  override fun addRemote(name: String, url: String) = TODO()
   override fun headCommit(onBranch: String?): GitCommit = TODO()
   override fun commitsBetween(from: GitCommit?, toInclusive: GitCommit): List<GitCommit> = TODO()
   override fun commonAncestor(first: GitCommit, second: GitCommit): GitCommit? = TODO()

@@ -15,8 +15,8 @@ import com.badoo.reaktive.completable.asSingle
 import com.badoo.reaktive.single.blockingGet
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.hours
+import me.saket.kgit.Git
 import me.saket.kgit.PushResult.Failure
-import me.saket.kgit.RealGit
 import me.saket.kgit.SshPrivateKey
 import me.saket.press.data.shared.Note
 import me.saket.press.data.shared.NoteQueries
@@ -47,7 +47,6 @@ class GitSyncerTest : BaseDatabaeTest() {
 
   private val deviceInfo = testDeviceInfo()
   private val noteQueries get() = database.noteQueries
-  private val git = RealGit()
   private val clock = FakeClock()
   private val config = GitSyncerConfig(
       remote = GitRepositoryInfo(
@@ -60,7 +59,6 @@ class GitSyncerTest : BaseDatabaeTest() {
   )
   private val configSetting = FakeSetting(config)
   private val syncer = GitSyncer(
-      git = git,
       config = configSetting,
       database = database,
       deviceInfo = deviceInfo,
@@ -628,11 +626,10 @@ class GitSyncerTest : BaseDatabaeTest() {
 
   private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit = {}) {
     private val directory = File(deviceInfo.appStorage, "temp").apply { makeDirectory() }
-    private val gitRepo = git.repository(config.sshKey, directory.path)
+    private val gitRepo = Git.repository(directory.path, sshKey = config.sshKey, remoteSshUrl = config.remote.sshUrl)
     private val register = FileNameRegister(directory)
 
     init {
-      gitRepo.addRemote("origin", config.remote.sshUrl)
       gitRepo.commitAll("Initial commit", timestamp = UtcTimestamp(clock), allowEmpty = true)
       gitRepo.checkout(config.remote.defaultBranch)
       prepare()

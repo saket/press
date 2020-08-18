@@ -10,6 +10,7 @@ import me.saket.kgit.GitAuthor
 import me.saket.kgit.GitCommit
 import me.saket.kgit.GitConfig
 import me.saket.kgit.GitPullResult
+import me.saket.kgit.GitRepository
 import me.saket.kgit.GitTreeDiff
 import me.saket.kgit.GitTreeDiff.Change.Add
 import me.saket.kgit.GitTreeDiff.Change.Copy
@@ -46,7 +47,6 @@ import me.saket.wysiwyg.atomicLazy
 //   - commit deleted notes.
 //   - show errors in status UI
 class GitSyncer(
-  git: Git,
   private val config: Setting<GitSyncerConfig>,
   private val database: PressDatabase,
   private val deviceInfo: DeviceInfo,
@@ -59,16 +59,7 @@ class GitSyncer(
   private val register = FileNameRegister(directory)
   private val gitAuthor = GitAuthor("Saket", "pressapp@saket.me")
   private val remote: GitRepositoryInfo? get() = config.get()?.remote
-  val loggers = SyncLoggers(PrintLnSyncLogger)
-
-  // Lazy to avoid reading anything on the main thread.
-  private val git by atomicLazy {
-    with(config.get()!!) {
-      git.repository(sshKey, path = directory.path).apply {
-        addRemote("origin", remote.sshUrl)
-      }
-    }
-  }
+  private val loggers = SyncLoggers(PrintLnSyncLogger)
 
   override fun status(): Observable<Status> {
     return combineLatest(config.listen(), status.listen()) { config, status ->
@@ -82,21 +73,24 @@ class GitSyncer(
   override fun sync() = completableFromFunction {
     status.set(InFlight)
     loggers.onSyncStart()
+    directory.makeDirectory(recursively = true)
 
     try {
-      git.maybeInit(config = {
-        GitConfig("diff" to listOf("renames" to "true"))
-      })
+      val config = config.get()!!
+      val git = Git.repository(
+          path = directory.path,
+          sshKey = config.sshKey,
+          remoteSshUrl = config.remote.sshUrl,
+          userConfig = GitConfig("diff" to listOf("renames" to "true"))
+      )
 
-      directory.makeDirectory(recursively = true)
-      maybeMakeInitialCommit()
+      with(GitScope(git)) {
+        val pullResult = pull()
+        commitAllChanges(pullResult)
+        processCommits(pullResult)
+        push(rollBackToOnFailure = pullResult.headBefore)
+      }
 
-      val pullResult = pull()
-      commitAllChanges(pullResult)
-      processCommits(pullResult)
-      push(rollBackToOnFailure = pullResult.headBefore)
-
-      check(!git.isStagingAreaDirty())
       status.set(Idle(lastSyncedAt = clock.nowUtc()))
 
     } catch (e: Throwable) {
@@ -109,6 +103,8 @@ class GitSyncer(
     }
   }
 
+  class GitScope(val git: GitRepository)
+
   override fun disable() = completableFromFunction {
     config.set(null)
     directory.delete(recursively = true)
@@ -116,7 +112,7 @@ class GitSyncer(
   }
 
   /** Commit announcing that syncing has been setup. */
-  private fun maybeMakeInitialCommit() {
+  private fun maybeMakeInitialCommit(git: GitRepository) {
     if (git.headCommit() != null) {
       return
     }
@@ -150,7 +146,8 @@ class GitSyncer(
     val headAfter: GitCommit
   )
 
-  private fun pull(): GitResult {
+  private fun GitScope.pull(): GitResult {
+    maybeMakeInitialCommit(git)
     val localHead = git.headCommit()!!  // non-null because of maybeMakeInitialCommit().
 
     return when (val it = git.pull(rebase = true)) {
@@ -170,7 +167,7 @@ class GitSyncer(
   }
 
   @Suppress("CascadeIf")
-  private fun commitAllChanges(pullResult: GitResult) {
+  private fun GitScope.commitAllChanges(pullResult: GitResult) {
     val pendingSyncNotes = noteQueries.pendingSyncNotes().executeAsList()
     if (pendingSyncNotes.isEmpty()) {
       log("Nothing to commit")
@@ -249,7 +246,7 @@ class GitSyncer(
   }
 
   @Suppress("NAME_SHADOWING")
-  private fun processCommits(pullResult: GitResult) {
+  private fun GitScope.processCommits(pullResult: GitResult) {
     val to = git.headCommit()!!
     val from = git.commonAncestor(first = pullResult.headBefore, second = to)
 
@@ -386,8 +383,9 @@ class GitSyncer(
     }
   }
 
-  private fun push(rollBackToOnFailure: GitCommit) {
+  private fun GitScope.push(rollBackToOnFailure: GitCommit) {
     check(git.currentBranch().name == remote!!.defaultBranch)
+    check(!git.isStagingAreaDirty())
 
     return when (git.push()) {
       is Success, is AlreadyUpToDate -> {

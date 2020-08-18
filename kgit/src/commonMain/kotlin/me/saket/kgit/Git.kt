@@ -1,11 +1,10 @@
 package me.saket.kgit
 
-interface Git {
-  fun repository(sshKey: SshPrivateKey, path: String): GitRepository
-}
-
-class RealGit : Git {
-  override fun repository(sshKey: SshPrivateKey, path: String): GitRepository {
-    return RealGitRepository(path, sshKey)
-  }
+object Git {
+  fun repository(
+    path: String,
+    sshKey: SshPrivateKey,
+    remoteSshUrl: String,
+    userConfig: GitConfig = GitConfig()
+  ): GitRepository = RealGitRepository(path, userConfig, GitRemote("origin", remoteSshUrl), sshKey)
 }

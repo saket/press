@@ -1,15 +1,13 @@
 package me.saket.kgit
 
-internal expect class RealGitRepository(directoryPath: String, sshKey: SshPrivateKey) : GitRepository
+internal expect class RealGitRepository(
+  directoryPath: String,
+  userConfig: GitConfig,
+  remote: GitRemote,
+  sshKey: SshPrivateKey
+) : GitRepository
 
 interface GitRepository {
-
-  /**
-   * Avoid reading any config from [~/.gitconfig] that will lead to non-deterministic
-   * behavior on the host machine. For e.g., following of renames may be disabled for
-   * computing file diffs.
-   */
-  fun maybeInit(config: () -> GitConfig)
 
   fun isStagingAreaDirty(): Boolean
 
@@ -43,8 +41,6 @@ interface GitRepository {
   fun push(force: Boolean = false): PushResult
 
   fun hardResetTo(commit: GitCommit)
-
-  fun addRemote(name: String, url: String)
 
   /**
    * The commit HEAD is pointing to on [onBranch].

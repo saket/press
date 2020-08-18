@@ -11,9 +11,7 @@ import me.saket.kgit.MergeStrategy.OURS
 import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM
 import org.eclipse.jgit.api.MergeCommand.FastForwardMode.FF
 import org.eclipse.jgit.api.RebaseCommand.Operation.ABORT
-import org.eclipse.jgit.api.RebaseCommand.Operation.CONTINUE
 import org.eclipse.jgit.api.RebaseResult.Status.STOPPED
-import org.eclipse.jgit.api.ResetCommand.ResetType
 import org.eclipse.jgit.api.ResetCommand.ResetType.HARD
 import org.eclipse.jgit.api.TransportConfigCallback
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.ADD
@@ -22,8 +20,6 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType.DELETE
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.MODIFY
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.RENAME
 import org.eclipse.jgit.lib.BranchConfig.BranchRebaseMode.REBASE
-import org.eclipse.jgit.lib.ObjectId
-import org.eclipse.jgit.lib.ObjectLoader
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.UserConfig
 import org.eclipse.jgit.merge.ResolveMerger
@@ -39,13 +35,10 @@ import org.eclipse.jgit.transport.SshTransport
 import org.eclipse.jgit.transport.URIish
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.EmptyTreeIterator
-import org.eclipse.jgit.treewalk.TreeWalk
-import org.eclipse.jgit.treewalk.filter.PathFilter
 import org.eclipse.jgit.util.FS
 import java.time.Duration
 import java.util.Date
 import java.util.TimeZone
-import kotlin.LazyThreadSafetyMode.NONE
 import org.eclipse.jgit.api.Git as JGit
 import org.eclipse.jgit.lib.Repository as JRepository
 import org.eclipse.jgit.merge.MergeStrategy as JgitMergeStrategy
@@ -57,30 +50,31 @@ import java.io.File as JavaFile
  */
 internal actual class RealGitRepository actual constructor(
   directoryPath: String,
-  private val sshKey: SshPrivateKey
+  userConfig: GitConfig,
+  remote: GitRemote,
+  val sshKey: SshPrivateKey
 ) : GitRepository {
 
   private val directory = JavaFile(directoryPath)
-  private val jgit: JGit by lazy(NONE) {
-    JGit.init().setDirectory(directory).call()
-  }
+  private val jgit = JGit.init().setDirectory(directory).call()
 
-  override fun maybeInit(config: () -> GitConfig) {
-    if (JavaFile(directory, ".git").exists()) {
-      return
-    }
+  init {
+    jgit.remoteAdd()
+        .setName(remote.name)
+        .setUri(URIish(remote.sshUrl))
+        .call()
 
-    JGit.init().setDirectory(directory).call()
+    JgitSystemReader.getInstance().userConfig.apply {
+      // Avoid reading any config from [~/.gitconfig] that will lead to non-deterministic
+      // behavior on the host machine. For e.g., following of renames may be disabled for
+      // computing file diffs.
+      clear()
 
-    // Note to self: if this doesn't work, try using something
-    // from https://stackoverflow.com/q/33804097/2511884.
-    val userConfig = JgitSystemReader.getInstance().userConfig
-    userConfig.clear()
-
-    val repoConfig = jgit.repository.config
-    for (section in config().sections) {
-      for ((key, value) in section.values) {
-        repoConfig.setString(section.name, null, key, value)
+      val repoConfig = jgit.repository.config
+      for (section in userConfig.sections) {
+        for ((key, value) in section.values) {
+          repoConfig.setString(section.name, null, key, value)
+        }
       }
     }
   }
@@ -281,20 +275,6 @@ internal actual class RealGitRepository actual constructor(
         }
       }
     }
-  }
-
-  override fun addRemote(name: String, url: String) {
-    val existingRemote = jgit.remoteList().call()
-        .map { it.name to it.urIs.single().toString() }
-        .singleOrNull()
-
-    if (existingRemote == name to url) return
-    else if (existingRemote != null) error("Multiple remotes aren't supported")
-
-    jgit.remoteAdd()
-        .setName(name)
-        .setUri(URIish(url))
-        .call()
   }
 
   override fun headCommit(onBranch: String?): GitCommit? {
