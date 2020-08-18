@@ -1,7 +1,5 @@
 package me.saket.kgit
 
-import me.saket.kgit.MergeStrategy.OURS
-
 internal expect class RealGitRepository(directoryPath: String, sshKey: SshPrivateKey) : GitRepository
 
 interface GitRepository {
@@ -30,11 +28,9 @@ interface GitRepository {
     allowEmpty: Boolean = false
   )
 
-  fun pull(rebase: Boolean): PullResult
+  fun pull(rebase: Boolean): GitPullResult
 
-  fun merge(with: GitCommit): PullResult
-
-  fun fetch()
+  fun merge(with: GitCommit): MergeResult
 
   /**
    * Find files which will fail to merge if the current head is merged/rebased with a
@@ -44,9 +40,9 @@ interface GitRepository {
 
   fun rebase(with: GitCommit, strategy: MergeStrategy): RebaseResult
 
-  fun <R> peekFileTree(ofCommit: GitCommit, peek: () -> R): R
-
   fun push(force: Boolean = false): PushResult
+
+  fun hardResetTo(commit: GitCommit)
 
   fun addRemote(name: String, url: String)
 

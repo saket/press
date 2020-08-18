@@ -68,6 +68,11 @@ SELECT *
 FROM note
 WHERE id = ?;
 
+exists:
+SELECT count(id) > 0
+FROM note
+WHERE id = ?;
+
 insert:
 INSERT INTO note(id, content, createdAt, updatedAt)
 VALUES (?, ?, ?, ?);

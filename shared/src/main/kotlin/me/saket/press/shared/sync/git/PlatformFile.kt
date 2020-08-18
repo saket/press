@@ -31,7 +31,7 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
   override fun copy(name: String, recursively: Boolean): File {
     check(exists)
     check(delegate.parent != null)
-    check(recursively) { "todo non-recursive copy" }
+    if (!recursively && '/' in name) throw error("todo: non-recursive copy in another folder")
 
     val targetDelegate = JavaFile(delegate.parent, name)
     val copied = delegate.copyRecursively(target = targetDelegate, overwrite = true)

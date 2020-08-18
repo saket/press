@@ -85,13 +85,16 @@ internal class FileNameRegister(private val notesDirectory: File) {
     return recordFor(relativePath)?.noteId
   }
 
-  // todo: use functional interface when kotlin 1.4 is released.
-  interface OnRenameListener {
-    fun onRename(oldName: String, newName: String)
+  data class FileSuggestion(
+    val suggestedFile: File,
+    val oldFile: File? = null,
+    val acceptRename: (() -> Unit)? = null
+  ) {
+    val name get() = suggestedFile.name
   }
 
   @Suppress("CascadeIf")
-  fun fileFor(note: Note, renameListener: OnRenameListener? = null): File {
+  fun suggestFile(note: Note): FileSuggestion {
     val oldRecord = recordFor(note)
     val oldNoteFile = oldRecord?.noteFileIn(notesDirectory).existsOrNull()
 
@@ -103,20 +106,20 @@ internal class FileNameRegister(private val notesDirectory: File) {
 
     return if (oldNoteFile == null) {
       // New note. A new file needs to be created.
-      File(notesDirectory, newNoteName).also {
+      FileSuggestion(File(notesDirectory, newNoteName).also {
         createNewRecordFor(it, note.id)
-      }
+      })
     } else if (oldNoteFile.relativePathIn(notesDirectory) == newNoteName) {
       // A file already exists and the name matches the note's heading.
-      oldNoteFile
+      FileSuggestion(oldNoteFile)
     } else {
       // A file already exists, but the heading was changed. Rename the file.
-      oldNoteFile.renameTo(File(notesDirectory, newNoteName)).also {
-        //println("Deleting $oldRecord")
+      val newFile = File(notesDirectory, newNoteName)
+      FileSuggestion(newFile, oldFile = oldNoteFile, acceptRename = {
+        oldNoteFile.renameTo(newFile)
         oldRecord!!.registerFile.delete()
-        createNewRecordFor(it, note.id)
-        renameListener?.onRename(oldName = oldNoteFile.name, newName = newNoteName)
-      }
+        createNewRecordFor(newFile, note.id)
+      })
     }
   }
 
@@ -128,7 +131,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
     }
 
     val recordFile = Record.writeToFile(registerDirectory, notesDirectory, noteFile, id)
-    println("Creating record ${recordFile.name} -> ${recordFile.read()}")
+    //println("Creating record ${recordFile.name} -> ${recordFile.read()}")
     return Record.from(registerDirectory, recordFile)
   }
 

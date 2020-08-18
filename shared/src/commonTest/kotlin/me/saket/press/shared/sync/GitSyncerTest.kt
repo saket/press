@@ -26,7 +26,6 @@ import me.saket.press.shared.PlatformHost.Android
 import me.saket.press.shared.containsOnly
 import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.NoteId
-import me.saket.press.shared.db.NoteId.Companion
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.settings.FakeSetting
 import me.saket.press.shared.sync.SyncState.PENDING
@@ -36,7 +35,6 @@ import me.saket.press.shared.sync.git.FileName
 import me.saket.press.shared.sync.git.FileNameRegister
 import me.saket.press.shared.sync.git.GitSyncer
 import me.saket.press.shared.sync.git.GitSyncerConfig
-import me.saket.press.shared.sync.git.Record
 import me.saket.press.shared.sync.git.UtcTimestamp
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 import me.saket.press.shared.testDeviceInfo
@@ -306,11 +304,11 @@ class GitSyncerTest : BaseDatabaeTest() {
     // The local note should get duplicated as a new note and then
     // the local note should get overridden by the server copy.
     assertThat(localNotes).hasSize(2)
-    assertThat(localNotes[0].content).isEqualTo("# Uncharted\nRemote edit")
-    assertThat(localNotes[0].id).isEqualTo(locallyEditedNote.id)
+    assertThat(localNotes[0].content).isEqualTo("# Uncharted\nLocal edit")
+    assertThat(localNotes[0].id).isNotEqualTo(locallyEditedNote.id)
 
-    assertThat(localNotes[1].content).isEqualTo("# Uncharted\nLocal edit")
-    assertThat(localNotes[1].id).isNotEqualTo(locallyEditedNote.id)
+    assertThat(localNotes[1].content).isEqualTo("# Uncharted\nRemote edit")
+    assertThat(localNotes[1].id).isEqualTo(locallyEditedNote.id)
   }
 
   @Test fun `merge local and remote notes with delete conflict (without remote register)`() {
@@ -321,7 +319,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     // Given: a note was created on another device.
     val remote = RemoteRepositoryRobot {
       commitFiles(
-          message = "First commit",
+          message = "Create 'uncharted.md'",
           time = clock.nowUtc(),
           add = listOf("uncharted.md" to "# Uncharted")
       )
@@ -343,7 +341,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     with(remote) {
       pull()
       commitFiles(
-          message = "Second commit",
+          message = "Update 'uncharted.md'",
           time = clock.nowUtc(),
           add = listOf("uncharted.md" to "# Uncharted\nRemote edit")
       )
@@ -354,6 +352,9 @@ class GitSyncerTest : BaseDatabaeTest() {
     syncer.sync().blockingAwait()
 
     val localNotes = noteQueries.visibleNotes().executeAsList().sortedBy { it.updatedAt }
+
+    println("localNotes: ")
+    localNotes.forEach { println(it) }
 
     // The local note should get duplicated as a new note and then
     // the local note should get overridden by the server copy.
@@ -375,7 +376,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     val remote = RemoteRepositoryRobot {
       createRecord("uncharted.md", id = remoteNoteId)
       commitFiles(
-          message = "First commit",
+          message = "Create 'uncharted.md'",
           time = clock.nowUtc(),
           add = listOf("uncharted.md" to "# Uncharted")
       )
@@ -384,10 +385,9 @@ class GitSyncerTest : BaseDatabaeTest() {
     syncer.sync().blockingAwait()
 
     // Given: the same note was renamed locally, effectively DELETING the old file.
-    val locallyEditedNote = noteQueries.visibleNotes().executeAsOne()
     clock.advanceTimeBy(1.hours)
     noteQueries.updateContent(
-        id = locallyEditedNote.id,
+        id = remoteNoteId,
         content = "# Uncharted2\nLocal edit",
         updatedAt = clock.nowUtc()
     )
@@ -397,7 +397,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     with(remote) {
       pull()
       commitFiles(
-          message = "Second commit",
+          message = "Update 'uncharted.md'",
           time = clock.nowUtc(),
           add = listOf("uncharted.md" to "# Uncharted\nRemote edit")
       )
@@ -409,11 +409,14 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     val localNotes = noteQueries.visibleNotes().executeAsList().sortedBy { it.updatedAt }
 
+    println("localNotes: ")
+    localNotes.forEach { println(it) }
+
     // The local note should get duplicated as a new note and then
     // the local note should get overridden by the server copy.
     assertThat(localNotes).hasSize(2)
     assertThat(localNotes[0].content).isEqualTo("# Uncharted2\nLocal edit")
-    assertThat(localNotes[0].id).isNotEqualTo(locallyEditedNote.id)
+    assertThat(localNotes[0].id).isNotEqualTo(remoteNoteId)
 
     assertThat(localNotes[1].content).isEqualTo("# Uncharted\nRemote edit")
     assertThat(localNotes[1].id).isEqualTo(remoteNoteId)
@@ -616,6 +619,11 @@ class GitSyncerTest : BaseDatabaeTest() {
           "potter.md" to "# Potter\nYou're a wizard Harry"
       )
     }
+  }
+
+  // TODO
+  @Test fun `rollback changes if push fails`() {
+    if (!canRunTests()) return
   }
 
   private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit = {}) {

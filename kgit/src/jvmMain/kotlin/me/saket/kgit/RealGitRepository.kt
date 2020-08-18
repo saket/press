@@ -14,6 +14,7 @@ import org.eclipse.jgit.api.RebaseCommand.Operation.ABORT
 import org.eclipse.jgit.api.RebaseCommand.Operation.CONTINUE
 import org.eclipse.jgit.api.RebaseResult.Status.STOPPED
 import org.eclipse.jgit.api.ResetCommand.ResetType
+import org.eclipse.jgit.api.ResetCommand.ResetType.HARD
 import org.eclipse.jgit.api.TransportConfigCallback
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.ADD
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.COPY
@@ -144,12 +145,6 @@ internal actual class RealGitRepository actual constructor(
     return GitAuthor(name = config.authorName, email = config.authorEmail)
   }
 
-  override fun fetch() {
-    jgit.fetch()
-        .setTransportConfigCallback(sshTransport())
-        .call()
-  }
-
   override fun mergeConflicts(with: GitCommit): List<MergeConflict> {
     val head = headCommit() ?: return emptyList()
 
@@ -167,7 +162,7 @@ internal actual class RealGitRepository actual constructor(
   }
 
   override fun rebase(with: GitCommit, strategy: MergeStrategy): RebaseResult {
-    var rebaseResult = jgit.rebase()
+    val rebaseResult = jgit.rebase()
         .setUpstream(with.commit)
         .setStrategy(StrategyRecursive())
         .call()
@@ -175,26 +170,6 @@ internal actual class RealGitRepository actual constructor(
     val onAbort = {
       jgit.rebase().setOperation(ABORT).call()
       Unit
-    }
-
-    if (rebaseResult.status == STOPPED) {
-      println("Auto-resolving conflicts")
-    }
-
-    val sourceOfTruth = with
-    while (rebaseResult.status == STOPPED) {
-      val st = jgit.status().call()
-      for (conflict in st.conflicting) {
-        val preferredContent = peekFile(conflict, sourceOfTruth)
-        println("conflict: $conflict, preferred content: ${preferredContent?.replace("\n", " ")}")
-        if (preferredContent != null) {
-          JavaFile(conflict).writeText(preferredContent)
-        } else {
-          JavaFile(conflict).delete()
-        }
-        jgit.add().addFilepattern(conflict).call()
-      }
-      rebaseResult = jgit.rebase().setOperation(CONTINUE).call()
     }
 
     return with(rebaseResult) {
@@ -212,27 +187,23 @@ internal actual class RealGitRepository actual constructor(
     }
   }
 
-  override fun pull(rebase: Boolean): PullResult {
+  override fun pull(rebase: Boolean): GitPullResult {
     val pullResult = jgit.pull()
         .apply {
           if (rebase) setRebase(REBASE)
           else setFastForward(FF)
         }
-        .setStrategy(OURS.toJgit())
+        .setStrategy(StrategyRecursive())
         .setTransportConfigCallback(sshTransport())
         .call()
 
-    val onAbort = {
-      Unit
-    }
-
     return when {
-      pullResult.isSuccessful -> PullResult.Success
-      else -> PullResult.Failure(reason = pullResult.toString(), abort = onAbort)
+      pullResult.isSuccessful -> GitPullResult.Success
+      else -> GitPullResult.Failure(reason = pullResult.toString())
     }
   }
 
-  override fun merge(with: GitCommit): PullResult {
+  override fun merge(with: GitCommit): MergeResult {
     val mergeResult = jgit.merge()
         .include(with.commit)
         .setFastForward(FF)
@@ -244,7 +215,7 @@ internal actual class RealGitRepository actual constructor(
       // https://stackoverflow.com/a/29815444/2511884
       jgit.repository.writeMergeCommitMsg(null)
       jgit.repository.writeMergeHeads(null)
-      jgit.reset().setMode(ResetType.HARD).call()
+      jgit.reset().setMode(HARD).call()
       Unit
     }
 
@@ -257,46 +228,13 @@ internal actual class RealGitRepository actual constructor(
 //    }
 
     return when {
-      mergeResult.mergeStatus.isSuccessful -> PullResult.Success
-      else -> PullResult.Failure(reason = mergeResult.toString(), abort = onAbort)
+      mergeResult.mergeStatus.isSuccessful -> MergeResult.Success
+      else -> MergeResult.Failure(reason = mergeResult.toString(), abort = onAbort)
     }
   }
 
-  override fun <R> peekFileTree(ofCommit: GitCommit, peek: () -> R): R {
-    jgit.stashCreate().setIncludeUntracked(true).call()
-    val restoreTo = currentBranch()
-    jgit.checkout().setName(ofCommit.sha1.value).call()
-
-    try {
-      return peek()
-
-    } finally {
-      jgit.checkout().setName(restoreTo.name).call()
-      jgit.stashDrop().call()
-    }
-  }
-
-  private fun peekFile(path: String, inCommit: GitCommit): String? {
-    val repository = jgit.repository
-    var fileContent: String? = null
-
-    RevWalk(repository).use { revWalk ->
-      val tree = revWalk.parseCommit(inCommit.commit).tree
-
-      TreeWalk(repository).use { treeWalk ->
-        treeWalk.addTree(tree)
-        treeWalk.isRecursive = true
-        treeWalk.filter = PathFilter.create(path)
-        if (treeWalk.next()) {
-          val objectId: ObjectId = treeWalk.getObjectId(0)
-          val loader: ObjectLoader = repository.open(objectId)
-          fileContent = String(loader.bytes)
-        }
-      }
-      revWalk.dispose()
-    }
-
-    return fileContent
+  override fun hardResetTo(commit: GitCommit) {
+    jgit.reset().setMode(HARD).setRef(commit.sha1.value).call()
   }
 
   override fun push(force: Boolean): PushResult {
@@ -387,8 +325,11 @@ internal actual class RealGitRepository actual constructor(
 
       if (from != null && from.sha1 != commits.last().sha1) {
         // [from] isn't an ancestor of [toInclusive].
-        val log = jgit.log().call().map { GitCommit(it) }
-        error("Commits (${from.sha1} and ${toInclusive.sha1}) aren't in the same branch. Git log: $log")
+        val log = jgit.log().call()
+            .map(::GitCommit)
+            .joinToString(separator = "\n")
+
+        error("Commits ($from and $toInclusive) aren't in the same branch. Git log: \n\n$log")
       }
 
       return commits.reversed()

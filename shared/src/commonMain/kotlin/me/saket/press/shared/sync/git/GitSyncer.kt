@@ -9,22 +9,20 @@ import me.saket.kgit.Git
 import me.saket.kgit.GitAuthor
 import me.saket.kgit.GitCommit
 import me.saket.kgit.GitConfig
+import me.saket.kgit.GitPullResult
 import me.saket.kgit.GitTreeDiff
 import me.saket.kgit.GitTreeDiff.Change.Add
 import me.saket.kgit.GitTreeDiff.Change.Copy
 import me.saket.kgit.GitTreeDiff.Change.Delete
 import me.saket.kgit.GitTreeDiff.Change.Modify
 import me.saket.kgit.GitTreeDiff.Change.Rename
-import me.saket.kgit.MergeConflict
-import me.saket.kgit.MergeStrategy.OURS
-import me.saket.kgit.PullResult
+import me.saket.kgit.PushResult.AlreadyUpToDate
 import me.saket.kgit.PushResult.Failure
-import me.saket.kgit.RebaseResult
+import me.saket.kgit.PushResult.Success
 import me.saket.kgit.UtcTimestamp
 import me.saket.kgit.abbreviated
 import me.saket.press.PressDatabase
 import me.saket.press.shared.db.NoteId
-import me.saket.press.shared.home.SplitHeadingAndBody
 import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.sync.SyncState
 import me.saket.press.shared.sync.SyncState.IN_FLIGHT
@@ -35,9 +33,6 @@ import me.saket.press.shared.sync.Syncer.Status.Disabled
 import me.saket.press.shared.sync.Syncer.Status.Failed
 import me.saket.press.shared.sync.Syncer.Status.Idle
 import me.saket.press.shared.sync.Syncer.Status.InFlight
-import me.saket.press.shared.sync.git.FileNameRegister.OnRenameListener
-import me.saket.press.shared.sync.git.GitSyncer.Result.DONE
-import me.saket.press.shared.sync.git.GitSyncer.Result.SKIPPED
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 import me.saket.press.shared.time.Clock
 import me.saket.wysiwyg.atomicLazy
@@ -69,15 +64,10 @@ class GitSyncer(
   // Lazy to avoid reading anything on the main thread.
   private val git by atomicLazy {
     with(config.get()!!) {
-      git.repository(sshKey = sshKey, path = directory.path).apply {
+      git.repository(sshKey, path = directory.path).apply {
         addRemote("origin", remote.sshUrl)
       }
     }
-  }
-
-  private enum class Result {
-    DONE,
-    SKIPPED
   }
 
   override fun status(): Observable<Status> {
@@ -90,7 +80,6 @@ class GitSyncer(
   }
 
   override fun sync() = completableFromFunction {
-    val rollBackToStatus = status.get()
     status.set(InFlight)
     loggers.onSyncStart()
 
@@ -102,18 +91,16 @@ class GitSyncer(
       directory.makeDirectory(recursively = true)
       maybeMakeInitialCommit()
 
-      val commitResult = commitAllChanges()
       val pullResult = pull()
+      commitAllChanges(pullResult)
+      processCommits(pullResult)
+      push(rollBackToOnFailure = pullResult.headBefore)
 
-      if (commitResult == DONE || pullResult == DONE) {
-        push()
-      }
       check(!git.isStagingAreaDirty())
-
       status.set(Idle(lastSyncedAt = clock.nowUtc()))
 
     } catch (e: Throwable) {
-      println("Caught error: ${e.message}")
+      log("Error: ${e.message}")
       status.set(Failed)
       throw e
 
@@ -158,11 +145,36 @@ class GitSyncer(
     git.checkout(remote!!.defaultBranch, create = true)
   }
 
-  private fun commitAllChanges(): Result {
+  private data class GitResult(
+    val headBefore: GitCommit,
+    val headAfter: GitCommit
+  )
+
+  private fun pull(): GitResult {
+    val localHead = git.headCommit()!!  // non-null because of maybeMakeInitialCommit().
+
+    return when (val it = git.pull(rebase = true)) {
+      is GitPullResult.Success -> {
+        val upstreamHead = git.headCommit()!!
+        if (upstreamHead != localHead) {
+          log("Pulled upstream. Moved head from $localHead to $upstreamHead.")
+        } else {
+          log("Nothing to pull.")
+        }
+        GitResult(headBefore = localHead, headAfter = upstreamHead)
+      }
+      is GitPullResult.Failure -> {
+        throw error("Failed to rebase: $it")
+      }
+    }
+  }
+
+  @Suppress("CascadeIf")
+  private fun commitAllChanges(pullResult: GitResult) {
     val pendingSyncNotes = noteQueries.pendingSyncNotes().executeAsList()
     if (pendingSyncNotes.isEmpty()) {
       log("Nothing to commit")
-      return SKIPPED
+      return
     }
 
     // Having an intermediate sync state between PENDING and SYNCED
@@ -173,52 +185,19 @@ class GitSyncer(
         syncState = IN_FLIGHT
     )
 
-    log("Reading unsynced notes:")
+    val pulledPathsToDiff = git
+        .diffBetween(pullResult.headBefore, pullResult.headAfter)
+        .filterNoteChanges()
+        .associateBy { it.path }
 
-    for (note in pendingSyncNotes) {
-      val noteFile = register.fileFor(note, renameListener = object : OnRenameListener {
-        override fun onRename(oldName: String, newName: String) {
-          // Git identifies renames implicitly at runtime rather than explicitly.
-          // It applies heuristic by comparing file names and content and tries to
-          // guess renames, but it can possibly fail to do so and show them as
-          // different files which will result in Press duplicating the notes.
-          // Try to help git by committing renames separately.
-          log(" • renaming '$oldName' → '$newName'")
-          git.commitAll(
-              message = "Rename '$oldName' → '$newName'",
-              author = gitAuthor,
-              timestamp = UtcTimestamp(note.updatedAt)
-          )
-        }
-      })
-
-      log(" • committing ${noteFile.relativePathIn(directory)} (heading: '${SplitHeadingAndBody.split(note.content).first}')")
-
-      noteFile.write(note.content)
-
-      // There may be no changes in case the file was only renamed.
-      if (git.isStagingAreaDirty()) {
-        git.commitAll(
-            message = "Update '${noteFile.name}'",
-            author = gitAuthor,
-            timestamp = UtcTimestamp(note.updatedAt)
-        )
+    if (pulledPathsToDiff.isNotEmpty()) {
+      log("\nPull diff: ")
+      pulledPathsToDiff.forEach { (path) ->
+        log(" • $path -> ${File(directory, path).read().replace("\n", " ")}")
       }
     }
-    return DONE
-  }
 
-  private fun pull(): Result {
-    git.fetch()
-    val localHead = git.headCommit()!!  // non-null because of maybeMakeInitialCommit().
-    val upstreamHead = git.headCommit(onBranch = "origin/${git.currentBranch().name}")
-
-    log("\nFetching upstream. Local head: $localHead, upstream head: $upstreamHead")
-    if (localHead == upstreamHead || upstreamHead == null) {
-      // Nothing to fetch.
-      log("Nothing to pull")
-      return SKIPPED
-    }
+    log("\nReading unsynced notes:")
 
     // Git makes it easy to handle merge conflicts, but automating it for
     // the user is going to be a challenge. If the same note was modified
@@ -232,89 +211,48 @@ class GitSyncer(
     // on every sync on the other device.
     //
     // These files will get processed after rebase.
-    val conflicts = git.mergeConflicts(with = upstreamHead).filterNoteConflicts()
-//    if (conflicts.isNotEmpty()) {
-//      println("\nConflicts: ")
-//      conflicts.forEach { println(" • ${it.path} -> ${it.theirContent()}") }
-//    }
+    for (note in pendingSyncNotes) {
+      val (noteFile, oldFile, acceptRename) = register.suggestFile(note)
+      val notePath = noteFile.relativePathIn(directory)
+      val oldPath = oldFile?.relativePathIn(directory)
 
-    if (conflicts.isNotEmpty()) {
-      log("\nAuto-resolving merge conflicts: ")
+      log(" • checking '${note.content.replace("\n", " ")}'")
 
-      for (conflict in conflicts) {
-        val conflictingNote = File(directory, conflict.path)
-        val upstreamCopy = git.peekFileTree(upstreamHead) { File(conflict.path).existsOrNull()?.read() }
-
-        if (upstreamCopy != null) {
-          if (conflictingNote.exists) {
-            conflictingNote.renameTo(register.findNewNameOnConflict(conflictingNote)).also {
-              log(" • ${conflictingNote.relativePathIn(directory)} → ${it.relativePathIn(directory)}")
-            }
-          } else {
-            val deletedRecord = git.peekFileTree(upstreamHead) { register.recordFor(conflict.path)!! }
-            deletedRecord.registerFile.write(conflict.path)
-            log(" • undo delete ${conflict.path}")
-          }
-          conflictingNote.write(upstreamCopy)
-
-        } else {
-          // File was renamed/removed on upstream.
-          File(directory, conflict.path).delete()
-          register.recordFor(conflict.path)!!.registerFile.delete()
-          log(" • ${conflictingNote.relativePathIn(directory)} → deleted")
+      if (notePath in pulledPathsToDiff) {
+        // File's content is going to change in a conflicting way.
+        noteFile.copy(register.findNewNameOnConflict(noteFile)).let {
+          it.write(note.content)
+          log(" • duplicated $notePath to ${it.name} to resolve merge conflict")
         }
+
+      } else if (oldPath in pulledPathsToDiff) {
+        // Old path was updated on remote, but deleted locally.
+        noteFile.write(note.content)
+
+        log(" • committed $notePath as a new note to resolve merge conflict")
+
+      } else {
+        acceptRename?.invoke()
+        noteFile.write(note.content)
+        log(" • committed $notePath")
       }
 
-      if (git.isStagingAreaDirty()) {
-        git.commitAll(
-            message = "Auto-resolve merge conflicts",
-            author = gitAuthor,
-            timestamp = UtcTimestamp(clock)
-        )
-      }
+      // Note to self: if this check fails, something's wrong with my code.
+      check(git.isStagingAreaDirty())
+
+      git.commitAll(
+          message = "Update '${noteFile.name}'",
+          author = gitAuthor,
+         timestamp = UtcTimestamp(note.updatedAt)
+      )
     }
-
-    //printRegisters()
-
-//    log("\nFiles before rebase:")
-//    directory.children(true)
-//        .map { it.relativePathIn(directory) }
-//        .filter { !it.startsWith(".") }
-//        .forEach { log(" • $it") }
-
-    // todo: use rebase once the underlying git library supports OURS
-    //  strategy for file deletion (i.e., jgit is replaced with git24j.
-//    val rebaseResult = git.rebase(with = upstreamHead, strategy = OURS)
-//    if (rebaseResult is RebaseResult.Failure) {
-//      rebaseResult.abort()
-//      throw error("Failed to rebase: $rebaseResult")
-//    }
-    val pullResult = git.merge(with = upstreamHead)
-    if (pullResult is PullResult.Failure) {
-      pullResult.abort()
-      throw error("Failed to pull: $pullResult")
-    }
-
-    //printRegisters()
-
-    // A rebase will cause the history to be re-written, so we need
-    // to find the first common ancestor of local and upstream. All
-    // changes from the ancestor to the current HEAD will have to be
-    // (re)processed.
-    processNotesFromCommits(
-        from = git.commonAncestor(localHead, upstreamHead),
-        to = git.headCommit()!!
-    )
-    return DONE
   }
 
-//  private fun printRegisters() {
-//    val registersDir = File(directory, ".press/registers")
-//    val registers = registersDir.children(recursively = true).joinToString { it.relativePathIn(registersDir) }
-//    log("\nRegister files: $registers\n")
-//  }
+  @Suppress("NAME_SHADOWING")
+  private fun processCommits(pullResult: GitResult) {
+    val to = git.headCommit()!!
+    val from = git.commonAncestor(first = pullResult.headBefore, second = to)
 
-  private fun processNotesFromCommits(from: GitCommit?, to: GitCommit) {
     log("\nProcessing commits from ${from?.sha1?.abbreviated} to ${to.sha1.abbreviated}")
 
     val commits = git.commitsBetween(from = from, toInclusive = to)
@@ -355,40 +293,9 @@ class GitSyncer(
           val existingId = record?.noteId
           val isArchived = record?.noteFolder == "archived"
 
-          // This can be uncommented if we start merging instead of rebasing.
-          //if (diff is Add) {
-          //  check(existingId == null) { "existingId is non-null for Add diff: $existingId" }
-          //}
+          val isNewNote = existingId == null || !noteQueries.exists(existingId).executeAsOne()
 
-          val isNewNote = when(diff) {
-            is Add, is Copy -> true
-            is Modify, is Rename -> false
-            is Delete -> error("cant")
-          }
-
-          if (!isNewNote) {
-            check(existingId != null) {
-              "existingId: $existingId, diff: $diff, content: ${File(directory, diff.path).read().replace("\n", " ")}"
-            }
-
-            log("Updating $existingId (${diff.path}), isArchived? $isArchived")
-            Runnable {
-              noteQueries.updateContent(
-                  id = existingId,
-                  content = content,
-                  updatedAt = commitTime
-              )
-              noteQueries.setArchived(
-                  id = existingId,
-                  isArchived = isArchived,
-                  updatedAt = commitTime
-              )
-              noteQueries.updateSyncState(
-                  ids = listOf(existingId),
-                  syncState = SYNCED
-              )
-            }
-          } else {
+          if (isNewNote) {
             val newId = existingId ?: NoteId.generate()
             log("Creating new note $newId for (${diff.path}), isArchived? $isArchived")
             register.createNewRecordFor(file, newId)
@@ -406,6 +313,25 @@ class GitSyncer(
               )
               noteQueries.updateSyncState(
                   ids = listOf(newId),
+                  syncState = SYNCED
+              )
+            }
+          } else {
+            check(existingId != null)
+            log("Updating $existingId (${diff.path}), isArchived? $isArchived")
+            Runnable {
+              noteQueries.updateContent(
+                  id = existingId,
+                  content = content,
+                  updatedAt = commitTime
+              )
+              noteQueries.setArchived(
+                  id = existingId,
+                  isArchived = isArchived,
+                  updatedAt = commitTime
+              )
+              noteQueries.updateSyncState(
+                  ids = listOf(existingId),
                   syncState = SYNCED
               )
             }
@@ -460,20 +386,20 @@ class GitSyncer(
     }
   }
 
-  private fun List<MergeConflict>.filterNoteConflicts() = filter { diff ->
-    val path = diff.path
-    when {
-      path.startsWith(".press/") -> false   // Meta-files, ignore.
-      else -> path.endsWith(".md")
-    }
-  }
-
-  private fun push() {
+  private fun push(rollBackToOnFailure: GitCommit) {
     check(git.currentBranch().name == remote!!.defaultBranch)
 
-    val pushResult = git.push()
-    require(pushResult !is Failure) { "Failed to push: $pushResult" }
-    noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = SYNCED)
+    return when (git.push()) {
+      is Success, is AlreadyUpToDate -> {
+        noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = SYNCED)
+        log("\nChanges pushed")
+      }
+      is Failure -> {
+        git.hardResetTo(rollBackToOnFailure)
+        noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = PENDING)
+        error("Couldn't push. Rolling back to $rollBackToOnFailure")
+      }
+    }
   }
 
   private fun log(message: String) = loggers.log(message)
