@@ -6,6 +6,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.sync.git.File
@@ -36,17 +37,17 @@ class FileNameRegisterTest {
   @Test fun `generates unique file names to avoid conflicts`() {
     with(register) {
       val note = fakeNote(id = NoteId.generate(), content = "# abc")
-      assertThat(suggestFile(note).name).isEqualTo("abc.md")
+      assertThat(fileFor(note).name).isEqualTo("abc.md")
       assertThat(noteIdFor("abc.md")).isEqualTo(note.id)
 
       // Same note ID, different content.
       val updatedNote1 = note.copy(content = "# abc def")
-      assertThat(suggestFile(updatedNote1).name).isEqualTo("abc_def.md")
+      assertThat(fileFor(updatedNote1).name).isEqualTo("abc_def.md")
       assertThat(noteIdFor("abc_def.md")).isEqualTo(updatedNote1.id)
 
       // Different note ID, same content.
       val note3 = fakeNote(id = NoteId.generate(), content = updatedNote1.content)
-      assertThat(suggestFile(note3).name).isEqualTo("abc_def_2.md")
+      assertThat(fileFor(note3).name).isEqualTo("abc_def_2.md")
       assertThat(noteIdFor("abc_def_2.md")).isEqualTo(note3.id)
     }
   }
@@ -54,12 +55,12 @@ class FileNameRegisterTest {
   @Test fun `rename file if note's heading changes`() {
     val note = fakeNote(id = NoteId.generate(), content = "# abc")
 
-    val fileBeforeUpdate = register.suggestFile(note).suggestedFile.touch()
+    val fileBeforeUpdate = register.fileFor(note).touch()
     assertThat(fileBeforeUpdate.name).isEqualTo("abc.md")
     assertThat(fileBeforeUpdate.exists).isTrue()
     assertThat(register.noteIdFor("abc.md")).isEqualTo(note.id)
 
-    val fileAfterUpdate = register.suggestFile(note.copy(content = "# abcdef"))
+    val fileAfterUpdate = register.fileFor(note.copy(content = "# abcdef"))
     assertThat(fileAfterUpdate.name).isEqualTo("abcdef.md")
     assertThat(fileBeforeUpdate.exists).isFalse()
 
@@ -79,8 +80,8 @@ class FileNameRegisterTest {
   @Test fun `prune stale records`() {
     val note1 = fakeNote(content = "# Uncharted\nA Thief's End")
     val note2 = fakeNote(content = "# Uncharted\nThe Lost Legacy")
-    val note1File = register.suggestFile(note1)
-    val note2File = register.suggestFile(note2)
+    val note1File = register.fileFor(note1)
+    val note2File = register.fileFor(note2)
 
     assertThat(register.noteIdFor(note1File.name)).isEqualTo(note1.id)
     assertThat(register.noteIdFor(note2File.name)).isEqualTo(note2.id)
@@ -94,7 +95,7 @@ class FileNameRegisterTest {
   @Test fun `support for archived folder`() {
     val note = fakeNote(content = "# The Witcher 3\nWild hunt", isArchived = false)
 
-    val unarchivedFile = register.suggestFile(note).suggestedFile.touch()
+    val unarchivedFile = register.fileFor(note).touch()
     assertThat(unarchivedFile.exists).isTrue()
     assertThat(unarchivedFile.relativePathIn(directory)).isEqualTo("the_witcher_3.md")
     with(register.recordFor("the_witcher_3.md")!!) {
@@ -102,7 +103,7 @@ class FileNameRegisterTest {
       assertThat(noteFolder).isEmpty()
     }
 
-    val archivedFile = register.suggestFile(note.copy(isArchived = true)).suggestedFile.touch()
+    val archivedFile = register.fileFor(note.copy(isArchived = true))
     assertThat(archivedFile.relativePathIn(directory)).isEqualTo("archived/the_witcher_3.md")
     assertThat(unarchivedFile.exists).isFalse()
     with(register.recordFor("archived/the_witcher_3.md")!!) {
@@ -110,12 +111,17 @@ class FileNameRegisterTest {
       assertThat(noteFolder).isEqualTo("archived")
     }
 
-    register.suggestFile(note.copy(isArchived = false)).suggestedFile.touch()
+    register.fileFor(note.copy(isArchived = false)).touch()
     assertThat(archivedFile.exists).isFalse()
     assertThat(unarchivedFile.exists).isTrue()
     with(register.recordFor("the_witcher_3.md")!!) {
       assertThat(noteId).isEqualTo(note.id)
       assertThat(noteFolder).isEmpty()
     }
+  }
+
+  private fun FileNameRegister.fileFor(note: Note): File {
+    val suggestion = suggestFile(note).apply { acceptRename() }
+    return suggestion.suggestedFile
   }
 }

@@ -88,10 +88,8 @@ internal class FileNameRegister(private val notesDirectory: File) {
   data class FileSuggestion(
     val suggestedFile: File,
     val oldFile: File? = null,
-    val acceptRename: (() -> Unit)? = null
-  ) {
-    val name get() = suggestedFile.name
-  }
+    val acceptRename: () -> Unit = {}
+  )
 
   @Suppress("CascadeIf")
   fun suggestFile(note: Note): FileSuggestion {
