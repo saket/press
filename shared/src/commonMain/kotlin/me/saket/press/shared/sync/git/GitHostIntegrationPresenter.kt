@@ -39,6 +39,7 @@ import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.SelectRepo
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowFailure
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowProgress
 import me.saket.press.shared.sync.git.service.GitHostService
+import me.saket.press.shared.sync.syncCompletable
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.ui.ScreenKey.Close
@@ -118,7 +119,7 @@ class GitHostIntegrationPresenter(
   }
 
   private fun syncNotesAsync() {
-    syncer.sync()
+    syncer.syncCompletable()
         .subscribeOn(schedulers.io)
         .onErrorComplete()
         .subscribe()

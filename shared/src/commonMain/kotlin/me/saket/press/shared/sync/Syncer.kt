@@ -1,6 +1,6 @@
 package me.saket.press.shared.sync
 
-import com.badoo.reaktive.completable.Completable
+import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.observable.Observable
 import com.soywiz.klock.DateTime
 import kotlinx.serialization.Serializable
@@ -16,10 +16,9 @@ abstract class Syncer {
    * Called every time a note's content is updated,
    * including when it's created for the first time.
    */
-  // todo: remove rx
-  internal abstract fun sync(): Completable
+  internal abstract fun sync()
 
-  abstract fun disable(): Completable
+  abstract fun disable()
 
   @Serializable
   sealed class Status {
@@ -39,6 +38,8 @@ abstract class Syncer {
     }
   }
 }
+
+fun Syncer.syncCompletable() = completableFromFunction { sync() }
 
 // because kotlinx serialization fails majestically for inline classes (DateTime in this case).
 val Status.Idle.lastSyncedAt: DateTime?

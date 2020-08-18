@@ -125,7 +125,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     // Given: User hasn't saved any notes on this device yet.
     assertThat(noteQueries.visibleNotes().executeAsList()).isEmpty()
 
-    syncer.sync().blockingAwait()
+    syncer.sync()
 
     // Check that the notes were pulled and saved into DB.
     val notesAfterSync = noteQueries.visibleNotes().executeAsList()
@@ -166,7 +166,7 @@ class GitSyncerTest : BaseDatabaeTest() {
         )
     )
 
-    syncer.sync().blockingAwait()
+    syncer.sync()
 
     // Check that the local note(s) were pushed to remote.
     assertThat(remote.fetchNoteFiles()).containsOnly(
@@ -190,7 +190,7 @@ class GitSyncerTest : BaseDatabaeTest() {
       forcePush()
     }
 
-    syncer.sync().blockingAwait()
+    syncer.sync()
 
     val localNotes = noteQueries.visibleNotes().executeAsList().map { it.content }
     assertThat(localNotes).containsOnly(
@@ -241,7 +241,7 @@ class GitSyncerTest : BaseDatabaeTest() {
         .sortedBy { it.updatedAt }
         .forEach { println("${it.id} ${it.content.replace("\n", " ")}") }
 
-    syncer.sync().blockingAwait()
+    syncer.sync()
 
     // Check: both local and remote have same notes with same timestamps.
     val localNotes = noteQueries.visibleNotes()
@@ -277,7 +277,7 @@ class GitSyncerTest : BaseDatabaeTest() {
       )
       forcePush()
     }
-    syncer.sync().blockingAwait()
+    syncer.sync()
 
     // Given: the same note was edited locally.
     val locallyEditedNote = noteQueries.visibleNotes().executeAsOne()
@@ -300,7 +300,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     }
 
     // The conflict should get auto-resolved here.
-    syncer.sync().blockingAwait()
+    syncer.sync()
 
     val localNotes = noteQueries.visibleNotes().executeAsList().sortedBy { it.updatedAt }
 
@@ -328,7 +328,7 @@ class GitSyncerTest : BaseDatabaeTest() {
       )
       forcePush()
     }
-    syncer.sync().blockingAwait()
+    syncer.sync()
 
     // Given: the same note was renamed locally, effectively DELETING the old file.
     val locallyEditedNote = noteQueries.visibleNotes().executeAsOne()
@@ -352,7 +352,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     }
 
     // The conflict should get auto-resolved here.
-    syncer.sync().blockingAwait()
+    syncer.sync()
 
     val localNotes = noteQueries.visibleNotes().executeAsList().sortedBy { it.updatedAt }
 
@@ -385,7 +385,7 @@ class GitSyncerTest : BaseDatabaeTest() {
       )
       forcePush()
     }
-    syncer.sync().blockingAwait()
+    syncer.sync()
 
     // Given: the same note was renamed locally, effectively DELETING the old file.
     clock.advanceTimeBy(1.hours)
@@ -408,7 +408,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     }
 
     // The conflict should get auto-resolved here.
-    syncer.sync().blockingAwait()
+    syncer.sync()
 
     val localNotes = noteQueries.visibleNotes().executeAsList().sortedBy { it.updatedAt }
 
@@ -440,7 +440,7 @@ class GitSyncerTest : BaseDatabaeTest() {
         fakeNote(updatedAt = now + 3.hours, content = "Note without heading"),
         fakeNote(updatedAt = now + 4.hours, content = "Another note without heading")
     )
-    syncer.sync().blockingAwait()
+    syncer.sync()
 
     val remoteFiles = RemoteRepositoryRobot().fetchNoteFiles()
     assertThat(remoteFiles).containsOnly(
@@ -460,7 +460,7 @@ class GitSyncerTest : BaseDatabaeTest() {
         createdAt = clock.nowUtc(),
         updatedAt = clock.nowUtc()
     )
-    syncer.sync().blockingAwait()
+    syncer.sync()
 
     val savedNotes = { noteQueries.allNotes().executeAsList() }
     assertThat(savedNotes()).isNotEmpty()
@@ -475,7 +475,7 @@ class GitSyncerTest : BaseDatabaeTest() {
       )
       forcePush()
     }
-    syncer.sync().blockingAwait()
+    syncer.sync()
 
     assertThat(savedNotes()).isEmpty()
   }
@@ -497,7 +497,7 @@ class GitSyncerTest : BaseDatabaeTest() {
         fakeNote(content = "# The Last of Us II", syncState = SYNCED, clock = clock),
         fakeNote(content = "# Horizon Zero Dawn", syncState = PENDING, clock = clock)
     )
-    syncer.sync().blockingAwait()
+    syncer.sync()
 
     val remoteFiles = RemoteRepositoryRobot().fetchNoteFiles()
     assertThat(remoteFiles).containsOnly(
@@ -518,7 +518,7 @@ class GitSyncerTest : BaseDatabaeTest() {
             """.trimMargin()
         )
     )
-    syncer.sync().blockingAwait()
+    syncer.sync()
 
     val remote = RemoteRepositoryRobot()
     assertThat(remote.fetchNoteFiles()).containsOnly(
@@ -534,7 +534,7 @@ class GitSyncerTest : BaseDatabaeTest() {
         |I'm thinking I'm back
         """.trimMargin()
     )
-    syncer.sync().blockingAwait()
+    syncer.sync()
 
     assertThat(remote.fetchNoteFiles()).containsOnly(
         "john_wick.md" to "# John Wick\nI'm thinking I'm back"
@@ -547,7 +547,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     val note1 = fakeNote("# Horizon Zero Dawn")
     val note2 = fakeNote("# Uncharted")
     noteQueries.testInsert(note1, note2)
-    syncer.sync().blockingAwait()
+    syncer.sync()
 
     // Archive both notes: one on local and the other on remote.
     noteQueries.markAsArchived(id = note1.id, updatedAt = clock.nowUtc())
@@ -561,7 +561,7 @@ class GitSyncerTest : BaseDatabaeTest() {
       )
       forcePush()
     }
-    syncer.sync().blockingAwait()
+    syncer.sync()
 
     val notes = noteQueries.allNotes().executeAsList()
     println("Local notes after syncing:"); notes.forEach { println(it) }
@@ -582,7 +582,7 @@ class GitSyncerTest : BaseDatabaeTest() {
         createdAt = clock.nowUtc(),
         updatedAt = clock.nowUtc()
     )
-    syncer.sync().blockingAwait()
+    syncer.sync()
 
     // kgit should be able to identify an ADD + DELETE as a RENAME.
     RemoteRepositoryRobot {
@@ -595,7 +595,7 @@ class GitSyncerTest : BaseDatabaeTest() {
       )
       forcePush()
     }
-    syncer.sync().blockingAwait()
+    syncer.sync()
 
     val savedNote = noteQueries.allNotes().executeAsOne()
     assertThat(savedNote.isArchived).isTrue()
@@ -606,18 +606,18 @@ class GitSyncerTest : BaseDatabaeTest() {
     noteQueries.testInsert(note)
 
     RemoteRepositoryRobot().let { remote1 ->
-      syncer.sync().blockingAwait()
+      syncer.sync()
       assertThat(remote1.fetchNoteFiles()).containsOnly("potter.md" to "# Potter\nYou're a wizard Harry")
       remote1.deleteEverything()
     }
 
-    syncer.disable().blockingAwait()
+    syncer.disable()
 
     RemoteRepositoryRobot().let { remote2 ->
       assertThat(remote2.fetchNoteFiles()).isEmpty()
 
       configSetting.set(config)
-      syncer.sync().blockingAwait()
+      syncer.sync()
       assertThat(remote2.fetchNoteFiles()).containsOnly("potter.md" to "# Potter\nYou're a wizard Harry")
     }
   }
@@ -632,13 +632,13 @@ class GitSyncerTest : BaseDatabaeTest() {
       )
       forcePush()
     }
-    syncer.sync().blockingAwait()
+    syncer.sync()
 
     val newNote = fakeNote("# The Ghost Writer")
     noteQueries.testInsert(newNote)
 
     git.pushResult = PushResult.Failure(reason = "coronavirus")
-    syncer.sync().blockingAwait()
+    syncer.sync()
 
     assertThat(remote.fetchNoteFiles()).containsOnly("nicolas.md" to "# Nicolas")
     assertThat(noteQueries.note(newNote.id).executeAsOne().syncState).isEqualTo(PENDING)

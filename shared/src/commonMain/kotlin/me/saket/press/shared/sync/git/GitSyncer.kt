@@ -79,7 +79,7 @@ class GitSyncer(
     }
   }
 
-  override fun sync() = completableFromFunction {
+  override fun sync() {
     status.set(InFlight)
     loggers.onSyncStart()
     directory.makeDirectory(recursively = true)
@@ -106,7 +106,7 @@ class GitSyncer(
 
   class GitScope(val git: GitRepository)
 
-  override fun disable() = completableFromFunction {
+  override fun disable() {
     config.set(null)
     directory.delete(recursively = true)
     noteQueries.swapSyncStates(old = SyncState.values().toList(), new = PENDING)

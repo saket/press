@@ -16,6 +16,7 @@ import com.soywiz.klock.minutes
 import io.ktor.client.HttpClient
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.rx.Schedulers
+import me.saket.press.shared.rx.consumeOnNext
 import me.saket.press.shared.rx.mergeWith
 import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.sync.SyncPreferencesEvent.DisableSyncClicked
@@ -93,8 +94,7 @@ class SyncPreferencesPresenter(
   private fun handleDisableSyncClicks(): Observable<SyncPreferencesUiModel> {
     return viewEvents().ofType<DisableSyncClicked>()
         .observeOn(schedulers.io)
-        .flatMapCompletable { syncer.disable() }
-        .asObservable()
+        .consumeOnNext { syncer.disable() }
   }
 
   override fun uiEffects(): ObservableWrapper<SyncPreferencesUiEffect> {

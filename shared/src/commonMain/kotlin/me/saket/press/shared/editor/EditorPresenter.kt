@@ -34,6 +34,7 @@ import me.saket.press.shared.rx.mapToOptional
 import me.saket.press.shared.rx.mapToSome
 import me.saket.press.shared.rx.observableInterval
 import me.saket.press.shared.sync.Syncer
+import me.saket.press.shared.sync.syncCompletable
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.ui.ScreenKey.Close
@@ -154,7 +155,7 @@ class EditorPresenter(
         .subscribeOn(schedulers.io)
         .subscribe()
 
-    syncer.sync()
+    syncer.syncCompletable()
         .subscribeOn(schedulers.io)
         .onErrorComplete()
         .subscribe()
