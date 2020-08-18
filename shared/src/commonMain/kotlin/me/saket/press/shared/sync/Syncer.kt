@@ -16,6 +16,7 @@ abstract class Syncer {
    * Called every time a note's content is updated,
    * including when it's created for the first time.
    */
+  // todo: remove rx
   internal abstract fun sync(): Completable
 
   abstract fun disable(): Completable

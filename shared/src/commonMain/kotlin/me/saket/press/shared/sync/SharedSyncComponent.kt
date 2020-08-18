@@ -11,6 +11,7 @@ import io.ktor.client.features.logging.Logging
 import io.ktor.client.features.logging.SIMPLE
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration.Companion.Stable
+import me.saket.kgit.RealGit
 import me.saket.press.shared.di.koin
 import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.sync.Syncer.Status
@@ -72,6 +73,7 @@ class SharedSyncComponent {
     }
     factory {
       GitSyncer(
+          git = RealGit(),
           config = get(named("gitsyncer_config")),
           database = get(),
           deviceInfo = get(),

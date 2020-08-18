@@ -36,7 +36,6 @@ import me.saket.press.shared.sync.Syncer.Status.Idle
 import me.saket.press.shared.sync.Syncer.Status.InFlight
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 import me.saket.press.shared.time.Clock
-import me.saket.wysiwyg.atomicLazy
 
 // TODO:
 //  Stop ship
@@ -47,6 +46,7 @@ import me.saket.wysiwyg.atomicLazy
 //   - commit deleted notes.
 //   - show errors in status UI
 class GitSyncer(
+  git: Git,
   private val config: Setting<GitSyncerConfig>,
   private val database: PressDatabase,
   private val deviceInfo: DeviceInfo,
@@ -60,6 +60,15 @@ class GitSyncer(
   private val gitAuthor = GitAuthor("Saket", "pressapp@saket.me")
   private val remote: GitRepositoryInfo? get() = config.get()?.remote
   private val loggers = SyncLoggers(PrintLnSyncLogger)
+  private val git = {
+    val config = config.get()!!
+    git.repository(
+        path = directory.path,
+        sshKey = config.sshKey,
+        remoteSshUrl = config.remote.sshUrl,
+        userConfig = GitConfig("diff" to listOf("renames" to "true"))
+    )
+  }
 
   override fun status(): Observable<Status> {
     return combineLatest(config.listen(), status.listen()) { config, status ->
@@ -76,19 +85,11 @@ class GitSyncer(
     directory.makeDirectory(recursively = true)
 
     try {
-      val config = config.get()!!
-      val git = Git.repository(
-          path = directory.path,
-          sshKey = config.sshKey,
-          remoteSshUrl = config.remote.sshUrl,
-          userConfig = GitConfig("diff" to listOf("renames" to "true"))
-      )
-
-      with(GitScope(git)) {
+      with(GitScope(git())) {
         val pullResult = pull()
         commitAllChanges(pullResult)
         processCommits(pullResult)
-        push(rollBackToOnFailure = pullResult.headBefore)
+        push(revertToOnFailure = pullResult.headBefore)
       }
 
       status.set(Idle(lastSyncedAt = clock.nowUtc()))
@@ -213,8 +214,6 @@ class GitSyncer(
       val notePath = noteFile.relativePathIn(directory)
       val oldPath = oldFile?.relativePathIn(directory)
 
-      log(" • checking '${note.content.replace("\n", " ")}'")
-
       if (notePath in pulledPathsToDiff) {
         // File's content is going to change in a conflicting way.
         noteFile.copy(register.findNewNameOnConflict(noteFile)).let {
@@ -225,13 +224,12 @@ class GitSyncer(
       } else if (oldPath in pulledPathsToDiff) {
         // Old path was updated on remote, but deleted locally.
         noteFile.write(note.content)
-
-        log(" • committed $notePath as a new note to resolve merge conflict")
+        log(" • created $notePath as a new note to resolve merge conflict")
 
       } else {
         acceptRename?.invoke()
         noteFile.write(note.content)
-        log(" • committed $notePath")
+        log(" • created/updated $notePath")
       }
 
       // Note to self: if this check fails, something's wrong with my code.
@@ -240,7 +238,7 @@ class GitSyncer(
       git.commitAll(
           message = "Update '${noteFile.name}'",
           author = gitAuthor,
-         timestamp = UtcTimestamp(note.updatedAt)
+          timestamp = UtcTimestamp(note.updatedAt)
       )
     }
   }
@@ -310,7 +308,7 @@ class GitSyncer(
               )
               noteQueries.updateSyncState(
                   ids = listOf(newId),
-                  syncState = SYNCED
+                  syncState = IN_FLIGHT
               )
             }
           } else {
@@ -329,7 +327,7 @@ class GitSyncer(
               )
               noteQueries.updateSyncState(
                   ids = listOf(existingId),
-                  syncState = SYNCED
+                  syncState = IN_FLIGHT
               )
             }
           }
@@ -383,7 +381,7 @@ class GitSyncer(
     }
   }
 
-  private fun GitScope.push(rollBackToOnFailure: GitCommit) {
+  private fun GitScope.push(revertToOnFailure: GitCommit) {
     check(git.currentBranch().name == remote!!.defaultBranch)
     check(!git.isStagingAreaDirty())
 
@@ -392,10 +390,12 @@ class GitSyncer(
         noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = SYNCED)
         log("\nChanges pushed")
       }
+      // Merge conflicts can only be avoided if we always the latest version of upstream.
+      // If push fails, discard any new commits. They'll be recreated on the next sync.
       is Failure -> {
-        git.hardResetTo(rollBackToOnFailure)
+        git.hardResetTo(revertToOnFailure)
         noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = PENDING)
-        error("Couldn't push. Rolling back to $rollBackToOnFailure")
+        log("\nCouldn't push. Reverting to $revertToOnFailure")
       }
     }
   }

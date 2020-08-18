@@ -10,14 +10,11 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotInstanceOf
 import assertk.assertions.isTrue
-import com.badoo.reaktive.completable.Completable
-import com.badoo.reaktive.completable.asSingle
 import com.badoo.reaktive.completable.blockingAwait
-import com.badoo.reaktive.single.blockingGet
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.hours
-import me.saket.kgit.Git
-import me.saket.kgit.PushResult.Failure
+import me.saket.kgit.PushResult
+import me.saket.kgit.RealGit
 import me.saket.kgit.SshPrivateKey
 import me.saket.press.data.shared.Note
 import me.saket.press.data.shared.NoteQueries
@@ -59,13 +56,17 @@ class GitSyncerTest : BaseDatabaeTest() {
       sshKey = SshPrivateKey(BuildKonfig.GIT_TEST_SSH_PRIV_KEY)
   )
   private val configSetting = FakeSetting(config)
+  private val git = DelegatingGit(delegate = RealGit())
   private val syncer = GitSyncer(
+      git = git,
       config = configSetting,
       database = database,
       deviceInfo = deviceInfo,
       clock = clock,
       status = FakeSetting(null)
   )
+
+  private val expectUnSyncedNotes = mutableListOf<NoteId>()
 
   private fun canRunTests(): Boolean {
     // todo: make tests work for native platforms.
@@ -83,7 +84,10 @@ class GitSyncerTest : BaseDatabaeTest() {
   fun cleanUp() {
     deviceInfo.appStorage.delete(recursively = true)
 
-    val unsyncedNotes = noteQueries.allNotes().executeAsList().filter { it.syncState != SYNCED }
+    val unsyncedNotes = noteQueries.allNotes().executeAsList()
+        .filter { it.syncState != SYNCED }
+        .filterNot { it.id in expectUnSyncedNotes }
+
     if (unsyncedNotes.isNotEmpty()) {
       println("\nUNSYNCED NOTES FOUND: ")
       unsyncedNotes.forEach { println(it) }
@@ -482,7 +486,7 @@ class GitSyncerTest : BaseDatabaeTest() {
   }
 
   // TODO
-  @Test fun `filename-register from remote is used for determining file name`() {
+  @Test fun `filename-register from remote is used for determining note ID`() {
     if (!canRunTests()) return
   }
 
@@ -614,21 +618,41 @@ class GitSyncerTest : BaseDatabaeTest() {
 
       configSetting.set(config)
       syncer.sync().blockingAwait()
-      assertThat(remote2.fetchNoteFiles()).containsOnly(
-          "potter.md" to "# Potter\nYou're a wizard Harry"
-      )
+      assertThat(remote2.fetchNoteFiles()).containsOnly("potter.md" to "# Potter\nYou're a wizard Harry")
     }
   }
 
-  // TODO
-  @Test fun `rollback changes if push fails`() {
+  @Test fun `revert commits if push fails`() {
     if (!canRunTests()) return
+
+    val remote = RemoteRepositoryRobot {
+      commitFiles(
+          message = "Create 'nicolas.md'",
+          add = listOf("nicolas.md" to "# Nicolas")
+      )
+      forcePush()
+    }
+    syncer.sync().blockingAwait()
+
+    val newNote = fakeNote("# The Ghost Writer")
+    noteQueries.testInsert(newNote)
+
+    git.pushResult = PushResult.Failure(reason = "coronavirus")
+    syncer.sync().blockingAwait()
+
+    assertThat(remote.fetchNoteFiles()).containsOnly("nicolas.md" to "# Nicolas")
+    assertThat(noteQueries.note(newNote.id).executeAsOne().syncState).isEqualTo(PENDING)
+    expectUnSyncedNotes += newNote.id
   }
 
   private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit = {}) {
     private val directory = File(deviceInfo.appStorage, "temp").apply { makeDirectory() }
-    private val gitRepo = Git.repository(directory.path, sshKey = config.sshKey, remoteSshUrl = config.remote.sshUrl)
     private val register = FileNameRegister(directory)
+    private val gitRepo = RealGit().repository(
+        path = directory.path,
+        sshKey = config.sshKey,
+        remoteSshUrl = config.remote.sshUrl
+    )
 
     init {
       gitRepo.commitAll("Initial commit", timestamp = UtcTimestamp(clock), allowEmpty = true)
@@ -641,7 +665,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     }
 
     fun forcePush() {
-      assertThat(gitRepo.push(force = true)).isNotInstanceOf(Failure::class)
+      assertThat(gitRepo.push(force = true)).isNotInstanceOf(PushResult.Failure::class)
     }
 
     fun createRecord(notePath: String, id: NoteId) {
