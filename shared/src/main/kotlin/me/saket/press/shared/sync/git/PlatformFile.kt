@@ -22,6 +22,7 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
   }
 
   override fun read(): String {
+    check(exists)
     delegate.source().buffer().use {
       return it.readUtf8()
     }
