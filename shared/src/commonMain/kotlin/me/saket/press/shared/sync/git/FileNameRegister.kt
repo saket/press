@@ -120,11 +120,6 @@ internal class FileNameRegister(private val notesDirectory: File) {
     }
   }
 
-  fun deleteRecordFor(noteFile: File) {
-    val record = recordFor(noteFile.relativePathIn(notesDirectory))!!
-    record.registerFile.delete()
-  }
-
   fun createNewRecordFor(noteFile: File, id: NoteId): Record {
     require(noteFile.extension == "md")
 
@@ -198,10 +193,6 @@ internal class FileNameRegister(private val notesDirectory: File) {
   }
 }
 
-private fun File?.existsOrNull(): File? {
-  return if (this?.exists == true) this else null
-}
-
 private inline fun <T> File?.hideAndRun(crossinline run: () -> T): T {
   return if (this == null) run()
   else {
@@ -218,7 +209,6 @@ private inline fun <T> File?.hideAndRun(crossinline run: () -> T): T {
  * file relative to directory where register files are stored.
  * E.g., "archived/uncharted___<uuid>".
  */
-// todo: change to inline class.
 internal data class Record @Deprecated("Use Record.forFile()") constructor(
   private val registersDirectory: File,
   val registerFile: File

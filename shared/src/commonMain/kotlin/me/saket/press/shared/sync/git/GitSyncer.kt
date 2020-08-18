@@ -16,8 +16,6 @@ import me.saket.kgit.GitTreeDiff.Change.Delete
 import me.saket.kgit.GitTreeDiff.Change.Modify
 import me.saket.kgit.GitTreeDiff.Change.Rename
 import me.saket.kgit.MergeConflict
-import me.saket.kgit.MergeConflict.TheirContent.DeletedOnRemote
-import me.saket.kgit.MergeConflict.TheirContent.ModifiedOnRemote
 import me.saket.kgit.MergeStrategy.OURS
 import me.saket.kgit.PullResult
 import me.saket.kgit.PushResult.Failure
@@ -235,37 +233,35 @@ class GitSyncer(
     //
     // These files will get processed after rebase.
     val conflicts = git.mergeConflicts(with = upstreamHead).filterNoteConflicts()
-    if (conflicts.isNotEmpty()) {
-      println("\nConflicts: ")
-      conflicts.forEach { println(" • ${it.path} -> ${it.theirContent()}") }
-    }
+//    if (conflicts.isNotEmpty()) {
+//      println("\nConflicts: ")
+//      conflicts.forEach { println(" • ${it.path} -> ${it.theirContent()}") }
+//    }
 
     if (conflicts.isNotEmpty()) {
       log("\nAuto-resolving merge conflicts: ")
 
       for (conflict in conflicts) {
-        val theirContent = conflict.theirContent()
         val conflictingNote = File(directory, conflict.path)
+        val upstreamCopy = git.peekFileTree(upstreamHead) { File(conflict.path).existsOrNull()?.read() }
 
-        val exhaustive = when (theirContent) {
-          is ModifiedOnRemote -> {
-            if (conflictingNote.exists) {
-              val localBackupName = register.findNewNameOnConflict(conflictingNote)
-              conflictingNote.renameTo(localBackupName)
-              register.deleteRecordFor(conflictingNote)
-
-              log(" • ${conflictingNote.relativePathIn(directory)} → $localBackupName")
-            } else {
-              log(" • undo delete ${conflict.path}")
+        if (upstreamCopy != null) {
+          if (conflictingNote.exists) {
+            conflictingNote.renameTo(register.findNewNameOnConflict(conflictingNote)).also {
+              log(" • ${conflictingNote.relativePathIn(directory)} → ${it.relativePathIn(directory)}")
             }
-            conflictingNote.write(theirContent.content)
+          } else {
+            val deletedRecord = git.peekFileTree(upstreamHead) { register.recordFor(conflict.path)!! }
+            deletedRecord.registerFile.write(conflict.path)
+            log(" • undo delete ${conflict.path}")
           }
-          is DeletedOnRemote -> {
-            File(directory, conflict.path).delete()
+          conflictingNote.write(upstreamCopy)
 
-            // File was possibly renamed locally, but remote continued editing it.
-            log(" • ${conflictingNote.relativePathIn(directory)} → deleted")
-          }
+        } else {
+          // File was renamed/removed on upstream.
+          File(directory, conflict.path).delete()
+          register.recordFor(conflict.path)!!.registerFile.delete()
+          log(" • ${conflictingNote.relativePathIn(directory)} → deleted")
         }
       }
 
@@ -288,16 +284,16 @@ class GitSyncer(
 
     // todo: use rebase once the underlying git library supports OURS
     //  strategy for file deletion (i.e., jgit is replaced with git24j.
-    val rebaseResult = git.rebase(with = upstreamHead, strategy = OURS)
-    if (rebaseResult is RebaseResult.Failure) {
-      rebaseResult.abort()
-      throw error("Failed to rebase: $rebaseResult")
-    }
-//    val pullResult = git.merge(with = upstreamHead)
-//    if (pullResult is PullResult.Failure) {
-//      pullResult.abort()
-//      throw error("Failed to pull: $pullResult")
+//    val rebaseResult = git.rebase(with = upstreamHead, strategy = OURS)
+//    if (rebaseResult is RebaseResult.Failure) {
+//      rebaseResult.abort()
+//      throw error("Failed to rebase: $rebaseResult")
 //    }
+    val pullResult = git.merge(with = upstreamHead)
+    if (pullResult is PullResult.Failure) {
+      pullResult.abort()
+      throw error("Failed to pull: $pullResult")
+    }
 
     //printRegisters()
 
@@ -473,6 +469,8 @@ class GitSyncer(
   }
 
   private fun push() {
+    check(git.currentBranch().name == remote!!.defaultBranch)
+
     val pushResult = git.push()
     require(pushResult !is Failure) { "Failed to push: $pushResult" }
     noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = SYNCED)

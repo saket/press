@@ -26,6 +26,7 @@ import me.saket.press.shared.PlatformHost.Android
 import me.saket.press.shared.containsOnly
 import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.NoteId
+import me.saket.press.shared.db.NoteId.Companion
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.settings.FakeSetting
 import me.saket.press.shared.sync.SyncState.PENDING
@@ -35,6 +36,7 @@ import me.saket.press.shared.sync.git.FileName
 import me.saket.press.shared.sync.git.FileNameRegister
 import me.saket.press.shared.sync.git.GitSyncer
 import me.saket.press.shared.sync.git.GitSyncerConfig
+import me.saket.press.shared.sync.git.Record
 import me.saket.press.shared.sync.git.UtcTimestamp
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 import me.saket.press.shared.testDeviceInfo
@@ -357,10 +359,10 @@ class GitSyncerTest : BaseDatabaeTest() {
     // the local note should get overridden by the server copy.
     assertThat(localNotes).hasSize(2)
     assertThat(localNotes[0].content).isEqualTo("# Uncharted2\nLocal edit")
-    assertThat(localNotes[0].id).isEqualTo(locallyEditedNote.id)
+    assertThat(localNotes[0].id).isNotEqualTo(locallyEditedNote.id)
 
     assertThat(localNotes[1].content).isEqualTo("# Uncharted\nRemote edit")
-    assertThat(localNotes[1].id).isNotEqualTo(locallyEditedNote.id)
+    assertThat(localNotes[1].id).isEqualTo(locallyEditedNote.id)
   }
 
   @Test fun `merge local and remote notes with delete conflict (with remote register)`() {
@@ -369,15 +371,13 @@ class GitSyncerTest : BaseDatabaeTest() {
     clock.rewindTimeBy(10.hours)
 
     // Given: a note was created on another device.
-    val remoteNoteId = "ebc77dbc-9201-4902-bd4b-2ce8a99059a7"
+    val remoteNoteId = NoteId.from("ebc77dbc-9201-4902-bd4b-2ce8a99059a7")
     val remote = RemoteRepositoryRobot {
+      createRecord("uncharted.md", id = remoteNoteId)
       commitFiles(
           message = "First commit",
           time = clock.nowUtc(),
-          add = listOf(
-              "uncharted.md" to "# Uncharted",
-              ".press/registers/$remoteNoteId" to "uncharted.md"
-          )
+          add = listOf("uncharted.md" to "# Uncharted")
       )
       forcePush()
     }
@@ -416,7 +416,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     assertThat(localNotes[0].id).isNotEqualTo(locallyEditedNote.id)
 
     assertThat(localNotes[1].content).isEqualTo("# Uncharted\nRemote edit")
-    assertThat(localNotes[1].id.value).isEqualTo(remoteNoteId)
+    assertThat(localNotes[1].id).isEqualTo(remoteNoteId)
   }
 
   // TODO
@@ -621,6 +621,7 @@ class GitSyncerTest : BaseDatabaeTest() {
   private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit = {}) {
     private val directory = File(deviceInfo.appStorage, "temp").apply { makeDirectory() }
     private val gitRepo = git.repository(config.sshKey, directory.path)
+    private val register = FileNameRegister(directory)
 
     init {
       gitRepo.addRemote("origin", config.remote.sshUrl)
@@ -635,6 +636,10 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     fun forcePush() {
       assertThat(gitRepo.push(force = true)).isNotInstanceOf(Failure::class)
+    }
+
+    fun createRecord(notePath: String, id: NoteId) {
+      register.createNewRecordFor(File(directory, notePath), id)
     }
 
     fun commitFiles(

@@ -7,11 +7,11 @@ import me.saket.kgit.GitTreeDiff.Change.Copy
 import me.saket.kgit.GitTreeDiff.Change.Delete
 import me.saket.kgit.GitTreeDiff.Change.Modify
 import me.saket.kgit.GitTreeDiff.Change.Rename
-import me.saket.kgit.MergeConflict.TheirContent
 import me.saket.kgit.MergeStrategy.OURS
 import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM
 import org.eclipse.jgit.api.MergeCommand.FastForwardMode.FF
 import org.eclipse.jgit.api.RebaseCommand.Operation.ABORT
+import org.eclipse.jgit.api.RebaseCommand.Operation.CONTINUE
 import org.eclipse.jgit.api.RebaseResult.Status.STOPPED
 import org.eclipse.jgit.api.ResetCommand.ResetType
 import org.eclipse.jgit.api.TransportConfigCallback
@@ -26,6 +26,7 @@ import org.eclipse.jgit.lib.ObjectLoader
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.UserConfig
 import org.eclipse.jgit.merge.ResolveMerger
+import org.eclipse.jgit.merge.StrategyRecursive
 import org.eclipse.jgit.merge.ThreeWayMergeStrategy
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevWalk
@@ -162,24 +163,38 @@ internal actual class RealGitRepository actual constructor(
     check(merger.unmergedPaths.isNotEmpty()) {
       "Merge will fail despite having zero conflicts. Failing paths: ${merger.failingPaths}"
     }
-    return merger.unmergedPaths.map { path ->
-      MergeConflict(path, theirContent = {
-        val content = readFile(path, with)
-        if (content != null) TheirContent.ModifiedOnRemote(content)
-        else TheirContent.DeletedOnRemote
-      })
-    }
+    return merger.unmergedPaths.map(::MergeConflict)
   }
 
   override fun rebase(with: GitCommit, strategy: MergeStrategy): RebaseResult {
-    val rebaseResult = jgit.rebase()
+    var rebaseResult = jgit.rebase()
         .setUpstream(with.commit)
-        .setStrategy(strategy.toJgit())
+        .setStrategy(StrategyRecursive())
         .call()
 
     val onAbort = {
       jgit.rebase().setOperation(ABORT).call()
       Unit
+    }
+
+    if (rebaseResult.status == STOPPED) {
+      println("Auto-resolving conflicts")
+    }
+
+    val sourceOfTruth = with
+    while (rebaseResult.status == STOPPED) {
+      val st = jgit.status().call()
+      for (conflict in st.conflicting) {
+        val preferredContent = peekFile(conflict, sourceOfTruth)
+        println("conflict: $conflict, preferred content: ${preferredContent?.replace("\n", " ")}")
+        if (preferredContent != null) {
+          JavaFile(conflict).writeText(preferredContent)
+        } else {
+          JavaFile(conflict).delete()
+        }
+        jgit.add().addFilepattern(conflict).call()
+      }
+      rebaseResult = jgit.rebase().setOperation(CONTINUE).call()
     }
 
     return with(rebaseResult) {
@@ -233,13 +248,13 @@ internal actual class RealGitRepository actual constructor(
       Unit
     }
 
-    if (mergeResult.conflicts != null) {
-      println("\nConflicting files:")
-      for (conflictPath in mergeResult.conflicts?.keys ?: emptySet<String>()) {
-        val content = readFile(conflictPath, with)
-        println("$conflictPath -> ${content?.replace("\n", "\\n")}")
-      }
-    }
+//    if (mergeResult.conflicts != null) {
+//      println("\nConflicting files:")
+//      for (conflictPath in mergeResult.conflicts?.keys ?: emptySet<String>()) {
+//        val content = peekFile(conflictPath, with)
+//        println("$conflictPath -> ${content?.replace("\n", "\\n")}")
+//      }
+//    }
 
     return when {
       mergeResult.mergeStatus.isSuccessful -> PullResult.Success
@@ -247,8 +262,21 @@ internal actual class RealGitRepository actual constructor(
     }
   }
 
-  // TODO: return File directly.
-  private fun readFile(path: String, inCommit: GitCommit): String? {
+  override fun <R> peekFileTree(ofCommit: GitCommit, peek: () -> R): R {
+    jgit.stashCreate().setIncludeUntracked(true).call()
+    val restoreTo = currentBranch()
+    jgit.checkout().setName(ofCommit.sha1.value).call()
+
+    try {
+      return peek()
+
+    } finally {
+      jgit.checkout().setName(restoreTo.name).call()
+      jgit.stashDrop().call()
+    }
+  }
+
+  private fun peekFile(path: String, inCommit: GitCommit): String? {
     val repository = jgit.repository
     var fileContent: String? = null
 

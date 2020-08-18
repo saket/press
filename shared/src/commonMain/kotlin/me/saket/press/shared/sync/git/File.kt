@@ -68,3 +68,7 @@ fun File.touch(): File {
   write("")
   return this
 }
+
+fun File?.existsOrNull(): File? {
+  return if (this?.exists == true) this else null
+}

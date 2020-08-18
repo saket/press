@@ -44,6 +44,8 @@ interface GitRepository {
 
   fun rebase(with: GitCommit, strategy: MergeStrategy): RebaseResult
 
+  fun <R> peekFileTree(ofCommit: GitCommit, peek: () -> R): R
+
   fun push(force: Boolean = false): PushResult
 
   fun addRemote(name: String, url: String)

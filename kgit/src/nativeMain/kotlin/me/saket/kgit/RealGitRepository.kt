@@ -13,6 +13,7 @@ internal actual class RealGitRepository actual constructor(
   override fun fetch(): Unit = TODO()
   override fun mergeConflicts(with: GitCommit): List<MergeConflict> = TODO()
   override fun rebase(with: GitCommit, strategy: MergeStrategy): RebaseResult = TODO()
+  override fun <R> peekFileTree(ofCommit: GitCommit, peek: () -> R): R = TODO()
   override fun push(force: Boolean): PushResult = TODO()
   override fun addRemote(name: String, url: String) = TODO()
   override fun headCommit(onBranch: String?): GitCommit = TODO()
