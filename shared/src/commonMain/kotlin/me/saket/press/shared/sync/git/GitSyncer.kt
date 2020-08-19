@@ -204,13 +204,6 @@ class GitSyncer(
         .filterNoteChanges()
         .associateBy { it.path }
 
-    if (pulledPathsToDiff.isNotEmpty()) {
-      log("\nPull diff: ")
-      pulledPathsToDiff.forEach { (path) ->
-        log(" • $path -> ${File(directory, path).read().replace("\n", " ")}")
-      }
-    }
-
     log("\nReading unsynced notes:")
 
     // Git makes it easy to handle merge conflicts, but automating it for
