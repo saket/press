@@ -7,10 +7,13 @@ import android.graphics.drawable.Drawable
 import android.os.Parcelable
 import android.view.Menu
 import android.view.MenuItem.SHOW_AS_ACTION_IF_ROOM
+import android.view.MotionEvent
 import android.view.animation.PathInterpolator
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.view.doOnLayout
 import androidx.core.view.postDelayed
+import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.detaches
@@ -21,6 +24,7 @@ import com.squareup.inject.assisted.AssistedInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import io.reactivex.subjects.BehaviorSubject
 import me.saket.inboxrecyclerview.InboxRecyclerView
+import me.saket.inboxrecyclerview.animation.ItemExpandAnimator
 import me.saket.inboxrecyclerview.dimming.TintPainter
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.R
@@ -38,11 +42,9 @@ import me.saket.press.shared.ui.uiUpdates
 import press.editor.EditorActivity
 import press.editor.EditorView
 import press.extensions.attr
-import press.extensions.doOnAttach
 import press.extensions.getDrawable
 import press.extensions.heightOf
 import press.extensions.hideKeyboard
-import press.extensions.parentView
 import press.extensions.second
 import press.extensions.suspendWhile
 import press.extensions.throttleFirst
@@ -54,7 +56,7 @@ import press.theme.themed
 import press.widgets.BackPressInterceptResult
 import press.widgets.BackPressInterceptResult.BACK_PRESS_IGNORED
 import press.widgets.BackPressInterceptResult.BACK_PRESS_INTERCEPTED
-import press.widgets.SpacingBetweenItemsDecoration
+import press.widgets.DividerItemDecoration
 import press.widgets.addStateChangeCallbacks
 import press.widgets.doOnNextAboutToCollapse
 import press.widgets.doOnNextCollapse
@@ -84,15 +86,16 @@ class HomeView @AssistedInject constructor(
     layoutManager = LinearLayoutManager(context)
     adapter = noteAdapter
     tintPainter = TintPainter.uncoveredArea(color = BLACK, opacity = 0.25f)
+    itemExpandAnimator = ItemExpandAnimator.split()
     itemAnimator = AlphaInAnimator()
-    doOnAttach {
-      // Let the items draw over the toolbar.
-      parentView.clipChildren = false
+    toolbar.doOnLayout {
+      clipToPadding = false
+      updatePadding(top = toolbar.bottom)
     }
-    addItemDecoration(SpacingBetweenItemsDecoration(1.dip))
+    addItemDecoration(DividerItemDecoration())
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
-        y = topTo { toolbar.bottom() }.bottomTo { parent.bottom() }
+        y = topTo { parent.top() }.bottomTo { parent.bottom() }
     )
   }
 
@@ -177,6 +180,17 @@ class HomeView @AssistedInject constructor(
   override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
     super.onWindowFocusChanged(hasWindowFocus)
     windowFocusChanges.onNext(WindowFocusChanged(hasWindowFocus))
+  }
+
+  override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+    // The note list is positioned in front of the toolbar so that its items can go
+    // over it, but RV steals all touch events even if there isn't a child under to
+    // receive the event.
+    return if (ev.y > toolbar.y && ev.y < (toolbar.y + toolbar.height)) {
+      toolbar.dispatchTouchEvent(ev)
+    } else {
+      super.dispatchTouchEvent(ev)
+    }
   }
 
   override fun onSaveInstanceState(): Parcelable? {
