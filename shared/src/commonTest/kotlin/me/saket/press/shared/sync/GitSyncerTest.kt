@@ -34,6 +34,9 @@ import me.saket.press.shared.sync.git.FileNameRegister
 import me.saket.press.shared.sync.git.GitSyncer
 import me.saket.press.shared.sync.git.GitSyncerConfig
 import me.saket.press.shared.sync.git.UtcTimestamp
+import me.saket.press.shared.sync.git.children
+import me.saket.press.shared.sync.git.delete
+import me.saket.press.shared.sync.git.relativePathIn
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 import me.saket.press.shared.testDeviceInfo
 import me.saket.press.shared.time.FakeClock
@@ -612,6 +615,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     }
 
     syncer.disable()
+    assertThat(deviceInfo.appStorage.children()).isEmpty()
 
     RemoteRepositoryRobot().let { remote2 ->
       assertThat(remote2.fetchNoteFiles()).isEmpty()

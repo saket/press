@@ -11,6 +11,7 @@ import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.sync.git.File
 import me.saket.press.shared.sync.git.FileNameRegister
+import me.saket.press.shared.sync.git.relativePathIn
 import me.saket.press.shared.sync.git.touch
 import me.saket.press.shared.testDeviceInfo
 import kotlin.test.Test

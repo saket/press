@@ -28,10 +28,10 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
     }
   }
 
-  override fun copy(name: String, recursively: Boolean): File {
+  override fun copy(name: String): File {
     check(exists)
     check(delegate.parent != null)
-    if (!recursively && '/' in name) throw error("todo: non-recursive copy in another folder")
+    if ('/' in name) throw error("todo: copy to another folder")
 
     val targetDelegate = JavaFile(delegate.parent, name)
     val copied = delegate.copyRecursively(target = targetDelegate, overwrite = true)
@@ -61,29 +61,16 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
     }
   }
 
-  override fun delete(recursively: Boolean) {
+  override fun delete() {
     check(exists) { "$name does not exist: $path" }
-    if (recursively) {
-      delegate.deleteRecursively()
-    } else {
-      check(delegate.delete()) { "Failed to delete file: $this" }
-    }
-  }
-
-  private fun JavaFile.deleteRecursively() {
-    if (isDirectory) {
-      for (child in listFiles()!!) {
-        child.deleteRecursively()
-      }
-    }
-    check(delete()) { "Failed to delete file: $this" }
+    check(delegate.delete()) { "Failed to delete file: $this" }
   }
 
   override fun children(): List<File> {
     check(exists)
     check(delegate.isDirectory)
     val children = delegate.listFiles() ?: error("Can't print children. Exists? $exists. Path: $path")
-    return children.map { PlatformFile(it) }
+    return children.map(::PlatformFile)
   }
 
   override fun toString(): String {
