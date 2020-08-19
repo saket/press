@@ -205,11 +205,6 @@ private inline fun <T> File?.hideAndRun(crossinline run: () -> T): T {
   }
 }
 
-/**
- * @param relativePathWithoutExt Extension-less path of the register
- * file relative to directory where register files are stored.
- * E.g., "archived/uncharted___<uuid>".
- */
 internal data class Record @Deprecated("Use Record.forFile()") constructor(
   private val registersDirectory: File,
   val registerFile: File
