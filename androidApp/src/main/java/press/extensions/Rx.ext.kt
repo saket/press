@@ -14,6 +14,6 @@ fun <T, O> Observable<T>.suspendWhile(predicateArgProvider: Observable<O>, predi
       .map { (upstreamItem) -> upstreamItem }
 }
 
-fun Observables.interval(span: TimeSpan): Observable<Long> {
-  return Observable.interval(span.millisecondsLong, MILLISECONDS)
+fun Observables.interval(span: TimeSpan, initial: Long): Observable<Long> {
+  return Observable.interval(initial, span.millisecondsLong, MILLISECONDS)
 }

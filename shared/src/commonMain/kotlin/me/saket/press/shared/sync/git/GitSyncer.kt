@@ -81,6 +81,11 @@ class GitSyncer(
   }
 
   override fun sync() {
+    if (config.get() == null) {
+      // Sync is disabled.
+      return
+    }
+
     status.set(InFlight)
     loggers.onSyncStart()
     directory.makeDirectory(recursively = true)
