@@ -1,7 +1,6 @@
 package press.sync
 
 import android.view.ViewGroup
-import androidx.core.view.isGone
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -15,13 +14,9 @@ class GitRepositoryAdapter : ListAdapter<GitRepositoryInfo, RepoViewHolder>(Item
   }
 
   override fun onBindViewHolder(holder: RepoViewHolder, position: Int) {
-    with(holder.view) {
-      nameView.text = getItem(position).name
-      dividerView.isGone = position == (itemCount - 1)
-      setOnClickListener {
-        onClick(getItem(position))
-      }
-    }
+    val repo = getItem(position)
+    holder.view.render(repo, showDivider = position < itemCount - 1)
+    holder.view.setOnClickListener { onClick(repo) }
   }
 }
 

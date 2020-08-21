@@ -6,6 +6,7 @@ import me.saket.wysiwyg.style.WysiwygStyle.Code
 import me.saket.wysiwyg.style.WysiwygStyle.Heading
 import me.saket.wysiwyg.style.WysiwygStyle.Link
 import me.saket.wysiwyg.style.WysiwygStyle.ThematicBreak
+import kotlin.DeprecationLevel.ERROR
 import kotlin.math.roundToInt
 
 abstract class ThemePalette(
@@ -87,3 +88,6 @@ fun WysiwygStyle.Companion.from(palette: MarkdownPalette, displayUnits: DisplayU
           height = displayUnits.scaledPixels(4)
       )
   )
+
+@Deprecated("use separator", level = ERROR, replaceWith = ReplaceWith("separator"))
+val ThemePalette.divider: Int get() = separator
