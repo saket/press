@@ -24,7 +24,7 @@ class RepoViewHolder(val view: GitRepoItemView) : RecyclerView.ViewHolder(view)
 
 private object ItemDiffer : DiffUtil.ItemCallback<GitRepositoryInfo>() {
   override fun areItemsTheSame(oldItem: GitRepositoryInfo, newItem: GitRepositoryInfo) =
-    oldItem.name == newItem.name
+    oldItem.ownerAndName == newItem.ownerAndName
 
   override fun areContentsTheSame(oldItem: GitRepositoryInfo, newItem: GitRepositoryInfo) =
     oldItem == newItem

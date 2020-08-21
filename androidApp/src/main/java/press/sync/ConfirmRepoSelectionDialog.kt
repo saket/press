@@ -12,7 +12,7 @@ object ConfirmRepoSelectionDialog {
     val strings = context.strings().sync
     PressDialogView.show(
         context = context,
-        message = Html.fromHtml(strings.confirm_repo_message.format(repo.name)),
+        message = Html.fromHtml(strings.confirm_repo_message.format(repo.ownerAndName)),
         negativeButton = strings.confirm_repo_cancel_button,
         positiveButton = strings.confirm_repo_confirm_button,
         positiveOnClick = onConfirm

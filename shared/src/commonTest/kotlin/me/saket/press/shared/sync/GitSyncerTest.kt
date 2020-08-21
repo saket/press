@@ -10,7 +10,6 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotInstanceOf
 import assertk.assertions.isTrue
-import com.badoo.reaktive.completable.blockingAwait
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.hours
 import me.saket.kgit.PushResult
@@ -51,7 +50,7 @@ class GitSyncerTest : BaseDatabaeTest() {
   private val clock = FakeClock()
   private val config = GitSyncerConfig(
       remote = GitRepositoryInfo(
-          name = "ignored",
+          authorAndName = "ignored",
           url = "ignored",
           sshUrl = BuildKonfig.GIT_TEST_REPO_SSH_URL,
           defaultBranch = BuildKonfig.GIT_TEST_REPO_BRANCH

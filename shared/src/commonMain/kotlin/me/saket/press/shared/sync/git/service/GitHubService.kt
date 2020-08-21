@@ -66,7 +66,8 @@ class GitHubService(private val http: HttpClient) : GitHostService {
           val responseBody = response.receive<List<GitHubRepo>>()
           addAll(responseBody.map {
             GitRepositoryInfo(
-                name = it.full_name,
+                owner = it.owner.login,
+                name = it.name,
                 url = it.html_url,
                 sshUrl = it.ssh_url,
                 defaultBranch = it.default_branch
@@ -81,8 +82,7 @@ class GitHubService(private val http: HttpClient) : GitHostService {
 
   override fun addDeployKey(token: GitHostAuthToken, repository: GitRepositoryInfo, key: SshKeyPair): Completable {
     return completableFromCoroutine {
-      check('/' in repository.name)  // <user>/<repo-name>
-      val response = http.post<String>("https://api.github.com/repos/${repository.name}/keys") {
+      val response = http.post<String>("https://api.github.com/repos/${repository.owner}/${repository.name}/keys") {
         header("Authorization", "token ${token.value}")
         contentType(Application.Json)
         body = CreateDeployKeyRequest(
@@ -110,11 +110,15 @@ private data class GetAccessTokenResponse(
 
 @Serializable
 private data class GitHubRepo(
-  val full_name: String,
+  val name: String,
+  val owner: Owner,
   val html_url: String,
   val ssh_url: String,
   val default_branch: String
-)
+) {
+  @Serializable
+  data class Owner(val login: String)
+}
 
 @Serializable
 private data class CreateDeployKeyRequest(
