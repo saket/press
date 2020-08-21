@@ -14,6 +14,7 @@ import androidx.core.view.updateLayoutParams
 import com.squareup.contour.ContourLayout
 import me.saket.press.shared.theme.TextStyles
 import me.saket.press.shared.theme.applyStyle
+import press.extensions.TextView
 import press.theme.themeAware
 import press.theme.themed
 import press.extensions.padding
@@ -24,9 +25,9 @@ import press.extensions.textColor
  * Essentially copies dialogs from [https://cash.app]'s Android app.
  */
 class PressDialogView private constructor(context: Context) : ContourLayout(context) {
-  private val messageView = themed(TextView(context)).apply {
+  private val messageView = themed(TextView(context, TextStyles.Secondary)).apply {
     gravity = Gravity.CENTER
-    TextStyles.Secondary.applyStyle(this)
+    themeAware { textColor = it.textColorPrimary }
     applyLayout(
         x = matchParentX(marginLeft = 20.dip, marginRight = 20.dip),
         y = topTo { parent.top() + 20.ydip }
@@ -35,7 +36,7 @@ class PressDialogView private constructor(context: Context) : ContourLayout(cont
 
   private val negativeButtonView = themed(PressBorderlessButton(context)).apply {
     padding = dp(16)
-    themeAware { textColor = it.textColorSecondary }
+    themeAware { textColor = it.textColorPrimary }
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.centerX() },
         y = topTo { buttonsTopSeparator.bottom() }
