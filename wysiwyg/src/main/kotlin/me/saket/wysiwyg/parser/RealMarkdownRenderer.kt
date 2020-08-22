@@ -33,7 +33,7 @@ actual class RealMarkdownRenderer actual constructor(
 
   override fun renderTo(text: EditableText) {
     for ((span, start) in queuedSpans) {
-      if (span is HeadingSpan) {
+      if (textField.layout != null && span is HeadingSpan) {
         newHeadings.add(textField.layout.getLineForOffset(start) to span.level)
       }
     }
@@ -45,7 +45,7 @@ actual class RealMarkdownRenderer actual constructor(
     for ((span, start, end) in queuedSpans) {
       text.setSpan(span, start, end, SPAN_EXCLUSIVE_EXCLUSIVE)
 
-      if (span is HeadingSpan) {
+      if (textField.layout != null && span is HeadingSpan) {
         lastHeadings.add(textField.layout.getLineForOffset(start) to span.level)
       }
     }
