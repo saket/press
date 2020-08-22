@@ -2,6 +2,7 @@ package me.saket.press.shared.sync.git
 
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.combineLatest
+import com.badoo.reaktive.subject.behavior.BehaviorSubject
 import com.soywiz.klock.DateTime
 import kotlinx.coroutines.Runnable
 import me.saket.kgit.Git
@@ -52,7 +53,7 @@ class GitSyncer(
   private val database: PressDatabase,
   private val deviceInfo: DeviceInfo,
   private val clock: Clock,
-  private val status: Setting<Status>
+  private val lastSyncedAt: Setting<DateTime>
 ) : Syncer() {
 
   private val noteQueries get() = database.noteQueries
@@ -71,22 +72,30 @@ class GitSyncer(
     )
   }
 
+  companion object {
+    private val status = BehaviorSubject<Status>(Idle(lastSyncedAt = null))
+  }
+
+  init {
+    if (status.value == Idle(null)) {
+      status.onNext(Idle(lastSyncedAt.get()))
+    }
+  }
+
   override fun status(): Observable<Status> {
-    return combineLatest(config.listen(), status.listen()) { config, status ->
+    return combineLatest(config.listen(), status) { config, status ->
       when (config) {
         null -> Disabled
-        else -> status ?: Idle(lastSyncedAt = null)
+        else -> status
       }
     }
   }
 
   override fun sync() {
-    if (config.get() == null) {
-      // Sync is disabled.
-      return
-    }
+    if (config.get() == null) return      // Sync is disabled.
+    if (status.value == InFlight) return  // Another sync ongoing.
 
-    status.set(InFlight)
+    status.onNext(InFlight)
     loggers.onSyncStart()
     directory.makeDirectory(recursively = true)
 
@@ -98,11 +107,11 @@ class GitSyncer(
         push(pullResult, commitResult)
       }
 
-      status.set(Idle(lastSyncedAt = clock.nowUtc()))
+      lastSyncedAt.set(clock.nowUtc())
+      status.onNext(Idle(lastSyncedAt.get()))
 
     } catch (e: Throwable) {
-      log("Error. ${e::class.simpleName}: ${e.message}")
-      status.set(Failed)
+      status.onNext(Failed)
       throw e
 
     } finally {
@@ -250,7 +259,7 @@ class GitSyncer(
       }
 
       // Staging area may not be dirty if this note had already been processed earlier.
-      if(git.isStagingAreaDirty()) {
+      if (git.isStagingAreaDirty()) {
         git.commitAll(
             message = "Update '${noteFile.name}'",
             author = gitAuthor,

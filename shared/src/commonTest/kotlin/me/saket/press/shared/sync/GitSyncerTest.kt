@@ -66,7 +66,7 @@ class GitSyncerTest : BaseDatabaeTest() {
       database = database,
       deviceInfo = deviceInfo,
       clock = clock,
-      status = FakeSetting(null)
+      lastSyncedAt = FakeSetting(null)
   )
 
   private val expectUnSyncedNotes = mutableListOf<NoteId>()

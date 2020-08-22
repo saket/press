@@ -12,6 +12,7 @@ import io.ktor.client.features.logging.SIMPLE
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration.Companion.Stable
 import me.saket.kgit.RealGit
+import me.saket.press.shared.db.DateTimeAdapter
 import me.saket.press.shared.di.koin
 import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.sync.Syncer.Status
@@ -61,13 +62,12 @@ class SharedSyncComponent {
 
     factory<Syncer> { get<GitSyncer>() }
     factory(named("gitsyncer_config")) { gitSyncerConfig(get(), get()) }
-    factory(named("sync_status")) {
-      val json = get<Json>()
+    factory(named("last_synced_at")) {
       Setting.create(
           settings = get(),
-          key = "sync_status",
-          from = { serialized -> json.parse(Status.serializer(), serialized) },
-          to = { deserialized -> json.stringify(Status.serializer(), deserialized) },
+          key = "last_synced_at",
+          from = { DateTimeAdapter.decode(it) },
+          to = { DateTimeAdapter.encode(it) },
           defaultValue = null
       )
     }
@@ -78,7 +78,7 @@ class SharedSyncComponent {
           database = get(),
           deviceInfo = get(),
           clock = get(),
-          status = get(named("sync_status"))
+          lastSyncedAt = get(named("last_synced_at"))
       )
     }
   }
