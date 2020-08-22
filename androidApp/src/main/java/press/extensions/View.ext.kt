@@ -13,7 +13,6 @@ import android.view.ViewGroup.MarginLayoutParams
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.ViewAnimator
 import android.widget.ViewFlipper
 import androidx.annotation.AttrRes
 import androidx.annotation.StringRes
@@ -21,7 +20,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
-import me.saket.press.shared.theme.TextStyles
 import me.saket.press.shared.theme.UiStyles
 import me.saket.press.shared.theme.applyStyle
 import me.saket.wysiwyg.widgets.SimpleTextWatcher

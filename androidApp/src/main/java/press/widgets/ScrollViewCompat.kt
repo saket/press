@@ -14,8 +14,8 @@ object ScrollViewCompat {
       view.bottomEdgeEffectColor = color
 
     } else {
-      val topEdge = reflect(ScrollView::class, "mEdgeGlowTop").get(view) as EdgeEffect
-      val bottomEdge = reflect(ScrollView::class, "mEdgeGlowBottom").get(view) as EdgeEffect
+      val topEdge = reflect(ScrollView::class, "mEdgeGlowTop")?.get(view) as? EdgeEffect ?: return
+      val bottomEdge = reflect(ScrollView::class, "mEdgeGlowBottom")!!.get(view) as EdgeEffect
       topEdge.color = color
       bottomEdge.color = color
     }
