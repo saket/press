@@ -233,7 +233,7 @@ class GitSyncer(
         log(" • created $notePath as a new note to resolve merge conflict (old path = $oldPath)")
 
       } else {
-        acceptRename()
+        acceptRename?.invoke()
         noteFile.write(note.content)
         log(" • created/updated $notePath")
       }

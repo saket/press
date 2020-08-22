@@ -77,7 +77,7 @@ fun File.renameTo(newName: String): File {
 }
 
 fun File.touch(): File {
-  parent?.let { if (!exists) it.makeDirectory(recursively = true) }
+  parent?.makeDirectory(recursively = true)
   write("")
   return this
 }

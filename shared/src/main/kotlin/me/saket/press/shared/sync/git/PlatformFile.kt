@@ -16,6 +16,7 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
   override val isDirectory: Boolean get() = delegate.isDirectory
 
   override fun write(input: String) {
+    parent?.let { check(it.exists) }
     delegate.sink().buffer().use {
       it.writeUtf8(input)
     }

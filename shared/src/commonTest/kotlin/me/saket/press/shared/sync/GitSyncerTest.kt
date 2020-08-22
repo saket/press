@@ -269,10 +269,11 @@ class GitSyncerTest : BaseDatabaeTest() {
   @Test fun `merging local and remote notes with the same ID without conflicts`() {
     if (!canRunTests()) return
 
-    val noteId = NoteId.generate()
+    val note = fakeNote(content = "# Uncharted\nThe Lost Legacy")
+    noteQueries.testInsert(note)
 
     RemoteRepositoryRobot {
-      createRecord("uncharted.md", noteId)
+      createRecord("uncharted.md", note.id)
       commitFiles(
           message = "Create 'uncharted.md",
           add = listOf("uncharted.md" to "# Uncharted\nThe Lost Legacy")
@@ -280,18 +281,11 @@ class GitSyncerTest : BaseDatabaeTest() {
       forcePush()
     }
 
-    noteQueries.testInsert(
-        fakeNote(
-            content = "# Uncharted\nThe Lost Legacy",
-            id = noteId
-        )
-    )
-
     syncer.sync()
 
     val syncedNotes = noteQueries.allNotes().executeAsList()
     assertThat(syncedNotes).hasSize(1)
-    assertThat(syncedNotes.map { it.id }).containsExactly(noteId)
+    assertThat(syncedNotes.map { it.id }).containsExactly(note.id)
   }
 
   @Test fun `merge local and remote notes with content conflict`() {
@@ -572,7 +566,31 @@ class GitSyncerTest : BaseDatabaeTest() {
     )
   }
 
-  @Test fun `sync archived notes`() {
+  @Test fun `sync archived notes on local only`() {
+    if (!canRunTests()) return
+
+    val note1 = fakeNote("# Horizon Zero Dawn", isArchived = true)
+    val note2 = fakeNote("# Uncharted", isArchived = false)
+    noteQueries.testInsert(note1, note2)
+    syncer.sync()
+
+    noteQueries.setArchived(
+        id = note2.id,
+        isArchived = true,
+        updatedAt = clock.nowUtc()
+    )
+    syncer.sync()
+
+    val notes = noteQueries.allNotes().executeAsList()
+    assertThat(notes.all { it.isArchived }).isTrue()
+
+    assertThat(RemoteRepositoryRobot().fetchNoteFiles()).containsOnly(
+        "archived/horizon_zero_dawn.md" to "# Horizon Zero Dawn",
+        "archived/uncharted.md" to "# Uncharted"
+    )
+  }
+
+  @Test fun `sync archived notes on both local and remote`() {
     if (!canRunTests()) return
 
     val note1 = fakeNote("# Horizon Zero Dawn")

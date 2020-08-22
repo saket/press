@@ -122,7 +122,7 @@ class FileNameRegisterTest {
   }
 
   private fun FileNameRegister.fileFor(note: Note): File {
-    val suggestion = suggestFile(note).apply { acceptRename() }
+    val suggestion = suggestFile(note).apply { acceptRename?.invoke() }
     return suggestion.suggestedFile
   }
 }

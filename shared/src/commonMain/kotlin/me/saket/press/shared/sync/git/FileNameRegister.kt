@@ -88,7 +88,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
   data class FileSuggestion(
     val suggestedFile: File,
     val oldFile: File? = null,
-    val acceptRename: () -> Unit = {}
+    val acceptRename: (() -> Unit)? = null
   )
 
   @Suppress("CascadeIf")
@@ -105,6 +105,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
     return if (oldNoteFile == null) {
       // New note. A new file needs to be created.
       FileSuggestion(File(notesDirectory, newNoteName).also {
+        it.parent?.makeDirectory(recursively = true)
         createNewRecordFor(it, note.id)
       })
     } else if (oldNoteFile.relativePathIn(notesDirectory) == newNoteName) {
