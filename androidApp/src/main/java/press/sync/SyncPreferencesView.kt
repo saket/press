@@ -30,7 +30,9 @@ import me.saket.press.shared.theme.TextStyles
 import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
+import press.extensions.TextView
 import press.extensions.setDisplayedChild
+import press.extensions.textColor
 import press.extensions.updateMargins
 import press.theme.themeAware
 import press.theme.themed
@@ -105,6 +107,7 @@ class SyncPreferencesView @AssistedInject constructor(
   private fun render(effect: SyncPreferencesUiEffect) {
     return when (effect) {
       is OpenUrl -> CustomTabsIntent.Builder()
+          .setShowTitle(true)
           .addDefaultShareMenuItem()
           .build()
           .launchUrl(context, Uri.parse(effect.url))
@@ -118,9 +121,11 @@ class SyncPreferencesView @AssistedInject constructor(
 }
 
 private class SyncDisabledView(context: Context) : ContourLayout(context) {
-  private val messageView = themed(TextView(context)).apply {
+  private val messageView = themed(TextView(context, TextStyles.Secondary)).apply {
     text = context.strings().sync.sync_disabled_message
-    TextStyles.Secondary.applyStyle(this)
+    themeAware {
+      textColor = it.textColorPrimary
+    }
     applyLayout(
         x = matchParentX(),
         y = topTo { parent.top() }

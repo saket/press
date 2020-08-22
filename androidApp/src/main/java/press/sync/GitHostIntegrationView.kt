@@ -6,11 +6,13 @@ import android.widget.ProgressBar
 import androidx.core.view.isGone
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import me.saket.press.shared.localization.strings
 import me.saket.press.shared.sync.git.GitHost
 import me.saket.press.shared.sync.git.GitHostIntegrationEvent.GitRepositoryClicked
 import me.saket.press.shared.sync.git.GitHostIntegrationEvent.RetryClicked
@@ -22,10 +24,12 @@ import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowFailure
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowProgress
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
+import press.extensions.hideKeyboard
 import press.navigator
 import press.theme.themeAware
 import press.theme.themed
 import press.widgets.PressToolbar
+import kotlin.math.abs
 
 class GitHostIntegrationView @AssistedInject constructor(
   @Assisted context: Context,
@@ -48,13 +52,22 @@ class GitHostIntegrationView @AssistedInject constructor(
     )
   }
 
+  private val searchView = SearchView(context).apply {
+    hint = context.strings().sync.search_git_repos
+    isGone = true
+    applyLayout(
+        x = matchParentX(marginLeft = 22.dip, marginRight = 22.dip),
+        y = topTo { toolbar.bottom() }
+    )
+  }
+
   private val repoAdapter = GitRepositoryAdapter()
   private val recyclerView = themed(RecyclerView(context)).apply {
     layoutManager = LinearLayoutManager(context)
     adapter = repoAdapter
     applyLayout(
         x = matchParentX(),
-        y = topTo { toolbar.bottom() }.bottomTo { parent.bottom() }
+        y = topTo { searchView.bottom() }.bottomTo { parent.bottom() }
     )
   }
 
@@ -79,6 +92,12 @@ class GitHostIntegrationView @AssistedInject constructor(
     themeAware {
       background = ColorDrawable(it.window.backgroundColor)
     }
+
+    recyclerView.addOnScrollListener(object : OnScrollListener() {
+      override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+        if (abs(dy) > 0) hideKeyboard()
+      }
+    })
   }
 
   override fun onAttachedToWindow() {
@@ -100,6 +119,7 @@ class GitHostIntegrationView @AssistedInject constructor(
     progressView.isGone = model !is ShowProgress
     errorView.isGone = model !is ShowFailure
     recyclerView.isGone = model !is SelectRepo
+    searchView.isGone = model !is SelectRepo
 
     return when (model) {
       is ShowProgress -> Unit

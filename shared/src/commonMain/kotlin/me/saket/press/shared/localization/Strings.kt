@@ -42,7 +42,8 @@ data class Strings(
     val timestamp_minutes: PluralString,
     val timestamp_hours: PluralString,
     val timestamp_days: PluralString,
-    val timestamp_a_while_ago: String
+    val timestamp_a_while_ago: String,
+    val search_git_repos: String
   )
 }
 
@@ -84,6 +85,7 @@ val ENGLISH_STRINGS = Strings(
         timestamp_minutes = PluralString(one = "%s min ago", many = "%s mins ago"),
         timestamp_hours = PluralString(one = "%s hr ago", many = "%s hrs ago"),
         timestamp_days = PluralString(one = "%s day ago", many = "%s days ago"),
-        timestamp_a_while_ago = "a while ago"
+        timestamp_a_while_ago = "a while ago",
+        search_git_repos = "Search your repositories…"
     )
 )

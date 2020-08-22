@@ -1,6 +1,6 @@
 <resources>
 
-  <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+  <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
     <!-- These colors are applied in Kotlin. The user should never see these. -->
     <item name="colorPrimary">#f00</item>
     <item name="colorPrimaryDark">#f00</item>
