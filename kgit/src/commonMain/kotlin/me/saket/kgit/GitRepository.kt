@@ -28,16 +28,6 @@ interface GitRepository {
 
   fun pull(rebase: Boolean): GitPullResult
 
-  fun merge(with: GitCommit): MergeResult
-
-  /**
-   * Find files which will fail to merge if the current head is merged/rebased with a
-   * commit. Press uses this for resolving conflicts before rebasing with upstream.
-   */
-  fun mergeConflicts(with: GitCommit): List<MergeConflict>
-
-  fun rebase(with: GitCommit, strategy: MergeStrategy): RebaseResult
-
   fun push(force: Boolean = false): PushResult
 
   fun hardResetTo(commit: GitCommit)

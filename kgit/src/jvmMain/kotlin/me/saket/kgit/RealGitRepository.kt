@@ -7,11 +7,8 @@ import me.saket.kgit.GitTreeDiff.Change.Copy
 import me.saket.kgit.GitTreeDiff.Change.Delete
 import me.saket.kgit.GitTreeDiff.Change.Modify
 import me.saket.kgit.GitTreeDiff.Change.Rename
-import me.saket.kgit.MergeStrategy.OURS
 import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM
 import org.eclipse.jgit.api.MergeCommand.FastForwardMode.FF
-import org.eclipse.jgit.api.RebaseCommand.Operation.ABORT
-import org.eclipse.jgit.api.RebaseResult.Status.STOPPED
 import org.eclipse.jgit.api.ResetCommand.ResetType.HARD
 import org.eclipse.jgit.api.TransportConfigCallback
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.ADD
@@ -22,9 +19,7 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType.RENAME
 import org.eclipse.jgit.lib.BranchConfig.BranchRebaseMode.REBASE
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.UserConfig
-import org.eclipse.jgit.merge.ResolveMerger
 import org.eclipse.jgit.merge.StrategyRecursive
-import org.eclipse.jgit.merge.ThreeWayMergeStrategy
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.revwalk.filter.RevFilter
@@ -36,12 +31,10 @@ import org.eclipse.jgit.transport.URIish
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.EmptyTreeIterator
 import org.eclipse.jgit.util.FS
-import java.time.Duration
 import java.util.Date
 import java.util.TimeZone
 import org.eclipse.jgit.api.Git as JGit
 import org.eclipse.jgit.lib.Repository as JRepository
-import org.eclipse.jgit.merge.MergeStrategy as JgitMergeStrategy
 import org.eclipse.jgit.util.SystemReader as JgitSystemReader
 import java.io.File as JavaFile
 
@@ -158,48 +151,6 @@ internal actual class RealGitRepository actual constructor(
     return GitAuthor(name = config.authorName, email = config.authorEmail)
   }
 
-  override fun mergeConflicts(with: GitCommit): List<MergeConflict> {
-    val head = headCommit() ?: return emptyList()
-
-    val merger = ThreeWayMergeStrategy.RECURSIVE.newMerger(jgit.repository, true /* in-memory */)
-    val canMerge = merger.merge(head.commit, with.commit)
-    if (canMerge) {
-      return emptyList()
-    }
-
-    check(merger is ResolveMerger)
-    check(merger.unmergedPaths.isNotEmpty()) {
-      "Merge will fail despite having zero conflicts. Failing paths: ${merger.failingPaths}"
-    }
-    return merger.unmergedPaths.map(::MergeConflict)
-  }
-
-  override fun rebase(with: GitCommit, strategy: MergeStrategy): RebaseResult {
-    val rebaseResult = jgit.rebase()
-        .setUpstream(with.commit)
-        .setStrategy(StrategyRecursive())
-        .call()
-
-    val onAbort = {
-      jgit.rebase().setOperation(ABORT).call()
-      Unit
-    }
-
-    return with(rebaseResult) {
-      when {
-        status.isSuccessful -> RebaseResult.Success
-        status == STOPPED -> RebaseResult.Failure(
-            details = "Merge conflicts",
-            abort = onAbort
-        )
-        else -> RebaseResult.Failure(
-            details = "Unknown. Failing: $failingPaths, uncommitted: $uncommittedChanges",
-            abort = onAbort
-        )
-      }
-    }
-  }
-
   override fun pull(rebase: Boolean): GitPullResult {
     val pullResult = jgit.pull()
         .apply {
@@ -213,36 +164,6 @@ internal actual class RealGitRepository actual constructor(
     return when {
       pullResult.isSuccessful -> GitPullResult.Success
       else -> GitPullResult.Failure(reason = pullResult.toString())
-    }
-  }
-
-  override fun merge(with: GitCommit): MergeResult {
-    val mergeResult = jgit.merge()
-        .include(with.commit)
-        .setFastForward(FF)
-        //.setStrategy(org.eclipse.jgit.merge.MergeStrategy.THEIRS)
-        //.setCommit(false)
-        .call()
-
-    val onAbort = {
-      // https://stackoverflow.com/a/29815444/2511884
-      jgit.repository.writeMergeCommitMsg(null)
-      jgit.repository.writeMergeHeads(null)
-      jgit.reset().setMode(HARD).call()
-      Unit
-    }
-
-//    if (mergeResult.conflicts != null) {
-//      println("\nConflicting files:")
-//      for (conflictPath in mergeResult.conflicts?.keys ?: emptySet<String>()) {
-//        val content = peekFile(conflictPath, with)
-//        println("$conflictPath -> ${content?.replace("\n", "\\n")}")
-//      }
-//    }
-
-    return when {
-      mergeResult.mergeStatus.isSuccessful -> MergeResult.Success
-      else -> MergeResult.Failure(reason = mergeResult.toString(), abort = onAbort)
     }
   }
 
@@ -395,20 +316,6 @@ internal actual class RealGitRepository actual constructor(
     } else {
       error("HEAD is detached and isn't pointing to any branch.")
     }
-  }
-
-  private fun printLog(title: String) {
-    println(title)
-    for (log in jgit.log().call()) {
-      val relativeTime = Duration.ofMillis(System.currentTimeMillis() - log.authorIdent.`when`.time)
-      println("${log.name.take(7)} - ${log.shortMessage} (${relativeTime.toHours()}h ago)")
-    }
-  }
-}
-
-private fun MergeStrategy.toJgit(): JgitMergeStrategy {
-  return when (this) {
-    OURS -> FakeOneSidedStrategy()
   }
 }
 
