@@ -87,11 +87,11 @@ class HomeView @AssistedInject constructor(
     adapter = noteAdapter
     tintPainter = TintPainter.uncoveredArea(color = BLACK, opacity = 0.25f)
     itemExpandAnimator = ItemExpandAnimator.split()
-    itemAnimator = AlphaInAnimator()
     toolbar.doOnLayout {
       clipToPadding = false
       updatePadding(top = toolbar.bottom)
     }
+    itemAnimator = SlideDownItemAnimator()
     addItemDecoration(DividerItemDecoration())
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
