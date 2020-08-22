@@ -57,6 +57,7 @@ import press.widgets.BackPressInterceptResult
 import press.widgets.BackPressInterceptResult.BACK_PRESS_IGNORED
 import press.widgets.BackPressInterceptResult.BACK_PRESS_INTERCEPTED
 import press.widgets.DividerItemDecoration
+import press.widgets.SlideDownItemAnimator
 import press.widgets.addStateChangeCallbacks
 import press.widgets.doOnNextAboutToCollapse
 import press.widgets.doOnNextCollapse
