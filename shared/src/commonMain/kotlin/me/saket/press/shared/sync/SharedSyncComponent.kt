@@ -15,7 +15,6 @@ import me.saket.kgit.RealGit
 import me.saket.press.shared.db.DateTimeAdapter
 import me.saket.press.shared.di.koin
 import me.saket.press.shared.settings.Setting
-import me.saket.press.shared.sync.Syncer.Status
 import me.saket.press.shared.sync.git.GitHost
 import me.saket.press.shared.sync.git.GitHostAuthToken
 import me.saket.press.shared.sync.git.GitHostIntegrationPresenter

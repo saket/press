@@ -32,10 +32,9 @@ import me.saket.press.shared.sync.SyncState.IN_FLIGHT
 import me.saket.press.shared.sync.SyncState.PENDING
 import me.saket.press.shared.sync.SyncState.SYNCED
 import me.saket.press.shared.sync.Syncer
-import me.saket.press.shared.sync.Syncer.Status.Disabled
-import me.saket.press.shared.sync.Syncer.Status.Failed
-import me.saket.press.shared.sync.Syncer.Status.Idle
-import me.saket.press.shared.sync.Syncer.Status.InFlight
+import me.saket.press.shared.sync.Syncer.Status2.LastOp.Failed
+import me.saket.press.shared.sync.Syncer.Status2.LastOp.Idle
+import me.saket.press.shared.sync.Syncer.Status2.LastOp.InFlight
 import me.saket.press.shared.sync.git.GitSyncer.CommitResult.Done
 import me.saket.press.shared.sync.git.GitSyncer.CommitResult.Skipped
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
@@ -75,20 +74,27 @@ class GitSyncer(
   }
 
   companion object {
-    private val status = BehaviorSubject<Status>(Idle)
+    private val lastOp = BehaviorSubject(Idle)
   }
 
-  override fun status(): Observable<Pair<Status, LastSyncedAt?>> {
-    return combineLatest(config.listen(), status) { config, status ->
-      (if (config == null) Disabled else status) to lastSyncedAt.get()
+  override fun status(): Observable<Status2> {
+    return combineLatest(config.listen(), lastOp) { config, op ->
+      when (config) {
+        null -> Status2.Disabled
+        else -> Status2.Enabled(
+            lastOp = op,
+            lastSyncedAt = lastSyncedAt.get(),
+            syncingWith = config.remote
+        )
+      }
     }
   }
 
   override fun sync() {
     if (config.get() == null) return      // Sync is disabled.
-    if (status.value == InFlight) return  // Another sync ongoing.
+    if (lastOp.value == InFlight) return  // Another sync ongoing.
 
-    status.onNext(InFlight)
+    lastOp.onNext(InFlight)
     loggers.onSyncStart()
     directory.makeDirectory(recursively = true)
 
@@ -100,10 +106,10 @@ class GitSyncer(
         push(pullResult, commitResult)
       }
       lastSyncedAt.set(LastSyncedAt(clock.nowUtc()))
-      status.onNext(Idle)
+      lastOp.onNext(Idle)
 
     } catch (e: Throwable) {
-      status.onNext(Failed)
+      lastOp.onNext(Failed)
       log("Error. ${e::class.simpleName}: ${e.message}")
       if (!Git.isKnownError(e)) {
         throw e

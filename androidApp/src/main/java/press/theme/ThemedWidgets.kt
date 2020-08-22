@@ -52,6 +52,7 @@ fun <T : TextView> themed(view: T): T = view.apply {
   typeface = ResourcesCompat.getFont(context, R.font.work_sans_regular)
 
   themeAware {
+    setLinkTextColor(it.accentColor)
     highlightColor = it.textHighlightColor
   }
 }

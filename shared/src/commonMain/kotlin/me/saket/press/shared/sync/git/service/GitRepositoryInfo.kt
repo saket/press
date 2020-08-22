@@ -20,4 +20,6 @@ data class GitRepositoryInfo(
    * Example: "cashapp/contour".
    */
   val ownerAndName: String get() = "$owner/$name"
+
+  val htmlLink: String get() = """<a href="$url">$ownerAndName<a>"""
 }

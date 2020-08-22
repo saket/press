@@ -1,12 +1,13 @@
 package press.sync
 
 import android.content.Context
+import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
+import android.text.Html
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.LinearLayout
 import android.widget.LinearLayout.VERTICAL
-import android.widget.TextView
 import android.widget.ViewFlipper
 import androidx.browser.customtabs.CustomTabsIntent
 import com.jakewharton.rxbinding3.view.detaches
@@ -14,6 +15,7 @@ import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import me.saket.bettermovementmethod.BetterLinkMovementMethod
 import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.sync.SyncPreferencesEvent.DisableSyncClicked
@@ -25,9 +27,7 @@ import me.saket.press.shared.sync.SyncPreferencesUiModel
 import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncDisabled
 import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncEnabled
 import me.saket.press.shared.sync.git.GitHost
-import me.saket.press.shared.sync.git.GitHost.GITHUB
 import me.saket.press.shared.theme.TextStyles
-import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import press.extensions.TextView
@@ -158,6 +158,7 @@ private class SyncDisabledView(context: Context) : ContourLayout(context) {
 
 private class SyncEnabledView(context: Context) : ContourLayout(context) {
   private val setupInfoView = themed(TextView(context, TextStyles.Secondary)).apply {
+    movementMethod = BetterLinkMovementMethod.getInstance()
     themeAware { textColor = it.textColorPrimary }
     applyLayout(
         x = matchParentX(),
@@ -175,7 +176,7 @@ private class SyncEnabledView(context: Context) : ContourLayout(context) {
 
   val disableButton = themed(PressButton(context)).apply {
     themeAware { textColor = it.textColorPrimary }
-    text = "Disable sync on this device"
+    text = context.strings().sync.disable_sync_button
     applyLayout(
         x = leftTo { parent.left() },
         y = topTo { statusView.bottom() + 20.ydip }
@@ -186,8 +187,9 @@ private class SyncEnabledView(context: Context) : ContourLayout(context) {
     contourHeightOf { disableButton.bottom() }
   }
 
+  @Suppress("DEPRECATION")
   fun render(model: SyncEnabled) {
-    setupInfoView.text = model.setupInfo
+    setupInfoView.text = Html.fromHtml(model.setupInfo)
     statusView.text = model.status
   }
 }

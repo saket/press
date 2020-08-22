@@ -3,14 +3,12 @@ package me.saket.press.shared.sync
 import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.observable.Observable
 import com.soywiz.klock.DateTime
-import kotlinx.serialization.Serializable
-import me.saket.press.shared.db.DateTimeAdapter
-import me.saket.press.shared.sync.Syncer.Status
+import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 
 /** Syncs notes with a remote destination. */
 abstract class Syncer {
 
-  internal abstract fun status(): Observable<Pair<Status, LastSyncedAt?>>
+  internal abstract fun status(): Observable<Status2>
 
   /**
    * Called every time a note's content is updated,
@@ -20,11 +18,20 @@ abstract class Syncer {
 
   abstract fun disable()
 
-  sealed class Status {
-    object Disabled : Status()
-    object InFlight : Status()
-    object Failed : Status()
-    object Idle : Status()
+  sealed class Status2 {
+    object Disabled : Status2()
+
+    data class Enabled(
+      val lastOp: LastOp,
+      val syncingWith: GitRepositoryInfo,
+      val lastSyncedAt: LastSyncedAt?
+    ): Status2()
+
+    enum class LastOp {
+      InFlight,
+      Failed,
+      Idle
+    }
   }
 }
 
