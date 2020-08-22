@@ -22,3 +22,7 @@ internal actual class RealGitRepository actual constructor(
   override fun diffBetween(from: GitCommit?, to: GitCommit): GitTreeDiff = TODO()
   override fun currentBranch(): GitBranch = TODO()
 }
+
+actual fun Git.Companion.isKnownError(e: Throwable): Boolean {
+  TODO()
+}

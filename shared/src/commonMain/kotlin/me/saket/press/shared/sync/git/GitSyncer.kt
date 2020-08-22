@@ -22,6 +22,7 @@ import me.saket.kgit.PushResult.Failure
 import me.saket.kgit.PushResult.Success
 import me.saket.kgit.UtcTimestamp
 import me.saket.kgit.abbreviated
+import me.saket.kgit.isKnownError
 import me.saket.press.PressDatabase
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.settings.Setting
@@ -112,7 +113,10 @@ class GitSyncer(
 
     } catch (e: Throwable) {
       status.onNext(Failed)
-      throw e
+      log("Error. ${e::class.simpleName}: ${e.message}")
+      if (!Git.isKnownError(e)) {
+        throw e
+      }
 
     } finally {
       loggers.onSyncComplete()

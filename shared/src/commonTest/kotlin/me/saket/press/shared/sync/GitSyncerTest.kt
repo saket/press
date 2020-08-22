@@ -453,6 +453,11 @@ class GitSyncerTest : BaseDatabaeTest() {
   // TODO
   @Test fun `merge local and remote notes with filename and content conflict`() {
     if (!canRunTests()) return
+
+    // setup:
+    //  notePath in pulledPathsToDiff
+    //  same file content
+    //  oldPath also in pulledPathsToDiff
   }
 
   @Test fun `notes with the same headings are stored in separate files`() {

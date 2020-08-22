@@ -14,13 +14,11 @@ import org.eclipse.jgit.api.RebaseCommand.Operation.ABORT
 import org.eclipse.jgit.api.RebaseResult.Status.STOPPED
 import org.eclipse.jgit.api.ResetCommand.ResetType.HARD
 import org.eclipse.jgit.api.TransportConfigCallback
-import org.eclipse.jgit.api.errors.JGitInternalException
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.ADD
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.COPY
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.DELETE
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.MODIFY
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.RENAME
-import org.eclipse.jgit.errors.RepositoryNotFoundException
 import org.eclipse.jgit.lib.BranchConfig.BranchRebaseMode.REBASE
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.UserConfig
@@ -412,4 +410,11 @@ private fun MergeStrategy.toJgit(): JgitMergeStrategy {
   return when (this) {
     OURS -> FakeOneSidedStrategy()
   }
+}
+
+actual fun Git.Companion.isKnownError(e: Throwable): Boolean {
+  if (e is org.eclipse.jgit.api.errors.TransportException && e.message?.contains("unknown host") == true) {
+    return true
+  }
+  return false
 }
