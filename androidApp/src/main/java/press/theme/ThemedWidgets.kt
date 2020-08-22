@@ -33,9 +33,12 @@ import press.widgets.ScrollViewCompat
 fun themePalette(): Observable<ThemePalette> = PressApp.component.themePalette()
 
 fun View.themeAware(onThemeChange: (ThemePalette) -> Unit) {
+  val stream = themePalette()
   attaches()
-      .switchMap { themePalette() }
+      .switchMap { stream }
       .takeUntil(detaches())
+      .mergeWith(stream.take(1))  // don't wait till attach for the first emission.
+      .distinctUntilChanged()
       .subscribe { onThemeChange(it) }
 }
 
