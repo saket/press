@@ -566,7 +566,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     )
   }
 
-  @Test fun `sync archived notes on local only`() {
+  @Test fun `sync note that was archived locally`() {
     if (!canRunTests()) return
 
     val note1 = fakeNote("# Horizon Zero Dawn", isArchived = true)
@@ -590,7 +590,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     )
   }
 
-  @Test fun `sync archived notes on both local and remote`() {
+  @Test fun `sync notes that were archived on both local and remote`() {
     if (!canRunTests()) return
 
     val note1 = fakeNote("# Horizon Zero Dawn")
@@ -620,6 +620,44 @@ class GitSyncerTest : BaseDatabaeTest() {
         "archived/horizon_zero_dawn.md" to "# Horizon Zero Dawn",
         "archived/uncharted.md" to "# Uncharted"
     )
+  }
+
+  @Test fun `sync note archived on remote`() {
+    if (!canRunTests()) return
+
+    RemoteRepositoryRobot {
+      commitFiles(
+          message = "Archive uncharted.md",
+          add = listOf("archived/uncharted.md" to "# Uncharted")
+      )
+      forcePush()
+    }
+    syncer.sync()
+    assertThat(noteQueries.allNotes().executeAsOne().isArchived).isTrue()
+  }
+
+  @Test fun `sync unarchived note`() {
+    if (!canRunTests()) return
+
+    val remote = RemoteRepositoryRobot {
+      commitFiles(
+          message = "Archive uncharted.md",
+          add = listOf("archived/uncharted.md" to "# Uncharted")
+      )
+      forcePush()
+    }
+    syncer.sync()
+
+    val note = { noteQueries.allNotes().executeAsOne() }
+    noteQueries.setArchived(
+        id = note().id,
+        isArchived = false,
+        updatedAt = clock.nowUtc()
+    )
+    syncer.sync()
+
+    assertThat(note().isArchived).isFalse()
+    assertThat(remote.fetchNoteFiles()).containsOnly("uncharted.md" to "# Uncharted")
   }
 
   @Test fun `file renames are followed correctly`() {

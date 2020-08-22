@@ -101,7 +101,7 @@ class GitSyncer(
       status.set(Idle(lastSyncedAt = clock.nowUtc()))
 
     } catch (e: Throwable) {
-      log("Error: ${e.message}")
+      log("Error. ${e::class.simpleName}: ${e.message}")
       status.set(Failed)
       throw e
 
@@ -227,11 +227,15 @@ class GitSyncer(
       val oldPath = oldFile?.relativePathIn(directory)
       log(" • $notePath")
 
-      if (notePath in pulledPathsToDiff && note.content != noteFile.read()) {
-        // File's content is going to change in a conflicting way.
-        noteFile.copy(register.findNewNameOnConflict(noteFile)).let {
-          it.write(note.content)
-          log("   duplicated to ${it.name} to resolve merge conflict")
+      if (notePath in pulledPathsToDiff) {
+        if (note.content != noteFile.read()) {
+          // File's content is going to change in a conflicting way.
+          noteFile.copy(register.findNewNameOnConflict(noteFile)).let {
+            it.write(note.content)
+            log("   duplicated to ${it.name} to resolve merge conflict")
+          }
+        } else {
+          log("   skipped (same content)")
         }
 
       } else if (oldPath in pulledPathsToDiff) {
@@ -304,48 +308,50 @@ class GitSyncer(
 
           val oldPath = if (diff is Rename) diff.fromPath else null
           val record = register.recordFor(diff.path, oldPath = oldPath)
-          val existingId = record?.noteId
-          val isArchived = record?.noteFolder == "archived"
+              ?: register.createNewRecordFor(file, id = NoteId.generate())
 
-          val isNewNote = existingId == null || !noteQueries.exists(existingId).executeAsOne()
+          val noteId = record.noteId
+          val isArchived = record.noteFolder == "archived"
+          val isNewNote = !noteQueries.exists(noteId).executeAsOne()
 
           if (isNewNote) {
-            val newId = existingId ?: NoteId.generate()
-            log("Creating new note $newId for (${diff.path}), isArchived? $isArchived")
-            register.createNewRecordFor(file, newId)
+            log("Creating new note $noteId for (${diff.path}), isArchived? $isArchived")
+          } else {
+            log("Updating $noteId (${diff.path}), isArchived? $isArchived")
+          }
+
+          if (isNewNote) {
             Runnable {
               noteQueries.insert(
-                  id = newId,
+                  id = noteId,
                   content = content,
                   createdAt = commitTime,
                   updatedAt = commitTime
               )
               noteQueries.setArchived(
-                  id = newId,
+                  id = noteId,
                   isArchived = isArchived,
                   updatedAt = commitTime
               )
               noteQueries.updateSyncState(
-                  ids = listOf(newId),
+                  ids = listOf(noteId),
                   syncState = IN_FLIGHT
               )
             }
           } else {
-            log("Updating $existingId (${diff.path}), isArchived? $isArchived")
-            check(existingId != null) { "existingId is null for an existing note" }
             Runnable {
               noteQueries.updateContent(
-                  id = existingId,
+                  id = noteId,
                   content = content,
                   updatedAt = commitTime
               )
               noteQueries.setArchived(
-                  id = existingId,
+                  id = noteId,
                   isArchived = isArchived,
                   updatedAt = commitTime
               )
               noteQueries.updateSyncState(
-                  ids = listOf(existingId),
+                  ids = listOf(noteId),
                   syncState = IN_FLIGHT
               )
             }
