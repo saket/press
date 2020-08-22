@@ -72,8 +72,9 @@ internal class RealNoteRepository(
 
   override fun markAsArchived(id: NoteId): Completable {
     return completableFromFunction {
-      noteQueries.markAsArchived(
+      noteQueries.setArchived(
           id = id,
+          isArchived = true,
           updatedAt = clock.nowUtc()
       )
     }

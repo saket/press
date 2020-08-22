@@ -86,11 +86,6 @@ UPDATE note
 SET syncState = :new
 WHERE syncState IN :old;
 
-markAsArchived:
-UPDATE note
-SET isArchived = 1, updatedAt = ?
-WHERE id = ? AND isArchived != 1;
-
 setArchived:
 UPDATE note
 SET isArchived = :isArchived, updatedAt = ?

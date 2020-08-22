@@ -581,7 +581,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     syncer.sync()
 
     // Archive both notes: one on local and the other on remote.
-    noteQueries.markAsArchived(id = note1.id, updatedAt = clock.nowUtc())
+    noteQueries.setArchived(id = note1.id, isArchived = true, updatedAt = clock.nowUtc())
     val remote = RemoteRepositoryRobot {
       pull()
       commitFiles(
