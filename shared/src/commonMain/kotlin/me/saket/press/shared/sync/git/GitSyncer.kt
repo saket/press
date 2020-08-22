@@ -154,20 +154,12 @@ class GitSyncer(
   )
 
   private fun GitScope.pull(): PullResult {
+    check(!git.isStagingAreaDirty()) { "Expected staging area to be clean before pulling" }
+
     maybeMakeInitialCommit(git)
     val localHead = git.headCommit()!!  // non-null because of maybeMakeInitialCommit().
 
-    fun printLog(msg: String) {
-      val commits = git.commitsBetween(null, git.headCommit()!!)
-      println("\n$msg")
-      commits.forEach { log(" • ${it.sha1.abbreviated} - ${it.message.lines().first()}") }
-    }
-
-//    printLog("Commits before pull")
-    val pullResult = git.pull(rebase = true)
-//    printLog("Commits after pull")
-
-    return when (val it = pullResult) {
+    return when (val it = git.pull(rebase = true)) {
       is GitPullResult.Success -> {
         val upstreamHead = git.headCommit()!!
         if (upstreamHead != localHead) {
@@ -332,8 +324,8 @@ class GitSyncer(
               )
             }
           } else {
-            check(existingId != null)
             log("Updating $existingId (${diff.path}), isArchived? $isArchived")
+            check(existingId != null) { "existingId is null for an existing note" }
             Runnable {
               noteQueries.updateContent(
                   id = existingId,
@@ -402,8 +394,8 @@ class GitSyncer(
   }
 
   private fun GitScope.push(pullResult: PullResult, commitResult: CommitResult) {
-    check(git.currentBranch().name == remote!!.defaultBranch)
-    check(!git.isStagingAreaDirty())
+    check(git.currentBranch().name == remote!!.defaultBranch) { "Not on the default branch" }
+    check(!git.isStagingAreaDirty()) { "Expected staging area to be clean before pushing" }
 
     return if (commitResult == Skipped) {
       noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = SYNCED)
