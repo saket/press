@@ -656,6 +656,16 @@ class GitSyncerTest : BaseDatabaeTest() {
     }
   }
 
+  // TODO
+  @Test fun `notes are re-synced if syncing fails with an unhandled error`() {
+    if (!canRunTests()) return
+  }
+
+  // TODO
+  @Test fun `clear staging area if syncing fails with an unhandled error`() {
+    if (!canRunTests()) return
+  }
+
   @Test fun `revert commits if push fails`() {
     if (!canRunTests()) return
 

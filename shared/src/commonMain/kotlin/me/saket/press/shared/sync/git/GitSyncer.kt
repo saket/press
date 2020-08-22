@@ -190,7 +190,7 @@ class GitSyncer(
 
   @Suppress("CascadeIf")
   private fun GitScope.commitAllChanges(pullResult: PullResult): CommitResult {
-    val pendingSyncNotes = noteQueries.pendingSyncNotes().executeAsList()
+    val pendingSyncNotes = noteQueries.notesInState(listOf(PENDING, IN_FLIGHT)).executeAsList()
     if (pendingSyncNotes.isEmpty()) {
       log("Nothing to commit.")
       return Skipped
@@ -246,14 +246,14 @@ class GitSyncer(
         log(" • created/updated $notePath")
       }
 
-      // Note to self: if this check fails, something's wrong with my code.
-      check(git.isStagingAreaDirty())
-
-      git.commitAll(
-          message = "Update '${noteFile.name}'",
-          author = gitAuthor,
-          timestamp = UtcTimestamp(note.updatedAt)
-      )
+      // Staging area may not be dirty if this note had already been processed earlier.
+      if(git.isStagingAreaDirty()) {
+        git.commitAll(
+            message = "Update '${noteFile.name}'",
+            author = gitAuthor,
+            timestamp = UtcTimestamp(note.updatedAt)
+        )
+      }
     }
     return Done
   }

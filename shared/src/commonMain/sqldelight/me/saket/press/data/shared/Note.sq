@@ -51,16 +51,10 @@ SELECT *
 FROM note
 ORDER BY updatedAt DESC;
 
-pendingSyncNotes:
-SELECT *
-FROM note
-WHERE syncState = 'PENDING'
-ORDER BY updatedAt ASC;
-
 notesInState:
 SELECT *
 FROM note
-WHERE syncState = ?
+WHERE syncState IN ?
 ORDER BY updatedAt ASC;
 
 note:
