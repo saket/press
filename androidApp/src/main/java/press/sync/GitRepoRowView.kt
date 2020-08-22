@@ -19,7 +19,7 @@ import press.extensions.textColor
 import press.theme.themeAware
 import press.theme.themePalette
 
-class GitRepoItemView(context: Context) : ContourLayout(context) {
+class GitRepoRowView(context: Context) : ContourLayout(context) {
   private val ownerView = TextView(context, TextStyles.Secondary).apply {
     themeAware { textColor = it.textColorSecondary }
     applyLayout(

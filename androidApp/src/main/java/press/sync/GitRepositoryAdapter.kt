@@ -11,7 +11,7 @@ class GitRepositoryAdapter : ListAdapter<RepoUiModel, RepoViewHolder>(ItemDiffer
   lateinit var onClick: (GitRepositoryInfo) -> Unit
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RepoViewHolder {
-    return RepoViewHolder(GitRepoItemView(parent.context))
+    return RepoViewHolder(GitRepoRowView(parent.context))
   }
 
   override fun onBindViewHolder(holder: RepoViewHolder, position: Int) {
@@ -21,7 +21,7 @@ class GitRepositoryAdapter : ListAdapter<RepoUiModel, RepoViewHolder>(ItemDiffer
   }
 }
 
-class RepoViewHolder(val view: GitRepoItemView) : RecyclerView.ViewHolder(view)
+class RepoViewHolder(val view: GitRepoRowView) : RecyclerView.ViewHolder(view)
 
 private object ItemDiffer : DiffUtil.ItemCallback<RepoUiModel>() {
   override fun areItemsTheSame(oldItem: RepoUiModel, newItem: RepoUiModel) =
