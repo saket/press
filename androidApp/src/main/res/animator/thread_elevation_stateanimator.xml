@@ -3,7 +3,7 @@
   <item android:state_pressed="true">
     <objectAnimator
       android:duration="@android:integer/config_shortAnimTime"
-      android:propertyName="translationZ"
+      android:propertyName="elevation"
       android:valueTo="20dp"
       android:valueType="floatType" />
   </item>
@@ -11,7 +11,7 @@
   <item>
     <objectAnimator
       android:duration="@android:integer/config_shortAnimTime"
-      android:propertyName="translationZ"
+      android:propertyName="elevation"
       android:valueTo="4dp"
       android:valueType="floatType" />
   </item>
