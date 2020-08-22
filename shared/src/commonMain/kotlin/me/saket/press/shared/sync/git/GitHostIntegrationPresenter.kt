@@ -8,7 +8,6 @@ import com.badoo.reaktive.completable.subscribe
 import com.badoo.reaktive.completable.subscribeOn
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.ObservableWrapper
-import com.badoo.reaktive.observable.debounce
 import com.badoo.reaktive.observable.distinctUntilChanged
 import com.badoo.reaktive.observable.filter
 import com.badoo.reaktive.observable.map
@@ -166,4 +165,3 @@ private fun List<GitRepositoryInfo>.toUiModels(searchText: String): List<RepoUiM
     )
   }
 }
-

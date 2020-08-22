@@ -1,7 +1,6 @@
 package me.saket.press.shared.settings
 
 import com.badoo.reaktive.base.setCancellable
-import com.badoo.reaktive.disposable.Disposable
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.observable
 import com.russhwolf.settings.ExperimentalListener

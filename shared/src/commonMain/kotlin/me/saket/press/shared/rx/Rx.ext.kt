@@ -10,12 +10,8 @@ import com.badoo.reaktive.observable.filter
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observableInterval
-import com.badoo.reaktive.observable.publish
-import com.badoo.reaktive.observable.skip
 import com.badoo.reaktive.observable.startWithValue
 import com.badoo.reaktive.observable.switchMap
-import com.badoo.reaktive.observable.take
-import com.badoo.reaktive.observable.throttle
 import com.badoo.reaktive.observable.withLatestFrom
 import com.badoo.reaktive.scheduler.Scheduler
 import com.soywiz.klock.TimeSpan

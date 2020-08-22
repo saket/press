@@ -4,7 +4,6 @@ package me.saket.press.shared.util
 
 import platform.Foundation.NSString
 import platform.Foundation.lowercaseString
-import platform.Foundation.stringWithFormat
 import kotlin.text.isLetterOrDigit as kotlinIsLetterOrDigit
 
 @Suppress("CAST_NEVER_SUCCEEDS")  // https://youtrack.jetbrains.com/issue/KT-30959
@@ -19,5 +18,5 @@ actual inline fun Char.isLetterOrDigit(): Boolean {
 
 actual fun String.format(vararg args: Any): String {
   TODO()
-  //return NSString.stringWithFormat(this, args)
+//  return NSString.stringWithFormat(this, args)
 }

@@ -13,7 +13,6 @@ import com.soywiz.klock.minutes
 import io.ktor.client.HttpClient
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.rx.Schedulers
-import me.saket.press.shared.rx.combineLatestWith
 import me.saket.press.shared.rx.consumeOnNext
 import me.saket.press.shared.rx.mergeWith
 import me.saket.press.shared.settings.Setting
@@ -29,7 +28,6 @@ import me.saket.press.shared.sync.Syncer.Status2.LastOp.Idle
 import me.saket.press.shared.sync.Syncer.Status2.LastOp.InFlight
 import me.saket.press.shared.sync.git.GitHost
 import me.saket.press.shared.sync.git.GitHostAuthToken
-import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 import me.saket.press.shared.time.Clock
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.util.format
@@ -52,9 +50,7 @@ class SyncPreferencesPresenter(
     val models = syncer.status()
         .map { status ->
           when (status) {
-            is Disabled -> SyncDisabled(
-                availableGitHosts = GitHost.values().toList()
-            )
+            is Disabled -> SyncDisabled(availableGitHosts = GitHost.values().toList())
             is Enabled -> {
               val statusText = when (status.lastOp) {
                 InFlight -> strings.sync.status_in_flight

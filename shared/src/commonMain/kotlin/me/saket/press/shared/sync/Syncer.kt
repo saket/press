@@ -25,7 +25,7 @@ abstract class Syncer {
       val lastOp: LastOp,
       val syncingWith: GitRepositoryInfo,
       val lastSyncedAt: LastSyncedAt?
-    ): Status2()
+    ) : Status2()
 
     enum class LastOp {
       InFlight,

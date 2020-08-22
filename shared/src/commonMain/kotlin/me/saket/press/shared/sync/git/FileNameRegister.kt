@@ -47,9 +47,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
     for (file in allRegisterFiles(folderName)) {
       val record = Record.from(registerDirectory, file)
       if (record.noteFilePath == relativePath) {
-        return record.also {
-          //println("Record for $relativePath is $record")
-        }
+        return record
       }
     }
     return null
@@ -130,7 +128,6 @@ internal class FileNameRegister(private val notesDirectory: File) {
     }
 
     val recordFile = Record.writeToFile(registerDirectory, notesDirectory, noteFile, id)
-    //println("Creating record ${recordFile.name} -> ${recordFile.read()}")
     return Record.from(registerDirectory, recordFile)
   }
 

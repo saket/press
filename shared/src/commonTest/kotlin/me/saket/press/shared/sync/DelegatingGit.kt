@@ -4,7 +4,6 @@ import me.saket.kgit.Git
 import me.saket.kgit.GitConfig
 import me.saket.kgit.GitRepository
 import me.saket.kgit.PushResult
-import me.saket.kgit.RealGit
 import me.saket.kgit.SshPrivateKey
 
 class DelegatingGit(private val delegate: Git) : Git {
