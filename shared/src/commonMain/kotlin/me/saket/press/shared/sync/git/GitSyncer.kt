@@ -164,6 +164,12 @@ class GitSyncer(
         val upstreamHead = git.headCommit()!!
         if (upstreamHead != localHead) {
           log("Pulled upstream. Moved head from $localHead to $upstreamHead.")
+          val pullDiff = git.diffBetween(localHead, upstreamHead)
+          if (pullDiff.isNotEmpty()) {
+            log("\nPulled changes (${pullDiff.size}):")
+            log(pullDiff.flattenToString())
+          }
+
         } else {
           log("Nothing to pull.")
         }
@@ -201,7 +207,7 @@ class GitSyncer(
         .filterNoteChanges()
         .associateBy { it.path }
 
-    log("\nReading unsynced notes:")
+    log("\nReading unsynced notes (${pendingSyncNotes.size}):")
 
     // Git makes it easy to handle merge conflicts, but automating it for
     // the user is going to be a challenge. If the same note was modified
@@ -219,23 +225,24 @@ class GitSyncer(
       val (noteFile, oldFile, acceptRename) = register.suggestFile(note)
       val notePath = noteFile.relativePathIn(directory)
       val oldPath = oldFile?.relativePathIn(directory)
+      log(" • $notePath")
 
       if (notePath in pulledPathsToDiff && note.content != noteFile.read()) {
         // File's content is going to change in a conflicting way.
         noteFile.copy(register.findNewNameOnConflict(noteFile)).let {
           it.write(note.content)
-          log(" • duplicated $notePath to ${it.name} to resolve merge conflict")
+          log("   duplicated to ${it.name} to resolve merge conflict")
         }
 
       } else if (oldPath in pulledPathsToDiff) {
         // Old path was updated on remote, but deleted locally.
         noteFile.write(note.content)
-        log(" • created $notePath as a new note to resolve merge conflict (old path = $oldPath)")
+        log("   created as a new note to resolve merge conflict (old path = $oldPath)")
 
       } else {
         acceptRename?.invoke()
         noteFile.write(note.content)
-        log(" • created/updated $notePath")
+        log("   created/updated")
       }
 
       // Staging area may not be dirty if this note had already been processed earlier.
@@ -280,8 +287,8 @@ class GitSyncer(
 
     val diffs = git.diffBetween(from, to)
 
-    log("\nChanges (${diffs.size}):")
-    if (diffs.isNotEmpty()) log(diffs.joinToString(prefix = " • ", separator = "\n • ", postfix = "\n"))
+    log("\nProcessing changes (${diffs.size}):")
+    if (diffs.isNotEmpty()) log(diffs.flattenToString())
 
     for (diff in diffs.filterNoteChanges()) {
       val commitTime = diffPathTimestamps[diff.path]!!
@@ -431,3 +438,7 @@ fun UtcTimestamp(clock: Clock): UtcTimestamp {
 
 private val GitCommit.dateTime: DateTime
   get() = DateTime.fromUnix(utcTimestamp.millis)
+
+private fun GitTreeDiff.flattenToString(): String {
+  return joinToString(prefix = " • ", separator = "\n • ", postfix = "\n")
+}
