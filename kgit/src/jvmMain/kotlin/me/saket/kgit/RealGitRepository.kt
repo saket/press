@@ -14,11 +14,13 @@ import org.eclipse.jgit.api.RebaseCommand.Operation.ABORT
 import org.eclipse.jgit.api.RebaseResult.Status.STOPPED
 import org.eclipse.jgit.api.ResetCommand.ResetType.HARD
 import org.eclipse.jgit.api.TransportConfigCallback
+import org.eclipse.jgit.api.errors.JGitInternalException
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.ADD
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.COPY
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.DELETE
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.MODIFY
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.RENAME
+import org.eclipse.jgit.errors.RepositoryNotFoundException
 import org.eclipse.jgit.lib.BranchConfig.BranchRebaseMode.REBASE
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.UserConfig
@@ -56,7 +58,7 @@ internal actual class RealGitRepository actual constructor(
 ) : GitRepository {
 
   private val directory = JavaFile(directoryPath)
-  private val jgit = JGit.init().setDirectory(directory).call()
+  private val jgit: JGit = initOrOpenGit()
 
   init {
     jgit.remoteAdd()
@@ -76,6 +78,25 @@ internal actual class RealGitRepository actual constructor(
           repoConfig.setString(section.name, null, key, value)
         }
       }
+    }
+  }
+
+  private fun initOrOpenGit(): JGit {
+    val dotGit = JavaFile(directory, ".git")
+    val run = {
+      if (!dotGit.exists()) {
+        JGit.init().setDirectory(directory).call()
+      }
+      JGit.open(directory)
+    }
+
+    return try {
+      run()
+    } catch (e: Throwable) {
+      // .git exists but not all required files
+      // are present. Bad init. Try from scratch.
+      dotGit.deleteRecursively()
+      run()
     }
   }
 
