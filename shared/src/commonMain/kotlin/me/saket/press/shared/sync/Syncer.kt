@@ -10,7 +10,7 @@ import me.saket.press.shared.sync.Syncer.Status
 /** Syncs notes with a remote destination. */
 abstract class Syncer {
 
-  internal abstract fun status(): Observable<Status>
+  internal abstract fun status(): Observable<Pair<Status, LastSyncedAt?>>
 
   /**
    * Called every time a note's content is updated,
@@ -24,8 +24,10 @@ abstract class Syncer {
     object Disabled : Status()
     object InFlight : Status()
     object Failed : Status()
-    data class Idle(val lastSyncedAt: DateTime?) : Status()
+    object Idle : Status()
   }
 }
+
+inline class LastSyncedAt(val value: DateTime)
 
 fun Syncer.syncCompletable() = completableFromFunction { sync() }

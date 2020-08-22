@@ -26,6 +26,7 @@ import me.saket.kgit.isKnownError
 import me.saket.press.PressDatabase
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.settings.Setting
+import me.saket.press.shared.sync.LastSyncedAt
 import me.saket.press.shared.sync.SyncState
 import me.saket.press.shared.sync.SyncState.IN_FLIGHT
 import me.saket.press.shared.sync.SyncState.PENDING
@@ -54,7 +55,7 @@ class GitSyncer(
   private val database: PressDatabase,
   private val deviceInfo: DeviceInfo,
   private val clock: Clock,
-  private val lastSyncedAt: Setting<DateTime>
+  private val lastSyncedAt: Setting<LastSyncedAt>
 ) : Syncer() {
 
   private val noteQueries get() = database.noteQueries
@@ -74,21 +75,12 @@ class GitSyncer(
   }
 
   companion object {
-    private val status = BehaviorSubject<Status>(Idle(lastSyncedAt = null))
+    private val status = BehaviorSubject<Status>(Idle)
   }
 
-  init {
-    if (status.value == Idle(null)) {
-      status.onNext(Idle(lastSyncedAt.get()))
-    }
-  }
-
-  override fun status(): Observable<Status> {
+  override fun status(): Observable<Pair<Status, LastSyncedAt?>> {
     return combineLatest(config.listen(), status) { config, status ->
-      when (config) {
-        null -> Disabled
-        else -> status
-      }
+      (if (config == null) Disabled else status) to lastSyncedAt.get()
     }
   }
 
@@ -107,9 +99,8 @@ class GitSyncer(
         processCommits(pullResult)
         push(pullResult, commitResult)
       }
-
-      lastSyncedAt.set(clock.nowUtc())
-      status.onNext(Idle(lastSyncedAt.get()))
+      lastSyncedAt.set(LastSyncedAt(clock.nowUtc()))
+      status.onNext(Idle)
 
     } catch (e: Throwable) {
       status.onNext(Failed)

@@ -66,8 +66,8 @@ class SharedSyncComponent {
       Setting.create(
           settings = get(),
           key = "last_synced_at",
-          from = { DateTimeAdapter.decode(it) },
-          to = { DateTimeAdapter.encode(it) },
+          from = { LastSyncedAt(DateTimeAdapter.decode(it)) },
+          to = { DateTimeAdapter.encode(it.value) },
           defaultValue = null
       )
     }

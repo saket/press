@@ -1,15 +1,12 @@
 package me.saket.press.shared.sync
 
-import com.badoo.reaktive.completable.asObservable
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.ObservableWrapper
 import com.badoo.reaktive.observable.distinctUntilChanged
-import com.badoo.reaktive.observable.flatMapCompletable
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.observeOn
 import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.wrap
-import com.soywiz.klock.DateTime
 import com.soywiz.klock.days
 import com.soywiz.klock.hours
 import com.soywiz.klock.minutes
@@ -49,7 +46,7 @@ class SyncPreferencesPresenter(
 
   override fun uiModels(): ObservableWrapper<SyncPreferencesUiModel> {
     val models = syncer.status()
-        .map { status ->
+        .map { (status, lastSyncedAt) ->
           when (status) {
             is Disabled -> SyncDisabled(
                 availableGitHosts = GitHost.values().toList()
@@ -58,8 +55,8 @@ class SyncPreferencesPresenter(
               val statusText = when (status) {
                 is Disabled -> error("can't")
                 is InFlight -> strings.sync.status_in_flight
-                is Failed -> strings.sync.status_failed
-                is Idle -> relativeSyncTimestamp(status.lastSyncedAt)
+                is Failed -> "${strings.sync.status_failed} ${relativeSyncTimestamp(lastSyncedAt)}."
+                is Idle -> relativeSyncTimestamp(lastSyncedAt)
               }
               SyncEnabled(
                   setupInfo = "Syncing is enabled",
@@ -74,12 +71,12 @@ class SyncPreferencesPresenter(
         .wrap()
   }
 
-  private fun relativeSyncTimestamp(lastSyncedAt: DateTime?): String {
+  private fun relativeSyncTimestamp(lastSyncedAt: LastSyncedAt?): String {
     return if (lastSyncedAt == null) {
       strings.sync.status_last_synced_never
 
     } else {
-      val timePassed = clock.nowUtc() - lastSyncedAt
+      val timePassed = clock.nowUtc() - lastSyncedAt.value
       strings.sync.status_last_synced_x_ago.format(
           when {
             timePassed < 1.minutes -> strings.sync.timestamp_now

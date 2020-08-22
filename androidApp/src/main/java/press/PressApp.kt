@@ -3,7 +3,6 @@ package press
 import android.app.Application
 import android.os.Looper
 import com.soywiz.klock.seconds
-import io.reactivex.Observable
 import io.reactivex.android.plugins.RxAndroidPlugins
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -11,8 +10,6 @@ import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers.io
 import me.saket.press.shared.di.SharedComponent
 import me.saket.press.shared.sync.Syncer
-import me.saket.press.shared.sync.Syncer.Status.Disabled
-import me.saket.press.shared.sync.git.statusRx2
 import me.saket.press.shared.sync.git.syncRx2
 import press.di.AppComponent
 import press.extensions.interval
