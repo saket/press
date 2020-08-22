@@ -228,7 +228,7 @@ class GitSyncer(
       val notePath = noteFile.relativePathIn(directory)
       val oldPath = oldFile?.relativePathIn(directory)
 
-      if (notePath in pulledPathsToDiff) {
+      if (notePath in pulledPathsToDiff && note.content != noteFile.read()) {
         // File's content is going to change in a conflicting way.
         noteFile.copy(register.findNewNameOnConflict(noteFile)).let {
           it.write(note.content)
@@ -238,7 +238,7 @@ class GitSyncer(
       } else if (oldPath in pulledPathsToDiff) {
         // Old path was updated on remote, but deleted locally.
         noteFile.write(note.content)
-        log(" • created $notePath as a new note to resolve merge conflict")
+        log(" • created $notePath as a new note to resolve merge conflict (old path = $oldPath)")
 
       } else {
         acceptRename()

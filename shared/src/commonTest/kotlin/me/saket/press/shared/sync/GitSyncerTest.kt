@@ -50,7 +50,8 @@ class GitSyncerTest : BaseDatabaeTest() {
   private val clock = FakeClock()
   private val config = GitSyncerConfig(
       remote = GitRepositoryInfo(
-          authorAndName = "ignored",
+          owner = "ignored",
+          name = "ignored",
           url = "ignored",
           sshUrl = BuildKonfig.GIT_TEST_REPO_SSH_URL,
           defaultBranch = BuildKonfig.GIT_TEST_REPO_BRANCH
@@ -201,7 +202,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     )
   }
 
-  @Test fun `merge local and remote notes without conflicts`() {
+  @Test fun `merge unique local and remote notes without conflicts`() {
     if (!canRunTests()) return
 
     // Given: Remote and local notes are saved in mixed order.
@@ -263,6 +264,34 @@ class GitSyncerTest : BaseDatabaeTest() {
         "nicolas_cage.md" to "# Nicolas Cage \nis a national treasure",
         "witcher_3.md" to "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures"
     )
+  }
+
+  @Test fun `merging local and remote notes with the same ID without conflicts`() {
+    if (!canRunTests()) return
+
+    val noteId = NoteId.generate()
+
+    RemoteRepositoryRobot {
+      createRecord("uncharted.md", noteId)
+      commitFiles(
+          message = "Create 'uncharted.md",
+          add = listOf("uncharted.md" to "# Uncharted\nThe Lost Legacy")
+      )
+      forcePush()
+    }
+
+    noteQueries.testInsert(
+        fakeNote(
+            content = "# Uncharted\nThe Lost Legacy",
+            id = noteId
+        )
+    )
+
+    syncer.sync()
+
+    val syncedNotes = noteQueries.allNotes().executeAsList()
+    assertThat(syncedNotes).hasSize(1)
+    assertThat(syncedNotes.map { it.id }).containsExactly(noteId)
   }
 
   @Test fun `merge local and remote notes with content conflict`() {
@@ -604,6 +633,8 @@ class GitSyncerTest : BaseDatabaeTest() {
   }
 
   @Test fun `notes are re-synced when syncing is re-enabled`() {
+    if (!canRunTests()) return
+
     val note = fakeNote(content = "# Potter\nYou're a wizard Harry", clock = clock)
     noteQueries.testInsert(note)
 
