@@ -123,9 +123,7 @@ class SyncPreferencesView @AssistedInject constructor(
 private class SyncDisabledView(context: Context) : ContourLayout(context) {
   private val messageView = themed(TextView(context, TextStyles.Secondary)).apply {
     text = context.strings().sync.sync_disabled_message
-    themeAware {
-      textColor = it.textColorPrimary
-    }
+    themeAware { textColor = it.textColorPrimary }
     applyLayout(
         x = matchParentX(),
         y = topTo { parent.top() }
@@ -147,9 +145,10 @@ private class SyncDisabledView(context: Context) : ContourLayout(context) {
   fun render(model: SyncDisabled, onClick: (GitHost) -> Unit) {
     gitHostButtons.removeAllViews()
     model.availableGitHosts.forEach { host ->
-      val button = themed(PressButton(context)).apply {
-        text = context.strings().sync.setup_sync_with_host.format(host.displayName())
-        setOnClickListener { onClick(host) }
+      val button = themed(PressButton(context)).also {
+        it.text = context.strings().sync.setup_sync_with_host.format(host.displayName())
+        it.themeAware { palette -> it.textColor = palette.textColorPrimary }
+        it.setOnClickListener { onClick(host) }
       }
       gitHostButtons.addView(button, WRAP_CONTENT, WRAP_CONTENT)
       button.updateMargins(bottom = dp(8))
@@ -158,16 +157,16 @@ private class SyncDisabledView(context: Context) : ContourLayout(context) {
 }
 
 private class SyncEnabledView(context: Context) : ContourLayout(context) {
-  private val setupInfoView = themed(TextView(context)).apply {
-    TextStyles.Secondary.applyStyle(this)
+  private val setupInfoView = themed(TextView(context, TextStyles.Secondary)).apply {
+    themeAware { textColor = it.textColorPrimary }
     applyLayout(
         x = matchParentX(),
         y = topTo { parent.top() }
     )
   }
 
-  private val statusView = themed(TextView(context)).apply {
-    TextStyles.Secondary.applyStyle(this)
+  private val statusView = themed(TextView(context, TextStyles.Secondary)).apply {
+    themeAware { textColor = it.textColorPrimary }
     applyLayout(
         x = matchParentX(),
         y = topTo { setupInfoView.bottom() + 16.ydip }
@@ -175,6 +174,7 @@ private class SyncEnabledView(context: Context) : ContourLayout(context) {
   }
 
   val disableButton = themed(PressButton(context)).apply {
+    themeAware { textColor = it.textColorPrimary }
     text = "Disable sync on this device"
     applyLayout(
         x = leftTo { parent.left() },
