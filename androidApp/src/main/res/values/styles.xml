@@ -11,6 +11,8 @@
 
     <item name="android:windowBackground">@color/default_window_background</item>
     <item name="android:statusBarColor">@color/default_window_background</item>
+
+    <item name="recyclerViewStyle">@style/DefaultRecyclerViewStyle</item>
   </style>
 
   <style name="AppTheme.TransparentWindow">
@@ -21,5 +23,10 @@
 
   <style name="DefaultEditTextStyle" parent="Widget.AppCompat.EditText">
     <item name="android:textCursorDrawable">@drawable/tinted_cursor_drawable</item>
+  </style>
+
+  <style name="DefaultRecyclerViewStyle">
+    <item name="android:scrollbars">vertical</item>
+    <item name="android:scrollbarStyle">insideOverlay</item>
   </style>
 </resources>
