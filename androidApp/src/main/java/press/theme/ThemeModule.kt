@@ -11,5 +11,6 @@ object ThemeModule {
 
   @Provides
   fun palette(): Observable<ThemePalette> =
+    // todo: share stream
     Observable.just(DraculaThemePalette)
 }

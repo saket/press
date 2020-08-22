@@ -3,14 +3,19 @@ package me.saket.press.shared.rx
 import com.badoo.reaktive.completable.asObservable
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.asCompletable
+import com.badoo.reaktive.observable.combineLatest
 import com.badoo.reaktive.observable.delay
 import com.badoo.reaktive.observable.doOnBeforeNext
 import com.badoo.reaktive.observable.filter
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observableInterval
+import com.badoo.reaktive.observable.publish
+import com.badoo.reaktive.observable.skip
 import com.badoo.reaktive.observable.startWithValue
 import com.badoo.reaktive.observable.switchMap
+import com.badoo.reaktive.observable.take
+import com.badoo.reaktive.observable.throttle
 import com.badoo.reaktive.observable.withLatestFrom
 import com.badoo.reaktive.scheduler.Scheduler
 import com.soywiz.klock.TimeSpan
@@ -59,4 +64,8 @@ internal fun <T> Observable<T>.repeatWhen(other: Observable<*>): Observable<T> {
   return switchMap { item ->
     other.map { item }.startWithValue(item)
   }
+}
+
+internal fun <T, R> Observable<T>.combineLatestWith(other: Observable<R>): Observable<Pair<T, R>> {
+  return combineLatest(this, other, ::Pair)
 }

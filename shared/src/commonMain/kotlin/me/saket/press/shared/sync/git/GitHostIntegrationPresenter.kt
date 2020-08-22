@@ -8,6 +8,8 @@ import com.badoo.reaktive.completable.subscribe
 import com.badoo.reaktive.completable.subscribeOn
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.ObservableWrapper
+import com.badoo.reaktive.observable.debounce
+import com.badoo.reaktive.observable.distinctUntilChanged
 import com.badoo.reaktive.observable.filter
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
@@ -20,12 +22,12 @@ import com.badoo.reaktive.observable.switchMap
 import com.badoo.reaktive.observable.take
 import com.badoo.reaktive.observable.wrap
 import com.badoo.reaktive.single.asObservable
-import com.badoo.reaktive.single.map
 import com.russhwolf.settings.ExperimentalListener
 import io.ktor.client.HttpClient
 import me.saket.kgit.SshKeygen
 import me.saket.kgit.generateRsa
 import me.saket.press.shared.rx.Schedulers
+import me.saket.press.shared.rx.combineLatestWith
 import me.saket.press.shared.rx.consumeOnNext
 import me.saket.press.shared.rx.filterNotNull
 import me.saket.press.shared.rx.repeatWhen
@@ -35,10 +37,12 @@ import me.saket.press.shared.sync.git.FailureKind.Authorization
 import me.saket.press.shared.sync.git.FailureKind.FetchingRepos
 import me.saket.press.shared.sync.git.GitHostIntegrationEvent.GitRepositoryClicked
 import me.saket.press.shared.sync.git.GitHostIntegrationEvent.RetryClicked
+import me.saket.press.shared.sync.git.GitHostIntegrationEvent.SearchTextChanged
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.SelectRepo
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowFailure
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowProgress
 import me.saket.press.shared.sync.git.service.GitHostService
+import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 import me.saket.press.shared.sync.syncCompletable
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
@@ -85,17 +89,23 @@ class GitHostIntegrationPresenter(
   }
 
   private fun populateRepositories(events: Observable<GitHostIntegrationEvent>): Observable<GitHostIntegrationUiModel> {
+    val searchEvents = events
+        .ofType<SearchTextChanged>()
+        .map { it.text }
+        .startWithValue("")
+
     return authToken.listen()
         .filterNotNull()
         .take(1)
         .repeatOnRetry(events, kind = FetchingRepos)
         .switchMap { token ->
-          gitHostService.fetchUserRepos(token)
-              .map { repos -> SelectRepo(repos) }
-              .asObservable()
+          gitHostService.fetchUserRepos(token).asObservable()
+              .combineLatestWith(searchEvents)
+              .map { (repos, searchText) -> SelectRepo(repos.toUiModels(searchText)) }
               .onErrorReturnValue(ShowFailure(kind = FetchingRepos))
               .startWithValue(defaultUiModel())
         }
+        .distinctUntilChanged()
   }
 
   private fun selectRepository(events: Observable<GitHostIntegrationEvent>): Observable<GitHostIntegrationUiModel> {
@@ -139,3 +149,21 @@ class GitHostIntegrationPresenter(
     val navigator: Navigator
   )
 }
+
+private fun List<GitRepositoryInfo>.toUiModels(searchText: String): List<RepoUiModel> {
+  val filtered = when {
+    searchText.isBlank() -> this
+    else -> filter {
+      it.owner.contains(searchText, ignoreCase = true) || it.name.contains(searchText, ignoreCase = true)
+    }
+  }
+  return filtered.map {
+    RepoUiModel(
+        id = it.ownerAndName,
+        owner = HighlightedText.from(it.owner, searchText),
+        name = HighlightedText.from(it.name, searchText),
+        repo = it
+    )
+  }
+}
+

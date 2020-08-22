@@ -19,17 +19,18 @@ import androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.attaches
 import com.jakewharton.rxbinding3.view.detaches
+import io.reactivex.Observable
 import me.saket.press.R
 import me.saket.press.shared.theme.ThemePalette
 import press.PressApp
+import press.extensions.findTitleView
 import press.extensions.onDestroys
+import press.extensions.textColor
 import press.widgets.PorterDuffColorFilterWrapper
 import press.widgets.PressButton
 import press.widgets.ScrollViewCompat
-import press.extensions.findTitleView
-import press.extensions.textColor
 
-fun themePalette() = PressApp.component.themePalette()
+fun themePalette(): Observable<ThemePalette> = PressApp.component.themePalette()
 
 fun View.themeAware(onThemeChange: (ThemePalette) -> Unit) {
   attaches()
@@ -66,6 +67,7 @@ fun <T : EditText> themed(view: T): T = view.apply {
   themeAware { palette ->
     selectionHandleDrawables.forEach { it.setColorFilter(palette.accentColor, SRC_IN) }
     highlightColor = palette.textHighlightColor
+    setHintTextColor(palette.textColorSecondary)
   }
 }
 

@@ -16,6 +16,7 @@ import me.saket.press.shared.localization.strings
 import me.saket.press.shared.sync.git.GitHost
 import me.saket.press.shared.sync.git.GitHostIntegrationEvent.GitRepositoryClicked
 import me.saket.press.shared.sync.git.GitHostIntegrationEvent.RetryClicked
+import me.saket.press.shared.sync.git.GitHostIntegrationEvent.SearchTextChanged
 import me.saket.press.shared.sync.git.GitHostIntegrationPresenter
 import me.saket.press.shared.sync.git.GitHostIntegrationPresenter.Args
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel
@@ -24,11 +25,13 @@ import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowFailure
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowProgress
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
+import press.extensions.doOnTextChange
 import press.extensions.hideKeyboard
 import press.navigator
 import press.theme.themeAware
 import press.theme.themed
 import press.widgets.PressToolbar
+import press.widgets.SlideDownItemAnimator
 import kotlin.math.abs
 
 class GitHostIntegrationView @AssistedInject constructor(
@@ -65,6 +68,7 @@ class GitHostIntegrationView @AssistedInject constructor(
   private val recyclerView = themed(RecyclerView(context)).apply {
     layoutManager = LinearLayoutManager(context)
     adapter = repoAdapter
+    itemAnimator = SlideDownItemAnimator().apply { supportsChangeAnimations = false }
     applyLayout(
         x = matchParentX(),
         y = topTo { searchView.bottom() }.bottomTo { parent.bottom() }
@@ -105,8 +109,12 @@ class GitHostIntegrationView @AssistedInject constructor(
 
     repoAdapter.onClick = {
       ConfirmRepoSelectionDialog.show(context, repo = it, onConfirm = {
+        hideKeyboard()
         presenter.dispatch(GitRepositoryClicked(it))
       })
+    }
+    searchView.editText!!.doOnTextChange {
+      presenter.dispatch(SearchTextChanged(it.toString()))
     }
 
     presenter.uiUpdates()
@@ -128,7 +136,11 @@ class GitHostIntegrationView @AssistedInject constructor(
           presenter.dispatch(RetryClicked(model.kind))
         }
       }
-      is SelectRepo -> repoAdapter.submitList(model.repositories)
+      is SelectRepo -> {
+        repoAdapter.submitList(model.repositories) {
+          recyclerView.scrollToPosition(0)
+        }
+      }
     }
   }
 

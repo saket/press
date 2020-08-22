@@ -96,21 +96,6 @@ inline fun EditText.doOnTextChange(crossinline action: (Editable) -> Unit) {
   })
 }
 
-val View.parentView: ViewGroup get() = parent as ViewGroup
-
-inline fun View.doOnAttach(crossinline action: () -> Unit) {
-  if (isAttachedToWindow) {
-    action()
-  }
-  addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
-    override fun onViewDetachedFromWindow(v: View) = Unit
-    override fun onViewAttachedToWindow(v: View) =
-      removeOnAttachStateChangeListener(this).also {
-        action()
-      }
-  })
-}
-
 inline fun View.updateMargins(bottom: Int) {
   updateLayoutParams<MarginLayoutParams> {
     bottomMargin = bottom
