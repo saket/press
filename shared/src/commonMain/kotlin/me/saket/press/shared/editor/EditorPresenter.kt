@@ -9,13 +9,11 @@ import com.badoo.reaktive.completable.subscribeOn
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.ObservableWrapper
 import com.badoo.reaktive.observable.distinctUntilChanged
-import com.badoo.reaktive.observable.filter
 import com.badoo.reaktive.observable.flatMapCompletable
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observableOfEmpty
 import com.badoo.reaktive.observable.ofType
-import com.badoo.reaktive.observable.refCount
 import com.badoo.reaktive.observable.replay
 import com.badoo.reaktive.observable.take
 import com.badoo.reaktive.observable.withLatestFrom
@@ -29,7 +27,6 @@ import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.note.NoteRepository
 import me.saket.press.shared.rx.Schedulers
-import me.saket.press.shared.rx.consumeOnNext
 import me.saket.press.shared.rx.mapToOptional
 import me.saket.press.shared.rx.mapToSome
 import me.saket.press.shared.rx.observableInterval
