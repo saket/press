@@ -7,6 +7,7 @@ import io.reactivex.android.plugins.RxAndroidPlugins
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.Observables
+import io.reactivex.schedulers.Schedulers.computation
 import io.reactivex.schedulers.Schedulers.io
 import me.saket.press.shared.di.SharedComponent
 import me.saket.press.shared.sync.Syncer
@@ -36,7 +37,6 @@ abstract class PressApp : Application() {
 
     // todo: use workmanager to schedule syncing in the background.
     syncDisposable = Observables.interval(30.seconds, initial = 0)
-        .observeOn(io())
         .flatMapCompletable {
           syncer.syncRx2()
               .doOnError { e -> Timber.e(e, "Failed to sync notes") }

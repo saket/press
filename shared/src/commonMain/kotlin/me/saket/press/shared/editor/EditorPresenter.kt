@@ -155,8 +155,9 @@ class EditorPresenter(
         .subscribeOn(schedulers.io)
         .subscribe()
 
+    // todo: somehow delegate this to the platforms so that the sync call is a single place.
     syncer.syncCompletable()
-        .subscribeOn(schedulers.io)
+        .subscribeOn(schedulers.computation)
         .onErrorComplete()
         .subscribe()
   }
