@@ -4,12 +4,13 @@ import com.benasher44.uuid.Uuid
 import com.benasher44.uuid.uuid4
 import com.benasher44.uuid.uuidFrom
 import com.squareup.sqldelight.ColumnAdapter
-import kotlinx.serialization.Decoder
-import kotlinx.serialization.Encoder
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.PrimitiveDescriptor
-import kotlinx.serialization.PrimitiveKind.STRING
 import kotlinx.serialization.Serializer
+import kotlinx.serialization.descriptors.PrimitiveKind.STRING
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
 // Inline class would have been nice if Kotlin multiplatform supported it.
 data class NoteId(val value: Uuid) {
@@ -19,8 +20,9 @@ data class NoteId(val value: Uuid) {
   }
 
   @Serializer(forClass = NoteId::class)
+  @OptIn(ExperimentalSerializationApi::class)
   object SerializationAdapter : KSerializer<NoteId> {
-    override val descriptor = PrimitiveDescriptor("NoteId", STRING)
+    override val descriptor = PrimitiveSerialDescriptor("NoteId", STRING)
 
     override fun serialize(encoder: Encoder, value: NoteId) =
       encoder.encodeString(value.value.toString())

@@ -39,6 +39,7 @@ android {
 
   packagingOptions {
     exclude 'META-INF/*'
+    exclude 'plugin.properties'
   }
 
   testOptions {

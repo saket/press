@@ -1,13 +1,10 @@
-plugins {
-  id 'org.jetbrains.kotlin.plugin.serialization' version '1.3.70'
-}
-
 apply plugin: "com.android.library"
 apply plugin: "kotlin-multiplatform"
 apply plugin: "kotlin-android-extensions"
 apply plugin: "com.squareup.sqldelight"
 apply plugin: "org.jetbrains.kotlin.native.cocoapods"
 apply plugin: "com.codingfeline.buildkonfig"
+apply plugin: 'kotlinx-serialization'
 
 android {
   compileSdkVersion versions.compileSdk
@@ -79,10 +76,10 @@ kotlin {
         implementation deps.stately.isolate
         implementation deps.stately.isoCollections
         implementation deps.multiplatformSettings.core
-        implementation deps.ktor.client.common
-        implementation deps.ktor.kotlinxSerialization.common
-        implementation deps.ktor.logger.common
-        implementation deps.kotlinxSerialization.common
+        implementation deps.ktor.client.core
+        implementation deps.ktor.logger
+        implementation deps.ktor.kotlinxSerialization
+        implementation deps.kotlinxSerialization
       }
     }
     commonTest {
@@ -106,9 +103,6 @@ kotlin {
         implementation deps.reaktive.interop.rxJava2
         implementation deps.sqlDelight.driver.android
         implementation deps.ktor.client.okHttp
-        implementation deps.ktor.kotlinxSerialization.jvm
-        implementation deps.kotlinxSerialization.jvm
-        implementation deps.ktor.logger.jvm
         implementation deps.okio
       }
     }
@@ -123,17 +117,11 @@ kotlin {
     nativeMain {
       dependencies {
         implementation deps.sqlDelight.driver.native
-        implementation deps.ktor.client.native
-        implementation deps.ktor.kotlinxSerialization.native
-        implementation deps.ktor.logger.native
-        implementation deps.kotlinxSerialization.native
+        implementation deps.ktor.client.cio
       }
     }
     macosMain {
       dependsOn(nativeMain)
-      dependencies {
-        implementation deps.ktor.client.curl
-      }
     }
     macosTest {}
     iosMain {

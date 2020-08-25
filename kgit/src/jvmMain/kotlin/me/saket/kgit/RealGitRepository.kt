@@ -279,7 +279,6 @@ internal actual class RealGitRepository actual constructor(
     return diffBetween(parent?.let(::GitCommit), commit)
   }
 
-  // todo: rename to changesBetween()
   override fun diffBetween(from: GitCommit?, to: GitCommit): GitTreeDiff {
     val fromTree = from?.commit?.tree
     val toTree = to.commit.tree

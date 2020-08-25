@@ -10,7 +10,6 @@ import io.ktor.client.features.logging.Logger
 import io.ktor.client.features.logging.Logging
 import io.ktor.client.features.logging.SIMPLE
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration.Companion.Stable
 import me.saket.kgit.RealGit
 import me.saket.press.shared.db.DateTimeAdapter
 import me.saket.press.shared.di.koin
@@ -29,11 +28,12 @@ class SharedSyncComponent {
   val module = module {
     single { httpClient(get()) }
     single {
-      Json(Stable.copy(
-        prettyPrint = true,
-        ignoreUnknownKeys = true,
+      Json(from = Json.Default) {
+        prettyPrint = true
+        ignoreUnknownKeys = true
         useArrayPolymorphism = true
-      ))
+        isLenient = false
+      }
     }
 
     factory {
@@ -99,8 +99,8 @@ class SharedSyncComponent {
     return Setting.create(
         settings = settings,
         key = "gitsyncer_config",
-        from = { serialized -> json.parse(GitSyncerConfig.serializer(), serialized) },
-        to = { deserialized -> json.stringify(GitSyncerConfig.serializer(), deserialized) },
+        from = { serialized -> json.decodeFromString(GitSyncerConfig.serializer(), serialized) },
+        to = { deserialized -> json.encodeToString(GitSyncerConfig.serializer(), deserialized) },
         defaultValue = null
     )
   }

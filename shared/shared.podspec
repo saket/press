@@ -12,6 +12,10 @@ Pod::Spec.new do |spec|
     spec.libraries                = "c++", 'sqlite3'
     spec.module_name              = "#{spec.name}_umbrella"
 
+                
+
+                
+
     spec.pod_target_xcconfig = {
         'KOTLIN_TARGET[sdk=iphonesimulator*]' => 'ios_x64',
         'KOTLIN_TARGET[sdk=iphoneos*]' => 'ios_arm',

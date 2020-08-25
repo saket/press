@@ -2,7 +2,7 @@ package me.saket.kgit
 
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.KeyPair
-import kotlinx.io.ByteArrayOutputStream
+import java.io.ByteArrayOutputStream
 
 /**
  * @param comment text to add at the end of the public key for identifying
@@ -11,13 +11,13 @@ import kotlinx.io.ByteArrayOutputStream
 actual fun SshKeygen.generateRsa(comment: String): SshKeyPair {
   val keyPair: KeyPair = KeyPair.genKeyPair(JSch(), KeyPair.RSA)
 
-  var publicKey = ""
+  var publicKey: String
   ByteArrayOutputStream().use { stream ->
     keyPair.writePublicKey(stream, comment)
     publicKey = stream.toString()
   }
 
-  var privateKey = ""
+  var privateKey: String
   ByteArrayOutputStream().use { stream ->
     keyPair.writePrivateKey(stream)
     privateKey = stream.toString()

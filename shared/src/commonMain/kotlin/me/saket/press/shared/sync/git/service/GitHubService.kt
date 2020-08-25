@@ -16,7 +16,6 @@ import io.ktor.http.ContentType.Application
 import io.ktor.http.URLBuilder
 import io.ktor.http.Url
 import io.ktor.http.contentType
-import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.Serializable
 import me.saket.kgit.SshKeyPair
 import me.saket.press.shared.BuildKonfig
@@ -48,7 +47,7 @@ class GitHubService(private val http: HttpClient) : GitHostService {
     }
   }
 
-  @OptIn(ImplicitReflectionSerializer::class, ExperimentalStdlibApi::class)
+  @OptIn(ExperimentalStdlibApi::class)
   override fun fetchUserRepos(token: GitHostAuthToken): Single<List<GitRepositoryInfo>> {
     return singleFromCoroutine {
       var pageNum = 1
