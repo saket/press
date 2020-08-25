@@ -35,9 +35,7 @@ kotlin {
 
   sourceSets {
     commonMain {
-      dependencies {
-        implementation kotlin('stdlib-common')
-      }
+      dependencies {}
     }
     commonTest {
       dependencies {

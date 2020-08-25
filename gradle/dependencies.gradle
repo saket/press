@@ -100,13 +100,6 @@ buildscript {
       'core': 'org.threeten:threetenbp:1.3.8:no-tzdb',
       'lazy': 'com.gabrielittner.threetenbp:lazythreetenbp:0.5.0',
     ],
-
-    'kotlin': [
-      'stdlib': [
-        'jdk8': "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions.kotlin}",
-        'common': "org.jetbrains.kotlin:kotlin-stdlib-common:${versions.kotlin}",
-      ],
-    ],
     'contour': "app.cash.contour:contour:$versions.contour",
     'flexmark': [
       'core': "com.vladsch.flexmark:flexmark-java:$versions.flexmark",

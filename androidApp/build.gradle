@@ -54,7 +54,6 @@ dependencies {
   implementation project(':shared')
   implementation project(':resourceinterceptor')
 
-  implementation deps.kotlin.stdlib.jdk8
   implementation deps.androidx.appCompat
   implementation deps.androidx.recyclerView
   implementation deps.androidx.browser

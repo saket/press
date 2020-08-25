@@ -18,7 +18,6 @@ kotlin {
   sourceSets {
     commonMain {
       dependencies {
-        implementation kotlin('stdlib-common')
         implementation deps.stately.concurrency
         implementation deps.kotlinxSerialization
       }
@@ -31,7 +30,6 @@ kotlin {
     }
     jvmMain {
       dependencies {
-        implementation kotlin('stdlib-jdk8')
         implementation "org.eclipse.jgit:org.eclipse.jgit:5.7.0.202003110725-r"
       }
     }

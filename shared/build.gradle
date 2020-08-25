@@ -62,7 +62,6 @@ kotlin {
   sourceSets {
     commonMain {
       dependencies {
-        implementation kotlin('stdlib-common')
         implementation project(':wysiwyg')
         implementation project(':kgit')
         implementation deps.reaktive.core.common
@@ -95,7 +94,6 @@ kotlin {
     }
     androidMain {
       dependencies {
-        implementation kotlin('stdlib')
         implementation deps.androidx.appCompat
         implementation deps.androidx.preferences
         implementation deps.timber
