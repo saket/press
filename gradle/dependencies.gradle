@@ -16,7 +16,7 @@ buildscript {
     betterLinkMovementMethod: '2.2.0',
 
     // multiplatform dependencies
-    sqlDelight: '1.4.1',
+    sqlDelight: '1.5.0-SNAPSHOT',
     multiplatformUuid: '0.2.1',
     stately: '1.1.0',
     statelyIso: '1.1.0-a1',
