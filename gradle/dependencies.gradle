@@ -29,6 +29,7 @@ buildscript {
     buildKonfig: '0.7.0',
     reaktive: '1.1.17',
     okio: '2.8.0',
+    jgit: '5.8.1.202007141445-r'
   ]
 
   ext.deps = [
