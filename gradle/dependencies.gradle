@@ -17,9 +17,9 @@ buildscript {
 
     // multiplatform dependencies
     sqlDelight: '1.4.0',
-    multiplatformUuid: '0.1.1',
+    multiplatformUuid: '0.2.1',
     stately: '1.0.2',
-    multiplatformSettings: '0.5.1',
+    multiplatformSettings: '0.6.1',
     koin: '3.0.0-alpha-9',
     klock: '1.9.1',
     assertK: '0.22',
