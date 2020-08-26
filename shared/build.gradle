@@ -78,7 +78,8 @@ kotlin {
         implementation deps.ktor.client.core
         implementation deps.ktor.logger
         implementation deps.ktor.kotlinxSerialization
-        implementation deps.kotlinxSerialization
+        implementation deps.kotlinx.serialization
+        implementation (deps.kotlinx.coroutines) { force = true }
       }
     }
     commonTest {
@@ -116,16 +117,26 @@ kotlin {
       dependencies {
         implementation deps.sqlDelight.driver.native
         implementation deps.ktor.client.cio
+        implementation (deps.kotlinx.coroutines) { force = true }
       }
     }
     macosMain {
       dependsOn(nativeMain)
     }
-    macosTest {}
+    nativeTest {
+      dependencies {
+        implementation (deps.kotlinx.coroutines) { force = true }
+      }
+    }
+    macosTest {
+      dependsOn(nativeTest)
+    }
     iosMain {
       dependsOn(nativeMain)
     }
-    iosTest {}
+    iosTest {
+      dependsOn(nativeTest)
+    }
 
     all {
       languageSettings {

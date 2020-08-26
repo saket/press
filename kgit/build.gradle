@@ -19,7 +19,7 @@ kotlin {
     commonMain {
       dependencies {
         implementation deps.stately.concurrency
-        implementation deps.kotlinxSerialization
+        implementation deps.kotlinx.serialization
       }
     }
     commonTest {

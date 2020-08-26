@@ -26,10 +26,11 @@ buildscript {
     assertK: '0.22',
     ktor: '1.4.0',
     kotlinxSerialization: '1.0.0-RC',
+    kotlinxCoroutinesNativeMt: '1.3.9-native-mt',
     buildKonfig: '0.7.0',
     reaktive: '1.1.17',
     okio: '2.8.0',
-    jgit: '5.8.1.202007141445-r'
+    jgit: '5.8.1.202007141445-r',
   ]
 
   ext.deps = [
@@ -176,6 +177,9 @@ buildscript {
       'logger': "io.ktor:ktor-client-logging:$versions.ktor",
       'kotlinxSerialization': "io.ktor:ktor-client-serialization:$versions.ktor"
     ],
-    'kotlinxSerialization': "org.jetbrains.kotlinx:kotlinx-serialization-core:$versions.kotlinxSerialization",
+    'kotlinx': [
+      'serialization': "org.jetbrains.kotlinx:kotlinx-serialization-core:$versions.kotlinxSerialization",
+      'coroutines': "org.jetbrains.kotlinx:kotlinx-coroutines-core:$versions.kotlinxCoroutinesNativeMt"
+    ]
   ]
 }
