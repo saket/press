@@ -61,7 +61,7 @@ class GitSyncer(
   private val directory = File(deviceInfo.appStorage, "git")
   private val register = FileNameRegister(directory)
   private val remote: GitRepositoryInfo? get() = config.get()?.remote
-  private val loggers = SyncLoggers(PrintLnSyncLogger)
+  private val loggers = SyncLoggers(PrintLnSyncLogger, FileBasedSyncLogger(directory))
   private val git = {
     val config = config.get()!!
     git.repository(
@@ -111,12 +111,11 @@ class GitSyncer(
     } catch (e: Throwable) {
       lastOp.onNext(Failed)
       log("Error. ${e::class.simpleName}: ${e.message}")
+      loggers.onSyncComplete()
+
       if (!Git.isKnownError(e)) {
         throw e
       }
-
-    } finally {
-      loggers.onSyncComplete()
     }
   }
 
@@ -429,17 +428,25 @@ class GitSyncer(
       noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = SYNCED)
       log("\nNothing to push.")
 
-    } else when (git.push()) {
-      is Success, is AlreadyUpToDate -> {
-        noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = SYNCED)
-        log("\nChanges pushed")
-      }
-      // Merge conflicts can only be avoided if we always the latest version of upstream.
-      // If push fails, discard any new commits. They'll be recreated on the next sync.
-      is Failure -> {
-        git.hardResetTo(pullResult.headAfter)
-        noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = PENDING)
-        log("\nCouldn't push. Reverted to ${git.headCommit()}")
+    } else {
+      loggers.onSyncComplete()
+      git.commitAll(
+          message = "Update sync logs",
+          timestamp = UtcTimestamp(clock)
+      )
+
+      when (git.push()) {
+        is Success, is AlreadyUpToDate -> {
+          noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = SYNCED)
+          log("\nChanges pushed")
+        }
+        // Merge conflicts can only be avoided if we're always on the latest version of upstream.
+        // If push fails, discard any new commits. They'll be recreated on the next sync.
+        is Failure -> {
+          git.hardResetTo(pullResult.headAfter)
+          noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = PENDING)
+          log("\nCouldn't push. Reverted to ${git.headCommit()}")
+        }
       }
     }
   }

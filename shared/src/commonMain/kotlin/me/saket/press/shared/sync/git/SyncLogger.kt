@@ -3,7 +3,6 @@ package me.saket.press.shared.sync.git
 import co.touchlab.stately.collections.IsoMutableList
 import com.soywiz.klock.DateTime
 
-// TODO: convert to fun interface when kotlin 1.4 is released
 interface SyncLogger {
   fun log(message: String)
   fun onSyncStart() = Unit
@@ -45,7 +44,6 @@ class FileBasedSyncLogger(private val notesDirectory: File) : SyncLogger {
 
   override fun onSyncStart() {
     buffer.clear()
-    if (file.exists) file.delete()
     log("Starting sync on ${DateTime.now()}\n")
   }
 
