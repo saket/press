@@ -227,8 +227,6 @@ class GitSyncer(
     // local copy is being edited right now, but duplicating the remote
     // copy will result in an infinite loop where a new copy is created
     // on every sync on the other device.
-    //
-    // These files will get processed after rebase.
     for (note in pendingSyncNotes) {
       val (noteFile, oldFile, acceptRename) = register.suggestFile(note)
       val notePath = noteFile.relativePathIn(directory)
