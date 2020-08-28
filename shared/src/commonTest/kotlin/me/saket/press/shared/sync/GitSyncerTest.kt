@@ -12,6 +12,7 @@ import assertk.assertions.isNotInstanceOf
 import assertk.assertions.isTrue
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.hours
+import me.saket.kgit.GitAuthor
 import me.saket.kgit.PushResult
 import me.saket.kgit.RealGit
 import me.saket.kgit.SshPrivateKey
@@ -777,7 +778,8 @@ class GitSyncerTest : BaseDatabaeTest() {
     private val gitRepo = RealGit().repository(
         path = directory.path,
         sshKey = config.sshKey,
-        remoteSshUrl = config.remote.sshUrl
+        remoteSshUrl = config.remote.sshUrl,
+        author = GitAuthor("test", "test@test.com")
     )
 
     init {

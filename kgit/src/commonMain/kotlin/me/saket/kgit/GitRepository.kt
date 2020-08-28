@@ -4,7 +4,8 @@ internal expect class RealGitRepository(
   directoryPath: String,
   userConfig: GitConfig,
   remote: GitRemote,
-  sshKey: SshPrivateKey
+  sshKey: SshPrivateKey,
+  author: GitAuthor
 ) : GitRepository
 
 interface GitRepository {
@@ -21,8 +22,7 @@ interface GitRepository {
    */
   fun commitAll(
     message: String,
-    author: GitAuthor? = null,
-    timestamp: UtcTimestamp? = null,
+    timestamp: UtcTimestamp?,
     allowEmpty: Boolean = false
   )
 

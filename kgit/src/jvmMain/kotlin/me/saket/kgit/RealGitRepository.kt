@@ -18,7 +18,6 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType.MODIFY
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.RENAME
 import org.eclipse.jgit.lib.BranchConfig.BranchRebaseMode.REBASE
 import org.eclipse.jgit.lib.PersonIdent
-import org.eclipse.jgit.lib.UserConfig
 import org.eclipse.jgit.merge.StrategyRecursive
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevWalk
@@ -45,7 +44,8 @@ internal actual class RealGitRepository actual constructor(
   directoryPath: String,
   userConfig: GitConfig,
   remote: GitRemote,
-  val sshKey: SshPrivateKey
+  private val sshKey: SshPrivateKey,
+  private val author: GitAuthor
 ) : GitRepository {
 
   private val directory = JavaFile(directoryPath)
@@ -108,12 +108,10 @@ internal actual class RealGitRepository actual constructor(
   @Suppress("NAME_SHADOWING")
   override fun commitAll(
     message: String,
-    author: GitAuthor?,
     timestamp: UtcTimestamp?,
     allowEmpty: Boolean
   ) {
     val author = timestamp?.let {
-      val author = author ?: defaultCommitAuthor()
       PersonIdent(author.name, author.email, Date(it.millis), TimeZone.getTimeZone("UTC"))
     }
 
@@ -144,11 +142,6 @@ internal actual class RealGitRepository actual constructor(
         .setMessage(message)
         .setAuthor(author)
         .call()
-  }
-
-  private fun defaultCommitAuthor(): GitAuthor {
-    val config = jgit.repository.config.get(UserConfig.KEY)
-    return GitAuthor(name = config.authorName, email = config.authorEmail)
   }
 
   override fun pull(rebase: Boolean): GitPullResult {

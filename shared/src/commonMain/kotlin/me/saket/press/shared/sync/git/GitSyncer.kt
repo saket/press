@@ -60,7 +60,6 @@ class GitSyncer(
   private val noteQueries get() = database.noteQueries
   private val directory = File(deviceInfo.appStorage, "git")
   private val register = FileNameRegister(directory)
-  private val gitAuthor = GitAuthor("Saket", "pressapp@saket.me")
   private val remote: GitRepositoryInfo? get() = config.get()?.remote
   private val loggers = SyncLoggers(PrintLnSyncLogger)
   private val git = {
@@ -69,7 +68,8 @@ class GitSyncer(
         path = directory.path,
         sshKey = config.sshKey,
         remoteSshUrl = config.remote.sshUrl,
-        userConfig = GitConfig("diff" to listOf("renames" to "true"))
+        userConfig = GitConfig("diff" to listOf("renames" to "true")),
+        author = GitAuthor("Saket", "pressapp@saket.me")
     )
   }
 
@@ -147,7 +147,6 @@ class GitSyncer(
 
     git.commitAll(
         message = "Setup syncing on '${deviceInfo.deviceName()}'",
-        author = gitAuthor,
         timestamp = UtcTimestamp(clock),
         allowEmpty = true
     )
@@ -258,7 +257,6 @@ class GitSyncer(
           acceptRename()
           git.commitAll(
               message = "Rename '$oldPath' → '$notePath'",
-              author = gitAuthor,
               timestamp = UtcTimestamp(note.updatedAt),
               allowEmpty = false
           )
@@ -272,7 +270,6 @@ class GitSyncer(
       if (git.isStagingAreaDirty()) {
         git.commitAll(
             message = "Update '$notePath'",
-            author = gitAuthor,
             timestamp = UtcTimestamp(note.updatedAt)
         )
       }
@@ -404,7 +401,6 @@ class GitSyncer(
     if (git.isStagingAreaDirty()) {
       git.commitAll(
           message = "Update file name records",
-          author = gitAuthor,
           timestamp = UtcTimestamp(clock)
       )
     }

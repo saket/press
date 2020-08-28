@@ -1,6 +1,7 @@
 package me.saket.press.shared.sync
 
 import me.saket.kgit.Git
+import me.saket.kgit.GitAuthor
 import me.saket.kgit.GitConfig
 import me.saket.kgit.GitRepository
 import me.saket.kgit.PushResult
@@ -14,9 +15,10 @@ class DelegatingGit(private val delegate: Git) : Git {
     path: String,
     sshKey: SshPrivateKey,
     remoteSshUrl: String,
-    userConfig: GitConfig
+    userConfig: GitConfig,
+    author: GitAuthor
   ): GitRepository {
-    return DelegatingGitRepository(this, delegate.repository(path, sshKey, remoteSshUrl, userConfig))
+    return DelegatingGitRepository(this, delegate.repository(path, sshKey, remoteSshUrl, userConfig, author))
   }
 
   class DelegatingGitRepository(

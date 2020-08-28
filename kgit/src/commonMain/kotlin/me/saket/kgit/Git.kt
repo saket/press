@@ -5,7 +5,8 @@ interface Git {
     path: String,
     sshKey: SshPrivateKey,
     remoteSshUrl: String,
-    userConfig: GitConfig = GitConfig()
+    userConfig: GitConfig = GitConfig(),
+    author: GitAuthor
   ): GitRepository
 
   companion object
@@ -16,8 +17,9 @@ class RealGit : Git {
     path: String,
     sshKey: SshPrivateKey,
     remoteSshUrl: String,
-    userConfig: GitConfig
-  ): GitRepository = RealGitRepository(path, userConfig, GitRemote("origin", remoteSshUrl), sshKey)
+    userConfig: GitConfig,
+    author: GitAuthor
+  ): GitRepository = RealGitRepository(path, userConfig, GitRemote("origin", remoteSshUrl), sshKey, author)
 }
 
 expect fun Git.Companion.isKnownError(e: Throwable): Boolean
