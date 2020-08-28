@@ -239,10 +239,10 @@ class GitSyncer(
 
       if (notePath in pulledPathsToDiff) {
         if (note.content != noteFile.read()) {
-          // File's content is going to change in a conflicting way.
+          // File's content is going to change in a conflicting way. Duplicate the note.
           noteFile.copy(register.findNewNameOnConflict(noteFile)).let {
             it.write(note.content)
-            log("   duplicated to ${it.name} to resolve merge conflict")
+            log("   duplicated to '${it.relativePathIn(directory)}' to resolve merge conflict")
           }
         } else {
           log("   skipped (same content)")
@@ -251,10 +251,19 @@ class GitSyncer(
       } else if (oldPath in pulledPathsToDiff) {
         // Old path was updated on remote, but deleted locally.
         noteFile.write(note.content)
-        log("   created as a new note to resolve merge conflict (old path = $oldPath)")
+        log("   created as a new note to resolve merge conflict (old path = '$oldPath')")
 
       } else {
-        acceptRename?.invoke()
+        if (acceptRename != null) {
+          acceptRename()
+          git.commitAll(
+              message = "Rename '$oldPath' → '$notePath'",
+              author = gitAuthor,
+              timestamp = UtcTimestamp(note.updatedAt),
+              allowEmpty = false
+          )
+        }
+
         noteFile.write(note.content)
         log("   created/updated")
       }
@@ -262,7 +271,7 @@ class GitSyncer(
       // Staging area may not be dirty if this note had already been processed earlier.
       if (git.isStagingAreaDirty()) {
         git.commitAll(
-            message = "Update '${noteFile.name}'",
+            message = "Update '$notePath'",
             author = gitAuthor,
             timestamp = UtcTimestamp(note.updatedAt)
         )
