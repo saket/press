@@ -1,6 +1,5 @@
 package press.home
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.Color.BLACK
 import android.graphics.drawable.Drawable
@@ -17,7 +16,6 @@ import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.detaches
-import com.mikepenz.itemanimators.AlphaInAnimator
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
@@ -48,6 +46,7 @@ import press.extensions.hideKeyboard
 import press.extensions.second
 import press.extensions.suspendWhile
 import press.extensions.throttleFirst
+import press.findActivity
 import press.handle
 import press.navigator
 import press.sync.PreferencesActivity
@@ -71,7 +70,6 @@ class HomeView @AssistedInject constructor(
   private val editorViewFactory: EditorView.Factory
 ) : ContourLayout(context) {
 
-  private val activity = context as Activity
   private val windowFocusChanges = BehaviorSubject.createDefault(WindowFocusChanged(hasFocus = true))
 
   private val toolbar = themed(Toolbar(context)).apply {
@@ -234,7 +232,7 @@ class HomeView @AssistedInject constructor(
 
     noteEditorPage.addStateChangeCallbacks(
         ToggleFabOnPageStateChange(newNoteFab),
-        ToggleSoftInputModeOnPageStateChange(activity.window)
+        ToggleSoftInputModeOnPageStateChange(findActivity().window)
     )
   }
 
@@ -244,7 +242,7 @@ class HomeView @AssistedInject constructor(
 
   private fun openNewNoteScreen(noteId: NoteId) {
     val (intent, options) = EditorActivity.intentWithFabTransform(
-        activity = activity,
+        activity = findActivity(),
         openMode = ExistingNote(noteId),
         fab = newNoteFab,
         fabIconRes = R.drawable.ic_note_add_24dp
