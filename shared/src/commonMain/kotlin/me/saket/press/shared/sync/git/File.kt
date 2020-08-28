@@ -37,6 +37,9 @@ interface File {
 
   /** @return the same [newFile] for convenience. */
   fun renameTo(newFile: File): File
+
+  /** Like `content == read()`, but avoids reading the whole file into memory when possible. */
+  fun equalsContent(content: String): Boolean
 }
 
 @OptIn(ExperimentalStdlibApi::class)

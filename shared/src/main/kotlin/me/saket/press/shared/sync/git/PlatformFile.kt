@@ -1,5 +1,8 @@
 package me.saket.press.shared.sync.git
 
+import okio.ByteString.Companion.encodeUtf8
+import okio.HashingSink
+import okio.blackholeSink
 import okio.buffer
 import okio.sink
 import okio.source
@@ -52,6 +55,15 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
     val renamed = delegate.renameTo(JavaFile(newFile.path))
     check(renamed) { "Couldn't rename ($this) to $newFile" }
     return newFile
+  }
+
+  override fun equalsContent(content: String): Boolean {
+    HashingSink.md5(blackholeSink()).use { sink ->
+      delegate.source().buffer().use { source ->
+        source.readAll(sink)
+        return sink.hash == content.encodeUtf8().md5()
+      }
+    }
   }
 
   override fun makeDirectory(recursively: Boolean) {

@@ -236,7 +236,7 @@ class GitSyncer(
       log(" • $notePath")
 
       if (notePath in pulledPathsToDiff) {
-        if (note.content != noteFile.read()) {
+        if (noteFile.equalsContent(note.content)) {
           // File's content is going to change in a conflicting way. Duplicate the note.
           noteFile.copy(register.findNewNameOnConflict(noteFile)).let {
             it.write(note.content)
