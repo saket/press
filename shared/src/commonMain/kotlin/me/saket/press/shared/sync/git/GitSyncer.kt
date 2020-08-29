@@ -162,10 +162,9 @@ class GitSyncer(
   )
 
   private fun GitScope.pull(): PullResult {
-    check(!git.isStagingAreaDirty()) { "Expected staging area to be clean before pulling" }
-
     maybeMakeInitialCommit(git)
     val localHead = git.headCommit()!!  // non-null because of maybeMakeInitialCommit().
+    git.hardResetTo(localHead)
 
     return when (val it = git.pull(rebase = true)) {
       is GitPullResult.Success -> {
