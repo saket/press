@@ -20,8 +20,6 @@ abstract class PressApp : Application() {
     lateinit var component: AppComponent
   }
 
-  @Inject lateinit var syncer: Syncer
-
   abstract fun buildDependencyGraph(): AppComponent
 
   override fun onCreate() {

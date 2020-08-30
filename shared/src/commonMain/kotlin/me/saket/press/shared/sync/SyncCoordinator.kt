@@ -21,7 +21,7 @@ class SyncCoordinator(
 ) {
   private val triggers = PublishSubject<Unit>()
 
-  init {
+  fun doWork() {
     triggers.switchMap { observableInterval(0, 30.seconds, schedulers.computation) }
         .flatMapCompletable { syncWithResult() }
         .subscribe()
