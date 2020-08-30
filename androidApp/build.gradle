@@ -58,6 +58,8 @@ dependencies {
   implementation deps.androidx.recyclerView
   implementation deps.androidx.browser
   implementation deps.androidx.ktx
+  implementation deps.androidx.workManager.core
+  implementation deps.androidx.workManager.rx2
   implementation deps.material.core
 
   implementation deps.contour

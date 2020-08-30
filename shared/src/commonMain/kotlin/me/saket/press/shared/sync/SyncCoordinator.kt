@@ -4,10 +4,8 @@ import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.doOnBeforeError
 import com.badoo.reaktive.completable.onErrorComplete
 import com.badoo.reaktive.completable.subscribe
-import com.badoo.reaktive.observable.asCompletable
 import com.badoo.reaktive.observable.flatMapCompletable
 import com.badoo.reaktive.observable.switchMap
-import com.badoo.reaktive.observable.take
 import com.badoo.reaktive.subject.publish.PublishSubject
 import com.soywiz.klock.seconds
 import me.saket.press.shared.rx.Schedulers
@@ -33,7 +31,7 @@ class SyncCoordinator(
     triggers.onNext(Unit)
   }
 
-  fun syncWithResult(): Completable {
+  internal fun syncWithResult(): Completable {
     return syncer.syncCompletable()
         .doOnBeforeError { println(it.message) }
         .onErrorComplete()

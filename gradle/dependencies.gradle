@@ -14,6 +14,7 @@ buildscript {
     androidXTest: '1.2.0',
     androidXTestJUnit: '1.1.2-alpha02',
     betterLinkMovementMethod: '2.2.0',
+    workManager: '2.4.0',
 
     // multiplatform dependencies
     sqlDelight: '1.4.2',
@@ -41,6 +42,10 @@ buildscript {
       'annotations': 'androidx.annotation:annotation:1.1.0',
       'preferences': 'androidx.preference:preference:1.1.0',
       'browser': 'androidx.browser:browser:1.2.0',
+      'workManager': [
+        'core': "androidx.work:work-runtime:$versions.workManager",
+        'rx2': "androidx.work:work-rxjava2:$versions.workManager"
+      ],
       'test': [
         'core': "androidx.test:core:$versions.androidXTest",
         'runner': "androidx.test:runner:$versions.androidXTest",

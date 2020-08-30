@@ -6,6 +6,7 @@ import dagger.Component
 import io.reactivex.Observable
 import me.saket.press.shared.theme.ThemePalette
 import me.saket.press.shared.localization.Strings
+import me.saket.press.shared.sync.SyncCoordinator
 import press.PressApp
 import press.sync.GitHostIntegrationActivity
 import press.sync.PreferencesActivity
@@ -14,6 +15,7 @@ import press.sync.PreferencesActivity
 interface AppComponent {
   fun strings(): Strings
   fun themePalette(): Observable<ThemePalette>
+  fun syncCoordinator(): SyncCoordinator
 
   fun inject(target: PressApp)
   fun inject(target: HomeActivity)

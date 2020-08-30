@@ -4,13 +4,15 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import android.os.Looper
+import androidx.work.WorkManager
 import io.reactivex.android.plugins.RxAndroidPlugins
 import io.reactivex.android.schedulers.AndroidSchedulers
 import me.saket.press.shared.di.SharedComponent
-import me.saket.press.shared.sync.SyncCoordinator
 import me.saket.press.shared.sync.Syncer
 import press.di.AppComponent
 import press.home.HomeActivity
+import press.sync.BackgroundSyncWorker
+import java.time.Duration
 import javax.inject.Inject
 
 abstract class PressApp : Application() {
@@ -19,7 +21,6 @@ abstract class PressApp : Application() {
   }
 
   @Inject lateinit var syncer: Syncer
-  @Inject lateinit var syncCoordinator: SyncCoordinator
 
   abstract fun buildDependencyGraph(): AppComponent
 
@@ -33,9 +34,10 @@ abstract class PressApp : Application() {
       AndroidSchedulers.from(Looper.getMainLooper(), true)
     }
 
+    BackgroundSyncWorker.schedule(this)
     doOnActivityResume { activity ->
       if (activity is HomeActivity) {
-        syncCoordinator.sync()
+        component.syncCoordinator().sync()
       }
     }
   }
