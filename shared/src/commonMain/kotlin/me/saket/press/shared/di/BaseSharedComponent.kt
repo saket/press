@@ -29,6 +29,6 @@ abstract class BaseSharedComponent {
     }
 
     koin<PrePopulatedNotes>().doWork()
-    koin<SyncCoordinator>().doWork()
+    koin<SyncCoordinator>().start()
   }
 }

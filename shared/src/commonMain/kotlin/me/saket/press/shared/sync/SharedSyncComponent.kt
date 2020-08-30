@@ -53,9 +53,8 @@ class SharedSyncComponent {
           args = args,
           httpClient = get(),
           authToken = get(),
-          syncer = get(),
-          syncerConfig = get(named("gitsyncer_config")),
-          schedulers = get()
+          syncCoordinator = get(),
+          syncerConfig = get(named("gitsyncer_config"))
       )
     }
 
@@ -108,7 +107,6 @@ class SharedSyncComponent {
   }
 
   companion object {
-    fun syncer(): Syncer = koin()
     fun preferencesPresenter(): SyncPreferencesPresenter = koin()
 
     fun integrationPresenter(args: GitHostIntegrationPresenter.Args) =

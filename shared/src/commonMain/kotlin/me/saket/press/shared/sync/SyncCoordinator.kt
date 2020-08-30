@@ -1,6 +1,7 @@
 package me.saket.press.shared.sync
 
 import com.badoo.reaktive.completable.Completable
+import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.completable.doOnBeforeError
 import com.badoo.reaktive.completable.onErrorComplete
 import com.badoo.reaktive.completable.subscribe
@@ -21,18 +22,18 @@ class SyncCoordinator(
 ) {
   private val triggers = PublishSubject<Unit>()
 
-  fun doWork() {
+  fun start() {
     triggers.switchMap { observableInterval(0, 30.seconds, schedulers.computation) }
         .flatMapCompletable { syncWithResult() }
         .subscribe()
   }
 
-  fun sync() {
+  fun trigger() {
     triggers.onNext(Unit)
   }
 
   internal fun syncWithResult(): Completable {
-    return syncer.syncCompletable()
+    return completableFromFunction { syncer.sync() }
         .doOnBeforeError { println(it.message) }
         .onErrorComplete()
   }

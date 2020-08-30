@@ -4,16 +4,12 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import android.os.Looper
-import androidx.work.WorkManager
 import io.reactivex.android.plugins.RxAndroidPlugins
 import io.reactivex.android.schedulers.AndroidSchedulers
 import me.saket.press.shared.di.SharedComponent
-import me.saket.press.shared.sync.Syncer
 import press.di.AppComponent
 import press.home.HomeActivity
 import press.sync.BackgroundSyncWorker
-import java.time.Duration
-import javax.inject.Inject
 
 abstract class PressApp : Application() {
   companion object {
@@ -35,7 +31,7 @@ abstract class PressApp : Application() {
     BackgroundSyncWorker.schedule(this)
     doOnActivityResume { activity ->
       if (activity is HomeActivity) {
-        component.syncCoordinator().sync()
+        component.syncCoordinator().trigger()
       }
     }
   }

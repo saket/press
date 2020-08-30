@@ -152,7 +152,7 @@ class EditorPresenter(
     updateOrArchiveNote(content)
         .subscribeOn(schedulers.io)
         .subscribe {
-          syncCoordinator.sync()
+          syncCoordinator.trigger()
         }
   }
 

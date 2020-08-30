@@ -3,9 +3,6 @@ package me.saket.press.shared.sync.git
 import com.badoo.reaktive.completable.andThen
 import com.badoo.reaktive.completable.asObservable
 import com.badoo.reaktive.completable.completableFromFunction
-import com.badoo.reaktive.completable.onErrorComplete
-import com.badoo.reaktive.completable.subscribe
-import com.badoo.reaktive.completable.subscribeOn
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.ObservableWrapper
 import com.badoo.reaktive.observable.distinctUntilChanged
@@ -25,12 +22,12 @@ import com.russhwolf.settings.ExperimentalListener
 import io.ktor.client.HttpClient
 import me.saket.kgit.SshKeygen
 import me.saket.kgit.generateRsa
-import me.saket.press.shared.rx.Schedulers
 import me.saket.press.shared.rx.combineLatestWith
 import me.saket.press.shared.rx.consumeOnNext
 import me.saket.press.shared.rx.filterNotNull
 import me.saket.press.shared.rx.repeatWhen
 import me.saket.press.shared.settings.Setting
+import me.saket.press.shared.sync.SyncCoordinator
 import me.saket.press.shared.sync.git.FailureKind.AddingDeployKey
 import me.saket.press.shared.sync.git.FailureKind.Authorization
 import me.saket.press.shared.sync.git.FailureKind.FetchingRepos
@@ -42,7 +39,6 @@ import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowFailure
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowProgress
 import me.saket.press.shared.sync.git.service.GitHostService
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
-import me.saket.press.shared.sync.syncCompletable
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.ui.ScreenKey.Close
@@ -52,9 +48,8 @@ class GitHostIntegrationPresenter(
   private val args: Args,
   httpClient: HttpClient,
   authToken: (GitHost) -> Setting<GitHostAuthToken>,
-  private val syncer: GitSyncer,
-  private val syncerConfig: Setting<GitSyncerConfig>,
-  private val schedulers: Schedulers
+  private val syncCoordinator: SyncCoordinator,
+  private val syncerConfig: Setting<GitSyncerConfig>
 ) : Presenter<GitHostIntegrationEvent, GitHostIntegrationUiModel, Nothing>() {
 
   private val gitHost = GitHost.readHostFromDeepLink(args.deepLink)
@@ -118,20 +113,13 @@ class GitHostIntegrationPresenter(
               .andThen(completableFromFunction {
                 authToken.set(null)
                 syncerConfig.set(GitSyncerConfig(remote = repo, sshKey = sshKey.privateKey))
-                syncNotesAsync()
+                syncCoordinator.trigger()
                 args.navigator.lfg(Close)
               })
               .asObservable<GitHostIntegrationUiModel>()
               .onErrorReturnValue(ShowFailure(kind = AddingDeployKey))
               .startWithValue(ShowProgress)
         }
-  }
-
-  private fun syncNotesAsync() {
-    syncer.syncCompletable()
-        .subscribeOn(schedulers.io)
-        .onErrorComplete()
-        .subscribe()
   }
 
   private fun <T> Observable<T>.repeatOnRetry(

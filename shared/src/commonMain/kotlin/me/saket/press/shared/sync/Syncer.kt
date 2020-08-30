@@ -1,6 +1,5 @@
 package me.saket.press.shared.sync
 
-import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.observable.Observable
 import com.soywiz.klock.DateTime
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
@@ -36,5 +35,3 @@ abstract class Syncer {
 }
 
 inline class LastSyncedAt(val value: DateTime)
-
-fun Syncer.syncCompletable() = completableFromFunction { sync() }
