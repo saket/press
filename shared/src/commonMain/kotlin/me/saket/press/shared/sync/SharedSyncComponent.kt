@@ -80,6 +80,8 @@ class SharedSyncComponent {
           lastSyncedAt = get(named("last_synced_at"))
       )
     }
+
+    single { SyncCoordinator(get(), get()) }
   }
 
   private fun httpClient(json: Json): HttpClient {

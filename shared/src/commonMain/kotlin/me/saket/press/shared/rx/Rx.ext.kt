@@ -65,3 +65,7 @@ internal fun <T> Observable<T>.repeatWhen(other: Observable<*>): Observable<T> {
 internal fun <T, R> Observable<T>.combineLatestWith(other: Observable<R>): Observable<Pair<T, R>> {
   return combineLatest(this, other, ::Pair)
 }
+
+internal fun observableInterval(startDelay: Long, period: TimeSpan, scheduler: Scheduler): Observable<Long> {
+  return observableInterval(startDelay, period.millisecondsLong, scheduler)
+}

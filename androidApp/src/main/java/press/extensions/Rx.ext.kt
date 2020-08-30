@@ -1,9 +1,7 @@
 package press.extensions
 
-import com.soywiz.klock.TimeSpan
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.Observables
-import java.util.concurrent.TimeUnit.MILLISECONDS
 
 /**
  * Pauses items from upstream while predicate is true.
@@ -12,8 +10,4 @@ fun <T, O> Observable<T>.suspendWhile(predicateArgProvider: Observable<O>, predi
   return Observables.combineLatest(this, predicateArgProvider)
       .filter { (_, predicateValue) -> predicate(predicateValue).not() }
       .map { (upstreamItem) -> upstreamItem }
-}
-
-fun Observables.interval(span: TimeSpan, initial: Long): Observable<Long> {
-  return Observable.interval(initial, span.millisecondsLong, MILLISECONDS)
 }

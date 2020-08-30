@@ -5,8 +5,7 @@ import dagger.Module
 import dagger.Provides
 import me.saket.press.shared.SharedAppComponent
 import me.saket.press.shared.localization.Strings
-import me.saket.press.shared.sync.SharedSyncComponent
-import me.saket.press.shared.sync.Syncer
+import me.saket.press.shared.sync.SyncCoordinator
 import press.editor.EditorModule
 import press.home.HomeModule
 import press.sync.SyncModule
@@ -25,5 +24,5 @@ object AppModule {
   fun strings(): Strings = SharedAppComponent.strings()
 
   @Provides
-  fun syncer(): Syncer = SharedSyncComponent.syncer()
+  fun syncCoordinator(): SyncCoordinator = SharedAppComponent.syncCoordinator()
 }

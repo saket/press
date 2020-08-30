@@ -12,8 +12,8 @@ import press.sync.PreferencesActivity
 
 @Component(modules = [AppModule::class])
 interface AppComponent {
-  fun themePalette(): Observable<ThemePalette>
   fun strings(): Strings
+  fun themePalette(): Observable<ThemePalette>
 
   fun inject(target: PressApp)
   fun inject(target: HomeActivity)

@@ -3,7 +3,6 @@ package me.saket.press.shared.editor
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.andThen
 import com.badoo.reaktive.completable.completableOfEmpty
-import com.badoo.reaktive.completable.onErrorComplete
 import com.badoo.reaktive.completable.subscribe
 import com.badoo.reaktive.completable.subscribeOn
 import com.badoo.reaktive.observable.Observable
@@ -33,8 +32,7 @@ import me.saket.press.shared.rx.consumeOnNext
 import me.saket.press.shared.rx.mapToOptional
 import me.saket.press.shared.rx.mapToSome
 import me.saket.press.shared.rx.observableInterval
-import me.saket.press.shared.sync.Syncer
-import me.saket.press.shared.sync.syncCompletable
+import me.saket.press.shared.sync.SyncCoordinator
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.ui.ScreenKey.Close
@@ -48,7 +46,7 @@ class EditorPresenter(
   private val schedulers: Schedulers,
   private val strings: Strings,
   private val config: EditorConfig,
-  private val syncer: Syncer
+  private val syncCoordinator: SyncCoordinator
 ) : Presenter<EditorEvent, EditorUiModel, EditorUiEffect>() {
 
   private val openMode = args.openMode
@@ -153,13 +151,9 @@ class EditorPresenter(
   fun saveEditorContentOnClose(content: String) {
     updateOrArchiveNote(content)
         .subscribeOn(schedulers.io)
-        .subscribe()
-
-    // todo: somehow delegate this to the platforms so that the sync call is a single place.
-    syncer.syncCompletable()
-        .subscribeOn(schedulers.computation)
-        .onErrorComplete()
-        .subscribe()
+        .subscribe {
+          syncCoordinator.sync()
+        }
   }
 
   private fun updateOrArchiveNote(content: String): Completable {

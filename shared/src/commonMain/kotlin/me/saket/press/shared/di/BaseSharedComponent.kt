@@ -7,6 +7,7 @@ import me.saket.press.shared.home.SharedHomeComponent
 import me.saket.press.shared.note.PrePopulatedNotes
 import me.saket.press.shared.note.SharedNoteComponent
 import me.saket.press.shared.sync.SharedSyncComponent
+import me.saket.press.shared.sync.SyncCoordinator
 import org.koin.core.context.startKoin
 
 expect object SharedComponent : BaseSharedComponent
@@ -28,5 +29,6 @@ abstract class BaseSharedComponent {
     }
 
     koin<PrePopulatedNotes>().doWork()
+    koin<SyncCoordinator>().doWork()
   }
 }

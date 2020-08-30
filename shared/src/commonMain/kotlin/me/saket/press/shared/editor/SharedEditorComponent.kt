@@ -17,7 +17,7 @@ class SharedEditorComponent {
           schedulers = get(),
           strings = get(),
           config = editorConfig(),
-          syncer = get()
+          syncCoordinator = get()
       )
     }
     factory(named("autocorrect")) {

@@ -6,9 +6,7 @@ import com.badoo.reaktive.subject.publish.PublishSubject
 import me.saket.press.shared.keyboard.KeyboardShortcutEvent.Key.CMD
 import me.saket.press.shared.keyboard.KeyboardShortcutEvent.Key.N
 
-/**
- * Event bus for letting presenters respond to keyboard shortcuts.
- */
+/** Event bus for letting presenters respond to keyboard shortcuts. */
 interface KeyboardShortcuts {
   companion object {
     val newNote = KeyboardShortcutEvent(CMD, N)
