@@ -261,7 +261,7 @@ class HomeView @AssistedInject constructor(
 
   @AssistedInject.Factory
   interface Factory {
-    fun withContext(context: Context): HomeView
+    fun create(context: Context): HomeView
   }
 }
 

@@ -16,7 +16,6 @@ import org.koin.dsl.module
 class SharedAppComponent {
   val module = module {
     single { ENGLISH_STRINGS }
-    single { AppLifecycle() }
     single<KeyboardShortcuts> { RealKeyboardShortcuts() }
     single<Clock> { RealClock() }
     factory { Schedulers(io = ioScheduler, computation = computationScheduler) }

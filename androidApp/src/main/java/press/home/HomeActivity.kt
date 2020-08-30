@@ -10,7 +10,7 @@ import kotlin.LazyThreadSafetyMode.NONE
 class HomeActivity : ThemeAwareActivity() {
 
   @Inject lateinit var homeViewFactory: HomeView.Factory
-  private val homeView by lazy(NONE) { homeViewFactory.withContext(this) }
+  private val homeView by lazy(NONE) { homeViewFactory.create(this) }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     PressApp.component.inject(this)
