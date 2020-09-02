@@ -23,7 +23,7 @@ import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.localization.ENGLISH_STRINGS
 import me.saket.press.shared.note.FakeNoteRepository
-import me.saket.press.shared.sync.FakeSyncer
+import me.saket.press.shared.sync.FakeSyncCoordinator
 import me.saket.press.shared.ui.FakeNavigator
 import me.saket.wysiwyg.formatting.TextSelection
 import kotlin.test.Test
@@ -35,7 +35,7 @@ class EditorPresenterTest {
   private val testScheduler = TestScheduler()
   private val config = EditorConfig(autoSaveEvery = 5.seconds)
   private val navigator = FakeNavigator()
-  val syncer = FakeSyncer()
+  private val syncCoordinator = FakeSyncCoordinator()
 
   private fun presenter(
     openMode: EditorOpenMode,
@@ -47,7 +47,7 @@ class EditorPresenterTest {
         schedulers = FakeSchedulers(computation = testScheduler),
         strings = ENGLISH_STRINGS,
         config = config,
-        syncer = syncer
+        syncCoordinator = FakeSyncCoordinator()
     )
   }
 
@@ -218,10 +218,10 @@ class EditorPresenterTest {
   }
 
   @Test fun `sync notes on close`() {
-    assertThat(syncer.syncCalled).isFalse()
+    assertThat(syncCoordinator.syncTriggered).isFalse()
 
     presenter(ExistingNote(noteId)).saveEditorContentOnClose("nic")
 
-    assertThat(syncer.syncCalled).isTrue()
+    assertThat(syncCoordinator.syncTriggered).isTrue()
   }
 }

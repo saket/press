@@ -80,7 +80,7 @@ class SharedSyncComponent {
       )
     }
 
-    single { SyncCoordinator(get(), get()) }
+    single<SyncCoordinator> { RealSyncCoordinator(get(), get()) }
   }
 
   private fun httpClient(json: Json): HttpClient {

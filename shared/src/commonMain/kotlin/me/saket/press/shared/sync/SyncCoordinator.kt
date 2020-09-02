@@ -16,25 +16,31 @@ import me.saket.press.shared.rx.observableInterval
  * Syncs can be triggered from multiple places at different times. This class
  * coordinates between them and maintains a timer for syncing periodically.
  */
-class SyncCoordinator(
+interface SyncCoordinator {
+  fun start()
+  fun trigger()
+  fun syncWithResult(): Completable
+}
+
+class RealSyncCoordinator(
   private val syncer: Syncer,
   private val schedulers: Schedulers
-) {
+): SyncCoordinator {
   private val triggers = PublishSubject<Unit>()
 
-  fun start() {
+  override fun start() {
     triggers.switchMap { observableInterval(0, 30.seconds, schedulers.computation) }
         .flatMapCompletable { syncWithResult() }
         .subscribe()
   }
 
-  fun trigger() {
+  override fun trigger() {
     triggers.onNext(Unit)
   }
 
-  internal fun syncWithResult(): Completable {
+  override fun syncWithResult(): Completable {
     return completableFromFunction { syncer.sync() }
-        .doOnBeforeError { println(it.message) }
+        .doOnBeforeError { it.printStackTrace() }
         .onErrorComplete()
   }
 }
