@@ -5,6 +5,7 @@ import com.badoo.reaktive.single.Single
 import me.saket.kgit.SshKeyPair
 import me.saket.press.shared.sync.git.GitHost
 import me.saket.press.shared.sync.git.GitHostAuthToken
+import me.saket.kgit.GitIdentity
 
 /** See [GitHost]. */
 interface GitHostService {
@@ -32,7 +33,7 @@ interface GitHostService {
   /**
    * User's details. These are used for making git commits.
    */
-  fun fetchUser(token: GitHostAuthToken): Single<GitUser>
+  fun fetchUser(token: GitHostAuthToken): Single<GitIdentity>
 
   /**
    * Add a deploy key to [repository] so that Press

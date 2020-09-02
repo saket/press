@@ -18,6 +18,7 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType.MODIFY
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.RENAME
 import org.eclipse.jgit.lib.BranchConfig.BranchRebaseMode.REBASE
 import org.eclipse.jgit.lib.PersonIdent
+import org.eclipse.jgit.lib.UserConfig
 import org.eclipse.jgit.merge.StrategyRecursive
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevWalk
@@ -42,10 +43,9 @@ import java.io.File as JavaFile
  */
 internal actual class RealGitRepository actual constructor(
   directoryPath: String,
-  userConfig: GitConfig,
   remote: GitRemote,
-  private val sshKey: SshPrivateKey,
-  private val author: GitAuthor
+  private val userConfig: GitConfig,
+  private val sshKey: SshPrivateKey
 ) : GitRepository {
 
   private val directory = JavaFile(directoryPath)
@@ -57,19 +57,18 @@ internal actual class RealGitRepository actual constructor(
         .setUri(URIish(remote.sshUrl))
         .call()
 
-    JgitSystemReader.getInstance().userConfig.apply {
-      // Avoid reading any config from [~/.gitconfig] that will lead to non-deterministic
-      // behavior on the host machine. For e.g., following of renames may be disabled for
-      // computing file diffs.
-      clear()
+    // Avoid reading any config from [~/.gitconfig] that will lead to non-deterministic
+    // behavior on the host machine. For e.g., following of renames may be disabled for
+    // computing file diffs.
+    JgitSystemReader.getInstance().userConfig.clear()
 
-      val repoConfig = jgit.repository.config
-      for (section in userConfig.sections) {
-        for ((key, value) in section.values) {
-          repoConfig.setString(section.name, null, key, value)
-        }
+    val repoConfig = jgit.repository.config
+    for (section in userConfig.sections) {
+      for ((key, value) in section.values) {
+        repoConfig.setString(section.name, null, key, value)
       }
     }
+    repoConfig.save()
   }
 
   private fun initOrOpenGit(): JGit {
@@ -108,12 +107,13 @@ internal actual class RealGitRepository actual constructor(
   @Suppress("NAME_SHADOWING")
   override fun commitAll(
     message: String,
-    timestamp: UtcTimestamp?,
+    timestamp: UtcTimestamp,
     allowEmpty: Boolean
   ) {
-    val author = timestamp?.let {
-      PersonIdent(author.name, author.email, Date(it.millis), TimeZone.getTimeZone("UTC"))
-    }
+    // Stupid JGit only reads "user" instead of "author" and "committer" so the values must be read manually.
+    val utc = TimeZone.getTimeZone("UTC")
+    val author = userConfig.author().let { PersonIdent(it.name, it.email, Date(timestamp.millis), utc) }
+    val committer = userConfig.committer().let { PersonIdent(it.name, it.email, Date(timestamp.millis), utc) }
 
     if (headCommit() == null) {
       val message = """
@@ -129,6 +129,7 @@ internal actual class RealGitRepository actual constructor(
           .setAllowEmpty(true)
           .setMessage(message)
           .setAuthor(author)
+          .setCommitter(committer)
           .call()
     }
 
@@ -141,6 +142,7 @@ internal actual class RealGitRepository actual constructor(
         .setAllowEmpty(allowEmpty)
         .setMessage(message)
         .setAuthor(author)
+        .setCommitter(committer)
         .call()
   }
 

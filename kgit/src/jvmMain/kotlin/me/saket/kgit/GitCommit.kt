@@ -11,9 +11,6 @@ actual class GitCommit(internal val commit: RevCommit) {
   actual val message: String
     get() = commit.fullMessage
 
-  actual val author: GitAuthor
-    get() = GitAuthor(name = commit.authorIdent.name, email = commit.authorIdent.emailAddress)
-
   actual val utcTimestamp: UtcTimestamp
     get() = UtcTimestamp(
         Instant.ofEpochMilli(commit.authorIdent.`when`.time)

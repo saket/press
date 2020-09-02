@@ -6,7 +6,7 @@ import kotlinx.serialization.json.Json
 import me.saket.kgit.SshPrivateKey
 import me.saket.press.shared.sync.git.GitSyncerConfig
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
-import me.saket.press.shared.sync.git.service.GitUser
+import me.saket.kgit.GitIdentity
 import kotlin.test.Test
 
 class GitSyncerConfigTest {
@@ -31,7 +31,7 @@ class GitSyncerConfigTest {
       |    "key": "nicolascage"
       |  },
       |  "user": {
-      |    "username": "niccage",
+      |    "name": "niccage",
       |    "email": "nicolas@ca.ge"
       |  }
       |}
@@ -47,8 +47,8 @@ class GitSyncerConfigTest {
                 sshUrl = "git@github.com:cage/nationaltreasure.git",
                 defaultBranch = "trunk"
             ),
-            user = GitUser(
-                username = "niccage",
+            user = GitIdentity(
+                name = "niccage",
                 email = "nicolas@ca.ge"
             )
         )

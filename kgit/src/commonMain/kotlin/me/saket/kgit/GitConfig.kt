@@ -16,3 +16,24 @@ data class GitConfig(val sections: List<Section>) {
 @Suppress("FunctionName")
 fun GitConfig(vararg sections: Pair<String, List<Pair<String, String>>>) =
   GitConfig(sections.map { (name, values) -> Section(name, values) })
+
+fun GitConfig.author(): GitIdentity {
+  return this["author"].let { GitIdentity(it["name"], it["email"]) }
+}
+
+fun GitConfig.committer(): GitIdentity {
+  return this["committer"].let { GitIdentity(it["name"], it["email"]) }
+}
+
+private operator fun GitConfig.get(section: String): Section {
+  return sections.single { it.name == section }
+}
+
+private operator fun Section.get(key: String): String {
+  for ((k, v) in values) {
+    if (k == key) {
+      return v
+    }
+  }
+  error("$key doesn't exist in $values")
+}

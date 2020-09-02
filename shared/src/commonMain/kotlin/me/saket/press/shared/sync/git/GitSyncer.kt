@@ -6,7 +6,6 @@ import com.badoo.reaktive.subject.behavior.BehaviorSubject
 import com.soywiz.klock.DateTime
 import kotlinx.coroutines.Runnable
 import me.saket.kgit.Git
-import me.saket.kgit.GitAuthor
 import me.saket.kgit.GitCommit
 import me.saket.kgit.GitConfig
 import me.saket.kgit.GitPullResult
@@ -45,7 +44,6 @@ import me.saket.press.shared.time.Clock
 //   - broadcast an event when a merge conflict is resolved.
 //  Others
 //   - figure out git author name/email.
-//   - set both author and committer time.
 //   - commit deleted notes.
 //   - show errors in status UI
 class GitSyncer(
@@ -68,8 +66,11 @@ class GitSyncer(
         path = directory.path,
         sshKey = config.sshKey,
         remoteSshUrl = config.remote.sshUrl,
-        userConfig = GitConfig("diff" to listOf("renames" to "true")),
-        author = GitAuthor("Press", "pressapp@saket.me")
+        userConfig = GitConfig(
+            "author" to listOf("name" to config.user.name, "email" to (config.user.email ?: "")),
+            "committer" to listOf("name" to "Press", "email" to "press@saket.me"),
+            "diff" to listOf("renames" to "true")
+        )
     )
   }
 

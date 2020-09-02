@@ -12,7 +12,7 @@ import assertk.assertions.isNotInstanceOf
 import assertk.assertions.isTrue
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.hours
-import me.saket.kgit.GitAuthor
+import me.saket.kgit.GitConfig
 import me.saket.kgit.PushResult
 import me.saket.kgit.RealGit
 import me.saket.kgit.SshPrivateKey
@@ -38,7 +38,7 @@ import me.saket.press.shared.sync.git.children
 import me.saket.press.shared.sync.git.delete
 import me.saket.press.shared.sync.git.relativePathIn
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
-import me.saket.press.shared.sync.git.service.GitUser
+import me.saket.kgit.GitIdentity
 import me.saket.press.shared.testDeviceInfo
 import me.saket.press.shared.time.FakeClock
 import kotlin.test.AfterTest
@@ -59,7 +59,7 @@ class GitSyncerTest : BaseDatabaeTest() {
           defaultBranch = BuildKonfig.GIT_TEST_REPO_BRANCH
       ),
       sshKey = SshPrivateKey(BuildKonfig.GIT_TEST_SSH_PRIV_KEY),
-      user = GitUser(username = "test", email = "test@test.com")
+      user = GitIdentity(name = "Test syncer author", email = "test@test.com")
   )
   private val configSetting = FakeSetting(config)
   private val git = DelegatingGit(delegate = RealGit())
@@ -808,7 +808,10 @@ class GitSyncerTest : BaseDatabaeTest() {
         path = directory.path,
         sshKey = config.sshKey,
         remoteSshUrl = config.remote.sshUrl,
-        author = GitAuthor("test", "test@test.com")
+        userConfig = GitConfig(
+            "author" to listOf("name" to "Test remote author", "email" to "press@saket.me"),
+            "committer" to listOf("name" to "Test remote committer", "email" to ""),
+        )
     )
 
     init {

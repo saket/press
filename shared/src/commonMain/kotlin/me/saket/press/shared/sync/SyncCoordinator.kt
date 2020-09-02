@@ -25,7 +25,7 @@ interface SyncCoordinator {
 class RealSyncCoordinator(
   private val syncer: Syncer,
   private val schedulers: Schedulers
-): SyncCoordinator {
+) : SyncCoordinator {
   private val triggers = PublishSubject<Unit>()
 
   override fun start() {

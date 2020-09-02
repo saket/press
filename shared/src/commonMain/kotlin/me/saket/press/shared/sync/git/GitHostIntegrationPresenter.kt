@@ -20,7 +20,6 @@ import com.badoo.reaktive.observable.switchMap
 import com.badoo.reaktive.observable.take
 import com.badoo.reaktive.observable.wrap
 import com.badoo.reaktive.single.asObservable
-import com.badoo.reaktive.single.flatMapCompletable
 import com.badoo.reaktive.single.zip
 import com.russhwolf.settings.ExperimentalListener
 import io.ktor.client.HttpClient
@@ -44,7 +43,7 @@ import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowFailure
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowProgress
 import me.saket.press.shared.sync.git.service.GitHostService
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
-import me.saket.press.shared.sync.git.service.GitUser
+import me.saket.kgit.GitIdentity
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.ui.ScreenKey.Close
@@ -128,7 +127,7 @@ class GitHostIntegrationPresenter(
         }
   }
 
-  private fun completeSetup(repo: GitRepositoryInfo, sshKeys: SshKeyPair, user: GitUser) =
+  private fun completeSetup(repo: GitRepositoryInfo, sshKeys: SshKeyPair, user: GitIdentity) =
     completableFromFunction {
       authToken.set(null)
       syncerConfig.set(GitSyncerConfig(repo, sshKeys.privateKey, user))

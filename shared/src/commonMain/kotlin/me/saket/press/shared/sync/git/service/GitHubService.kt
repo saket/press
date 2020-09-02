@@ -4,7 +4,6 @@ import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.coroutinesinterop.completableFromCoroutine
 import com.badoo.reaktive.coroutinesinterop.singleFromCoroutine
 import com.badoo.reaktive.single.Single
-import com.badoo.reaktive.single.map
 import io.ktor.client.HttpClient
 import io.ktor.client.call.receive
 import io.ktor.client.request.accept
@@ -21,6 +20,7 @@ import kotlinx.serialization.Serializable
 import me.saket.kgit.SshKeyPair
 import me.saket.press.shared.BuildKonfig
 import me.saket.press.shared.sync.git.GitHostAuthToken
+import me.saket.kgit.GitIdentity
 
 class GitHubService(private val http: HttpClient) : GitHostService {
 
@@ -80,13 +80,13 @@ class GitHubService(private val http: HttpClient) : GitHostService {
     }
   }
 
-  override fun fetchUser(token: GitHostAuthToken): Single<GitUser> {
+  override fun fetchUser(token: GitHostAuthToken): Single<GitIdentity> {
     return singleFromCoroutine {
       val response = http.get<GithubUserResponse>("https://api.github.com/user") {
         accept(Application.Json)
         header("Authorization", "token ${token.value}")
       }
-      GitUser(username = response.login, email = response.email)
+      GitIdentity(name = response.login, email = response.email)
     }
   }
 
