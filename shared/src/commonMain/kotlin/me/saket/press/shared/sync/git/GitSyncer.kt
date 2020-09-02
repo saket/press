@@ -8,6 +8,9 @@ import kotlinx.coroutines.Runnable
 import me.saket.kgit.Git
 import me.saket.kgit.GitCommit
 import me.saket.kgit.GitConfig
+import me.saket.kgit.GitError.AuthFailed
+import me.saket.kgit.GitError.NetworkError
+import me.saket.kgit.GitError.Unknown
 import me.saket.kgit.GitPullResult
 import me.saket.kgit.GitRepository
 import me.saket.kgit.GitTreeDiff
@@ -21,7 +24,7 @@ import me.saket.kgit.PushResult.Failure
 import me.saket.kgit.PushResult.Success
 import me.saket.kgit.UtcTimestamp
 import me.saket.kgit.abbreviated
-import me.saket.kgit.isKnownError
+import me.saket.kgit.identify
 import me.saket.press.PressDatabase
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.settings.Setting
@@ -110,13 +113,18 @@ class GitSyncer(
       lastOp.onNext(Idle)
 
     } catch (e: Throwable) {
-      lastOp.onNext(Failed)
-      log("Error. ${e::class.simpleName}: ${e.message}")
-      loggers.onSyncComplete()
-
-      if (!Git.isKnownError(e)) {
-        throw e
+      val errorMessage = when (Git.identify(e)) {
+        NetworkError -> "Network error. Will retry later."
+        Unknown -> "Unknown error. Will retry later."
+        AuthFailed -> {
+          disable()
+          "Auth failed. Deploy key was likely revoked. Disabling sync."
+        }
       }
+
+      log("$errorMessage ${e.stackTraceToString()}")
+      lastOp.onNext(Failed)
+      loggers.onSyncComplete()
     }
   }
 

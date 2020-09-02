@@ -18,7 +18,6 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType.MODIFY
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.RENAME
 import org.eclipse.jgit.lib.BranchConfig.BranchRebaseMode.REBASE
 import org.eclipse.jgit.lib.PersonIdent
-import org.eclipse.jgit.lib.UserConfig
 import org.eclipse.jgit.merge.StrategyRecursive
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevWalk
@@ -313,9 +312,14 @@ internal actual class RealGitRepository actual constructor(
   }
 }
 
-actual fun Git.Companion.isKnownError(e: Throwable): Boolean {
-  if (e is org.eclipse.jgit.api.errors.TransportException && e.message?.contains("unknown host") == true) {
-    return true
+actual fun Git.Companion.identify(e: Throwable): GitError {
+  if (e is org.eclipse.jgit.api.errors.TransportException) {
+    if (e.message?.contains("unknown host", ignoreCase = true) == true) {
+      return GitError.NetworkError
+    }
+    if (e.message?.contains("Auth fail", ignoreCase = true) == true) {
+      return GitError.AuthFailed
+    }
   }
-  return false
+  return GitError.Unknown
 }

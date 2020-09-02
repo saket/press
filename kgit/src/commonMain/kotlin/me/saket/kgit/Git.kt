@@ -20,4 +20,4 @@ class RealGit : Git {
   ): GitRepository = RealGitRepository(path, GitRemote("origin", remoteSshUrl), userConfig, sshKey)
 }
 
-expect fun Git.Companion.isKnownError(e: Throwable): Boolean
+expect fun Git.Companion.identify(e: Throwable): GitError

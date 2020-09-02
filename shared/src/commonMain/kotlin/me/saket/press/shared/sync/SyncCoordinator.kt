@@ -39,8 +39,6 @@ class RealSyncCoordinator(
   }
 
   override fun syncWithResult(): Completable {
-    return completableFromFunction { syncer.sync() }
-        .doOnBeforeError { it.printStackTrace() }
-        .onErrorComplete()
+    return completableFromFunction { syncer.sync() }.onErrorComplete()
   }
 }
