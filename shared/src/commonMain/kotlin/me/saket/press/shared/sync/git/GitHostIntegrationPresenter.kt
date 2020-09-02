@@ -1,12 +1,14 @@
 package me.saket.press.shared.sync.git
 
-import com.badoo.reaktive.completable.andThen
 import com.badoo.reaktive.completable.asObservable
+import com.badoo.reaktive.completable.asSingle
 import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.ObservableWrapper
 import com.badoo.reaktive.observable.distinctUntilChanged
+import com.badoo.reaktive.observable.doOnBeforeError
 import com.badoo.reaktive.observable.filter
+import com.badoo.reaktive.observable.flatMapCompletable
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observableOf
@@ -18,8 +20,11 @@ import com.badoo.reaktive.observable.switchMap
 import com.badoo.reaktive.observable.take
 import com.badoo.reaktive.observable.wrap
 import com.badoo.reaktive.single.asObservable
+import com.badoo.reaktive.single.flatMapCompletable
+import com.badoo.reaktive.single.zip
 import com.russhwolf.settings.ExperimentalListener
 import io.ktor.client.HttpClient
+import me.saket.kgit.SshKeyPair
 import me.saket.kgit.SshKeygen
 import me.saket.kgit.generateRsa
 import me.saket.press.shared.rx.combineLatestWith
@@ -39,6 +44,7 @@ import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowFailure
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowProgress
 import me.saket.press.shared.sync.git.service.GitHostService
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
+import me.saket.press.shared.sync.git.service.GitUser
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.ui.ScreenKey.Close
@@ -107,20 +113,28 @@ class GitHostIntegrationPresenter(
         .map { it.repo }
         .repeatOnRetry(events, kind = AddingDeployKey)
         .switchMap { repo ->
-          val sshKey = SshKeygen.generateRsa(comment = "(Created by Press)")
-          gitHostService
-              .addDeployKey(token = authToken.get()!!, repository = repo, key = sshKey)
-              .andThen(completableFromFunction {
-                authToken.set(null)
-                syncerConfig.set(GitSyncerConfig(remote = repo, sshKey = sshKey.privateKey))
-                syncCoordinator.trigger()
-                args.navigator.lfg(Close)
-              })
+          val sshKeys = SshKeygen.generateRsa(comment = "(Created by Press)")
+          val token = authToken.get()!!
+          zip(
+            gitHostService.addDeployKey(token, repo, sshKeys).asSingle(Unit),
+            gitHostService.fetchUser(token)
+          ) { _, user -> user }
+              .asObservable()
+              .flatMapCompletable { user -> completeSetup(repo, sshKeys, user) }
               .asObservable<GitHostIntegrationUiModel>()
+              .doOnBeforeError { e -> e.printStackTrace() }
               .onErrorReturnValue(ShowFailure(kind = AddingDeployKey))
               .startWithValue(ShowProgress)
         }
   }
+
+  private fun completeSetup(repo: GitRepositoryInfo, sshKeys: SshKeyPair, user: GitUser) =
+    completableFromFunction {
+      authToken.set(null)
+      syncerConfig.set(GitSyncerConfig(repo, sshKeys.privateKey, user))
+      syncCoordinator.trigger()
+      args.navigator.lfg(Close)
+    }
 
   private fun <T> Observable<T>.repeatOnRetry(
     events: Observable<GitHostIntegrationEvent>,

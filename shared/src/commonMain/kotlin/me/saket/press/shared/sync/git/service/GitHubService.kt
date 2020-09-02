@@ -4,6 +4,7 @@ import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.coroutinesinterop.completableFromCoroutine
 import com.badoo.reaktive.coroutinesinterop.singleFromCoroutine
 import com.badoo.reaktive.single.Single
+import com.badoo.reaktive.single.map
 import io.ktor.client.HttpClient
 import io.ktor.client.call.receive
 import io.ktor.client.request.accept
@@ -79,6 +80,16 @@ class GitHubService(private val http: HttpClient) : GitHostService {
     }
   }
 
+  override fun fetchUser(token: GitHostAuthToken): Single<GitUser> {
+    return singleFromCoroutine {
+      val response = http.get<GithubUserResponse>("https://api.github.com/user") {
+        accept(Application.Json)
+        header("Authorization", "token ${token.value}")
+      }
+      GitUser(username = response.login, email = response.email)
+    }
+  }
+
   override fun addDeployKey(token: GitHostAuthToken, repository: GitRepositoryInfo, key: SshKeyPair): Completable {
     return completableFromCoroutine {
       val response = http.post<String>("https://api.github.com/repos/${repository.owner}/${repository.name}/keys") {
@@ -118,6 +129,12 @@ private data class GitHubRepo(
   @Serializable
   data class Owner(val login: String)
 }
+
+@Serializable
+private data class GithubUserResponse(
+  val login: String,
+  val email: String?
+)
 
 @Serializable
 private data class CreateDeployKeyRequest(

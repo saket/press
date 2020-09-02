@@ -38,6 +38,7 @@ import me.saket.press.shared.sync.git.children
 import me.saket.press.shared.sync.git.delete
 import me.saket.press.shared.sync.git.relativePathIn
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
+import me.saket.press.shared.sync.git.service.GitUser
 import me.saket.press.shared.testDeviceInfo
 import me.saket.press.shared.time.FakeClock
 import kotlin.test.AfterTest
@@ -57,7 +58,8 @@ class GitSyncerTest : BaseDatabaeTest() {
           sshUrl = BuildKonfig.GIT_TEST_REPO_SSH_URL,
           defaultBranch = BuildKonfig.GIT_TEST_REPO_BRANCH
       ),
-      sshKey = SshPrivateKey(BuildKonfig.GIT_TEST_SSH_PRIV_KEY)
+      sshKey = SshPrivateKey(BuildKonfig.GIT_TEST_SSH_PRIV_KEY),
+      user = GitUser(username = "test", email = "test@test.com")
   )
   private val configSetting = FakeSetting(config)
   private val git = DelegatingGit(delegate = RealGit())

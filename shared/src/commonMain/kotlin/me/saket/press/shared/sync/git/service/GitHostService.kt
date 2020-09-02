@@ -30,6 +30,11 @@ interface GitHostService {
   fun fetchUserRepos(token: GitHostAuthToken): Single<List<GitRepositoryInfo>>
 
   /**
+   * User's details. These are used for making git commits.
+   */
+  fun fetchUser(token: GitHostAuthToken): Single<GitUser>
+
+  /**
    * Add a deploy key to [repository] so that Press
    * can read and write commits for syncing notes.
    */

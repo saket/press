@@ -69,7 +69,7 @@ class GitSyncer(
         sshKey = config.sshKey,
         remoteSshUrl = config.remote.sshUrl,
         userConfig = GitConfig("diff" to listOf("renames" to "true")),
-        author = GitAuthor("Saket", "pressapp@saket.me")
+        author = GitAuthor("Press", "pressapp@saket.me")
     )
   }
 
