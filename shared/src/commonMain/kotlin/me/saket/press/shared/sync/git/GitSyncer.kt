@@ -285,7 +285,7 @@ class GitSyncer(
 
   @Suppress("NAME_SHADOWING")
   private fun GitScope.processCommits(pullResult: PullResult) {
-    if (pullResult.headBefore == pullResult.headAfter) {
+    if (pullResult.headBefore == git.headCommit()) {
       log("Nothing to process.")
       return
     }
