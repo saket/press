@@ -97,7 +97,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
     val newNoteName = oldNoteFile.hideAndRun {
       // The old file (if any) needs to be hidden or else it'll
       // be seen as a conflict when a new name is generated.
-      generateFileNameFor(note)
+      findOrGenerateFileNameFor(note)
     }
 
     return if (oldNoteFile == null) {
@@ -110,7 +110,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
       // A file already exists and the name matches the note's heading.
       FileSuggestion(oldNoteFile)
     } else {
-      // A file already exists, but the heading was changed. Rename the file.
+      // A file already exists, but the heading/folder was changed. Rename the file.
       val newFile = File(notesDirectory, newNoteName)
       FileSuggestion(newFile, oldFile = oldNoteFile, acceptRename = {
         oldNoteFile.renameTo(newFile)
@@ -139,22 +139,32 @@ internal class FileNameRegister(private val notesDirectory: File) {
       }
     }
 
-  private fun generateFileNameFor(note: Note): String {
+  /** Finds a file name for `note` if it already exists or generates a new one. */
+  private fun findOrGenerateFileNameFor(note: Note): String {
     val (heading) = SplitHeadingAndBody.split(note.content)
     val expectedName = if (heading.isNotBlank()) heading else "untitled_note"
     val folder = note.folder()?.plus("/") ?: ""
 
+    val existingNames = File(notesDirectory, folder)
+        .existsOrNull()
+        ?.children()?.map { it.name }
+        ?: emptyList()
+
     // Suffix the name to avoid conflicts. E.g., "untitled_note_2".
     var uniqueName: String
     var conflicts = 0
-    loop@ while (true) {
+    while (true) {
       val conflictSuffix = if (conflicts++ == 0) "" else "_$conflicts"
       uniqueName = "$folder${sanitize(expectedName, MAX_NAME_LENGTH)}$conflictSuffix.md"
 
-      when (noteIdFor(uniqueName)) {
-        note.id -> break@loop     // Reuse the same name.
-        null -> break@loop        // New note. Can still use this name.
-        else -> continue@loop     // Conflict! Try another name.
+      if (noteIdFor(uniqueName) == note.id) {
+        // A file already exists for this note. Reuse the same name.
+        break
+
+      } else if (uniqueName !in existingNames) {
+        // There may be files with the same name but with different IDs
+        // (or no IDs if they were just synced and haven't been processed yet).
+        break
       }
     }
 

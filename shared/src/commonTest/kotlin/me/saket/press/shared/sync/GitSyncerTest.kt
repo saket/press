@@ -461,7 +461,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     //  oldPath also in pulledPathsToDiff
   }
 
-  @Test fun `notes with the same headings are stored in separate files`() {
+  @Test fun `notes created locally with the same headings are stored in separate files`() {
     if (!canRunTests()) return
 
     val now = clock.nowUtc()
@@ -479,6 +479,33 @@ class GitSyncerTest : BaseDatabaeTest() {
         "shopping_list_2.md" to "# Shopping List\nMilk and eggs",
         "untitled_note.md" to "Note without heading",
         "untitled_note_2.md" to "Another note without heading"
+    )
+  }
+
+  @Test fun `notes created on local and remote with the same headings are stored in separate files`() {
+    if (!canRunTests()) return
+
+    val note = fakeNote("# Shopping List\n(local)", isArchived = true)
+    noteQueries.testInsert(note)
+    syncer.sync()
+
+    val remote = RemoteRepositoryRobot {
+      pull()
+      commitFiles(
+          message = "Create new shopping list",
+          add = listOf("shopping_list.md" to "# Shopping List\n(remote)")
+      )
+      forcePush()
+    }
+    noteQueries.setArchived(id = note.id, isArchived = false, updatedAt = clock.nowUtc())
+    syncer.sync()
+
+    val localNotes = noteQueries.allNotes().executeAsList()
+    assertThat(localNotes).hasSize(2)
+
+    assertThat(remote.fetchNoteFiles()).containsOnly(
+        "shopping_list.md" to "# Shopping List\n(remote)",
+        "shopping_list_2.md" to "# Shopping List\n(local)"
     )
   }
 

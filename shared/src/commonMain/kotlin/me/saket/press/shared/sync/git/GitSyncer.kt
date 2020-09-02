@@ -233,7 +233,7 @@ class GitSyncer(
       log(" • $notePath")
 
       if (notePath in pulledPathsToDiff) {
-        if (noteFile.equalsContent(note.content)) {
+        if (!noteFile.equalsContent(note.content)) {
           // File's content is going to change in a conflicting way. Duplicate the note.
           noteFile.copy(register.findNewNameOnConflict(noteFile)).let {
             it.write(note.content)
@@ -244,7 +244,8 @@ class GitSyncer(
         }
 
       } else if (oldPath in pulledPathsToDiff) {
-        // Old path was updated on remote, but deleted locally.
+        // Old path was updated on remote, but deleted (on rename) locally. By
+        // not accepting the rename, this file will later be saved as a new note.
         noteFile.write(note.content)
         log("   created as a new note to resolve merge conflict (old path = '$oldPath')")
 
