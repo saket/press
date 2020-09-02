@@ -21,11 +21,11 @@ import me.saket.press.shared.sync.SyncPreferencesEvent.SetupHostClicked
 import me.saket.press.shared.sync.SyncPreferencesUiEffect.OpenUrl
 import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncDisabled
 import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncEnabled
-import me.saket.press.shared.sync.Syncer.Status2.Disabled
-import me.saket.press.shared.sync.Syncer.Status2.Enabled
-import me.saket.press.shared.sync.Syncer.Status2.LastOp.Failed
-import me.saket.press.shared.sync.Syncer.Status2.LastOp.Idle
-import me.saket.press.shared.sync.Syncer.Status2.LastOp.InFlight
+import me.saket.press.shared.sync.Syncer.Status.Disabled
+import me.saket.press.shared.sync.Syncer.Status.Enabled
+import me.saket.press.shared.sync.Syncer.Status.LastOp.Failed
+import me.saket.press.shared.sync.Syncer.Status.LastOp.Idle
+import me.saket.press.shared.sync.Syncer.Status.LastOp.InFlight
 import me.saket.press.shared.sync.git.GitHost
 import me.saket.press.shared.sync.git.GitHostAuthToken
 import me.saket.press.shared.time.Clock

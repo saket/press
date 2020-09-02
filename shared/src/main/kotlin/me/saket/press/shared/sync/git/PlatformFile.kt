@@ -47,7 +47,7 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
     check(this.path != newFile.path) { "Same path: $path vs ${newFile.path}" }
     check(this.exists) { "$path doesn't exist" }
 
-    check(!newFile.exists)
+    check(!newFile.exists) { "${newFile.path} already exists!" }
     if (!newFile.parent!!.exists) {
       newFile.parent!!.makeDirectory(recursively = true)
     }

@@ -7,7 +7,7 @@ import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 /** Syncs notes with a remote destination. */
 abstract class Syncer {
 
-  internal abstract fun status(): Observable<Status2>
+  internal abstract fun status(): Observable<Status>
 
   /**
    * Called every time a note's content is updated,
@@ -17,14 +17,14 @@ abstract class Syncer {
 
   abstract fun disable()
 
-  sealed class Status2 {
-    object Disabled : Status2()
+  sealed class Status {
+    object Disabled : Status()
 
     data class Enabled(
       val lastOp: LastOp,
       val syncingWith: GitRepositoryInfo,
       val lastSyncedAt: LastSyncedAt?
-    ) : Status2()
+    ) : Status()
 
     enum class LastOp {
       InFlight,

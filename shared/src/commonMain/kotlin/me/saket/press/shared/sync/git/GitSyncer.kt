@@ -31,9 +31,9 @@ import me.saket.press.shared.sync.SyncState.IN_FLIGHT
 import me.saket.press.shared.sync.SyncState.PENDING
 import me.saket.press.shared.sync.SyncState.SYNCED
 import me.saket.press.shared.sync.Syncer
-import me.saket.press.shared.sync.Syncer.Status2.LastOp.Failed
-import me.saket.press.shared.sync.Syncer.Status2.LastOp.Idle
-import me.saket.press.shared.sync.Syncer.Status2.LastOp.InFlight
+import me.saket.press.shared.sync.Syncer.Status.LastOp.Failed
+import me.saket.press.shared.sync.Syncer.Status.LastOp.Idle
+import me.saket.press.shared.sync.Syncer.Status.LastOp.InFlight
 import me.saket.press.shared.sync.git.GitSyncer.CommitResult.Done
 import me.saket.press.shared.sync.git.GitSyncer.CommitResult.Skipped
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
@@ -78,11 +78,11 @@ class GitSyncer(
     private val lastOp = BehaviorSubject(Idle)
   }
 
-  override fun status(): Observable<Status2> {
+  override fun status(): Observable<Status> {
     return combineLatest(config.listen(), lastOp) { config, op ->
       when (config) {
-        null -> Status2.Disabled
-        else -> Status2.Enabled(
+        null -> Status.Disabled
+        else -> Status.Enabled(
             lastOp = op,
             lastSyncedAt = lastSyncedAt.get(),
             syncingWith = config.remote
