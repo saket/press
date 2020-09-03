@@ -84,10 +84,14 @@ internal class FileNameRegister(private val notesDirectory: File) {
   }
 
   data class FileSuggestion(
+    private val notesDirectory: File,
     val suggestedFile: File,
     val oldFile: File? = null,
     val acceptRename: (() -> Unit)? = null
-  )
+  ) {
+    val suggestedFilePath get() = suggestedFile.relativePathIn(notesDirectory)
+    val oldFilePath get() = oldFile?.relativePathIn(notesDirectory)
+  }
 
   @Suppress("CascadeIf")
   fun suggestFile(note: Note): FileSuggestion {
@@ -102,17 +106,17 @@ internal class FileNameRegister(private val notesDirectory: File) {
 
     return if (oldNoteFile == null) {
       // New note. A new file needs to be created.
-      FileSuggestion(File(notesDirectory, newNoteName).also {
+      FileSuggestion(notesDirectory, File(notesDirectory, newNoteName).also {
         it.parent?.makeDirectory(recursively = true)
         createNewRecordFor(it, note.id)
       })
     } else if (oldNoteFile.relativePathIn(notesDirectory) == newNoteName) {
       // A file already exists and the name matches the note's heading.
-      FileSuggestion(oldNoteFile)
+      FileSuggestion(notesDirectory, oldNoteFile)
     } else {
       // A file already exists, but the heading/folder was changed. Rename the file.
       val newFile = File(notesDirectory, newNoteName)
-      FileSuggestion(newFile, oldFile = oldNoteFile, acceptRename = {
+      FileSuggestion(notesDirectory, newFile, oldNoteFile, acceptRename = {
         oldNoteFile.renameTo(newFile)
         oldRecord!!.registerFile.delete()
         createNewRecordFor(newFile, note.id)

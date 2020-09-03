@@ -64,6 +64,7 @@ class GitSyncerTest : BaseDatabaeTest() {
       user = GitIdentity(name = "Test syncer author", email = "test@test.com")
   )
   private val configSetting = FakeSetting(config)
+  private val lastPushedSha1 = FakeSetting(null as LastPushedSha1?)
   private val git = DelegatingGit(delegate = RealGit())
   private val syncer = GitSyncer(
       git = git,
@@ -72,7 +73,7 @@ class GitSyncerTest : BaseDatabaeTest() {
       deviceInfo = deviceInfo,
       clock = clock,
       lastSyncedAt = FakeSetting(null),
-      lastPushedSha1 = FakeSetting(null)
+      lastPushedSha1 = lastPushedSha1
   )
 
   private val expectUnSyncedNotes = mutableListOf<NoteId>()
@@ -302,7 +303,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     // Given: a note was created on another device.
     val remote = RemoteRepositoryRobot {
       commitFiles(
-          message = "First commit",
+          message = "Create 'uncharted.md'",
           time = clock.nowUtc(),
           add = listOf("uncharted.md" to "# Uncharted")
       )
@@ -323,7 +324,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     clock.advanceTimeBy(1.hours)
     with(remote) {
       commitFiles(
-          message = "Second commit",
+          message = "Update 'uncharted.md'",
           time = clock.nowUtc(),
           add = listOf("uncharted.md" to "# Uncharted\nRemote edit")
       )
@@ -345,7 +346,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     assertThat(localNotes[1].id).isEqualTo(locallyEditedNote.id)
   }
 
-  @Test fun `merge local and remote notes with delete conflict (without remote register)`() {
+  @Test fun `merge renamed local and remote notes (without remote register)`() {
     if (!canRunTests()) return
 
     clock.rewindTimeBy(10.hours)
@@ -400,7 +401,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     assertThat(localNotes[1].id).isEqualTo(locallyEditedNote.id)
   }
 
-  @Test fun `merge local and remote notes with delete conflict (with remote register)`() {
+  @Test fun `merge renamed local and remote notes (with remote register)`() {
     if (!canRunTests()) return
 
     clock.rewindTimeBy(10.hours)
@@ -454,6 +455,32 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     assertThat(localNotes[1].content).isEqualTo("# Uncharted\nRemote edit")
     assertThat(localNotes[1].id).isEqualTo(remoteNoteId)
+  }
+
+  @Test fun `resolve merge by comparing timestamps on first sync`() {
+    if (!canRunTests()) return
+    clock.rewindTimeBy(10.hours)
+
+    val remoteNoteId = NoteId.from("ebc77dbc-9201-4902-bd4b-2ce8a99059a7")
+    RemoteRepositoryRobot {
+      createRecord("uncharted.md", id = remoteNoteId)
+      commitFiles(
+          message = "Create 'uncharted.md'",
+          time = clock.nowUtc(),
+          add = listOf("uncharted.md" to "# Uncharted")
+      )
+      forcePush()
+    }
+
+    clock.advanceTimeBy(1.hours)
+
+    val note = fakeNote("# Uncharted\nThe Lost Legacy", id = remoteNoteId)
+    noteQueries.testInsert(note)
+
+    syncer.sync()
+
+    val localNotes = noteQueries.visibleNotes().executeAsList()
+    assertThat(localNotes).hasSize(1)
   }
 
   // TODO
@@ -793,8 +820,13 @@ class GitSyncerTest : BaseDatabaeTest() {
     if (!canRunTests()) return
 
     // First sync goes through fine.
-    val note1 = fakeNote("# Batman 1")
-    noteQueries.testInsert(note1)
+    val remote = RemoteRepositoryRobot {
+      commitFiles(
+          message = "Create 'batman_1.md'",
+          add = listOf("batman_1.md" to "# Batman 1")
+      )
+      forcePush()
+    }
     syncer.sync()
 
     val unrelatedFile = File(syncer.directory, "unrelated_dirty_file.md")
@@ -807,7 +839,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     syncer.sync()
 
     assertThat(unrelatedFile.exists).isFalse()
-    val remoteFiles = RemoteRepositoryRobot().fetchNoteFiles().map { (path) -> path }
+    val remoteFiles = remote.fetchNoteFiles().map { (path) -> path }
     assertThat(remoteFiles).doesNotContain("unrelated_dirty_file.md")
     assertThat(remoteFiles).containsOnly("batman_1.md")
 
@@ -861,6 +893,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     if (!canRunTests()) return
 
     RemoteRepositoryRobot {
+      createRecord("nicolas.md", id = NoteId.generate())
       commitFiles(
           message = "Create 'nicolas.md'",
           add = listOf("nicolas.md" to "# Nicolas")

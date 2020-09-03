@@ -26,6 +26,7 @@ import me.saket.kgit.UtcTimestamp
 import me.saket.kgit.abbreviated
 import me.saket.kgit.identify
 import me.saket.press.PressDatabase
+import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.sync.LastPushedSha1
@@ -38,8 +39,7 @@ import me.saket.press.shared.sync.Syncer
 import me.saket.press.shared.sync.Syncer.Status.LastOp.Failed
 import me.saket.press.shared.sync.Syncer.Status.LastOp.Idle
 import me.saket.press.shared.sync.Syncer.Status.LastOp.InFlight
-import me.saket.press.shared.sync.git.GitSyncer.CommitResult.Done
-import me.saket.press.shared.sync.git.GitSyncer.CommitResult.Skipped
+import me.saket.press.shared.sync.git.FileNameRegister.FileSuggestion
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 import me.saket.press.shared.time.Clock
 
@@ -107,9 +107,9 @@ class GitSyncer(
       with(GitScope(git())) {
         resetState()
         val pullResult = pull()
-        val commitResult = commitAllChanges(pullResult)
+        commitAllChanges(pullResult)
         processCommits(pullResult)
-        push(commitResult)
+        push(pullResult)
       }
       lastSyncedAt.set(LastSyncedAt(clock.nowUtc()))
       lastOp.onNext(Idle)
@@ -204,17 +204,12 @@ class GitSyncer(
     }
   }
 
-  private enum class CommitResult {
-    Skipped,
-    Done
-  }
-
   @Suppress("CascadeIf")
-  private fun GitScope.commitAllChanges(pullResult: PullResult): CommitResult {
+  private fun GitScope.commitAllChanges(pullResult: PullResult) {
     val pendingSyncNotes = noteQueries.notesInState(listOf(PENDING, IN_FLIGHT)).executeAsList()
     if (pendingSyncNotes.isEmpty()) {
       log("Nothing to commit.")
-      return Skipped
+      return
     }
 
     // Having an intermediate sync state between PENDING and SYNCED
@@ -225,59 +220,31 @@ class GitSyncer(
         syncState = IN_FLIGHT
     )
 
-    val pulledPathsToDiff = git
-        .diffBetween(pullResult.headBefore, pullResult.headAfter)
-        .filterNoteChanges()
-        .associateBy { it.path }
+    // When syncing notes for the first time, pick newer notes.
+    // If syncing was enabled sometime in the past, the local and the
+    // remote repositories may have moved apart a lot.
+    val isFirstSync = lastPushedSha1.get() == null
+    val conflictResolver = when {
+      isFirstSync -> TimeBasedConflictResolver(git, pullResult)
+      else -> DuplicateOnConflictResolver(git, pullResult)
+    }
 
-    log("\nReading unsynced notes (${pendingSyncNotes.size}):")
+    log("Reading unsynced notes (${pendingSyncNotes.size}):")
 
-    // Git makes it easy to handle merge conflicts, but automating it for
-    // the user is going to be a challenge. If the same note was modified
-    // from different devices, Press duplicates them: note.md & note_2.md.
-    // This will also cover non-.md files.
-    //
-    // It's _very_ important that the local copy is duplicated. It'd be
-    // nice to rename the upstream copy because it's possible that the
-    // local copy is being edited right now, but duplicating the remote
-    // copy will result in an infinite loop where a new copy is created
-    // on every sync on the other device.
     for (note in pendingSyncNotes) {
-      val (noteFile, oldFile, acceptRename) = register.suggestFile(note)
-      val notePath = noteFile.relativePathIn(directory)
-      val oldPath = oldFile?.relativePathIn(directory)
-      log(" • $notePath")
+      val suggestion = register.suggestFile(note)
+      val notePath = suggestion.suggestedFilePath
 
-      if (notePath in pulledPathsToDiff) {
-        if (!noteFile.equalsContent(note.content)) {
-          // File's content is going to change in a conflicting way. Duplicate the note.
-          noteFile.copy(register.findNewNameOnConflict(noteFile)).let {
-            it.write(note.content)
-            log("   duplicated to '${it.relativePathIn(directory)}' to resolve merge conflict")
-          }
-        } else {
-          log("   skipped (same content)")
-        }
-
-      } else if (oldPath in pulledPathsToDiff) {
-        // Old path was updated on remote, but deleted (on rename) locally. By
-        // not accepting the rename, this file will later be saved as a new note.
-        noteFile.write(note.content)
-        log("   created as a new note to resolve merge conflict (old path = '$oldPath')")
-
-      } else {
-        if (acceptRename != null) {
-          acceptRename()
-          git.commitAll(
-              message = "Rename '$oldPath' → '$notePath'",
-              timestamp = UtcTimestamp(note.updatedAt),
-              allowEmpty = false
-          )
-        }
-
-        noteFile.write(note.content)
-        log("   created/updated")
+      val commitRename = {
+        git.commitAll(
+            message = "Rename '${suggestion.oldFilePath}' → '$notePath'",
+            timestamp = UtcTimestamp(note.updatedAt),
+            allowEmpty = false
+        )
       }
+
+      log(" • $notePath")
+      conflictResolver.resolveAndSave(note, suggestion, commitRename)
 
       // Staging area may not be dirty if this note had already been processed earlier.
       if (git.isStagingAreaDirty()) {
@@ -287,7 +254,95 @@ class GitSyncer(
         )
       }
     }
-    return Done
+  }
+
+  private abstract class MergeConflictsResolver(git: GitRepository, pullResult: PullResult) {
+    protected val pulledPaths = git
+        .diffBetween(pullResult.headBefore, pullResult.headAfter)
+        .filterNoteChanges()
+        .map { it.path }
+        .toHashSet()
+
+    abstract fun resolveAndSave(note: Note, suggestion: FileSuggestion, commitRename: () -> Unit?)
+  }
+
+  private inner class TimeBasedConflictResolver(
+    git: GitRepository,
+    pullResult: PullResult
+  ) : MergeConflictsResolver(git, pullResult) {
+
+    private val pulledPathTimestamps = git
+        .commitsBetween(null, pullResult.headAfter)
+        .pathTimestamps(git)
+
+    @Suppress("MapGetWithNotNullAssertionOperator")
+    override fun resolveAndSave(note: Note, suggestion: FileSuggestion, commitRename: () -> Unit?) {
+      val noteFile = suggestion.suggestedFile
+      val notePath = suggestion.suggestedFilePath
+      val oldPath = suggestion.oldFilePath
+
+      val isRemoteNewer = { path: String ->
+        path in pulledPaths && pulledPathTimestamps[path]!! > note.updatedAt
+      }
+
+      if (isRemoteNewer(notePath) || (oldPath != null && isRemoteNewer(oldPath))) {
+        log("   picking remote's copy and discarding local")
+
+      } else {
+        suggestion.acceptRename?.let {
+          it.invoke()
+          commitRename()
+        }
+        noteFile.write(note.content)
+        log("   picking local copy and discarding remote")
+      }
+    }
+  }
+
+  private inner class DuplicateOnConflictResolver(
+    git: GitRepository,
+    pullResult: PullResult
+  ) : MergeConflictsResolver(git, pullResult) {
+
+    override fun resolveAndSave(note: Note, suggestion: FileSuggestion, commitRename: () -> Unit?) {
+      val noteFile = suggestion.suggestedFile
+      val notePath = suggestion.suggestedFilePath
+      val oldPath = suggestion.oldFilePath
+
+      // Git makes it easy to handle merge conflicts, but automating it for
+      // the user is going to be a challenge. If the same note was modified
+      // from different devices, Press duplicates them: note.md & note_2.md.
+      // This will also cover non-.md files.
+      //
+      // Duplicating the local note is fewer work in the current design than
+      // remote. If the local note is being edited right now, Press will
+      // close and re-open the note.
+      if (notePath in pulledPaths) {
+        if (noteFile.equalsContent(note.content).not()) {
+          // File's content is going to change in a conflicting way. Duplicate the note.
+          noteFile.copy(register.findNewNameOnConflict(noteFile)).let {
+            it.write(note.content)
+            log("   duplicated to '${it.relativePathIn(directory)}' to resolve merge conflict")
+          }
+        } else {
+          log("   skipped (same content)")
+        }
+
+      } else if (oldPath in pulledPaths) {
+        // Old path was updated on remote, but deleted (on rename) locally. By not
+        // accepting the rename, this file will later be processed as a new note.
+        noteFile.write(note.content)
+        log("   created as a new note to resolve merge conflict (old path = '$oldPath')")
+
+      } else {
+        suggestion.acceptRename?.let {
+          it.invoke()
+          commitRename()
+        }
+        noteFile.write(note.content)
+        log("   created/updated")
+      }
+    }
   }
 
   @Suppress("NAME_SHADOWING")
@@ -305,20 +360,12 @@ class GitSyncer(
     val commits = git.commitsBetween(from = from, toInclusive = to)
     commits.forEach { log(" • ${it.sha1.abbreviated} - ${it.message.lines().first()}") }
 
-    // Press stores updated-at timestamp of notes in each commit.
-    val diffPathTimestamps = commits
-        .flatMap { commit ->
-          git.changesIn(commit)
-              .filterNoteChanges()
-              .map { it.path to commit.dateTime }
-        }
-        .toMap()
-
     // DB operations are executed in one go to
     // avoid locking the DB in a transaction for long.
     val dbOperations = mutableListOf<Runnable>()
 
     val diffs = git.diffBetween(from, to)
+    val diffPathTimestamps = commits.pathTimestamps(git)
 
     log("\nProcessing changes (${diffs.size}):")
     if (diffs.isNotEmpty()) log(diffs.flattenToString())
@@ -419,27 +466,14 @@ class GitSyncer(
     }
   }
 
-  private fun List<GitTreeDiff.Change>.filterNoteChanges() = filter { diff ->
-    val path = diff.path
-    when {
-      !path.endsWith(".md") -> false                                        // Not a markdown note.
-      path.startsWith(".press/") -> false                                   // Meta-files, ignore.
-      path.contains("/") -> {
-        when {
-          path.startsWith("archived/") && !path.hasMultipleOf('/') -> true  // Archived note.
-          else -> error("Folders aren't supported yet: '$path'")
-        }
-      }
-      else -> true
-    }
-  }
-
-  private fun GitScope.push(commitResult: CommitResult) {
+  private fun GitScope.push(pullResult: PullResult) {
     check(git.currentBranch().name == remote!!.defaultBranch) { "Not on the default branch" }
     check(!git.isStagingAreaDirty()) { "Expected staging area to be clean before pushing" }
 
-    return if (commitResult == Skipped) {
+    val head = git.headCommit()!!
+    return if (pullResult.headAfter == head) {
       noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = SYNCED)
+      lastPushedSha1.set(LastPushedSha1(head))
       log("\nNothing to push.")
 
     } else {
@@ -453,7 +487,7 @@ class GitSyncer(
       when (val result = git.push()) {
         is Success, is AlreadyUpToDate -> {
           noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = SYNCED)
-          lastPushedSha1.set(LastPushedSha1(git.headCommit()!!.sha1.value))
+          lastPushedSha1.set(LastPushedSha1(head))
         }
         // Merge conflicts can only be avoided if we're always on the latest version of upstream.
         // If push fails, abort this sync. Any unsynced changes will be reset on next sync.
@@ -463,6 +497,15 @@ class GitSyncer(
   }
 
   private fun log(message: String) = loggers.log(message)
+
+  private fun List<GitCommit>.pathTimestamps(git: GitRepository): Map<String, DateTime> {
+    // Press stores updated-at timestamp of notes in each commit.
+    return flatMap { commit ->
+      git.changesIn(commit)
+          .filterNoteChanges()
+          .map { it.path to commit.dateTime }
+    }.toMap()
+  }
 }
 
 @Suppress("FunctionName")
@@ -481,3 +524,21 @@ private val GitCommit.dateTime: DateTime
 private fun GitTreeDiff.flattenToString(): String {
   return joinToString(prefix = " • ", separator = "\n • ", postfix = "\n")
 }
+
+private fun List<GitTreeDiff.Change>.filterNoteChanges() = filter { diff ->
+  val path = diff.path
+  when {
+    !path.endsWith(".md") -> false                                        // Not a markdown note.
+    path.startsWith(".press/") -> false                                   // Meta-files, ignore.
+    path.contains("/") -> {
+      when {
+        path.startsWith("archived/") && !path.hasMultipleOf('/') -> true  // Archived note.
+        else -> error("Folders aren't supported yet: '$path'")
+      }
+    }
+    else -> true
+  }
+}
+
+@Suppress("FunctionName")
+fun LastPushedSha1(commit: GitCommit) = LastPushedSha1(commit.sha1.value)
