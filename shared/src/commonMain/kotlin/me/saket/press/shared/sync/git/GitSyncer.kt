@@ -159,19 +159,25 @@ class GitSyncer(
           timestamp = UtcTimestamp(clock),
           allowEmpty = true
       )
-
-      // JGit doesn't offer a way to set the initial branch name and it
-      // won't allow changing the branch without committing anything either
-      // so Press changes it after committing something.
-      git.checkout(remote!!.defaultBranch, create = true)
     }
 
     // Remove all unsynced and dirty changes.
     val lastCleanSha1 = lastPushedSha1.get()?.sha1 ?: git.headCommit()!!.sha1.value
     log("Resetting to sha1: $lastCleanSha1.")
-    git.deleteChangesSince(lastCleanSha1)
+    git.hardResetTo(
+        sha1 = lastCleanSha1,
+        resetState = true,
+        deleteUntrackedFiles = true
+    )
+
+    // JGit doesn't offer a way to set the initial branch name and it
+    // won't allow changing the branch without committing anything either
+    // so Press changes it after committing something. This also acts as a
+    // rollback if git is stuck in a detached head or something.
+    git.checkout(remote!!.defaultBranch, createIfNeeded = true)
 
     check(!git.isStagingAreaDirty()) { "Hard reset didn't work" }
+    println("current branch: ${git.currentBranch()}")
   }
 
   private data class PullResult(

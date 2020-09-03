@@ -9,6 +9,7 @@ import me.saket.kgit.GitTreeDiff.Change.Modify
 import me.saket.kgit.GitTreeDiff.Change.Rename
 import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM
 import org.eclipse.jgit.api.MergeCommand.FastForwardMode.FF
+import org.eclipse.jgit.api.RebaseCommand.Operation.ABORT
 import org.eclipse.jgit.api.RebaseResult
 import org.eclipse.jgit.api.ResetCommand.ResetType.HARD
 import org.eclipse.jgit.api.TransportConfigCallback
@@ -19,6 +20,7 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType.MODIFY
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.RENAME
 import org.eclipse.jgit.lib.BranchConfig.BranchRebaseMode.REBASE
 import org.eclipse.jgit.lib.PersonIdent
+import org.eclipse.jgit.lib.RepositoryState.SAFE
 import org.eclipse.jgit.merge.StrategyRecursive
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevWalk
@@ -95,11 +97,16 @@ internal actual class RealGitRepository actual constructor(
     return !status.isClean
   }
 
-  override fun checkout(branch: String, create: Boolean) {
-    if (currentBranch().name == branch) return
-
+  override fun checkout(branch: String, createIfNeeded: Boolean) {
     jgit.checkout().setName(branch)
-        .setCreateBranch(create)
+        .apply {
+          if (createIfNeeded) {
+            val create = jgit.branchList().call()
+                .any { branch == JRepository.shortenRefName(it.name) }
+                .not()
+            setCreateBranch(create)
+          }
+        }
         .setUpstreamMode(SET_UPSTREAM)
         .call()
   }
@@ -162,8 +169,15 @@ internal actual class RealGitRepository actual constructor(
     }
   }
 
-  override fun deleteChangesSince(sha1: String) {
-    jgit.add().addFilepattern(".").call()
+  override fun hardResetTo(sha1: String, resetState: Boolean, deleteUntrackedFiles: Boolean) {
+    if (deleteUntrackedFiles) {
+      jgit.add().addFilepattern(".").call()
+    }
+    if (resetState) {
+      fun state() = jgit.repository.repositoryState
+      if (state().isRebasing) jgit.rebase().setOperation(ABORT).call()
+      check(state() == SAFE) { "Couldn't recover from: ${state()}" }
+    }
     jgit.reset().setMode(HARD).setRef(sha1).call()
   }
 

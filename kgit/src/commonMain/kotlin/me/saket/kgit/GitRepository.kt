@@ -11,7 +11,7 @@ interface GitRepository {
 
   fun isStagingAreaDirty(): Boolean
 
-  fun checkout(branch: String, create: Boolean = true)
+  fun checkout(branch: String, createIfNeeded: Boolean = true)
 
   /**
    * Add all files to staging and commit.
@@ -32,7 +32,7 @@ interface GitRepository {
   /**
    * Hard reset everything including untracked changes.
    */
-  fun deleteChangesSince(sha1: String)
+  fun hardResetTo(sha1: String, resetState: Boolean, deleteUntrackedFiles: Boolean)
 
   /**
    * The commit HEAD is pointing to on [onBranch].
