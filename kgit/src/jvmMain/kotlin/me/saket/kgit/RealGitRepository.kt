@@ -9,6 +9,7 @@ import me.saket.kgit.GitTreeDiff.Change.Modify
 import me.saket.kgit.GitTreeDiff.Change.Rename
 import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM
 import org.eclipse.jgit.api.MergeCommand.FastForwardMode.FF
+import org.eclipse.jgit.api.RebaseResult
 import org.eclipse.jgit.api.ResetCommand.ResetType.HARD
 import org.eclipse.jgit.api.TransportConfigCallback
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.ADD
@@ -157,7 +158,7 @@ internal actual class RealGitRepository actual constructor(
 
     return when {
       pullResult.isSuccessful -> GitPullResult.Success
-      else -> GitPullResult.Failure(reason = pullResult.toString())
+      else -> GitPullResult.Failure(reason = "$pullResult, ${pullResult.rebaseResult.toStringFix()}")
     }
   }
 
@@ -311,6 +312,12 @@ internal actual class RealGitRepository actual constructor(
       error("HEAD is detached and isn't pointing to any branch.")
     }
   }
+}
+
+/** Because JGit forgot to implement [RebaseResult.toString]. */
+private fun RebaseResult.toStringFix(): String {
+  return "Rebase status: $status, conflicts: $conflicts, failing: $failingPaths, " +
+      "uncommitted: $uncommittedChanges, currentCommit: ${GitCommit(currentCommit)}"
 }
 
 actual fun Git.Companion.identify(e: Throwable): GitError {
