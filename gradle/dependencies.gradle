@@ -15,6 +15,8 @@ buildscript {
     androidXTestJUnit: '1.1.2-alpha02',
     betterLinkMovementMethod: '2.2.0',
     workManager: '2.4.0',
+    ktLint: '0.36.0', // blocked on https://github.com/pinterest/ktlint/issues/816
+    ktLintPlugin: '9.1.1',
 
     // multiplatform dependencies
     sqlDelight: '1.4.2',

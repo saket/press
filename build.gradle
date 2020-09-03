@@ -7,7 +7,8 @@ buildscript {
     jcenter()
     maven { url "https://dl.bintray.com/badoo/maven" }
     maven { url "https://dl.bintray.com/robstoll/tutteli-jars" }
-    maven {url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    maven { url "https://plugins.gradle.org/m2/" }
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
   }
 
   dependencies {
@@ -16,11 +17,8 @@ buildscript {
     classpath "org.jetbrains.kotlin:kotlin-serialization:$versions.kotlin"
     classpath "com.squareup.sqldelight:gradle-plugin:$versions.sqlDelight"
     classpath "com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:$versions.buildKonfig"
+    classpath "org.jlleitschuh.gradle:ktlint-gradle:$versions.ktLintPlugin"
   }
-}
-
-plugins {
-  id "org.jlleitschuh.gradle.ktlint" version "9.1.1" apply false
 }
 
 allprojects {
