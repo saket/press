@@ -844,7 +844,7 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     assertThat(RemoteRepositoryRobot().fetchNoteFiles()).containsOnly(
         "the_dark_knight.md" to "# The Dark Knight",
-        "the_dark_knight_rises.md" to "# The Dark Knight Rises",
+        "the_dark_knight_rises.md" to "# The Dark Knight Rises"
     )
     val unsyncedNotes = noteQueries.notesInState(listOf(PENDING, IN_FLIGHT)).executeAsList()
     assertThat(unsyncedNotes).isEmpty()
@@ -880,7 +880,7 @@ class GitSyncerTest : BaseDatabaeTest() {
         remoteSshUrl = config.remote.sshUrl,
         userConfig = GitConfig(
             "author" to listOf("name" to "Test remote author", "email" to "press@saket.me"),
-            "committer" to listOf("name" to "Test remote committer", "email" to ""),
+            "committer" to listOf("name" to "Test remote committer", "email" to "")
         )
     )
 
