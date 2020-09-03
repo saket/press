@@ -111,7 +111,6 @@ class GitSyncer(
         processCommits(pullResult)
         push(pullResult)
       }
-      lastSyncedAt.set(LastSyncedAt(clock.nowUtc()))
       lastOp.onNext(Idle)
 
     } catch (e: Throwable) {
@@ -470,10 +469,8 @@ class GitSyncer(
     check(git.currentBranch().name == remote!!.defaultBranch) { "Not on the default branch" }
     check(!git.isStagingAreaDirty()) { "Expected staging area to be clean before pushing" }
 
-    val head = git.headCommit()!!
-    return if (pullResult.headAfter == head) {
+    if (pullResult.headAfter ==  git.headCommit()) {
       noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = SYNCED)
-      lastPushedSha1.set(LastPushedSha1(head))
       log("\nNothing to push.")
 
     } else {
@@ -487,13 +484,15 @@ class GitSyncer(
       when (val result = git.push()) {
         is Success, is AlreadyUpToDate -> {
           noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = SYNCED)
-          lastPushedSha1.set(LastPushedSha1(head))
         }
         // Merge conflicts can only be avoided if we're always on the latest version of upstream.
         // If push fails, abort this sync. Any unsynced changes will be reset on next sync.
         is Failure -> error("Couldn't push: $result")
       }
     }
+
+    lastSyncedAt.set(LastSyncedAt(clock.nowUtc()))
+    lastPushedSha1.set(LastPushedSha1(git.headCommit()!!))
   }
 
   private fun log(message: String) = loggers.log(message)
