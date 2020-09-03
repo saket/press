@@ -23,6 +23,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import io.reactivex.subjects.BehaviorSubject
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.animation.ItemExpandAnimator
+import me.saket.inboxrecyclerview.dimming.DimPainter
 import me.saket.inboxrecyclerview.dimming.TintPainter
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.R
@@ -84,8 +85,8 @@ class HomeView @AssistedInject constructor(
     id = R.id.home_notes
     layoutManager = LinearLayoutManager(context)
     adapter = noteAdapter
-    tintPainter = TintPainter.uncoveredArea(color = BLACK, opacity = 0.25f)
-    itemExpandAnimator = ItemExpandAnimator.split()
+    dimPainter = DimPainter.listAndPage(color = BLACK, alpha = 0.25f)
+    itemExpandAnimator = ItemExpandAnimator.scale()
     toolbar.doOnLayout {
       clipToPadding = false
       updatePadding(top = toolbar.bottom)
