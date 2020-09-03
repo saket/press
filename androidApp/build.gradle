@@ -60,6 +60,7 @@ dependencies {
   implementation deps.androidx.ktx
   implementation deps.androidx.workManager.core
   implementation deps.androidx.workManager.rx2
+  implementation deps.androidx.lifecycle.process
   implementation deps.material.core
 
   implementation deps.contour

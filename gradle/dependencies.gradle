@@ -53,6 +53,9 @@ buildscript {
         'runner': "androidx.test:runner:$versions.androidXTest",
         'jUnit': "androidx.test.ext:junit:$versions.androidXTestJUnit",
         'jUnitKtx': "androidx.test.ext:junit-ktx:$versions.androidXTestJUnit"
+      ],
+      'lifecycle': [
+        'process': "androidx.lifecycle:lifecycle-process:2.2.0"
       ]
     ],
     'material': [
