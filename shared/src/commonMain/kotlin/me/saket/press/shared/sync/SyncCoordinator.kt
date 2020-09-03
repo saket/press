@@ -4,12 +4,16 @@ import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.completable.onErrorComplete
 import com.badoo.reaktive.completable.subscribe
+import com.badoo.reaktive.observable.doOnBeforeNext
 import com.badoo.reaktive.observable.flatMapCompletable
+import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.switchMap
 import com.badoo.reaktive.subject.publish.PublishSubject
 import com.soywiz.klock.seconds
 import me.saket.press.shared.rx.Schedulers
 import me.saket.press.shared.rx.observableInterval
+import me.saket.press.shared.rx.takeUntil
+import me.saket.press.shared.sync.Syncer.Status.Disabled
 
 /**
  * Syncs can be triggered from multiple places at different times. This class
@@ -38,6 +42,8 @@ class RealSyncCoordinator(
   }
 
   override fun syncWithResult(): Completable {
-    return completableFromFunction { syncer.sync() }.onErrorComplete()
+    return completableFromFunction { syncer.sync() }
+        .takeUntil(syncer.status().ofType<Disabled>().doOnBeforeNext { println("STOPPING SYNC") })
+        .onErrorComplete()
   }
 }

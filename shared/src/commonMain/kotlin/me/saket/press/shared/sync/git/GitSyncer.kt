@@ -132,6 +132,7 @@ class GitSyncer(
   private class GitScope(val git: GitRepository)
 
   override fun disable() {
+    log("Disabling sync.")
     config.set(null)
     lastSyncedAt.set(null)
     lastPushedSha1.set(null)

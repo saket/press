@@ -1,5 +1,6 @@
 package me.saket.press.shared.rx
 
+import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.asObservable
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.asCompletable
@@ -12,6 +13,7 @@ import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observableInterval
 import com.badoo.reaktive.observable.startWithValue
 import com.badoo.reaktive.observable.switchMap
+import com.badoo.reaktive.observable.takeUntil
 import com.badoo.reaktive.observable.withLatestFrom
 import com.badoo.reaktive.scheduler.Scheduler
 import com.soywiz.klock.TimeSpan
@@ -68,4 +70,8 @@ internal fun <T, R> Observable<T>.combineLatestWith(other: Observable<R>): Obser
 
 internal fun observableInterval(startDelay: Long, period: TimeSpan, scheduler: Scheduler): Observable<Long> {
   return observableInterval(startDelay, period.millisecondsLong, scheduler)
+}
+
+fun Completable.takeUntil(until: Observable<*>): Completable {
+  return asObservable<Unit>().takeUntil(until).asCompletable()
 }
