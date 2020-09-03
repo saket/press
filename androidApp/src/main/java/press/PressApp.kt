@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import android.os.Looper
+import androidx.work.WorkManager
 import io.reactivex.android.plugins.RxAndroidPlugins
 import io.reactivex.android.schedulers.AndroidSchedulers
 import me.saket.press.shared.di.SharedComponent
@@ -28,23 +29,28 @@ abstract class PressApp : Application() {
       AndroidSchedulers.from(Looper.getMainLooper(), true)
     }
 
-    BackgroundSyncWorker.schedule(this)
-    doOnActivityResume { activity ->
-      if (activity is HomeActivity) {
-        component.syncCoordinator().trigger()
-      }
+    BackgroundSyncWorker.schedule(WorkManager.getInstance(this))
+    doOnAppResume {
+      component.syncCoordinator().trigger()
     }
   }
 
-  private fun doOnActivityResume(action: (Activity) -> Unit) {
+  private fun doOnAppResume(action: () -> Unit) {
     registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
+      var resumedActivities = 0
+
       override fun onActivityResumed(activity: Activity) {
-        action(activity)
+        if (resumedActivities++ == 0) {
+          action()
+        }
+      }
+
+      override fun onActivityPaused(activity: Activity) {
+        resumedActivities--
       }
 
       override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = Unit
       override fun onActivityStarted(activity: Activity) = Unit
-      override fun onActivityPaused(activity: Activity) = Unit
       override fun onActivityStopped(activity: Activity) = Unit
       override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
       override fun onActivityDestroyed(activity: Activity) = Unit

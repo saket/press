@@ -24,13 +24,13 @@ class BackgroundSyncWorker(
   }
 
   companion object {
-    fun schedule(context: Context) {
+    fun schedule(workManager: WorkManager) {
       val request = PeriodicWorkRequest.Builder(
           BackgroundSyncWorker::class.java,
           Duration.ofMinutes(15)
       ).build()
 
-      WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+      workManager.enqueueUniquePeriodicWork(
           "BackgroundSyncWorker",
           ExistingPeriodicWorkPolicy.KEEP,
           request
