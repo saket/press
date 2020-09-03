@@ -60,15 +60,6 @@ class SharedSyncComponent {
 
     factory<Syncer> { get<GitSyncer>() }
     factory(named("gitsyncer_config")) { gitSyncerConfig(get(), get()) }
-    factory(named("last_synced_at")) {
-      Setting.create(
-          settings = get(),
-          key = "last_synced_at",
-          from = { LastSyncedAt(DateTimeAdapter.decode(it)) },
-          to = { DateTimeAdapter.encode(it.value) },
-          defaultValue = null
-      )
-    }
     factory {
       GitSyncer(
           git = RealGit(),
@@ -76,7 +67,8 @@ class SharedSyncComponent {
           database = get(),
           deviceInfo = get(),
           clock = get(),
-          lastSyncedAt = get(named("last_synced_at"))
+          lastSyncedAt = lastSyncedAt(get()),
+          lastPushedSha1 = lastPushedSha1(get())
       )
     }
 
@@ -102,6 +94,28 @@ class SharedSyncComponent {
         key = "gitsyncer_config",
         from = { serialized -> json.decodeFromString(GitSyncerConfig.serializer(), serialized) },
         to = { deserialized -> json.encodeToString(GitSyncerConfig.serializer(), deserialized) },
+        defaultValue = null
+    )
+  }
+
+  @OptIn(ExperimentalListener::class)
+  private fun lastSyncedAt(settings: ObservableSettings): Setting<LastSyncedAt> {
+    return Setting.create(
+        settings = settings,
+        key = "last_synced_at",
+        from = { LastSyncedAt(DateTimeAdapter.decode(it)) },
+        to = { DateTimeAdapter.encode(it.value) },
+        defaultValue = null
+    )
+  }
+
+  @OptIn(ExperimentalListener::class)
+  private fun lastPushedSha1(settings: ObservableSettings): Setting<LastPushedSha1> {
+    return Setting.create(
+        settings = settings,
+        key = "last_pushed_sha1",
+        from = { LastPushedSha1(it) },
+        to = { it.sha1 },
         defaultValue = null
     )
   }

@@ -29,7 +29,10 @@ interface GitRepository {
 
   fun push(force: Boolean = false): PushResult
 
-  fun hardResetTo(commit: GitCommit)
+  /**
+   * Hard reset everything including untracked changes.
+   */
+  fun deleteChangesSince(sha1: String)
 
   /**
    * The commit HEAD is pointing to on [onBranch].

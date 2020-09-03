@@ -161,8 +161,9 @@ internal actual class RealGitRepository actual constructor(
     }
   }
 
-  override fun hardResetTo(commit: GitCommit) {
-    jgit.reset().setMode(HARD).setRef(commit.sha1.value).call()
+  override fun deleteChangesSince(sha1: String) {
+    jgit.add().addFilepattern(".").call()
+    jgit.reset().setMode(HARD).setRef(sha1).call()
   }
 
   override fun push(force: Boolean): PushResult {

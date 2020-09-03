@@ -28,6 +28,7 @@ import me.saket.kgit.identify
 import me.saket.press.PressDatabase
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.settings.Setting
+import me.saket.press.shared.sync.LastPushedSha1
 import me.saket.press.shared.sync.LastSyncedAt
 import me.saket.press.shared.sync.SyncState
 import me.saket.press.shared.sync.SyncState.IN_FLIGHT
@@ -46,7 +47,6 @@ import me.saket.press.shared.time.Clock
 //  Stop ship
 //   - broadcast an event when a merge conflict is resolved.
 //  Others
-//   - figure out git author name/email.
 //   - commit deleted notes.
 //   - show errors in status UI
 class GitSyncer(
@@ -55,11 +55,12 @@ class GitSyncer(
   private val database: PressDatabase,
   private val deviceInfo: DeviceInfo,
   private val clock: Clock,
-  private val lastSyncedAt: Setting<LastSyncedAt>
+  private val lastSyncedAt: Setting<LastSyncedAt>,
+  private val lastPushedSha1: Setting<LastPushedSha1>
 ) : Syncer() {
 
+  internal val directory = File(deviceInfo.appStorage, "git")
   private val noteQueries get() = database.noteQueries
-  private val directory = File(deviceInfo.appStorage, "git")
   private val register = FileNameRegister(directory)
   private val remote: GitRepositoryInfo? get() = config.get()?.remote
   private val loggers = SyncLoggers(PrintLnSyncLogger, FileBasedSyncLogger(directory))
@@ -104,10 +105,11 @@ class GitSyncer(
 
     try {
       with(GitScope(git())) {
+        resetState()
         val pullResult = pull()
         val commitResult = commitAllChanges(pullResult)
         processCommits(pullResult)
-        push(pullResult, commitResult)
+        push(commitResult)
       }
       lastSyncedAt.set(LastSyncedAt(clock.nowUtc()))
       lastOp.onNext(Idle)
@@ -128,41 +130,48 @@ class GitSyncer(
     }
   }
 
-  class GitScope(val git: GitRepository)
+  private class GitScope(val git: GitRepository)
 
   override fun disable() {
     config.set(null)
+    lastSyncedAt.set(null)
+    lastPushedSha1.set(null)
     directory.delete(recursively = true)
     noteQueries.swapSyncStates(old = SyncState.values().toList(), new = PENDING)
   }
 
-  /** Commit announcing that syncing has been setup. */
-  private fun maybeMakeInitialCommit(git: GitRepository) {
-    if (git.headCommit() != null) {
-      return
-    }
+  private fun GitScope.resetState() {
+    // Commit an announcement that syncing has been setup.
+    if (git.headCommit() == null) {
+      with(File(directory, ".press/")) {
+        makeDirectory(recursively = true)
+        File(this, "README.md").write(
+            "Press uses files in this directory for storing meta-data of your synced notes. " +
+                "They are auto-generated and shouldn't be modified. If you run into any " +
+                "issues with syncing of notes, feel free to file a [bug report here]" +
+                "(https://github.com/saket/press/issues) and attach [sync logs](sync_log.txt)" +
+                " after removing/redacting any private info."
+        )
+      }
 
-    with(File(directory, ".press/")) {
-      makeDirectory(recursively = true)
-      File(this, "README.md").write(
-          "Press uses files in this directory for storing meta-data of your synced notes. " +
-              "They are auto-generated and shouldn't be modified. If you run into any " +
-              "issues with syncing of notes, feel free to file a [bug report here]" +
-              "(https://github.com/saket/press/issues) and attach [sync logs](sync_log.txt)" +
-              " after removing/redacting any private info."
+      git.commitAll(
+          message = "Setup syncing on '${deviceInfo.deviceName()}'",
+          timestamp = UtcTimestamp(clock),
+          allowEmpty = true
       )
+
+      // JGit doesn't offer a way to set the initial branch name and it
+      // won't allow changing the branch without committing anything either
+      // so Press changes it after committing something.
+      git.checkout(remote!!.defaultBranch, create = true)
     }
 
-    git.commitAll(
-        message = "Setup syncing on '${deviceInfo.deviceName()}'",
-        timestamp = UtcTimestamp(clock),
-        allowEmpty = true
-    )
+    // Remove all unsynced and dirty changes.
+    val lastCleanSha1 = lastPushedSha1.get()?.sha1 ?: git.headCommit()!!.sha1.value
+    log("Resetting to sha1: $lastCleanSha1.")
+    git.deleteChangesSince(lastCleanSha1)
 
-    // JGit doesn't offer a way to set the initial branch name and it
-    // won't let us change the branch without committing anything either
-    // so we change it after committing something.
-    git.checkout(remote!!.defaultBranch, create = true)
+    check(!git.isStagingAreaDirty()) { "Hard reset didn't work" }
   }
 
   private data class PullResult(
@@ -171,9 +180,7 @@ class GitSyncer(
   )
 
   private fun GitScope.pull(): PullResult {
-    maybeMakeInitialCommit(git)
-    val localHead = git.headCommit()!!  // non-null because of maybeMakeInitialCommit().
-    git.hardResetTo(localHead)
+    val localHead = git.headCommit()!!  // non-null because of resetState().
 
     return when (val it = git.pull(rebase = true)) {
       is GitPullResult.Success -> {
@@ -427,7 +434,7 @@ class GitSyncer(
     }
   }
 
-  private fun GitScope.push(pullResult: PullResult, commitResult: CommitResult) {
+  private fun GitScope.push(commitResult: CommitResult) {
     check(git.currentBranch().name == remote!!.defaultBranch) { "Not on the default branch" }
     check(!git.isStagingAreaDirty()) { "Expected staging area to be clean before pushing" }
 
@@ -436,24 +443,21 @@ class GitSyncer(
       log("\nNothing to push.")
 
     } else {
+      log("\nPushing changes")
       loggers.onSyncComplete()
       git.commitAll(
           message = "Update sync logs",
           timestamp = UtcTimestamp(clock)
       )
 
-      when (git.push()) {
+      when (val result = git.push()) {
         is Success, is AlreadyUpToDate -> {
           noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = SYNCED)
-          log("\nChanges pushed")
+          lastPushedSha1.set(LastPushedSha1(git.headCommit()!!.sha1.value))
         }
         // Merge conflicts can only be avoided if we're always on the latest version of upstream.
-        // If push fails, discard any new commits. They'll be recreated on the next sync.
-        is Failure -> {
-          git.hardResetTo(pullResult.headAfter)
-          noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = PENDING)
-          log("\nCouldn't push. Reverted to ${git.headCommit()}")
-        }
+        // If push fails, abort this sync. Any unsynced changes will be reset on next sync.
+        is Failure -> error("Couldn't push: $result")
       }
     }
   }

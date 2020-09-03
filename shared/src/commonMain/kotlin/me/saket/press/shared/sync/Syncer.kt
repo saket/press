@@ -35,3 +35,4 @@ abstract class Syncer {
 }
 
 inline class LastSyncedAt(val value: DateTime)
+inline class LastPushedSha1(val sha1: String)

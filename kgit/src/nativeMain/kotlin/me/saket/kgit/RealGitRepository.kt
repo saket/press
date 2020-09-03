@@ -11,7 +11,7 @@ internal actual class RealGitRepository actual constructor(
   override fun commitAll(message: String, timestamp: UtcTimestamp, allowEmpty: Boolean) = TODO()
   override fun pull(rebase: Boolean): GitPullResult = TODO()
   override fun push(force: Boolean): PushResult = TODO()
-  override fun hardResetTo(commit: GitCommit): Unit = TODO()
+  override fun deleteChangesSince(sha1: String): Unit = TODO()
   override fun headCommit(onBranch: String?): GitCommit = TODO()
   override fun commitsBetween(from: GitCommit?, toInclusive: GitCommit): List<GitCommit> = TODO()
   override fun commonAncestor(first: GitCommit, second: GitCommit): GitCommit? = TODO()

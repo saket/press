@@ -2,6 +2,7 @@ package me.saket.press.shared.sync
 
 import assertk.assertThat
 import assertk.assertions.containsExactly
+import assertk.assertions.doesNotContain
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
@@ -13,6 +14,7 @@ import assertk.assertions.isTrue
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.hours
 import me.saket.kgit.GitConfig
+import me.saket.kgit.GitIdentity
 import me.saket.kgit.PushResult
 import me.saket.kgit.RealGit
 import me.saket.kgit.SshPrivateKey
@@ -26,6 +28,7 @@ import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.settings.FakeSetting
+import me.saket.press.shared.sync.SyncState.IN_FLIGHT
 import me.saket.press.shared.sync.SyncState.PENDING
 import me.saket.press.shared.sync.SyncState.SYNCED
 import me.saket.press.shared.sync.git.File
@@ -38,7 +41,6 @@ import me.saket.press.shared.sync.git.children
 import me.saket.press.shared.sync.git.delete
 import me.saket.press.shared.sync.git.relativePathIn
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
-import me.saket.kgit.GitIdentity
 import me.saket.press.shared.testDeviceInfo
 import me.saket.press.shared.time.FakeClock
 import kotlin.test.AfterTest
@@ -69,7 +71,8 @@ class GitSyncerTest : BaseDatabaeTest() {
       database = database,
       deviceInfo = deviceInfo,
       clock = clock,
-      lastSyncedAt = FakeSetting(null)
+      lastSyncedAt = FakeSetting(null),
+      lastPushedSha1 = FakeSetting(null)
   )
 
   private val expectUnSyncedNotes = mutableListOf<NoteId>()
@@ -757,7 +760,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     if (!canRunTests()) return
   }
 
-  @Test fun `revert commits if push fails`() {
+  @Test fun `notes stay in-flight if sync fails unexpectedly`() {
     if (!canRunTests()) return
 
     val remote = RemoteRepositoryRobot {
@@ -769,15 +772,82 @@ class GitSyncerTest : BaseDatabaeTest() {
     }
     syncer.sync()
 
-    val newNote = fakeNote("# The Ghost Writer")
+    val newNote = fakeNote("# Batman")
     noteQueries.testInsert(newNote)
 
-    git.pushResult = PushResult.Failure(reason = "coronavirus")
+    // Syncs fail in different ways.
+    git.onPull = { error("You just couldn't let me go, could you?") }
     syncer.sync()
 
+    git.onPull = null
+    git.pushResult = PushResult.Failure(reason = "Joker")
+    syncer.sync()
+
+    // Verify: the new note doesn't get mark as synced.
     assertThat(remote.fetchNoteFiles()).containsOnly("nicolas.md" to "# Nicolas")
-    assertThat(noteQueries.note(newNote.id).executeAsOne().syncState).isEqualTo(PENDING)
+    assertThat(noteQueries.note(newNote.id).executeAsOne().syncState).isEqualTo(IN_FLIGHT)
     expectUnSyncedNotes += newNote.id
+  }
+
+  @Test fun `reset all dirty state to last synced sha1 on start`() {
+    if (!canRunTests()) return
+
+    // First sync goes through fine.
+    val note1 = fakeNote("# Batman 1")
+    noteQueries.testInsert(note1)
+    syncer.sync()
+
+    val unrelatedFile = File(syncer.directory, "unrelated_dirty_file.md")
+    unrelatedFile.write("Any random file that wasn't created from a note.")
+
+    // Second sync fails.
+    val note2 = fakeNote("# Batman 2")
+    noteQueries.testInsert(note2)
+    git.pushResult = PushResult.Failure(reason = "Two-Face")
+    syncer.sync()
+
+    assertThat(unrelatedFile.exists).isFalse()
+    val remoteFiles = RemoteRepositoryRobot().fetchNoteFiles().map { (path) -> path }
+    assertThat(remoteFiles).doesNotContain("unrelated_dirty_file.md")
+    assertThat(remoteFiles).containsOnly("batman_1.md")
+
+    val noteFiles = {
+      syncer.directory
+          .children()
+          .filter { it.path.endsWith(".md") }
+    }
+
+    // Both synced and unsynced notes will be present in the file directory right now.
+    val notePaths = { noteFiles().map { it.relativePathIn(syncer.directory) } }
+    assertThat(notePaths()).containsOnly("batman_1.md", "batman_2.md")
+
+    // The unsynced note will be in a dangling sync
+    // state. It should get picked up on the next sync.
+    assertThat(noteQueries.note(note2.id).executeAsOne().syncState).isEqualTo(IN_FLIGHT)
+
+    // When sync is started again, it should
+    // delete all unsynced files before starting.
+    git.onPull = { error("don't need this to finish") }
+    syncer.sync()
+    expectUnSyncedNotes += note2.id
+
+    assertThat(notePaths()).containsOnly("batman_1.md")
+  }
+
+  @Test fun `pickup all unsynced notes on start`() {
+    noteQueries.testInsert(
+        fakeNote("# The Dark Knight", syncState = PENDING),
+        fakeNote("# The Dark Knight Rises", syncState = IN_FLIGHT)
+    )
+
+    syncer.sync()
+
+    assertThat(RemoteRepositoryRobot().fetchNoteFiles()).containsOnly(
+        "the_dark_knight.md" to "# The Dark Knight",
+        "the_dark_knight_rises.md" to "# The Dark Knight Rises",
+    )
+    val unsyncedNotes = noteQueries.notesInState(listOf(PENDING, IN_FLIGHT)).executeAsList()
+    assertThat(unsyncedNotes).isEmpty()
   }
 
   @Test fun `skip pushing if nothing was pulled or committed`() {
