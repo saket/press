@@ -3,6 +3,7 @@ package press
 import android.app.Application
 import android.os.Looper
 import androidx.lifecycle.Lifecycle.Event.ON_START
+import androidx.lifecycle.Lifecycle.Event.ON_STOP
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.ProcessLifecycleOwner
@@ -29,12 +30,18 @@ abstract class PressApp : Application(), LifecycleObserver {
     RxAndroidPlugins.setInitMainThreadSchedulerHandler {
       AndroidSchedulers.from(Looper.getMainLooper(), true)
     }
+
+    BackgroundSyncWorker.schedule(WorkManager.getInstance(this))
     ProcessLifecycleOwner.get().lifecycle.addObserver(this)
   }
 
   @OnLifecycleEvent(ON_START)
   fun onAppForegrounded() {
-    BackgroundSyncWorker.schedule(WorkManager.getInstance(this))
+    component.syncCoordinator().trigger()
+  }
+
+  @OnLifecycleEvent(ON_STOP)
+  fun onAppBackgrounded() {
     component.syncCoordinator().trigger()
   }
 }
