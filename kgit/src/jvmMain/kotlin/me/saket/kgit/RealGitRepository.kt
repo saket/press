@@ -33,6 +33,7 @@ import org.eclipse.jgit.transport.URIish
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.EmptyTreeIterator
 import org.eclipse.jgit.util.FS
+import java.io.IOException
 import java.util.Date
 import java.util.TimeZone
 import org.eclipse.jgit.api.Git as JGit
@@ -337,6 +338,9 @@ private fun RebaseResult.toStringFix(): String {
 actual fun Git.Companion.identify(e: Throwable): GitError {
   if (e is org.eclipse.jgit.api.errors.TransportException) {
     if (e.message?.contains("unknown host", ignoreCase = true) == true) {
+      return GitError.NetworkError
+    }
+    if (e.cause is IOException) {
       return GitError.NetworkError
     }
     if (e.message?.contains("Auth fail", ignoreCase = true) == true) {
