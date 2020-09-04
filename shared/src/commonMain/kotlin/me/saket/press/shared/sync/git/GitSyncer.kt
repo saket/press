@@ -299,8 +299,8 @@ class GitSyncer(
           it.invoke()
           commitRename()
         }
-        noteFile.write(note.content)
         log("   picking local copy and discarding remote")
+        noteFile.write(note.content)
       }
     }
   }
@@ -326,27 +326,26 @@ class GitSyncer(
       if (notePath in pulledPaths) {
         if (noteFile.equalsContent(note.content).not()) {
           // File's content is going to change in a conflicting way. Duplicate the note.
-          noteFile.copy(register.findNewNameOnConflict(noteFile)).let {
-            it.write(note.content)
-            log("   duplicated to '${it.relativePathIn(directory)}' to resolve merge conflict")
-          }
+          val newName = register.findNewNameOnConflict(noteFile)
+          log("   duplicating to '<same parent>/$newName' to resolve merge conflict")
+          noteFile.copy(newName).write(note.content)
         } else {
-          log("   skipped (same content)")
+          log("   skipping (same content)")
         }
 
       } else if (oldPath in pulledPaths) {
         // Old path was updated on remote, but deleted (on rename) locally. By not
         // accepting the rename, this file will later be processed as a new note.
+        log("   creating as a new note to resolve merge conflict (old path = '$oldPath')")
         noteFile.write(note.content)
-        log("   created as a new note to resolve merge conflict (old path = '$oldPath')")
 
       } else {
+        log("   creating/updating")
         suggestion.acceptRename?.let {
           it.invoke()
           commitRename()
         }
         noteFile.write(note.content)
-        log("   created/updated")
       }
     }
   }
