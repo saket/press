@@ -1,4 +1,4 @@
-<img width="100" height="100" src="resources/github/app_icon_github.png?raw=true"> 
+<img width="100" height="100" src="resources/circular_icon_with_shadows.png?raw=true"> 
 
 <p align="center">
   <img width="32%" src="resources/play_store/screenshots/home.png?raw=true">
