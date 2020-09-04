@@ -376,8 +376,6 @@ class GitSyncer(
     if (diffs.isNotEmpty()) log(diffs.flattenToString())
 
     for (diff in diffs.filterNoteChanges()) {
-      val commitTime = diffPathTimestamps[diff.path]!!
-
       dbOperations += when (diff) {
         is Copy,
         is Rename,
@@ -394,6 +392,7 @@ class GitSyncer(
           val noteId = record.noteId
           val isArchived = record.noteFolder == "archived"
           val isNewNote = !noteQueries.exists(noteId).executeAsOne()
+          val commitTime = diffPathTimestamps[diff.path]!!
 
           if (isNewNote) {
             log("Creating new note $noteId for (${diff.path}), isArchived? $isArchived")
