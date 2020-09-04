@@ -635,12 +635,13 @@ class GitSyncerTest : BaseDatabaeTest() {
     if (!canRunTests()) return
 
     val note1 = fakeNote("# Horizon Zero Dawn", isArchived = true)
-    val note2 = fakeNote("# Uncharted", isArchived = false)
-    noteQueries.testInsert(note1, note2)
+    val note2 = fakeNote("# Uncharted", isArchived = true)
+    val note3 = fakeNote("# Uncharted", isArchived = false)
+    noteQueries.testInsert(note1, note2, note3)
     syncer.sync()
 
     noteQueries.setArchived(
-        id = note2.id,
+        id = note3.id,
         isArchived = true,
         updatedAt = clock.nowUtc()
     )
@@ -651,7 +652,8 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     assertThat(RemoteRepositoryRobot().fetchNoteFiles()).containsOnly(
         "archived/horizon_zero_dawn.md" to "# Horizon Zero Dawn",
-        "archived/uncharted.md" to "# Uncharted"
+        "archived/uncharted.md" to "# Uncharted",
+        "archived/uncharted_2.md" to "# Uncharted"
     )
   }
 
@@ -845,7 +847,7 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     val noteFiles = {
       syncer.directory
-          .children()
+          .children(recursively = true)
           .filter { it.path.endsWith(".md") }
     }
 

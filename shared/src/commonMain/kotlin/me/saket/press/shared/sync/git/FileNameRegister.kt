@@ -149,10 +149,9 @@ internal class FileNameRegister(private val notesDirectory: File) {
     val expectedName = if (heading.isNotBlank()) heading else "untitled_note"
     val folder = note.folder()?.plus("/") ?: ""
 
-    val existingNames = File(notesDirectory, folder)
-        .existsOrNull()
-        ?.children()?.map { it.name }
-        ?: emptyList()
+    val existingNames = notesDirectory
+        .children(recursively = true)
+        .map { it.relativePathIn(notesDirectory) }
 
     // Suffix the name to avoid conflicts. E.g., "untitled_note_2".
     var uniqueName: String
@@ -179,6 +178,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
     return if (isArchived) "archived" else null
   }
 
+  /** Generates a new name *in the same parent*, unlike [findOrGenerateFileNameFor]. */
   fun findNewNameOnConflict(noteFile: File): FileName {
     val extension = noteFile.extension
     val conflictedName = noteFile.nameWithoutExtension
