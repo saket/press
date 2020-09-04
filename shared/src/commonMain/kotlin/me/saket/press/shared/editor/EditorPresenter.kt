@@ -32,7 +32,6 @@ import me.saket.press.shared.rx.consumeOnNext
 import me.saket.press.shared.rx.mapToOptional
 import me.saket.press.shared.rx.mapToSome
 import me.saket.press.shared.rx.observableInterval
-import me.saket.press.shared.sync.SyncCoordinator
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.ui.ScreenKey.Close
@@ -45,8 +44,7 @@ class EditorPresenter(
   private val noteRepository: NoteRepository,
   private val schedulers: Schedulers,
   private val strings: Strings,
-  private val config: EditorConfig,
-  private val syncCoordinator: SyncCoordinator
+  private val config: EditorConfig
 ) : Presenter<EditorEvent, EditorUiModel, EditorUiEffect>() {
 
   private val openMode = args.openMode
@@ -151,9 +149,7 @@ class EditorPresenter(
   fun saveEditorContentOnClose(content: String) {
     updateOrArchiveNote(content)
         .subscribeOn(schedulers.io)
-        .subscribe {
-          syncCoordinator.trigger()
-        }
+        .subscribe()
   }
 
   private fun updateOrArchiveNote(content: String): Completable {
