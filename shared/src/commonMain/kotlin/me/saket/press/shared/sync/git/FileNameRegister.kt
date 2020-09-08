@@ -22,7 +22,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
     private const val MAX_NAME_LENGTH = 240
   }
 
-  internal val registerDirectory = File(notesDirectory, ".press/registers").also {
+  private val registerDirectory = File(notesDirectory, ".press/registers").also {
     it.makeDirectory(recursively = true)
   }
 
@@ -213,6 +213,42 @@ internal class FileNameRegister(private val notesDirectory: File) {
       }
     }
   }
+
+  internal data class Record @Deprecated("Use Record.forFile()") constructor(
+    private val registersDirectory: File,
+    val registerFile: File
+  ) {
+    companion object {
+      @Suppress("DEPRECATION")
+      fun from(registersDirectory: File, registerFile: File): Record {
+        return Record(registersDirectory, registerFile)
+      }
+
+      fun writeToFile(registerDirectory: File, notesDirectory: File, noteFile: File, id: NoteId): File {
+        val relativePath = noteFile.relativePathIn(notesDirectory)
+        return File(registerDirectory, relativePath).also {
+          if (!it.parent!!.exists) it.parent!!.makeDirectory(recursively = true)
+          it.write(id.value.toString())
+        }
+      }
+    }
+
+    internal val noteFilePath: String
+      get() = registerFile.relativePathIn(registersDirectory)
+
+    internal val noteId: NoteId
+      get() = NoteId.from(noteIdString)
+
+    internal val noteIdString: String
+      get() = registerFile.read()
+
+    internal val noteFolder: String
+      get() = noteFilePath.substringBefore("/", missingDelimiterValue = "")
+
+    internal fun noteFileIn(notesDirectory: File): File {
+      return File(notesDirectory, noteFilePath)
+    }
+  }
 }
 
 private inline fun <T> File?.hideAndRun(crossinline run: () -> T): T {
@@ -223,41 +259,5 @@ private inline fun <T> File?.hideAndRun(crossinline run: () -> T): T {
     val value = run()
     renamedFile.renameTo(File(origPath))
     value
-  }
-}
-
-internal data class Record @Deprecated("Use Record.forFile()") constructor(
-  private val registersDirectory: File,
-  val registerFile: File
-) {
-  companion object {
-    @Suppress("DEPRECATION")
-    fun from(registersDirectory: File, registerFile: File): Record {
-      return Record(registersDirectory, registerFile)
-    }
-
-    fun writeToFile(registerDirectory: File, notesDirectory: File, noteFile: File, id: NoteId): File {
-      val relativePath = noteFile.relativePathIn(notesDirectory)
-      return File(registerDirectory, relativePath).also {
-        if (!it.parent!!.exists) it.parent!!.makeDirectory(recursively = true)
-        it.write(id.value.toString())
-      }
-    }
-  }
-
-  internal val noteFilePath: String
-    get() = registerFile.relativePathIn(registersDirectory)
-
-  internal val noteId: NoteId
-    get() = NoteId.from(noteIdString)
-
-  internal val noteIdString: String
-    get() = registerFile.read()
-
-  internal val noteFolder: String
-    get() = noteFilePath.substringBefore("/", missingDelimiterValue = "")
-
-  internal fun noteFileIn(notesDirectory: File): File {
-    return File(notesDirectory, noteFilePath)
   }
 }
