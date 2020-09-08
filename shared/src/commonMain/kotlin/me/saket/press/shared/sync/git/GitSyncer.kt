@@ -72,7 +72,7 @@ class GitSyncer(
         remoteSshUrl = config.remote.sshUrl,
         userConfig = GitConfig(
             "author" to listOf("name" to config.user.name, "email" to (config.user.email ?: "")),
-            "committer" to listOf("name" to "Press", "email" to "press@saket.me"),
+            "committer" to listOf("name" to "press", "email" to "press@saket.me"),
             "diff" to listOf("renames" to "true")
         )
     )
@@ -188,33 +188,42 @@ class GitSyncer(
   private fun GitScope.pull(): PullResult {
     val localHead = git.headCommit()!!  // non-null because of resetState().
 
-    return when (val it = git.pull(rebase = true)) {
-      is GitPullResult.Success -> {
-        val upstreamHead = git.headCommit()!!
-        if (upstreamHead != localHead) {
-          log("Pulled upstream. Moved head from $localHead to $upstreamHead.")
-          val pullDiff = git.diffBetween(localHead, upstreamHead)
-          if (pullDiff.isNotEmpty()) {
-            log("\nPulled changes (${pullDiff.size}):")
-            log(pullDiff.flattenToString())
-          }
-
-        } else {
-          log("Nothing to pull.")
-        }
-        PullResult(headBefore = localHead, headAfter = upstreamHead)
-      }
-      is GitPullResult.Failure -> {
-        throw error("Failed to rebase: $it")
-      }
+    git.pull(rebase = true).also {
+      check (it is GitPullResult.Success) { "Failed to rebase: $it" }
     }
+
+    val upstreamHead = git.headCommit()!!
+    if (upstreamHead != localHead) {
+      log("Pulled upstream. Moved head from $localHead to $upstreamHead.")
+      val diff = git.diffBetween(localHead, upstreamHead)
+      if (diff.isNotEmpty()) {
+        log("\nPulled changes (${diff.size}):")
+        log(diff.flattenToString())
+      }
+    } else {
+      log("\nNothing to pull.")
+    }
+
+    // This ideally shouldn't be needed, but bugs have crept up in the
+    // past and invalid records will need to be thrown away. Notes with
+    // discarded records will be given a new identity.
+    register.pruneDuplicateRecords()
+    if (git.isStagingAreaDirty()) {
+      log("\nPruned invalid file name records")
+      git.commitAll(
+          message = "Prune invalid file name records",
+          timestamp = UtcTimestamp(clock)
+      )
+    }
+
+    return PullResult(headBefore = localHead, headAfter = upstreamHead)
   }
 
   @Suppress("CascadeIf")
   private fun GitScope.commitAllChanges(pullResult: PullResult) {
     val pendingSyncNotes = noteQueries.notesInState(listOf(PENDING, IN_FLIGHT)).executeAsList()
     if (pendingSyncNotes.isEmpty()) {
-      log("Nothing to commit.")
+      log("\nNothing to commit.")
       return
     }
 
@@ -373,7 +382,9 @@ class GitSyncer(
     val diffPathTimestamps = commits.pathTimestamps(git)
 
     log("\nProcessing changes (${diffs.size}):")
-    if (diffs.isNotEmpty()) log(diffs.flattenToString())
+    if (diffs.isNotEmpty()) {
+      log(diffs.flattenToString() + "\n")
+    }
 
     for (diff in diffs.filterNoteChanges()) {
       dbOperations += when (diff) {
@@ -464,7 +475,7 @@ class GitSyncer(
     register.pruneStaleRecords(savedNotes)
     if (git.isStagingAreaDirty()) {
       git.commitAll(
-          message = "Update file name records",
+          message = "Prune stale file name records",
           timestamp = UtcTimestamp(clock)
       )
     }
@@ -526,7 +537,7 @@ private val GitCommit.dateTime: DateTime
   get() = DateTime.fromUnix(utcTimestamp.millis)
 
 private fun GitTreeDiff.flattenToString(): String {
-  return joinToString(prefix = " • ", separator = "\n • ", postfix = "\n")
+  return joinToString(prefix = " • ", separator = "\n • ")
 }
 
 private fun List<GitTreeDiff.Change>.filterNoteChanges() = filter { diff ->
@@ -545,4 +556,4 @@ private fun List<GitTreeDiff.Change>.filterNoteChanges() = filter { diff ->
 }
 
 @Suppress("FunctionName")
-fun LastPushedSha1(commit: GitCommit) = LastPushedSha1(commit.sha1.value)
+private fun LastPushedSha1(commit: GitCommit) = LastPushedSha1(commit.sha1.value)

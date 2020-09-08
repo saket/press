@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
+import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import me.saket.press.data.shared.Note
@@ -91,6 +92,20 @@ class FileNameRegisterTest {
 
     assertThat(register.noteIdFor(note1File.name)).isEqualTo(note1.id)
     assertThat(register.noteIdFor(note2File.name)).isNull()
+  }
+
+  @Test fun `recover from invalid records`() {
+    val note1 = fakeNote("# ")
+    val record = register.createNewRecordFor(register.fileFor(note1), note1.id).registerFile
+
+    // Scenario: two records with different IDs point to the same file name.
+    val note2 = fakeNote("# ")
+    val recordWithSamePath = File(record.parent!!, note2.id.value.toString())
+    recordWithSamePath.write(record.read())
+    assertThat(register.fileFor(note1).path).isEqualTo(register.fileFor(note2).path)
+
+    register.pruneDuplicateRecords()
+    assertThat(register.fileFor(note1).path).isNotEqualTo(register.fileFor(note2).path)
   }
 
   @Test fun `support for archived folder`() {

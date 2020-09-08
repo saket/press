@@ -43,12 +43,15 @@ interface File {
 }
 
 @OptIn(ExperimentalStdlibApi::class)
-fun File.children(recursively: Boolean): List<File> {
+fun File.children(recursively: Boolean, skipDirectories: Boolean = true): List<File> {
   if (!recursively) return children()
 
   return buildList {
     for (child in children()) {
-      add(child)
+      if (!child.isDirectory || !skipDirectories) {
+        add(child)
+      }
+
       if (child.isDirectory) {
         addAll(child.children(recursively))
       }

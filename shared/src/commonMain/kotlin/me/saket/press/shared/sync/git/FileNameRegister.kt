@@ -139,7 +139,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
     with(File(registerDirectory, folder)) {
       return when {
         !exists -> emptyList()
-        else -> children(recursively = true).filter { !it.isDirectory }
+        else -> children(recursively = true)
       }
     }
 
@@ -201,6 +201,20 @@ internal class FileNameRegister(private val notesDirectory: File) {
       val record = Record.from(registerDirectory, file)
       if (record.noteIdString !in noteIds) {
         file.delete()
+      }
+    }
+  }
+
+  fun pruneDuplicateRecords() {
+    if (!registerDirectory.exists) return
+
+    val records = allRegisterFiles().map { Record.from(registerDirectory, it) }
+    val uniqueRecords = records.associateBy { it.noteFilePath }
+
+    for (record in records.reversed()) {
+      val unique = uniqueRecords[record.noteFilePath]!!
+      if (record.noteIdString != unique.noteIdString) {
+        record.registerFile.delete()
       }
     }
   }
