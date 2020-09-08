@@ -848,7 +848,10 @@ class GitSyncerTest : BaseDatabaeTest() {
     val noteFiles = {
       syncer.directory
           .children(recursively = true)
-          .filter { it.path.endsWith(".md") }
+          .filter {
+            val path = it.relativePathIn(syncer.directory)
+            path.endsWith(".md") && !path.startsWith(".")
+          }
     }
 
     // Both synced and unsynced notes will be present in the file directory right now.
