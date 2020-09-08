@@ -9,13 +9,10 @@ typealias FileName = String
 
 /**
  * Press tries really hard to avoid leaking Press's implementation into user's git repository.
- * This includes using human readable filenames instead of UUIDs, generated from note titles.
+ * This includes using human readable filenames for saving notes, generated from notes' H1 headings.
  * An unfortunate drawback is that notes with the same title (e.g., "shopping checklist")
- * can't have the same filename. This class maintains a mapping of filenames to their UUIDs
+ * can't have the same filename. This class maintains a mapping of filenames to their IDs
  * to solve this.
- *
- * At the time of writing this, I'm really hoping this works out alright. Otherwise, Press
- * will have to start suffixing filenames with 32 character long UUIDs 🤮.
  */
 @OptIn(ExperimentalStdlibApi::class)
 internal class FileNameRegister(private val notesDirectory: File) {
@@ -30,6 +27,8 @@ internal class FileNameRegister(private val notesDirectory: File) {
   }
 
   /**
+   * TODO: this can be simplified now that record filenames match note filenames.
+   *
    * @param fileName name relative to the notes directory.
    *
    * If a mapping does not exist, this file is either new or this register
@@ -55,15 +54,11 @@ internal class FileNameRegister(private val notesDirectory: File) {
 
   fun recordFor(relativePath: FileName, oldPath: String?): Record? {
     val oldRecord = oldPath?.let { recordFor(it) }
+        ?: return recordFor(relativePath)
 
-    return if (oldRecord == null) {
-      recordFor(relativePath)
-    } else {
+    val noteFile = File(notesDirectory, relativePath)
+    return createNewRecordFor(noteFile, id = oldRecord.noteId).also {
       oldRecord.registerFile.delete()
-      createNewRecordFor(
-          noteFile = File(notesDirectory, relativePath),
-          id = oldRecord.noteId
-      )
     }
   }
 
@@ -209,11 +204,11 @@ internal class FileNameRegister(private val notesDirectory: File) {
     if (!registerDirectory.exists) return
 
     val records = allRegisterFiles().map { Record.from(registerDirectory, it) }
-    val uniqueRecords = records.associateBy { it.noteFilePath }
+    val uniqueIds = records.associateBy { it.noteIdString }
 
     for (record in records.reversed()) {
-      val unique = uniqueRecords[record.noteFilePath]!!
-      if (record.noteIdString != unique.noteIdString) {
+      val unique = uniqueIds[record.noteIdString]!!
+      if (record.noteFilePath != unique.noteFilePath) {
         record.registerFile.delete()
       }
     }
@@ -243,29 +238,24 @@ internal data class Record @Deprecated("Use Record.forFile()") constructor(
 
     fun writeToFile(registerDirectory: File, notesDirectory: File, noteFile: File, id: NoteId): File {
       val relativePath = noteFile.relativePathIn(notesDirectory)
-      val relativeFolder = noteFile.parent?.relativePathIn(notesDirectory) ?: ""
-
-      return File(File(registerDirectory, relativeFolder), "${id.value}").also {
-        it.parent?.let { p -> if (!p.exists) p.makeDirectory(recursively = true) }
-        it.write(relativePath)
+      return File(registerDirectory, relativePath).also {
+        if (!it.parent!!.exists) it.parent!!.makeDirectory(recursively = true)
+        it.write(id.value.toString())
       }
     }
   }
 
   internal val noteFilePath: String
-    get() = registerFile.read()
+    get() = registerFile.relativePathIn(registersDirectory)
 
   internal val noteId: NoteId
     get() = NoteId.from(noteIdString)
 
   internal val noteIdString: String
-    get() = registerFile.name
+    get() = registerFile.read()
 
   internal val noteFolder: String
-    get() {
-      val relativePath = registerFile.relativePathIn(registersDirectory)
-      return relativePath.substringBefore("/", missingDelimiterValue = "")
-    }
+    get() = noteFilePath.substringBefore("/", missingDelimiterValue = "")
 
   internal fun noteFileIn(notesDirectory: File): File {
     return File(notesDirectory, noteFilePath)

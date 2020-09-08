@@ -26,7 +26,7 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
   }
 
   override fun read(): String {
-    check(exists)
+    check(exists) { "Can't read non-existent: $path" }
     delegate.source().buffer().use {
       return it.readUtf8()
     }

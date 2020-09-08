@@ -20,7 +20,7 @@ import kotlin.test.Test
 class FileNameRegisterTest {
 
   private val directory = testDeviceInfo().appStorage
-  private val register = FileNameRegister(directory)
+  private val register = FileNameRegister(notesDirectory = directory)
 
   @Test fun canary() {
     val archivedDir = File(directory, "archived").apply { makeDirectory() }
@@ -28,12 +28,12 @@ class FileNameRegisterTest {
     val noteId = NoteId.generate()
 
     val record = register.createNewRecordFor(noteFile, noteId)
-
     assertThat(record.noteFilePath).isEqualTo("archived/uncharted.md")
     assertThat(record.noteFolder).isEqualTo("archived")
     assertThat(record.noteId).isEqualTo(noteId)
-    assertThat(record.noteFileIn(directory).path).isEqualTo(noteFile.path)
-    assertThat(record.registerFile.relativePathIn(register.registerDirectory)).isEqualTo("archived/${noteId.value}")
+
+    assertThat(record.noteFileIn(directory).relativePathIn(directory)).isEqualTo("archived/uncharted.md")
+    assertThat(record.registerFile.relativePathIn(directory)).isEqualTo(".press/registers/archived/uncharted.md")
   }
 
   @Test fun `generates unique file names to avoid conflicts`() {
@@ -96,16 +96,17 @@ class FileNameRegisterTest {
 
   @Test fun `recover from invalid records`() {
     val note1 = fakeNote("# ")
-    val record = register.createNewRecordFor(register.fileFor(note1), note1.id).registerFile
+    val record1 = register.createNewRecordFor(register.fileFor(note1), note1.id)
 
-    // Scenario: two records with different IDs point to the same file name.
+    // Scenario: two records with different file names point to the same ID.
     val note2 = fakeNote("# ")
-    val recordWithSamePath = File(record.parent!!, note2.id.value.toString())
-    recordWithSamePath.write(record.read())
-    assertThat(register.fileFor(note1).path).isEqualTo(register.fileFor(note2).path)
+    val record2 = register.createNewRecordFor(register.fileFor(note2), note2.id)
+    record2.registerFile.write("${note1.id.value}")
+
+    assertThat(register.noteIdFor(record1.noteFilePath)).isEqualTo(register.noteIdFor(record2.noteFilePath))
 
     register.pruneDuplicateRecords()
-    assertThat(register.fileFor(note1).path).isNotEqualTo(register.fileFor(note2).path)
+    assertThat(register.noteIdFor(record1.noteFilePath)).isNotEqualTo(register.noteIdFor(record2.noteFilePath))
   }
 
   @Test fun `support for archived folder`() {

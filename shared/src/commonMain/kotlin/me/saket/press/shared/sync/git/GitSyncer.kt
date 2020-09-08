@@ -244,7 +244,7 @@ class GitSyncer(
       else -> DuplicateOnConflictResolver(git, pullResult)
     }
 
-    log("Reading unsynced notes (${pendingSyncNotes.size}):")
+    log("\nReading unsynced notes (${pendingSyncNotes.size}):")
 
     for (note in pendingSyncNotes) {
       val suggestion = register.suggestFile(note)
