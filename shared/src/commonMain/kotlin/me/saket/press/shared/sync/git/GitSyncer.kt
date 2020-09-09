@@ -446,9 +446,12 @@ class GitSyncer(
           }
         }
         is Delete -> {
+          // The record for this file isn't deleted here in case this DELETE had an
+          // associated ADD entry but the RENAME couldn't be detected. Stale records
+          // will get pruned in a follow-up.
           val noteId = register.noteIdFor(diff.path)
           if (noteId == null) {
-            // Commit has already been processed earlier.
+            // Commit has already been processed earlier or this was actually a RENAME.
             Runnable {}
           } else {
             log("Permanently deleting $noteId (${diff.path})")

@@ -730,20 +730,18 @@ class GitSyncerTest : BaseDatabaeTest() {
   @Test fun `file renames are followed correctly`() {
     if (!canRunTests()) return
 
-    noteQueries.insert(
-        id = NoteId.generate(),
-        content = "# Horizon Zero Dawn",
-        createdAt = clock.nowUtc(),
-        updatedAt = clock.nowUtc()
-    )
+    val note1 = fakeNote("# Horizon Zero Dawn")
+    val note2 = fakeNote("# ")
+    noteQueries.testInsert(note1, note2)
     syncer.sync()
 
-    // kgit should be able to identify an ADD + DELETE as a RENAME.
+    // kgit should be able to identify these ADD + DELETE as RENAME.
+    noteQueries.updateContent(id = note2.id, content = "", updatedAt = clock.nowUtc())
+    noteQueries.setArchived(id = note2.id, isArchived = true, updatedAt = clock.nowUtc())
     RemoteRepositoryRobot {
       pull()
       commitFiles(
-          message = "Delete notes",
-          time = clock.nowUtc(),
+          message = "Archive horizon_zero_dawn.md",
           delete = listOf("horizon_zero_dawn.md"),
           add = listOf("archived/horizon_zero_dawn.md" to "# Horizon Zero Dawn")
       )
@@ -751,8 +749,9 @@ class GitSyncerTest : BaseDatabaeTest() {
     }
     syncer.sync()
 
-    val savedNote = noteQueries.allNotes().executeAsOne()
-    assertThat(savedNote.isArchived).isTrue()
+    val savedNotes = noteQueries.allNotes().executeAsList()
+    assertThat(savedNotes.all { it.isArchived }).isTrue()
+    assertThat(savedNotes.map { it.id }).containsOnly(note1.id, note2.id)
   }
 
   @Test fun `notes are re-synced when syncing is re-enabled`() {
