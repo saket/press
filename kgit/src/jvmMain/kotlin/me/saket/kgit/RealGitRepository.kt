@@ -171,13 +171,15 @@ internal actual class RealGitRepository actual constructor(
   }
 
   override fun hardResetTo(sha1: String, resetState: Boolean, deleteUntrackedFiles: Boolean) {
-    if (deleteUntrackedFiles) {
-      jgit.add().addFilepattern(".").call()
-    }
     if (resetState) {
+      JavaFile("${jgit.repository.indexFile.path}.lock").delete()
+
       fun state() = jgit.repository.repositoryState
       if (state().isRebasing) jgit.rebase().setOperation(ABORT).call()
       check(state() == SAFE) { "Couldn't recover from: ${state()}" }
+    }
+    if (deleteUntrackedFiles) {
+      jgit.add().addFilepattern(".").call()
     }
     jgit.reset().setMode(HARD).setRef(sha1).call()
   }
