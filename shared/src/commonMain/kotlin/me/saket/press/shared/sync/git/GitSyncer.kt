@@ -114,16 +114,15 @@ class GitSyncer(
       lastOp.onNext(Idle)
 
     } catch (e: Throwable) {
-      val errorMessage = when (Git.identify(e)) {
-        NetworkError -> "Network error. Will retry later."
-        Unknown -> "Unknown error. Will retry later."
+      when (Git.identify(e)) {
+        NetworkError -> log("Network error. Will retry later.")
+        Unknown -> log("Unknown error. Will retry later. ${e.stackTraceToString()}")
         AuthFailed -> {
+          log("Auth failed. Deploy key was likely revoked. Disabling sync. ${e.stackTraceToString()}")
           disable()
-          "Auth failed. Deploy key was likely revoked. Disabling sync."
         }
-      }
+      }.exhaustive
 
-      log("$errorMessage ${e.stackTraceToString()}")
       lastOp.onNext(Failed)
       loggers.onSyncComplete()
     }
@@ -177,7 +176,6 @@ class GitSyncer(
     git.checkout(remote!!.defaultBranch, createIfNeeded = true)
 
     check(!git.isStagingAreaDirty()) { "Hard reset didn't work" }
-    println("current branch: ${git.currentBranch()}")
   }
 
   private data class PullResult(
@@ -285,7 +283,6 @@ class GitSyncer(
     git: GitRepository,
     pullResult: PullResult
   ) : MergeConflictsResolver(git, pullResult) {
-
     private val pulledPathTimestamps = git
         .commitsBetween(null, pullResult.headAfter)
         .pathTimestamps(git)
@@ -557,3 +554,6 @@ private fun List<GitTreeDiff.Change>.filterNoteChanges() = filter { diff ->
 
 @Suppress("FunctionName")
 private fun LastPushedSha1(commit: GitCommit) = LastPushedSha1(commit.sha1.value)
+
+private val Unit.exhaustive: Unit
+  get() = this
