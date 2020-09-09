@@ -31,6 +31,7 @@ import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.sync.LastPushedSha1
 import me.saket.press.shared.sync.LastSyncedAt
+import me.saket.press.shared.sync.SyncMergeConflicts
 import me.saket.press.shared.sync.SyncState
 import me.saket.press.shared.sync.SyncState.IN_FLIGHT
 import me.saket.press.shared.sync.SyncState.PENDING
@@ -56,7 +57,8 @@ class GitSyncer(
   private val deviceInfo: DeviceInfo,
   private val clock: Clock,
   private val lastSyncedAt: Setting<LastSyncedAt>,
-  private val lastPushedSha1: Setting<LastPushedSha1>
+  private val lastPushedSha1: Setting<LastPushedSha1>,
+  private val mergeConflicts: SyncMergeConflicts
 ) : Syncer() {
 
   internal val directory = File(deviceInfo.appStorage, "git")
@@ -125,6 +127,7 @@ class GitSyncer(
 
       lastOp.onNext(Failed)
       loggers.onSyncComplete()
+      mergeConflicts.clear()
     }
   }
 
@@ -335,6 +338,7 @@ class GitSyncer(
           val newName = register.findNewNameOnConflict(noteFile)
           log("   duplicating to '<same parent>/$newName' to resolve merge conflict")
           noteFile.copy(newName).write(note.content)
+          mergeConflicts.add(note)
         } else {
           log("   skipping (same content)")
         }
@@ -469,6 +473,7 @@ class GitSyncer(
       noteQueries.transaction {
         dbOperations.forEach { it.run() }
       }
+      mergeConflicts.clear()
     }
 
     val savedNotes = noteQueries.allNotes().executeAsList()

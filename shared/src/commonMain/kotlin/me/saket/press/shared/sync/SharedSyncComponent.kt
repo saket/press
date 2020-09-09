@@ -60,6 +60,7 @@ class SharedSyncComponent {
 
     factory<Syncer> { get<GitSyncer>() }
     factory(named("gitsyncer_config")) { gitSyncerConfig(get(), get()) }
+    single { SyncMergeConflicts() }
     factory {
       GitSyncer(
           git = RealGit(),
@@ -68,7 +69,8 @@ class SharedSyncComponent {
           deviceInfo = get(),
           clock = get(),
           lastSyncedAt = lastSyncedAt(get()),
-          lastPushedSha1 = lastPushedSha1(get())
+          lastPushedSha1 = lastPushedSha1(get()),
+          mergeConflicts = get()
       )
     }
 

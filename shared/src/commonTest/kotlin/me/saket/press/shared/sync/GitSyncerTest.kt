@@ -11,6 +11,7 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotInstanceOf
 import assertk.assertions.isTrue
+import com.badoo.reaktive.test.observable.test
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.hours
 import me.saket.kgit.GitConfig
@@ -65,6 +66,7 @@ class GitSyncerTest : BaseDatabaeTest() {
   )
   private val configSetting = FakeSetting(config)
   private val lastPushedSha1 = FakeSetting(null as LastPushedSha1?)
+  private val mergeConflicts = SyncMergeConflicts()
   private val git = DelegatingGit(delegate = RealGit())
   private val syncer = GitSyncer(
       git = git,
@@ -73,7 +75,8 @@ class GitSyncerTest : BaseDatabaeTest() {
       deviceInfo = deviceInfo,
       clock = clock,
       lastSyncedAt = FakeSetting(null),
-      lastPushedSha1 = lastPushedSha1
+      lastPushedSha1 = lastPushedSha1,
+      mergeConflicts = mergeConflicts
   )
 
   private val expectUnSyncedNotes = mutableListOf<NoteId>()
@@ -783,11 +786,6 @@ class GitSyncerTest : BaseDatabaeTest() {
     if (!canRunTests()) return
   }
 
-  // TODO
-  @Test fun `clear staging area if syncing fails with an unhandled error`() {
-    if (!canRunTests()) return
-  }
-
   @Test fun `notes stay in-flight if sync fails unexpectedly`() {
     if (!canRunTests()) return
 
@@ -804,11 +802,11 @@ class GitSyncerTest : BaseDatabaeTest() {
     noteQueries.testInsert(newNote)
 
     // Syncs fail in different ways.
-    git.onPull = { error("You just couldn't let me go, could you?") }
+    git.prePull = { error("You just couldn't let me go, could you?") }
     syncer.sync()
 
-    git.onPull = null
-    git.pushResult = PushResult.Failure(reason = "Joker")
+    git.prePull = null
+    git.prePush = { error("Joker") }
     syncer.sync()
 
     // Verify: the new note doesn't get mark as synced.
@@ -836,7 +834,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     // Second sync fails.
     val note2 = fakeNote("# Batman 2")
     noteQueries.testInsert(note2)
-    git.pushResult = PushResult.Failure(reason = "Two-Face")
+    git.prePush = { error("Two-Face") }
     syncer.sync()
 
     assertThat(unrelatedFile.exists).isFalse()
@@ -863,7 +861,7 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     // When sync is started again, it should
     // delete all unsynced files before starting.
-    git.onPull = { error("don't need this to finish") }
+    git.prePull = { error("don't need this to finish") }
     syncer.sync()
     expectUnSyncedNotes += note2.id
 
@@ -906,6 +904,48 @@ class GitSyncerTest : BaseDatabaeTest() {
     }
     syncer.sync()
     assertThat(git.pushCount).isEqualTo(0)
+  }
+
+  @Test fun `broadcast merge conflicts`() {
+   if (!canRunTests()) return
+
+    val note = fakeNote("# Witcher")
+    noteQueries.testInsert(note)
+    syncer.sync()
+
+    val conflicts = mergeConflicts.listen().test()
+
+    RemoteRepositoryRobot {
+      pull()
+      commitFiles(
+          message = "Update witcher.md on remote",
+          add = listOf("witcher.md" to "# Witcher\nThe wild hunt")
+      )
+      forcePush()
+    }
+    noteQueries.updateContent(
+        id = note.id,
+        content = "# Witcher\nAssassins of kings",
+        updatedAt = clock.nowUtc()
+    )
+    syncer.sync()
+
+    git.prePush = {
+      assertThat(conflicts.values.last()).containsOnly(note.id)
+    }
+    assertThat(conflicts.values.last()).isEmpty()
+  }
+
+  @Test fun `clear merge conflicts if sync fails`() {
+    if (!canRunTests()) return
+
+    mergeConflicts.add(fakeNote("# Witcher 3"))
+    val conflicts = mergeConflicts.listen().test()
+
+    git.prePull = { error("boom!") }
+    syncer.sync()
+
+    assertThat(conflicts.values.last()).isEmpty()
   }
 
   private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit = {}) {

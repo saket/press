@@ -8,8 +8,8 @@ import me.saket.kgit.PushResult
 import me.saket.kgit.SshPrivateKey
 
 class DelegatingGit(private val delegate: Git) : Git {
-  var onPull: (() -> Unit)? = null
-  var pushResult: PushResult? = null
+  var prePull: (() -> Unit)? = null
+  var prePush: (() -> Unit)? = null
   var pushCount = 0
 
   override fun repository(path: String, sshKey: SshPrivateKey, remoteSshUrl: String, userConfig: GitConfig) =
@@ -21,13 +21,14 @@ class DelegatingGit(private val delegate: Git) : Git {
   ) : GitRepository by delegate {
 
     override fun pull(rebase: Boolean): GitPullResult {
-      git.onPull?.invoke()
+      git.prePull?.invoke()
       return delegate.pull(rebase)
     }
 
     override fun push(force: Boolean): PushResult {
       git.pushCount++
-      return git.pushResult ?: delegate.push(force)
+      git.prePush?.invoke()
+      return delegate.push(force)
     }
   }
 }
