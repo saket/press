@@ -107,7 +107,7 @@ class GitSyncer(
       with(GitScope(git())) {
         resetState()
         val pullResult = pull()
-        commitAllChanges(pullResult)
+        commit(pullResult)
         processCommits(pullResult)
         push(pullResult)
       }
@@ -220,7 +220,7 @@ class GitSyncer(
   }
 
   @Suppress("CascadeIf")
-  private fun GitScope.commitAllChanges(pullResult: PullResult) {
+  private fun GitScope.commit(pullResult: PullResult) {
     val pendingSyncNotes = noteQueries.notesInState(listOf(PENDING, IN_FLIGHT)).executeAsList()
     if (pendingSyncNotes.isEmpty()) {
       log("\nNothing to commit.")
