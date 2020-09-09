@@ -27,29 +27,15 @@ internal class FileNameRegister(private val notesDirectory: File) {
   }
 
   /**
-   * TODO: this can be simplified now that record filenames match note filenames.
-   *
-   * @param fileName name relative to the notes directory.
+   * @param noteRelativePath name relative to the notes directory.
    *
    * If a mapping does not exist, this file is either new or this register
    * was recreated after getting deleted. In both cases, a new ID should be
    * created.
    */
   @Suppress("NAME_SHADOWING")
-  fun recordFor(relativePath: String): Record? {
-    require(relativePath.endsWith("md")) { "Not a note: $relativePath" }
-    require(!relativePath.hasMultipleOf('/')) { "Nested folders aren't supported yet" }
-
-    // Example: "archived/uncharted.md"
-    val folderName = relativePath.substringBefore("/", missingDelimiterValue = "")  // e.g., "archived"
-
-    for (file in allRegisterFiles(folderName)) {
-      val record = Record.from(registerDirectory, file)
-      if (record.noteFilePath == relativePath) {
-        return record
-      }
-    }
-    return null
+  fun recordFor(noteRelativePath: String): Record? {
+    return Record.from(registerDirectory, noteRelativePath)
   }
 
   fun recordFor(relativePath: FileName, oldPath: String?): Record? {
@@ -58,7 +44,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
 
     val noteFile = File(notesDirectory, relativePath)
     return createNewRecordFor(noteFile, id = oldRecord.noteId).also {
-      oldRecord.registerFile.delete()
+      oldRecord.delete()
     }
   }
 
@@ -113,7 +99,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
       val newFile = File(notesDirectory, newNoteName)
       FileSuggestion(notesDirectory, newFile, oldNoteFile, acceptRename = {
         oldNoteFile.renameTo(newFile)
-        oldRecord!!.registerFile.delete()
+        oldRecord!!.delete()
         createNewRecordFor(newFile, note.id)
       })
     }
@@ -209,24 +195,34 @@ internal class FileNameRegister(private val notesDirectory: File) {
     for (record in records.reversed()) {
       val unique = uniqueIds[record.noteIdString]!!
       if (record.noteFilePath != unique.noteFilePath) {
-        record.registerFile.delete()
+        record.delete()
       }
     }
   }
 
-  internal data class Record @Deprecated("Use Record.forFile()") constructor(
+  internal class Record private constructor(
     private val registersDirectory: File,
-    val registerFile: File
+    internal val registerFile: File
   ) {
     companion object {
-      @Suppress("DEPRECATION")
+      fun from(registerDirectory: File, relativePath: String): Record? {
+        require(relativePath.endsWith("md")) { "Not a note: $relativePath" }
+        require(!relativePath.hasMultipleOf('/')) { "Nested folders aren't supported yet" }
+
+        val registerFile = File(registerDirectory, relativePath.dropLast(".md".length))
+            .existsOrNull() ?: return null
+        return from(registerDirectory, registerFile)
+      }
+
       fun from(registersDirectory: File, registerFile: File): Record {
         return Record(registersDirectory, registerFile)
       }
 
       fun writeToFile(registerDirectory: File, notesDirectory: File, noteFile: File, id: NoteId): File {
         val relativePath = noteFile.relativePathIn(notesDirectory)
-        return File(registerDirectory, relativePath).also {
+        check(relativePath.endsWith(".md"))
+
+        return File(registerDirectory, relativePath.dropLast(".md".length)).also {
           if (!it.parent!!.exists) it.parent!!.makeDirectory(recursively = true)
           it.write(id.value.toString())
         }
@@ -234,7 +230,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
     }
 
     internal val noteFilePath: String
-      get() = registerFile.relativePathIn(registersDirectory)
+      get() = "${registerFile.relativePathIn(registersDirectory)}.md"
 
     internal val noteId: NoteId
       get() = NoteId.from(noteIdString)
@@ -247,6 +243,10 @@ internal class FileNameRegister(private val notesDirectory: File) {
 
     internal fun noteFileIn(notesDirectory: File): File {
       return File(notesDirectory, noteFilePath)
+    }
+
+    internal fun delete() {
+      registerFile.delete()
     }
   }
 }

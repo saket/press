@@ -308,7 +308,7 @@ class GitSyncer(
           it.invoke()
           commitRename()
         }
-        log("   picking local copy and discarding remote")
+        log("   picking local copy and discarding remote (if any)")
         noteFile.write(note.content)
       }
     }

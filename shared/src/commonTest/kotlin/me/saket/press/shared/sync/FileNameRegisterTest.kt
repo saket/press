@@ -1,6 +1,7 @@
 package me.saket.press.shared.sync
 
 import assertk.assertThat
+import assertk.assertions.endsWith
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
@@ -33,7 +34,7 @@ class FileNameRegisterTest {
     assertThat(record.noteId).isEqualTo(noteId)
 
     assertThat(record.noteFileIn(directory).relativePathIn(directory)).isEqualTo("archived/uncharted.md")
-    assertThat(record.registerFile.relativePathIn(directory)).isEqualTo(".press/registers/archived/uncharted.md")
+    assertThat(record.registerFile.path).endsWith(".press/registers/archived/uncharted")
   }
 
   @Test fun `generates unique file names to avoid conflicts`() {
