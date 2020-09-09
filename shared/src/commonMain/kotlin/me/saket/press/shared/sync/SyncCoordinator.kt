@@ -43,7 +43,7 @@ class RealSyncCoordinator(
 
   override fun syncWithResult(): Completable {
     return completableFromFunction { syncer.sync() }
-        .takeUntil(syncer.status().ofType<Disabled>().doOnBeforeNext { println("STOPPING SYNC") })
+        .takeUntil(syncer.status().ofType<Disabled>())
         .onErrorComplete()
   }
 }
