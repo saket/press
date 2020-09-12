@@ -51,17 +51,13 @@ internal class RealNoteRepository(
   }
 
   override fun update(id: NoteId, content: String): Completable {
-    return note(id)
-        .take(1)
-        .mapToSome()
-        .map {
-          noteQueries.updateContent(
-              id = id,
-              content = content,
-              updatedAt = clock.nowUtc()
-          )
-        }
-        .asCompletable()
+    return completableFromFunction {
+      noteQueries.updateContent(
+          id = id,
+          content = content,
+          updatedAt = clock.nowUtc()
+      )
+    }
   }
 
   override fun markAsPendingDeletion(id: NoteId): Completable {

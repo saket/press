@@ -17,6 +17,7 @@ import me.saket.press.shared.util.toOptional
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
+// todo: get rid of fake repository in favor of in-memory SQL.
 class FakeNoteRepository : NoteRepository {
   // todo: can this be replaced by a Map?
   val savedNotes = IsoMutableList<Note>()
