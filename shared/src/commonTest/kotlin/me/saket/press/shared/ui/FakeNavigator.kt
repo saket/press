@@ -10,5 +10,5 @@ class FakeNavigator : Navigator {
     backstack.set(screen)
   }
 
-  fun pop() = backstack.value
+  fun pop() = backstack.value ?: error("backstack is empty")
 }

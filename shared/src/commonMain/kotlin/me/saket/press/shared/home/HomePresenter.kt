@@ -38,12 +38,9 @@ class HomePresenter(
     return viewEvents().ofType<NewNoteClicked>()
         .mergeWith(keyboardShortcuts.listen(newNote))
         .flatMapCompletable {
-          val newNoteId = NoteId.generate()
-          repository
-              .create(newNoteId, NEW_NOTE_PLACEHOLDER)
-              .andThen(completableFromFunction {
-                args.navigator.lfg(ComposeNewNote(newNoteId))
-              })
+          completableFromFunction {
+            args.navigator.lfg(ComposeNewNote(newNoteId = NoteId.generate()))
+          }
         }
         .andThen(observableOfEmpty())
   }

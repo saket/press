@@ -24,7 +24,6 @@ import io.reactivex.subjects.BehaviorSubject
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.animation.ItemExpandAnimator
 import me.saket.inboxrecyclerview.dimming.DimPainter
-import me.saket.inboxrecyclerview.dimming.TintPainter
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.R
 import me.saket.press.shared.db.NoteId
@@ -160,7 +159,7 @@ class HomeView @AssistedInject constructor(
     val presenter = presenter.create(Args(
         includeEmptyNotes = false,
         navigator = navigator().handle<ComposeNewNote> {
-          openNewNoteScreen(it.noteId)
+          openNewNoteScreen(it.newNoteId)
         }
     ))
     presenter.uiUpdates()
