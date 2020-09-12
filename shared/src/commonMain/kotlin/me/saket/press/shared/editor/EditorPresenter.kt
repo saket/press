@@ -32,6 +32,7 @@ import me.saket.press.shared.rx.consumeOnNext
 import me.saket.press.shared.rx.mapToOptional
 import me.saket.press.shared.rx.mapToSome
 import me.saket.press.shared.rx.observableInterval
+import me.saket.press.shared.sync.SyncMergeConflicts
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.ui.ScreenKey.Close
@@ -147,15 +148,15 @@ class EditorPresenter(
   }
 
   fun saveEditorContentOnClose(content: String) {
-    updateOrArchiveNote(content)
+    updateOrDeleteNote(content)
         .subscribeOn(schedulers.io)
         .subscribe()
   }
 
-  private fun updateOrArchiveNote(content: String): Completable {
-    val trimmedContent = content.trim()
-    val shouldArchive = args.archiveEmptyNoteOnExit
-        && (content.isBlank() || trimmedContent == NEW_NOTE_PLACEHOLDER.trim())
+  private fun updateOrDeleteNote(content: String): Completable {
+    val shouldDelete = openMode is NewNote
+        && args.deleteBlankNewNoteOnExit
+        && content.trim().let { it.isBlank() || it == NEW_NOTE_PLACEHOLDER.trim() }
 
     val noteId = when (openMode) {
       is NewNote -> openMode.placeholderId
@@ -169,11 +170,11 @@ class EditorPresenter(
         .take(1)
         .mapToSome()
         .flatMapCompletable { note ->
-          val maybeArchive = when {
-            shouldArchive -> noteRepository.markAsArchived(note.id)
+          val maybeDelete = when {
+            shouldDelete -> noteRepository.markAsPendingDeletion(note.id)
             else -> completableOfEmpty()
           }
-          noteRepository.update(note.id, content).andThen(maybeArchive)
+          noteRepository.update(note.id, content).andThen(maybeDelete)
         }
   }
 
@@ -185,9 +186,9 @@ class EditorPresenter(
     val openMode: EditorOpenMode,
 
     /**
-     * Should be kept in sync with [HomePresenter.Args.includeEmptyNotes].
+     * Should be kept in sync with [HomePresenter.Args.includeBlankNotes].
      */
-    val archiveEmptyNoteOnExit: Boolean,
+    val deleteBlankNewNoteOnExit: Boolean,
 
     val navigator: Navigator
   )

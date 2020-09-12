@@ -157,7 +157,7 @@ class HomeView @AssistedInject constructor(
     super.onAttachedToWindow()
 
     val presenter = presenter.create(Args(
-        includeEmptyNotes = false,
+        includeBlankNotes = false,
         navigator = navigator().handle<ComposeNewNote> {
           openNewNoteScreen(it.newNoteId)
         }

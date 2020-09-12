@@ -47,7 +47,7 @@ class HomePresenter(
 
   private fun populateNotes(): Observable<HomeUiModel> {
     val canInclude = { note: Note ->
-      args.includeEmptyNotes || (note.content.isNotBlank() && note.content != NEW_NOTE_PLACEHOLDER)
+      args.includeBlankNotes || (note.content.isNotBlank() && note.content != NEW_NOTE_PLACEHOLDER)
     }
 
     return repository.visibleNotes()
@@ -77,9 +77,9 @@ class HomePresenter(
      * false. In the future, this can be set to true for multi-pane layouts on desktop
      * or tablets.
      *
-     * Should be kept in sync with [EditorPresenter.Args.archiveEmptyNoteOnExit].
+     * Should be kept in sync with [EditorPresenter.Args.deleteBlankNewNoteOnExit].
      */
-    val includeEmptyNotes: Boolean,
+    val includeBlankNotes: Boolean,
 
     val navigator: Navigator
   )

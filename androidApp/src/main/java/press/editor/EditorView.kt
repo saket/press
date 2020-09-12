@@ -120,7 +120,7 @@ class EditorView @AssistedInject constructor(
 
   private val presenter = presenterFactory.create(Args(
       openMode = openMode,
-      archiveEmptyNoteOnExit = true,
+      deleteBlankNewNoteOnExit = true,
       navigator = navigator()
   ))
 

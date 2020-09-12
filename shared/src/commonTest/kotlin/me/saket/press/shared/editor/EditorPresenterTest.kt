@@ -11,6 +11,7 @@ import com.badoo.reaktive.test.base.assertNotError
 import com.badoo.reaktive.test.observable.assertValue
 import com.badoo.reaktive.test.observable.test
 import com.badoo.reaktive.test.scheduler.TestScheduler
+import com.soywiz.klock.TimeSpan
 import com.soywiz.klock.seconds
 import me.saket.press.shared.FakeSchedulers
 import me.saket.press.shared.db.NoteId
@@ -23,6 +24,7 @@ import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.localization.ENGLISH_STRINGS
 import me.saket.press.shared.note.FakeNoteRepository
+import me.saket.press.shared.sync.SyncMergeConflicts
 import me.saket.press.shared.ui.FakeNavigator
 import me.saket.wysiwyg.formatting.TextSelection
 import kotlin.test.Test
@@ -37,10 +39,10 @@ class EditorPresenterTest {
 
   private fun presenter(
     openMode: EditorOpenMode,
-    archiveEmptyNoteOnExit: Boolean = true
+    deleteBlankNoteOnExit: Boolean = true
   ): EditorPresenter {
     return EditorPresenter(
-        args = Args(openMode, archiveEmptyNoteOnExit, navigator),
+        args = Args(openMode, deleteBlankNoteOnExit, navigator),
         noteRepository = repository,
         schedulers = FakeSchedulers(computation = testScheduler),
         strings = ENGLISH_STRINGS,
@@ -76,15 +78,15 @@ class EditorPresenterTest {
     val savedNote = { repository.savedNotes.single { it.id == noteId } }
 
     presenter.dispatch(NoteTextChanged("# Ghost Rider"))
-    testScheduler.timer.advanceBy(config.autoSaveEvery.millisecondsLong)
+    testScheduler.timer.advanceBy(config.autoSaveEvery)
     assertThat(savedNote().content).isEqualTo("# Ghost Rider")
 
     presenter.dispatch(NoteTextChanged("# Ghost"))
-    testScheduler.timer.advanceBy(config.autoSaveEvery.millisecondsLong)
+    testScheduler.timer.advanceBy(config.autoSaveEvery)
     assertThat(savedNote().content).isEqualTo("# Ghost")
 
     presenter.dispatch(NoteTextChanged("# Ghost"))
-    testScheduler.timer.advanceBy(config.autoSaveEvery.millisecondsLong)
+    testScheduler.timer.advanceBy(config.autoSaveEvery)
     assertThat(repository.updateCount).isEqualTo(2)
 
     observer.assertNotError()
@@ -117,34 +119,54 @@ class EditorPresenterTest {
     assertEquals("Updated note", savedNote.content)
   }
 
-  @Test fun `archive blank note on close when enabled`() {
-    repository.savedNotes += fakeNote(
-        id = noteId,
-        content = "Existing note"
+  @Test fun `delete new blank notes on close when enabled`() {
+    val presenter = presenter(
+        openMode = NewNote(noteId, preFilledNote = "# Nicolas Cage"),
+        deleteBlankNoteOnExit = true
     )
+    presenter.uiModels().test()
 
-    val presenter = presenter(ExistingNote(noteId), archiveEmptyNoteOnExit = true)
-    presenter.saveEditorContentOnClose("  \n ")
-    presenter.saveEditorContentOnClose("  ")
+    presenter.dispatch(NoteTextChanged("# Nicolas Cage"))
+    testScheduler.timer.advanceBy(config.autoSaveEvery)
+
+    val savedNote = { repository.savedNotes.single() }
+    assertThat(savedNote().content).isEqualTo("# Nicolas Cage")
+
     presenter.saveEditorContentOnClose("")
-
-    val archivedNote = repository.savedNotes.last()
-    assertThat(archivedNote.content).isEqualTo("")
-    assertThat(archivedNote.isArchived).isTrue()
+    presenter.saveEditorContentOnClose("  ")
+    presenter.saveEditorContentOnClose("  \n ")
+    assertThat(savedNote().content).isEqualTo("  \n ")
+    assertThat(savedNote().isPendingDeletion).isTrue()
   }
 
-  @Test fun `avoid archiving blank note on close when disabled`() {
-    repository.savedNotes += fakeNote(
-        id = noteId,
-        content = "Existing note"
+  @Test fun `avoid deleting new blank note on close when disabled`() {
+    val presenter = presenter(
+        openMode = NewNote(noteId, preFilledNote = "# Nicolas Cage"),
+        deleteBlankNoteOnExit = false
     )
+    presenter.uiModels().test()
 
-    val presenter = presenter(ExistingNote(noteId), archiveEmptyNoteOnExit = false)
+    presenter.dispatch(NoteTextChanged("# Nicolas Cage"))
+    testScheduler.timer.advanceBy(config.autoSaveEvery)
+    val savedNote = { repository.savedNotes.single() }
+    assertThat(savedNote().content).isEqualTo("# Nicolas Cage")
+
     presenter.saveEditorContentOnClose("")
+    assertThat(savedNote().content).isEqualTo("")
+    assertThat(savedNote().isPendingDeletion).isFalse()
+  }
 
-    val archivedNote = repository.savedNotes.last()
-    assertThat(archivedNote.content).isEqualTo("")
-    assertThat(archivedNote.isArchived).isFalse()
+  @Test fun `avoid deleting existing blank note on close when enabled`() {
+    repository.savedNotes += fakeNote(id = noteId, content = "Existing note")
+
+    val presenter = presenter(ExistingNote(noteId), deleteBlankNoteOnExit = true)
+    presenter.saveEditorContentOnClose("")
+    presenter.saveEditorContentOnClose("  ")
+    presenter.saveEditorContentOnClose("  \n ")
+
+    val savedNote = repository.savedNotes.single()
+    assertThat(savedNote.content).isEqualTo("  \n ")
+    assertThat(savedNote.isPendingDeletion).isFalse()
   }
 
   @Test fun `show hint text until the text is changed`() {
@@ -213,4 +235,16 @@ class EditorPresenterTest {
           assertNotError()
         }
   }
+
+  // todo
+  @Test fun `block editing if note is marked as sync-conflicted`() {
+
+  }
+}
+
+@Suppress("TestFunctionName")
+private fun NewNote(id: NoteId) = NewNote(id, preFilledNote = null)
+
+private fun TestScheduler.Timer.advanceBy(timeSpan: TimeSpan) {
+  advanceBy(timeSpan.millisecondsLong)
 }
