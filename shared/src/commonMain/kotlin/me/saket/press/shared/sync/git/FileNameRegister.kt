@@ -82,7 +82,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
     val newNoteName = oldNoteFile.hideAndRun {
       // The old file (if any) needs to be hidden or else it'll
       // be seen as a conflict when a new name is generated.
-      findOrGenerateFileNameFor(note)
+      generateNameFor(note, canUseExisting = true)
     }
 
     return if (oldNoteFile == null) {
@@ -125,7 +125,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
     }
 
   /** Finds a file name for `note` if it already exists or generates a new one. */
-  private fun findOrGenerateFileNameFor(note: Note): String {
+  fun generateNameFor(note: Note, canUseExisting: Boolean): FileName {
     val (heading) = SplitHeadingAndBody.split(note.content)
     val expectedName = if (heading.isNotBlank()) heading else "untitled_note"
     val folder = note.folder()?.plus("/") ?: ""
@@ -134,22 +134,23 @@ internal class FileNameRegister(private val notesDirectory: File) {
         .children(recursively = true)
         .map { it.relativePathIn(notesDirectory) }
 
-    // Suffix the name to avoid conflicts. E.g., "untitled_note_2".
+    // Suffix the name to avoid conflicts, e.g., "untitled_note_2".
     var uniqueName: String
     var conflicts = 0
     while (true) {
       val conflictSuffix = if (conflicts++ == 0) "" else "_$conflicts"
       uniqueName = "$folder${sanitize(expectedName, MAX_NAME_LENGTH)}$conflictSuffix.md"
 
-      if (noteIdFor(uniqueName) == note.id) {
+      if (canUseExisting && noteIdFor(uniqueName) == note.id) {
         // A file already exists for this note. Reuse the same name.
         break
 
       } else if (uniqueName !in existingNames) {
-        // There may be files with the same name but with different IDs
-        // (or no IDs if they were just synced and haven't been processed yet).
         break
       }
+
+      // Else, there may be files with the same name but with different IDs
+      // (or no IDs if they were just synced and haven't been processed yet).
     }
 
     return uniqueName
@@ -157,21 +158,6 @@ internal class FileNameRegister(private val notesDirectory: File) {
 
   private fun Note.folder(): String? {
     return if (isArchived) "archived" else null
-  }
-
-  /** Generates a new name *in the same parent*, unlike [findOrGenerateFileNameFor]. */
-  fun findNewNameOnConflict(noteFile: File): FileName {
-    val extension = noteFile.extension
-    val conflictedName = noteFile.nameWithoutExtension
-    val existingNames = noteFile.parent!!.children().map { it.name }
-
-    // Suffix the name to avoid conflicts. E.g., "untitled_note_2".
-    var conflicts = 0
-    var newName: String = noteFile.name
-    while (newName in existingNames) {
-      newName = "${sanitize(conflictedName, MAX_NAME_LENGTH)}_${++conflicts + 1}.$extension"
-    }
-    return newName
   }
 
   fun pruneStaleRecords(latestNotes: List<Note>) {

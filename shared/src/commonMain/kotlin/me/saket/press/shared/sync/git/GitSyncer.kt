@@ -335,7 +335,7 @@ class GitSyncer(
       if (notePath in pulledPaths) {
         if (noteFile.equalsContent(note.content).not()) {
           // File's content is going to change in a conflicting way. Duplicate the note.
-          val newName = register.findNewNameOnConflict(noteFile)
+          val newName = register.generateNameFor(note, canUseExisting = false)
           log("   duplicating to '<same parent>/$newName' to resolve merge conflict")
           noteFile.copy(newName).write(note.content)
           mergeConflicts.add(note)

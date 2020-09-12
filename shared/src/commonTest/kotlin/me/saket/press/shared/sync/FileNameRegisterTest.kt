@@ -71,12 +71,13 @@ class FileNameRegisterTest {
     assertThat(register.noteIdFor("abcdef.md")).isEqualTo(note.id)
   }
 
-  @Test fun `generation of a new file name for resolving conflict`() {
+  @Test fun `generation of a new file name for resolving conflict in the same folder`() {
     File(directory, "uncharted.md").write("A Thief's End")
     File(directory, "uncharted_2.md").write("The Lost Legacy")
+    File(directory, "archived/uncharted_3.md").touch().write("Archived The Lost Legacy")
 
-    val conflictingFile = File(directory, "uncharted.md")
-    val newName = register.findNewNameOnConflict(conflictingFile)
+    val conflictingNote = fakeNote("# Uncharted\nDrake's Fortune")
+    val newName = register.generateNameFor(conflictingNote, canUseExisting = false)
     assertThat(newName).isEqualTo("uncharted_3.md")
   }
 
