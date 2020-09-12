@@ -2,7 +2,7 @@ package me.saket.press.shared.sync.git
 
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.NoteId
-import me.saket.press.shared.home.SplitHeadingAndBody
+import me.saket.press.shared.note.HeadingAndBody
 import me.saket.press.shared.sync.git.FileNameSanitizer.sanitize
 
 typealias FileName = String
@@ -126,7 +126,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
 
   /** Finds a file name for `note` if it already exists or generates a new one. */
   fun generateNameFor(note: Note, canUseExisting: Boolean): FileName {
-    val (heading) = SplitHeadingAndBody.split(note.content)
+    val (heading) = HeadingAndBody.parse(note.content)
     val expectedName = if (heading.isNotBlank()) heading else "untitled_note"
     val folder = note.folder()?.plus("/") ?: ""
 

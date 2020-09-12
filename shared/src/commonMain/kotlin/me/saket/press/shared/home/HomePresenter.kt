@@ -17,6 +17,7 @@ import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.keyboard.KeyboardShortcuts
 import me.saket.press.shared.keyboard.KeyboardShortcuts.Companion.newNote
 import me.saket.press.shared.note.NoteRepository
+import me.saket.press.shared.note.HeadingAndBody
 import me.saket.press.shared.rx.mergeWith
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
@@ -56,7 +57,7 @@ class HomePresenter(
         .map { notes -> notes.filter { canInclude(it) } }
         .map {
           HomeUiModel(it.map { note ->
-            val (heading, body) = SplitHeadingAndBody.split(note.content)
+            val (heading, body) = HeadingAndBody.parse(note.content)
             HomeUiModel.Note(
                 noteId = note.id,
                 adapterId = note.localId,
