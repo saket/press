@@ -107,4 +107,33 @@ class SplitHeadingAndBodyTest {
     assertThat(heading2).isEqualTo("Heading")
     assertThat(body2).isEqualTo("Body")
   }
+
+  @Test fun `parse with spacings`() {
+    with(SplitHeadingAndBody.split(" ##  Heading \n  Body ", trimSpacings = false)) {
+      assertThat(heading).isEqualTo("Heading ")
+      assertThat(body).isEqualTo("  Body ")
+      assertThat(headingSyntax).isEqualTo(" ##  ")
+    }
+
+    with(SplitHeadingAndBody.split("# Heading only", trimSpacings = false)) {
+      assertThat(heading).isEqualTo("Heading only")
+      assertThat(body).isEqualTo("")
+      assertThat(headingSyntax).isEqualTo("# ")
+    }
+
+    with(SplitHeadingAndBody.split(" Body only ", trimSpacings = false)) {
+      assertThat(heading).isEqualTo("")
+      assertThat(body).isEqualTo(" Body only ")
+      assertThat(headingSyntax).isEqualTo("")
+    }
+  }
+
+  @Test fun `read heading syntax`() {
+    val parse = { content: String -> SplitHeadingAndBody.split(content, trimSpacings = false).headingSyntax }
+
+    assertThat(parse("# Heading1")).isEqualTo("# ")
+    assertThat(parse("## Heading2")).isEqualTo("## ")
+    assertThat(parse("### Heading\nwith body")).isEqualTo("### ")
+    assertThat(parse("Body without heading")).isEqualTo("")
+  }
 }

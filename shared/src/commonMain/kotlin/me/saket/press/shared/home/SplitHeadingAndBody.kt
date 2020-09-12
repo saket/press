@@ -1,35 +1,28 @@
 package me.saket.press.shared.home
 
 object SplitHeadingAndBody {
+  // https://regexr.com/5btiv
+  private val regex = Regex("^(?:(\\s*#{1,6}[ \\t]+)(.*))?\\n*([\\s\\S]*)")
 
-  private val headingRegex = Regex("^#{1,6}[ \t]+")
+  fun split(content: String, trimSpacings: Boolean = true): Paragraphs {
+    val matchResult = regex.find(content)
+        ?: return Paragraphs(
+            heading = "",
+            body = "",
+            headingSyntax = ""
+        )
 
-  fun split(content: String): Pair<String, String> {
-    @Suppress("NAME_SHADOWING")
-    val content = content.trimStart()
-
-    val title: String
-    val body: String
-
-    if (headingRegex.containsMatchIn(content)) {
-      val titleStartIndex = content.indexOfFirst { it.isWhitespace() } + 1
-      val titleAndBodySeparatorIndex = content.indexOf('\n')
-      val hasBody = titleAndBodySeparatorIndex != -1
-
-      if (hasBody) {
-        title = content.substring(titleStartIndex, titleAndBodySeparatorIndex).trimEnd()
-        body = content.substring(titleAndBodySeparatorIndex + 1).trimStart()
-
-      } else {
-        title = content.substring(titleStartIndex).trimEnd()
-        body = ""
-      }
-
+    val (headingSyntax, heading, body) = matchResult.destructured
+    return if (trimSpacings) {
+      Paragraphs(heading.trimEnd(), body.trimStart(), headingSyntax.trim())
     } else {
-      title = ""
-      body = content
+      Paragraphs(heading, body, headingSyntax)
     }
-
-    return title to body
   }
 }
+
+data class Paragraphs(
+  val heading: String,
+  val body: String,
+  val headingSyntax: String
+)
