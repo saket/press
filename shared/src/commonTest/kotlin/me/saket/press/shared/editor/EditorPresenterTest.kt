@@ -189,7 +189,7 @@ class EditorPresenterTest {
   }
 
   @Test fun `populate new note's content with placeholder on start`() {
-    presenter(NewNote(noteId))
+    presenter(NewNote(noteId, preFilledNote = "   "))
         .uiEffects()
         .test()
         .apply {

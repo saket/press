@@ -81,7 +81,7 @@ class EditorPresenter(
           .take(1)
           .filterNone()
           .flatMapCompletable {
-            val content = openMode.preFilledNote ?: NEW_NOTE_PLACEHOLDER
+            val content = openMode.preFilledNote.ifBlankOrNull { NEW_NOTE_PLACEHOLDER }
             noteRepository.create(newOrExistingId, content)
           }
     } else {
@@ -195,4 +195,8 @@ class EditorPresenter(
   companion object {
     const val NEW_NOTE_PLACEHOLDER = "# "
   }
+}
+
+private fun String?.ifBlankOrNull(default: () -> String): String {
+  return this?.ifBlank(default) ?: default()
 }
