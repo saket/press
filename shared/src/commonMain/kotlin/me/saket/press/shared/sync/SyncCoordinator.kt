@@ -4,7 +4,6 @@ import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.completable.onErrorComplete
 import com.badoo.reaktive.completable.subscribe
-import com.badoo.reaktive.observable.doOnBeforeNext
 import com.badoo.reaktive.observable.flatMapCompletable
 import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.switchMap

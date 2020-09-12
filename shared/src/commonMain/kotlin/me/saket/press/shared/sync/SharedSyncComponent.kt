@@ -70,6 +70,7 @@ class SharedSyncComponent {
           clock = get(),
           lastSyncedAt = lastSyncedAt(get()),
           lastPushedSha1 = lastPushedSha1(get()),
+          strings = get(),
           mergeConflicts = get()
       )
     }

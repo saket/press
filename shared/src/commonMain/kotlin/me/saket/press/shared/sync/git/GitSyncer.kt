@@ -28,6 +28,8 @@ import me.saket.kgit.identify
 import me.saket.press.PressDatabase
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.NoteId
+import me.saket.press.shared.localization.Strings
+import me.saket.press.shared.note.HeadingAndBody
 import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.sync.LastPushedSha1
 import me.saket.press.shared.sync.LastSyncedAt
@@ -58,6 +60,7 @@ class GitSyncer(
   private val clock: Clock,
   private val lastSyncedAt: Setting<LastSyncedAt>,
   private val lastPushedSha1: Setting<LastPushedSha1>,
+  private val strings: Strings,
   private val mergeConflicts: SyncMergeConflicts
 ) : Syncer() {
 
@@ -318,7 +321,6 @@ class GitSyncer(
     git: GitRepository,
     pullResult: PullResult
   ) : MergeConflictsResolver(git, pullResult) {
-
     override fun resolveAndSave(note: Note, suggestion: FileSuggestion, commitRename: () -> Unit?) {
       val noteFile = suggestion.suggestedFile
       val notePath = suggestion.suggestedFilePath
@@ -337,7 +339,7 @@ class GitSyncer(
           // File's content is going to change in a conflicting way. Duplicate the note.
           val newName = register.generateNameFor(note, canUseExisting = false)
           log("   duplicating to '<same parent>/$newName' to resolve merge conflict")
-          noteFile.copy(newName).write(note.content)
+          noteFile.copy(newName).write(note.conflictedContent)
           mergeConflicts.add(note)
         } else {
           log("   skipping (same content)")
@@ -347,7 +349,7 @@ class GitSyncer(
         // Old path was updated on remote, but deleted (on rename) locally. By not
         // accepting the rename, this file will later be processed as a new note.
         log("   creating as a new note to resolve merge conflict (old path = '$oldPath')")
-        noteFile.write(note.content)
+        noteFile.write(note.conflictedContent)
 
       } else {
         log("   creating/updating")
@@ -358,6 +360,12 @@ class GitSyncer(
         noteFile.write(note.content)
       }
     }
+
+    private val Note.conflictedContent
+      get() = HeadingAndBody.prefixHeading(
+          content = content,
+          prefix = "${strings.sync.conflicted_note_marker}: "
+      )
   }
 
   @Suppress("NAME_SHADOWING")

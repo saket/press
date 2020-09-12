@@ -28,6 +28,7 @@ import me.saket.press.shared.containsOnly
 import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakedata.fakeNote
+import me.saket.press.shared.localization.ENGLISH_STRINGS
 import me.saket.press.shared.settings.FakeSetting
 import me.saket.press.shared.sync.SyncState.IN_FLIGHT
 import me.saket.press.shared.sync.SyncState.PENDING
@@ -76,6 +77,7 @@ class GitSyncerTest : BaseDatabaeTest() {
       clock = clock,
       lastSyncedAt = FakeSetting(null),
       lastPushedSha1 = lastPushedSha1,
+      strings = ENGLISH_STRINGS,
       mergeConflicts = mergeConflicts
   )
 
@@ -340,9 +342,9 @@ class GitSyncerTest : BaseDatabaeTest() {
     val localNotes = noteQueries.visibleNotes().executeAsList().sortedBy { it.updatedAt }
 
     // The local note should get duplicated as a new note and then
-    // the local note should get overridden by the server copy.
+    // the old local note should get overridden by the server copy.
     assertThat(localNotes).hasSize(2)
-    assertThat(localNotes[0].content).isEqualTo("# Uncharted\nLocal edit")
+    assertThat(localNotes[0].content).isEqualTo("# Conflicted: Uncharted\nLocal edit")
     assertThat(localNotes[0].id).isNotEqualTo(locallyEditedNote.id)
 
     assertThat(localNotes[1].content).isEqualTo("# Uncharted\nRemote edit")
@@ -395,9 +397,9 @@ class GitSyncerTest : BaseDatabaeTest() {
     localNotes.forEach { println(it) }
 
     // The local note should get duplicated as a new note and then
-    // the local note should get overridden by the server copy.
+    // the old local note should get overridden by the server copy.
     assertThat(localNotes).hasSize(2)
-    assertThat(localNotes[0].content).isEqualTo("# Uncharted2\nLocal edit")
+    assertThat(localNotes[0].content).isEqualTo("# Conflicted: Uncharted2\nLocal edit")
     assertThat(localNotes[0].id).isNotEqualTo(locallyEditedNote.id)
 
     assertThat(localNotes[1].content).isEqualTo("# Uncharted\nRemote edit")
@@ -451,9 +453,9 @@ class GitSyncerTest : BaseDatabaeTest() {
     localNotes.forEach { println(it) }
 
     // The local note should get duplicated as a new note and then
-    // the local note should get overridden by the server copy.
+    // the old local note should get overridden by the server copy.
     assertThat(localNotes).hasSize(2)
-    assertThat(localNotes[0].content).isEqualTo("# Uncharted2\nLocal edit")
+    assertThat(localNotes[0].content).isEqualTo("# Conflicted: Uncharted2\nLocal edit")
     assertThat(localNotes[0].id).isNotEqualTo(remoteNoteId)
 
     assertThat(localNotes[1].content).isEqualTo("# Uncharted\nRemote edit")
@@ -907,7 +909,7 @@ class GitSyncerTest : BaseDatabaeTest() {
   }
 
   @Test fun `broadcast merge conflicts`() {
-   if (!canRunTests()) return
+    if (!canRunTests()) return
 
     val note = fakeNote("# Witcher")
     noteQueries.testInsert(note)
