@@ -28,6 +28,7 @@ import me.saket.press.shared.editor.EditorOpenMode
 import me.saket.press.shared.editor.EditorPresenter
 import me.saket.press.shared.editor.EditorPresenter.Args
 import me.saket.press.shared.editor.EditorUiEffect
+import me.saket.press.shared.editor.EditorUiEffect.BlockedDueToSyncConflict
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.editor.EditorUiModel
 import me.saket.press.shared.settings.Setting
@@ -184,6 +185,7 @@ class EditorView @AssistedInject constructor(
   private fun render(uiUpdate: EditorUiEffect) {
     return when (uiUpdate) {
       is UpdateNoteText -> editorEditText.setText(uiUpdate.newText, uiUpdate.newSelection)
+      is BlockedDueToSyncConflict -> EditingBlockedDueToConflictDialog.show(context, onDismiss)
     }
   }
 

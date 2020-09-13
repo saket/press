@@ -15,7 +15,7 @@ import me.saket.wysiwyg.formatting.TextSelection
 //   On Android, copying a URL will implicitly also copy its underline
 //   span, which we don't want.
 //
-// - Call AutoFormatOnEnterPress when enter key is pressed for formatting markdown.
+// - Call `AutoFormatOnEnterPress` when enter key is pressed for formatting markdown.
 interface EditorEvent {
   data class NoteTextChanged(val text: String) : EditorEvent
 }
@@ -29,4 +29,6 @@ sealed class EditorUiEffect {
     val newText: String,
     val newSelection: TextSelection?
   ) : EditorUiEffect()
+
+  object BlockedDueToSyncConflict: EditorUiEffect()
 }

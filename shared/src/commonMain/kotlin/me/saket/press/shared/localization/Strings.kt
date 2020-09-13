@@ -46,7 +46,11 @@ data class Strings(
     val timestamp_days: PluralString,
     val timestamp_a_while_ago: String,
     val search_git_repos: String,
-    val conflicted_note_marker: String
+
+    val conflicted_note_heading_prefix: String,
+    val conflicted_note_explanation_dialog_title: String,
+    val conflicted_note_explanation_dialog_message: String,
+    val conflicted_note_explanation_dialog_button: String
   )
 }
 
@@ -92,6 +96,13 @@ val ENGLISH_STRINGS = Strings(
         timestamp_days = PluralString(one = "%s day ago", many = "%s days ago"),
         timestamp_a_while_ago = "a while ago",
         search_git_repos = "Search your repositories…",
-        conflicted_note_marker = "Conflicted"
+
+        conflicted_note_heading_prefix = "Conflicted",
+        conflicted_note_explanation_dialog_title = "Sync conflict detected",
+        conflicted_note_explanation_dialog_message = "This note was edited on another device in a conflicting way. " +
+            "Press has duplicated your note to avoid throwing out any data. Please close and re-open this note?" +
+            "\n\nSync conflicts are unfortunate but unavoidable if edits to the same note are made on multiple " +
+            "devices, either around the same time or at different times while one of them was offline.",
+        conflicted_note_explanation_dialog_button = "Close note"
     )
 )

@@ -11,6 +11,7 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotInstanceOf
 import assertk.assertions.isTrue
+import com.badoo.reaktive.test.observable.assertValue
 import com.badoo.reaktive.test.observable.test
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.hours
@@ -915,7 +916,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     noteQueries.testInsert(note)
     syncer.sync()
 
-    val conflicts = mergeConflicts.listen().test()
+    val isConflicted = mergeConflicts.isConflicted(note.id).test()
 
     RemoteRepositoryRobot {
       pull()
@@ -930,24 +931,25 @@ class GitSyncerTest : BaseDatabaeTest() {
         content = "# Witcher\nAssassins of kings",
         updatedAt = clock.nowUtc()
     )
-    syncer.sync()
 
     git.prePush = {
-      assertThat(conflicts.values.last()).containsOnly(note.id)
+      isConflicted.assertValue(true)
     }
-    assertThat(conflicts.values.last()).isEmpty()
+    syncer.sync()
+    isConflicted.assertValue(false)
   }
 
   @Test fun `clear merge conflicts if sync fails`() {
     if (!canRunTests()) return
 
-    mergeConflicts.add(fakeNote("# Witcher 3"))
-    val conflicts = mergeConflicts.listen().test()
+    val noteId = NoteId.generate()
+    mergeConflicts.add(noteId)
+    val isConflicted = mergeConflicts.isConflicted(noteId).test()
 
     git.prePull = { error("boom!") }
     syncer.sync()
 
-    assertThat(conflicts.values.last()).isEmpty()
+    isConflicted.assertValue(false)
   }
 
   private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit = {}) {

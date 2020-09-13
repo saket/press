@@ -340,7 +340,7 @@ class GitSyncer(
           val newName = register.generateNameFor(note, canUseExisting = false)
           log("   duplicating to '<same parent>/$newName' to resolve merge conflict")
           noteFile.copy(newName).write(note.conflictedContent)
-          mergeConflicts.add(note)
+          mergeConflicts.add(note.id)
         } else {
           log("   skipping (same content)")
         }
@@ -364,7 +364,7 @@ class GitSyncer(
     private val Note.conflictedContent
       get() = HeadingAndBody.prefixHeading(
           content = content,
-          prefix = "${strings.sync.conflicted_note_marker}: "
+          prefix = "${strings.sync.conflicted_note_heading_prefix}: "
       )
   }
 

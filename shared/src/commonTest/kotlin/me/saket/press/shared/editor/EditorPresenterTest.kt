@@ -7,6 +7,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.test.base.assertNotError
 import com.badoo.reaktive.test.observable.assertValue
 import com.badoo.reaktive.test.observable.test
@@ -20,6 +21,7 @@ import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorPresenter.Args
 import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
+import me.saket.press.shared.editor.EditorUiEffect.BlockedDueToSyncConflict
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.localization.ENGLISH_STRINGS
@@ -36,6 +38,7 @@ class EditorPresenterTest {
   private val testScheduler = TestScheduler()
   private val config = EditorConfig(autoSaveEvery = 5.seconds)
   private val navigator = FakeNavigator()
+  private val syncConflicts = SyncMergeConflicts()
 
   private fun presenter(
     openMode: EditorOpenMode,
@@ -46,7 +49,8 @@ class EditorPresenterTest {
         noteRepository = repository,
         schedulers = FakeSchedulers(computation = testScheduler),
         strings = ENGLISH_STRINGS,
-        config = config
+        config = config,
+        syncConflicts = syncConflicts
     )
   }
 
@@ -236,9 +240,27 @@ class EditorPresenterTest {
         }
   }
 
-  // todo
   @Test fun `block editing if note is marked as sync-conflicted`() {
+    repository.savedNotes += fakeNote(id = noteId, content = "# Existing note")
+    presenter(ExistingNote(noteId)).uiEffects()
+        .ofType<BlockedDueToSyncConflict>()
+        .test()
+        .also { syncConflicts.add(noteId) }
+        .assertValue(BlockedDueToSyncConflict)
+  }
 
+  @Test fun `stop updating saved note once note is marked as sync-conflicted`() {
+    repository.savedNotes += fakeNote(id = noteId, content = "# Content before sync")
+
+    val presenter = presenter(ExistingNote(noteId))
+    presenter.uiModels().test()
+    syncConflicts.add(noteId)
+
+    presenter.dispatch(NoteTextChanged("# Updated note"))
+    presenter.saveEditorContentOnClose("# Exitingggggg")
+
+    val savedNote = repository.savedNotes.single()
+    assertThat(savedNote.content).isEqualTo("# Content before sync")
   }
 }
 

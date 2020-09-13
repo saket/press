@@ -9,6 +9,7 @@ import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.ObservableWrapper
 import com.badoo.reaktive.observable.distinctUntilChanged
 import com.badoo.reaktive.observable.filter
+import com.badoo.reaktive.observable.flatMap
 import com.badoo.reaktive.observable.flatMapCompletable
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
@@ -17,17 +18,20 @@ import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.refCount
 import com.badoo.reaktive.observable.replay
 import com.badoo.reaktive.observable.take
+import com.badoo.reaktive.observable.takeUntil
 import com.badoo.reaktive.observable.withLatestFrom
 import com.badoo.reaktive.observable.wrap
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
+import me.saket.press.shared.editor.EditorUiEffect.BlockedDueToSyncConflict
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.note.NoteRepository
 import me.saket.press.shared.rx.Schedulers
+import me.saket.press.shared.rx.combineLatestWith
 import me.saket.press.shared.rx.consumeOnNext
 import me.saket.press.shared.rx.mapToOptional
 import me.saket.press.shared.rx.mapToSome
@@ -45,7 +49,8 @@ class EditorPresenter(
   private val noteRepository: NoteRepository,
   private val schedulers: Schedulers,
   private val strings: Strings,
-  private val config: EditorConfig
+  private val config: EditorConfig,
+  private val syncConflicts: SyncMergeConflicts
 ) : Presenter<EditorEvent, EditorUiModel, EditorUiEffect>() {
 
   private val openMode = args.openMode
@@ -65,7 +70,10 @@ class EditorPresenter(
   }
 
   override fun uiEffects(): ObservableWrapper<EditorUiEffect> {
-    return populateExistingNoteOnStart().wrap()
+    return merge(
+        populateExistingNoteOnStart(),
+        blockEditingOnSyncConflict()
+    ).wrap()
   }
 
   private fun createOrFetchNote(): Observable<Note> {
@@ -108,6 +116,18 @@ class EditorPresenter(
         }
   }
 
+  private fun blockEditingOnSyncConflict(): Observable<EditorUiEffect> {
+    return noteConflicts().map { BlockedDueToSyncConflict }
+  }
+
+  private fun noteConflicts(): Observable<Unit> {
+    return noteStream
+        .take(1)
+        .flatMap { syncConflicts.isConflicted(it.id) }
+        .filter { it }
+        .map { Unit }
+  }
+
   /**
    * Can happen if the note was deleted outside of the app (e.g., on another device).
    */
@@ -142,6 +162,7 @@ class EditorPresenter(
           observableInterval(config.autoSaveEvery, schedulers.computation)
               .withLatestFrom(textChanges) { _, text -> text }
               .distinctUntilChanged()
+              .takeUntil(noteConflicts())
               .flatMapCompletable { text -> noteRepository.update(note.id, text) }
         }
         .andThen(observableOfEmpty())
@@ -167,9 +188,11 @@ class EditorPresenter(
     // when this function is called after EditorView gets detached. Fetching
     // the note again here.
     return noteRepository.note(noteId)
-        .take(1)
         .mapToSome()
-        .flatMapCompletable { note ->
+        .combineLatestWith(syncConflicts.isConflicted(noteId))
+        .filter { (_, isConflicted) -> !isConflicted }
+        .take(1)
+        .flatMapCompletable { (note) ->
           val maybeDelete = when {
             shouldDelete -> noteRepository.markAsPendingDeletion(note.id)
             else -> completableOfEmpty()
@@ -184,12 +207,8 @@ class EditorPresenter(
 
   data class Args(
     val openMode: EditorOpenMode,
-
-    /**
-     * Should be kept in sync with [HomePresenter.Args.includeBlankNotes].
-     */
+    /** Should be kept in sync with [HomePresenter.Args.includeBlankNotes]. */
     val deleteBlankNewNoteOnExit: Boolean,
-
     val navigator: Navigator
   )
 

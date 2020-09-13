@@ -16,7 +16,8 @@ class SharedEditorComponent {
           noteRepository = get(),
           schedulers = get(),
           strings = get(),
-          config = editorConfig()
+          config = editorConfig(),
+          syncConflicts = get()
       )
     }
     factory(named("autocorrect")) {

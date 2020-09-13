@@ -38,6 +38,7 @@ struct EditorView: View {
           // TODO: consume effect.newSelection.
           self.editorText.value = $0.newText
         }
+        // TODO: consume BlockedDueToSyncConflict
         .onDisappear {
           /// TODO: this is dangerous. Saving the editor content before it's
           /// populated from the DB will cause it to get overridden.
