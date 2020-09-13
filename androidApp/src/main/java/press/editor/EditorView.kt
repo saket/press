@@ -15,6 +15,8 @@ import android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN
 import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.TextView
+import androidx.core.text.buildSpannedString
+import androidx.core.text.inSpans
 import androidx.core.view.updatePaddingRelative
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
@@ -52,7 +54,6 @@ import press.theme.themeAware
 import press.theme.themePalette
 import press.theme.themed
 import press.widgets.PressToolbar
-import press.widgets.Truss
 
 class EditorView @AssistedInject constructor(
   @Assisted context: Context,
@@ -144,9 +145,6 @@ class EditorView @AssistedInject constructor(
         }
 
     toolbar.setNavigationOnClickListener {
-      // TODO: detect if the keyboard is up and delay going back by
-      //  a bit so that the IRV behind is resized before this View
-      //  start collapsing.
       onDismiss()
     }
   }
@@ -173,12 +171,12 @@ class EditorView @AssistedInject constructor(
     if (model.hintText == null) {
       headingHintTextView.visibility = GONE
     } else {
-      headingHintTextView.visibility = View.VISIBLE
-      headingHintTextView.text = Truss()
-          .pushSpan(EditorHeadingHintSpan(H1))
-          .append(model.hintText!!)
-          .popSpan()
-          .build()
+      headingHintTextView.visibility = VISIBLE
+      headingHintTextView.text = buildSpannedString {
+        inSpans(EditorHeadingHintSpan(H1)) {
+          append(model.hintText!!)
+        }
+      }
     }
   }
 
