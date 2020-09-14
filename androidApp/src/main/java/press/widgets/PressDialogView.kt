@@ -1,29 +1,26 @@
 package press.widgets
 
 import android.content.Context
-import android.graphics.Color.TRANSPARENT
-import android.graphics.Typeface
-import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.PaintDrawable
+import android.text.Layout
 import android.view.Gravity
-import android.view.Gravity.CENTER
+import android.view.Gravity.CENTER_HORIZONTAL
+import android.view.KeyEvent
 import android.view.View
 import android.widget.FrameLayout
-import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.core.view.setMargins
 import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import com.squareup.contour.ContourLayout
-import me.saket.press.shared.R
 import me.saket.press.shared.theme.TextStyles
-import me.saket.press.shared.theme.applyStyle
 import press.extensions.TextView
-import press.theme.themeAware
-import press.theme.themed
 import press.extensions.padding
 import press.extensions.textColor
+import press.extensions.updatePadding
+import press.theme.themeAware
+import press.theme.themed
 
 /**
  * Rounded corners and theme colors, because [AlertDialog] isn't very customizable.
@@ -31,6 +28,7 @@ import press.extensions.textColor
  */
 class PressDialogView private constructor(context: Context) : ContourLayout(context) {
   private val titleView = themed(TextView(context, TextStyles.Primary)).apply {
+    gravity = CENTER_HORIZONTAL
     themeAware { textColor = it.textColorPrimary }
     layoutBy(
         x = matchParentX(marginLeft = 20.dip, marginRight = 20.dip),
@@ -39,6 +37,7 @@ class PressDialogView private constructor(context: Context) : ContourLayout(cont
   }
 
   private val messageView = themed(TextView(context, TextStyles.Secondary)).apply {
+    gravity = CENTER_HORIZONTAL
     themeAware { textColor = it.textColorPrimary }
     applyLayout(
         x = matchParentX(marginLeft = 20.dip, marginRight = 20.dip),
@@ -111,8 +110,7 @@ class PressDialogView private constructor(context: Context) : ContourLayout(cont
       positiveOnClick: () -> Unit,
       dismissOnOutsideTap: Boolean = true
     ) {
-      val dialogView = PressDialogView(context)
-      dialogView.apply {
+      val dialogView = PressDialogView(context).apply {
         titleView.text = title
         titleView.isVisible = !title.isNullOrBlank()
         messageView.text = message
@@ -132,7 +130,12 @@ class PressDialogView private constructor(context: Context) : ContourLayout(cont
           })
           .show()
           .apply {
-            setCanceledOnTouchOutside(dismissOnOutsideTap)
+            if (!dismissOnOutsideTap) {
+              setCanceledOnTouchOutside(false)
+              setOnKeyListener { _, keyCode, _ ->
+                keyCode == KeyEvent.KEYCODE_BACK
+              }
+            }
             window!!.setBackgroundDrawable(null)
           }
 

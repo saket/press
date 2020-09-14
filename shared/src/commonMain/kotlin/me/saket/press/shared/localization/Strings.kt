@@ -99,10 +99,10 @@ val ENGLISH_STRINGS = Strings(
 
         conflicted_note_heading_prefix = "Conflicted",
         conflicted_note_explanation_dialog_title = "Sync conflict detected",
-        conflicted_note_explanation_dialog_message = "This note was edited on another device in a conflicting way. " +
-            "Press has duplicated your note to avoid throwing out any data. Please close and re-open this note?" +
-            "\n\nSync conflicts are unfortunate but unavoidable if edits to the same note are made on multiple " +
-            "devices, either around the same time or at different times while one of them was offline.",
+        conflicted_note_explanation_dialog_message = "This note was edited on another device in a conflicting way, " +
+            "and had to be duplicated. Please close and re-open this note? \n\nSync conflicts are unfortunate but " +
+            "unavoidable if edits to the same note are made on multiple devices, either around the same time or at" +
+            " different times while one of them was offline.",
         conflicted_note_explanation_dialog_button = "Close note"
     )
 )
