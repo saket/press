@@ -102,7 +102,7 @@ val ENGLISH_STRINGS = Strings(
         conflicted_note_explanation_dialog_message = "This note was edited on another device in a conflicting way, " +
             "and had to be duplicated. Please close and re-open this note? \n\nSync conflicts are unfortunate but " +
             "unavoidable if edits to the same note are made on multiple devices, either around the same time or at" +
-            " different times while one of them was offline.",
+            " different times while offline.",
         conflicted_note_explanation_dialog_button = "Close note"
     )
 )
