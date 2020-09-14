@@ -30,5 +30,5 @@ sealed class EditorUiEffect {
     val newSelection: TextSelection?
   ) : EditorUiEffect()
 
-  object BlockedDueToSyncConflict: EditorUiEffect()
+  object BlockedDueToSyncConflict : EditorUiEffect()
 }

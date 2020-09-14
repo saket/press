@@ -3,10 +3,6 @@ package me.saket.press.shared.home
 import assertk.assertThat
 import assertk.assertions.containsOnly
 import assertk.assertions.hasClass
-import assertk.assertions.isEmpty
-import assertk.assertions.isEqualTo
-import assertk.assertions.isNotEmpty
-import assertk.assertions.isNotSameAs
 import com.badoo.reaktive.test.observable.test
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER

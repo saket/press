@@ -3,9 +3,6 @@ package me.saket.press.shared.note
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.observable.Observable
-import com.badoo.reaktive.observable.asCompletable
-import com.badoo.reaktive.observable.map
-import com.badoo.reaktive.observable.take
 import me.saket.press.data.shared.Note
 import me.saket.press.data.shared.NoteQueries
 import me.saket.press.shared.db.NoteId
@@ -13,7 +10,6 @@ import me.saket.press.shared.rx.Schedulers
 import me.saket.press.shared.rx.asObservable
 import me.saket.press.shared.rx.mapToList
 import me.saket.press.shared.rx.mapToOneOrOptional
-import me.saket.press.shared.rx.mapToSome
 import me.saket.press.shared.time.Clock
 import me.saket.press.shared.util.Optional
 

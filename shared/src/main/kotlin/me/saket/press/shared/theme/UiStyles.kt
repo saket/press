@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Typeface
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.P
-import android.text.TextUtils.TruncateAt
 import android.text.TextUtils.TruncateAt.END
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
