@@ -101,6 +101,7 @@ class GitHostIntegrationPresenter(
           gitHostService.fetchUserRepos(token).asObservable()
               .combineLatestWith(searchEvents)
               .map { (repos, searchText) -> SelectRepo(repos.toUiModels(searchText)) }
+              .doOnBeforeError { e -> e.printStackTrace() }
               .onErrorReturnValue(ShowFailure(kind = FetchingRepos))
               .startWithValue(defaultUiModel())
         }

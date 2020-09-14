@@ -32,7 +32,7 @@ class SearchView(context: Context) : TextInputLayout(context) {
       hintTextColor = ColorStateList.valueOf(it.accentColor)
       boxBackgroundColor = it.window.backgroundColor.blendWith(BLACK, ratio = 0.1f)
       boxStrokeColor = it.accentColor
-      setEndIconTintList(ColorStateList.valueOf(editText!!.currentHintTextColor))
+      setEndIconTintList(hintTextColor)
     }
   }
 }
