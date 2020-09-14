@@ -10,14 +10,17 @@ import android.graphics.drawable.PaintDrawable
 import android.graphics.drawable.RippleDrawable
 import android.view.View
 import androidx.appcompat.widget.AppCompatButton
+import me.saket.press.shared.theme.UiStyles
+import me.saket.press.shared.theme.applyStyle
 import press.theme.themeAware
 import press.extensions.updatePadding
 
-open class PressButton(context: Context) : AppCompatButton(context) {
+open class PressButton(context: Context, style: UiStyles.Text) : AppCompatButton(context) {
   init {
     minHeight = 0
     minimumHeight = 0
     isAllCaps = false
+    applyStyle(style)
     updatePadding(horizontal = dp(16), vertical = dp(8))
     themeAware {
       background = pressButtonDrawable(it.buttonNormal, pressedColor = it.buttonPressed)
@@ -25,7 +28,7 @@ open class PressButton(context: Context) : AppCompatButton(context) {
   }
 }
 
-class PressBorderlessButton(context: Context) : PressButton(context) {
+class PressBorderlessButton(context: Context, style: UiStyles.Text) : PressButton(context, style) {
   init {
     elevation = 0f
     stateListAnimator = null
@@ -50,4 +53,3 @@ fun View.pressButtonDrawable(color: Int, pressedColor: Int, rounded: Boolean = t
   }
   return RippleDrawable(rippleColor, shape, mask)
 }
-

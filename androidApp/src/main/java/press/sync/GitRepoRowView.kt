@@ -12,6 +12,7 @@ import me.saket.press.R
 import me.saket.press.shared.sync.git.HighlightedText
 import me.saket.press.shared.sync.git.RepoUiModel
 import me.saket.press.shared.theme.TextStyles.mainTitle
+import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextStyles.smallTitle
 import me.saket.press.shared.theme.TextView
 import me.saket.press.shared.theme.ThemePalette
@@ -21,7 +22,7 @@ import press.theme.themeAware
 import press.theme.themePalette
 
 class GitRepoRowView(context: Context) : ContourLayout(context) {
-  private val ownerView = TextView(context, smallTitle).apply {
+  private val ownerView = TextView(context, smallBody).apply {
     themeAware { textColor = it.textColorSecondary }
     applyLayout(
         x = matchParentX(marginLeft = 22.dip, marginRight = 22.dip),

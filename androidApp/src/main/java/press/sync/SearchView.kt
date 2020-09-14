@@ -6,6 +6,8 @@ import android.graphics.Color.BLACK
 import android.widget.EditText
 import androidx.core.view.updatePadding
 import com.google.android.material.textfield.TextInputLayout
+import me.saket.press.shared.theme.TextStyles.smallBody
+import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.theme.blendWith
 import press.extensions.textColor
 import press.theme.themeAware
@@ -14,7 +16,7 @@ import press.widgets.dp
 class SearchView(context: Context) : TextInputLayout(context) {
   init {
     addView(EditText(context).apply {
-      textSize = 14f
+      applyStyle(smallBody)
       background = null
       themeAware {
         textColor = it.textColorPrimary
@@ -30,7 +32,9 @@ class SearchView(context: Context) : TextInputLayout(context) {
       hintTextColor = ColorStateList.valueOf(it.accentColor)
       boxBackgroundColor = it.window.backgroundColor.blendWith(BLACK, ratio = 0.1f)
       boxStrokeColor = it.accentColor
-      setEndIconTintList(hintTextColor)
+
+      // Note to self: this is not the same as hintTextColor
+      setEndIconTintList(ColorStateList.valueOf(editText!!.currentHintTextColor))
     }
   }
 }

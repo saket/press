@@ -35,6 +35,7 @@ import me.saket.press.shared.editor.EditorUiModel
 import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.theme.DisplayUnits
 import me.saket.press.shared.theme.TextStyles.mainBody
+import me.saket.press.shared.theme.TextView
 import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.theme.from
 import me.saket.press.shared.ui.subscribe
@@ -106,7 +107,7 @@ class EditorView @AssistedInject constructor(
     }
   }
 
-  private val headingHintTextView = TextView(context).apply {
+  private val headingHintTextView = TextView(context, mainBody).apply {
     textSizePx = editorEditText.textSize
     themeAware {
       textColor = it.textColorHint

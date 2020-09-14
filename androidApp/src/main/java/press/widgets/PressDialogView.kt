@@ -12,6 +12,7 @@ import androidx.core.view.setMargins
 import androidx.core.view.updateLayoutParams
 import com.squareup.contour.ContourLayout
 import me.saket.press.shared.theme.TextStyles.mainTitle
+import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextStyles.smallTitle
 import me.saket.press.shared.theme.TextView
 import press.extensions.padding
@@ -32,7 +33,7 @@ class PressDialogView private constructor(context: Context) : ContourLayout(cont
     )
   }
 
-  private val messageView = TextView(context, smallTitle).apply {
+  private val messageView = TextView(context, smallBody).apply {
     gravity = CENTER_HORIZONTAL
     themeAware { textColor = it.textColorPrimary }
     applyLayout(
@@ -47,7 +48,7 @@ class PressDialogView private constructor(context: Context) : ContourLayout(cont
     )
   }
 
-  private val negativeButtonView = PressBorderlessButton(context).apply {
+  private val negativeButtonView = PressBorderlessButton(context, smallBody).apply {
     padding = dp(16)
     themeAware { textColor = it.textColorPrimary }
     layoutBy(
@@ -56,7 +57,7 @@ class PressDialogView private constructor(context: Context) : ContourLayout(cont
     )
   }
 
-  private val positiveButtonView = PressBorderlessButton(context).apply {
+  private val positiveButtonView = PressBorderlessButton(context, smallBody).apply {
     padding = dp(16)
     isSingleLine = true
     themeAware { textColor = it.accentColor }

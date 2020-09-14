@@ -26,6 +26,7 @@ import me.saket.press.shared.sync.SyncPreferencesUiModel
 import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncDisabled
 import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncEnabled
 import me.saket.press.shared.sync.git.GitHost
+import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextStyles.smallTitle
 import me.saket.press.shared.theme.TextView
 import me.saket.press.shared.ui.subscribe
@@ -119,7 +120,7 @@ class SyncPreferencesView @AssistedInject constructor(
 }
 
 private class SyncDisabledView(context: Context) : ContourLayout(context) {
-  private val messageView = TextView(context, smallTitle).apply {
+  private val messageView = TextView(context, smallBody).apply {
     text = context.strings().sync.sync_disabled_message
     themeAware { textColor = it.textColorPrimary }
     applyLayout(
@@ -143,7 +144,7 @@ private class SyncDisabledView(context: Context) : ContourLayout(context) {
   fun render(model: SyncDisabled, onClick: (GitHost) -> Unit) {
     gitHostButtons.removeAllViews()
     model.availableGitHosts.forEach { host ->
-      val button = PressButton(context).also {
+      val button = PressButton(context, smallBody).also {
         it.text = context.strings().sync.setup_sync_with_host.format(host.displayName())
         it.themeAware { palette -> it.textColor = palette.textColorPrimary }
         it.setOnClickListener { onClick(host) }
@@ -172,7 +173,7 @@ private class SyncEnabledView(context: Context) : ContourLayout(context) {
     )
   }
 
-  val disableButton = PressButton(context).apply {
+  val disableButton = PressButton(context, smallBody).apply {
     themeAware { textColor = it.textColorPrimary }
     text = context.strings().sync.disable_sync_button
     applyLayout(

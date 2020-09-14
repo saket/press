@@ -18,7 +18,7 @@ object TextStyles {
   )
 
   val smallTitle = UiStyles.Text(
-      font = WORK_SANS * REGULAR,
+      font = WORK_SANS * BOLD,
       textSize = 14f,
       lineSpacingMultiplier = 1.25f
   )
