@@ -8,7 +8,6 @@ import android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
 import android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
 import android.text.Layout.BREAK_STRATEGY_HIGH_QUALITY
 import android.view.Gravity.TOP
-import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN
@@ -35,7 +34,7 @@ import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.editor.EditorUiModel
 import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.theme.DisplayUnits
-import me.saket.press.shared.theme.EditorUiStyles
+import me.saket.press.shared.theme.TextStyles.mainBody
 import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.theme.from
 import me.saket.press.shared.ui.subscribe
@@ -83,7 +82,7 @@ class EditorView @AssistedInject constructor(
   }
 
   internal val editorEditText = themed(PlainTextPasteEditText(context)).apply {
-    EditorUiStyles.editor.applyStyle(this)
+    applyStyle(mainBody)
     id = R.id.editor_textfield
     background = null
     breakStrategy = BREAK_STRATEGY_HIGH_QUALITY

@@ -2,13 +2,11 @@
 
 package press.extensions
 
-import android.content.Context
 import android.graphics.Rect
 import android.os.Build.VERSION.SDK_INT
 import android.text.Editable
 import android.util.TypedValue.COMPLEX_UNIT_PX
 import android.view.View
-import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
@@ -20,8 +18,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
-import me.saket.press.shared.theme.UiStyles
-import me.saket.press.shared.theme.applyStyle
 import me.saket.wysiwyg.widgets.SimpleTextWatcher
 import press.widgets.Attr
 import kotlin.DeprecationLevel.ERROR
@@ -111,9 +107,4 @@ fun ViewFlipper.setDisplayedChild(child: View) {
   if (displayedChild != childIndex) {     // otherwise ViewFlipper plays animation even if the same child is set.
     displayedChild = childIndex
   }
-}
-
-@Suppress("FunctionName")
-fun TextView(context: Context, style: UiStyles.Text): TextView {
-  return TextView(context).also { style.applyStyle(it) }
 }

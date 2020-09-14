@@ -5,6 +5,7 @@ import android.graphics.Typeface
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.P
 import android.text.TextUtils.TruncateAt
+import android.text.TextUtils.TruncateAt.END
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import me.saket.press.shared.BuildConfig
@@ -14,14 +15,14 @@ import me.saket.press.shared.theme.UiStyles.FontVariant.BOLD
 import me.saket.press.shared.theme.UiStyles.FontVariant.ITALIC
 import me.saket.press.shared.theme.UiStyles.FontVariant.REGULAR
 
-fun UiStyles.Text.applyStyle(view: TextView) {
-  view.textSize = textSize
-  view.typeface = font.asTypeface(view.context)
-  view.setLineSpacing(0f, lineSpacingMultiplier)
+fun TextView.applyStyle(style: UiStyles.Text) {
+  textSize = style.textSize
+  typeface = style.font.asTypeface(context)
+  setLineSpacing(0f, style.lineSpacingMultiplier)
 
-  if (maxLines != null) {
-    view.maxLines = maxLines
-    view.ellipsize = TruncateAt.END
+  if (style.maxLines != null) {
+    maxLines = style.maxLines
+    ellipsize = END
   }
 }
 
@@ -45,4 +46,9 @@ fun UiStyles.Font.asTypeface(context: Context): Typeface {
     }
     Typeface.create(fontFamily, styleInt)
   }
+}
+
+@Suppress("FunctionName")
+fun TextView(context: Context, style: UiStyles.Text): TextView {
+  return TextView(context).apply { applyStyle(style) }
 }

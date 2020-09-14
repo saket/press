@@ -2,8 +2,6 @@ package press.widgets
 
 import android.content.Context
 import android.graphics.drawable.PaintDrawable
-import android.text.Layout
-import android.view.Gravity
 import android.view.Gravity.CENTER_HORIZONTAL
 import android.view.KeyEvent
 import android.view.View
@@ -12,13 +10,12 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.core.view.setMargins
 import androidx.core.view.updateLayoutParams
-import androidx.core.view.updatePadding
 import com.squareup.contour.ContourLayout
-import me.saket.press.shared.theme.TextStyles
-import press.extensions.TextView
+import me.saket.press.shared.theme.TextStyles.mainTitle
+import me.saket.press.shared.theme.TextStyles.smallTitle
+import me.saket.press.shared.theme.TextView
 import press.extensions.padding
 import press.extensions.textColor
-import press.extensions.updatePadding
 import press.theme.themeAware
 import press.theme.themed
 
@@ -27,7 +24,7 @@ import press.theme.themed
  * Essentially copies dialogs from [https://cash.app]'s Android app.
  */
 class PressDialogView private constructor(context: Context) : ContourLayout(context) {
-  private val titleView = themed(TextView(context, TextStyles.Primary)).apply {
+  private val titleView = themed(TextView(context, mainTitle)).apply {
     gravity = CENTER_HORIZONTAL
     themeAware { textColor = it.textColorPrimary }
     layoutBy(
@@ -36,7 +33,7 @@ class PressDialogView private constructor(context: Context) : ContourLayout(cont
     )
   }
 
-  private val messageView = themed(TextView(context, TextStyles.Secondary)).apply {
+  private val messageView = themed(TextView(context, smallTitle)).apply {
     gravity = CENTER_HORIZONTAL
     themeAware { textColor = it.textColorPrimary }
     applyLayout(

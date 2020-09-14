@@ -1,7 +1,6 @@
 package press.sync
 
 import android.content.Context
-import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.text.Html
@@ -28,9 +27,10 @@ import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncDisabled
 import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncEnabled
 import me.saket.press.shared.sync.git.GitHost
 import me.saket.press.shared.theme.TextStyles
+import me.saket.press.shared.theme.TextStyles.smallTitle
+import me.saket.press.shared.theme.TextView
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
-import press.extensions.TextView
 import press.extensions.setDisplayedChild
 import press.extensions.textColor
 import press.extensions.updateMargins
@@ -121,7 +121,7 @@ class SyncPreferencesView @AssistedInject constructor(
 }
 
 private class SyncDisabledView(context: Context) : ContourLayout(context) {
-  private val messageView = themed(TextView(context, TextStyles.Secondary)).apply {
+  private val messageView = themed(TextView(context, smallTitle)).apply {
     text = context.strings().sync.sync_disabled_message
     themeAware { textColor = it.textColorPrimary }
     applyLayout(
@@ -157,7 +157,7 @@ private class SyncDisabledView(context: Context) : ContourLayout(context) {
 }
 
 private class SyncEnabledView(context: Context) : ContourLayout(context) {
-  private val setupInfoView = themed(TextView(context, TextStyles.Secondary)).apply {
+  private val setupInfoView = themed(TextView(context, smallTitle)).apply {
     movementMethod = BetterLinkMovementMethod.getInstance()
     themeAware { textColor = it.textColorPrimary }
     applyLayout(
@@ -166,7 +166,7 @@ private class SyncEnabledView(context: Context) : ContourLayout(context) {
     )
   }
 
-  private val statusView = themed(TextView(context, TextStyles.Secondary)).apply {
+  private val statusView = themed(TextView(context, smallTitle)).apply {
     themeAware { textColor = it.textColorPrimary }
     applyLayout(
         x = matchParentX(),
