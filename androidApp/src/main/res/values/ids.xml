@@ -7,4 +7,6 @@
 
   <item name="editor_scrollable_container" type="id" />
   <item name="editor_textfield" type="id" />
+
+  <item name="theming_done" type="id" />
 </resources>

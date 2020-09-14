@@ -51,7 +51,6 @@ import press.extensions.textSizePx
 import press.navigator
 import press.theme.themeAware
 import press.theme.themePalette
-import press.theme.themed
 import press.widgets.PressToolbar
 
 class EditorView @AssistedInject constructor(
@@ -62,7 +61,7 @@ class EditorView @AssistedInject constructor(
   autoCorrectEnabled: Setting<AutoCorrectEnabled>
 ) : ContourLayout(context) {
 
-  private val toolbar = themed(PressToolbar(context)).apply {
+  private val toolbar = PressToolbar(context).apply {
     themeAware {
       setBackgroundColor(it.window.editorBackgroundColor)
     }
@@ -72,7 +71,7 @@ class EditorView @AssistedInject constructor(
     )
   }
 
-  internal val scrollView = themed(ScrollView(context)).apply {
+  internal val scrollView = ScrollView(context).apply {
     id = R.id.editor_scrollable_container
     isFillViewport = true
     applyLayout(
@@ -81,7 +80,7 @@ class EditorView @AssistedInject constructor(
     )
   }
 
-  internal val editorEditText = themed(PlainTextPasteEditText(context)).apply {
+  internal val editorEditText = PlainTextPasteEditText(context).apply {
     applyStyle(mainBody)
     id = R.id.editor_textfield
     background = null
@@ -107,7 +106,7 @@ class EditorView @AssistedInject constructor(
     }
   }
 
-  private val headingHintTextView = themed(TextView(context)).apply {
+  private val headingHintTextView = TextView(context).apply {
     textSizePx = editorEditText.textSize
     themeAware {
       textColor = it.textColorHint

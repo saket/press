@@ -26,7 +26,6 @@ import me.saket.press.shared.sync.SyncPreferencesUiModel
 import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncDisabled
 import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncEnabled
 import me.saket.press.shared.sync.git.GitHost
-import me.saket.press.shared.theme.TextStyles
 import me.saket.press.shared.theme.TextStyles.smallTitle
 import me.saket.press.shared.theme.TextView
 import me.saket.press.shared.ui.subscribe
@@ -35,7 +34,6 @@ import press.extensions.setDisplayedChild
 import press.extensions.textColor
 import press.extensions.updateMargins
 import press.theme.themeAware
-import press.theme.themed
 import press.widgets.PressButton
 import press.widgets.PressToolbar
 import press.widgets.dp
@@ -46,7 +44,7 @@ class SyncPreferencesView @AssistedInject constructor(
   private val presenter: SyncPreferencesPresenter
 ) : ContourLayout(context) {
 
-  private val toolbar = themed(PressToolbar(context)).apply {
+  private val toolbar = PressToolbar(context).apply {
     title = context.strings().sync.title
     setNavigationOnClickListener { onDismiss() }
     applyLayout(
@@ -121,7 +119,7 @@ class SyncPreferencesView @AssistedInject constructor(
 }
 
 private class SyncDisabledView(context: Context) : ContourLayout(context) {
-  private val messageView = themed(TextView(context, smallTitle)).apply {
+  private val messageView = TextView(context, smallTitle).apply {
     text = context.strings().sync.sync_disabled_message
     themeAware { textColor = it.textColorPrimary }
     applyLayout(
@@ -145,7 +143,7 @@ private class SyncDisabledView(context: Context) : ContourLayout(context) {
   fun render(model: SyncDisabled, onClick: (GitHost) -> Unit) {
     gitHostButtons.removeAllViews()
     model.availableGitHosts.forEach { host ->
-      val button = themed(PressButton(context)).also {
+      val button = PressButton(context).also {
         it.text = context.strings().sync.setup_sync_with_host.format(host.displayName())
         it.themeAware { palette -> it.textColor = palette.textColorPrimary }
         it.setOnClickListener { onClick(host) }
@@ -157,7 +155,7 @@ private class SyncDisabledView(context: Context) : ContourLayout(context) {
 }
 
 private class SyncEnabledView(context: Context) : ContourLayout(context) {
-  private val setupInfoView = themed(TextView(context, smallTitle)).apply {
+  private val setupInfoView = TextView(context, smallTitle).apply {
     movementMethod = BetterLinkMovementMethod.getInstance()
     themeAware { textColor = it.textColorPrimary }
     applyLayout(
@@ -166,7 +164,7 @@ private class SyncEnabledView(context: Context) : ContourLayout(context) {
     )
   }
 
-  private val statusView = themed(TextView(context, smallTitle)).apply {
+  private val statusView = TextView(context, smallTitle).apply {
     themeAware { textColor = it.textColorPrimary }
     applyLayout(
         x = matchParentX(),
@@ -174,7 +172,7 @@ private class SyncEnabledView(context: Context) : ContourLayout(context) {
     )
   }
 
-  val disableButton = themed(PressButton(context)).apply {
+  val disableButton = PressButton(context).apply {
     themeAware { textColor = it.textColorPrimary }
     text = context.strings().sync.disable_sync_button
     applyLayout(

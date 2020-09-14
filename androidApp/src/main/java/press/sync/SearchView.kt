@@ -3,19 +3,17 @@ package press.sync
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color.BLACK
-import android.graphics.Color.WHITE
 import android.widget.EditText
 import androidx.core.view.updatePadding
 import com.google.android.material.textfield.TextInputLayout
 import me.saket.press.shared.theme.blendWith
 import press.extensions.textColor
 import press.theme.themeAware
-import press.theme.themed
 import press.widgets.dp
 
 class SearchView(context: Context) : TextInputLayout(context) {
   init {
-    addView(themed(EditText(context)).apply {
+    addView(EditText(context).apply {
       textSize = 14f
       background = null
       themeAware {

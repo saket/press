@@ -5,19 +5,15 @@ import android.content.Context
 import com.squareup.contour.ContourLayout
 import me.saket.press.R
 import me.saket.press.shared.home.HomeUiModel
-import me.saket.press.shared.home.HomeUiStyles
 import me.saket.press.shared.home.HomeUiStyles.noteBody
 import me.saket.press.shared.home.HomeUiStyles.noteTitle
-import me.saket.press.shared.theme.TextStyles.mainBody
-import me.saket.press.shared.theme.TextStyles.mainTitle
 import me.saket.press.shared.theme.TextView
 import press.extensions.textColor
 import press.theme.themeAware
-import press.theme.themed
 
 class NoteRowView(context: Context) : ContourLayout(context) {
 
-  private val titleView = themed(TextView(context, noteTitle)).apply {
+  private val titleView = TextView(context, noteTitle).apply {
     themeAware {
       textColor = it.textColorHeading
     }
@@ -27,7 +23,7 @@ class NoteRowView(context: Context) : ContourLayout(context) {
     )
   }
 
-  private val bodyView = themed(TextView(context, noteBody)).apply {
+  private val bodyView = TextView(context, noteBody).apply {
     themeAware {
       textColor = it.textColorSecondary
     }

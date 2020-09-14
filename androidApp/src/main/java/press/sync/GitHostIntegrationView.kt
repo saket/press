@@ -29,7 +29,6 @@ import press.extensions.doOnTextChange
 import press.extensions.hideKeyboard
 import press.navigator
 import press.theme.themeAware
-import press.theme.themed
 import press.widgets.PressToolbar
 import press.widgets.SlideDownItemAnimator
 import kotlin.math.abs
@@ -46,7 +45,7 @@ class GitHostIntegrationView @AssistedInject constructor(
       navigator = navigator()
   ))
 
-  private val toolbar = themed(PressToolbar(context)).apply {
+  private val toolbar = PressToolbar(context).apply {
     title = GitHost.readHostFromDeepLink(deepLink).displayName()
     setNavigationOnClickListener { onDismiss() }
     applyLayout(
@@ -65,7 +64,7 @@ class GitHostIntegrationView @AssistedInject constructor(
   }
 
   private val repoAdapter = GitRepositoryAdapter()
-  private val recyclerView = themed(RecyclerView(context)).apply {
+  private val recyclerView = RecyclerView(context).apply {
     layoutManager = LinearLayoutManager(context)
     adapter = repoAdapter
     itemAnimator = SlideDownItemAnimator().apply { supportsChangeAnimations = false }
@@ -75,7 +74,7 @@ class GitHostIntegrationView @AssistedInject constructor(
     )
   }
 
-  private val progressView = themed(ProgressBar(context)).apply {
+  private val progressView = ProgressBar(context).apply {
     isGone = true
     isIndeterminate = true
     applyLayout(

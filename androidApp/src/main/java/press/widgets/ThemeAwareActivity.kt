@@ -9,17 +9,18 @@ import android.view.WindowManager.LayoutParams
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.core.graphics.drawable.toBitmap
-import press.theme.TintedCursorDrawableInterceptor
-import press.theme.themeAware
 import me.saket.press.R
 import me.saket.resourceinterceptor.ContextResourceWrapper
 import me.saket.resourceinterceptor.InterceptibleResources
+import press.theme.AutoThemer
+import press.theme.TintedCursorDrawableInterceptor
+import press.theme.themeAware
 
 abstract class ThemeAwareActivity : AppCompatActivity() {
-
   override fun onCreate(savedInstanceState: Bundle?) {
     applyPaletteTheme()
     super.onCreate(savedInstanceState)
+    AutoThemer.theme(this)
   }
 
   override fun attachBaseContext(newBase: Context) {

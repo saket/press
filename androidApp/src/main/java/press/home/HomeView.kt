@@ -51,7 +51,6 @@ import press.handle
 import press.navigator
 import press.sync.PreferencesActivity
 import press.theme.themeAware
-import press.theme.themed
 import press.widgets.BackPressInterceptResult
 import press.widgets.BackPressInterceptResult.BACK_PRESS_IGNORED
 import press.widgets.BackPressInterceptResult.BACK_PRESS_INTERCEPTED
@@ -72,7 +71,7 @@ class HomeView @AssistedInject constructor(
 
   private val windowFocusChanges = BehaviorSubject.createDefault(WindowFocusChanged(hasFocus = true))
 
-  private val toolbar = themed(Toolbar(context)).apply {
+  private val toolbar = Toolbar(context).apply {
     setTitle(R.string.app_name)
     applyLayout(
         x = leftTo { parent.left() }.rightTo { parent.right() },
@@ -80,7 +79,7 @@ class HomeView @AssistedInject constructor(
     )
   }
 
-  private val notesList = themed(InboxRecyclerView(context)).apply {
+  private val notesList = InboxRecyclerView(context).apply {
     id = R.id.home_notes
     layoutManager = LinearLayoutManager(context)
     adapter = noteAdapter
@@ -98,7 +97,7 @@ class HomeView @AssistedInject constructor(
     )
   }
 
-  private val newNoteFab = themed(FloatingActionButton(context)).apply {
+  private val newNoteFab = FloatingActionButton(context).apply {
     setImageResource(R.drawable.ic_note_add_24dp)
     applyLayout(
         x = rightTo { parent.right() - 24.dip },

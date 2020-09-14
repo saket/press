@@ -17,14 +17,13 @@ import me.saket.press.shared.theme.TextView
 import press.extensions.padding
 import press.extensions.textColor
 import press.theme.themeAware
-import press.theme.themed
 
 /**
  * Rounded corners and theme colors, because [AlertDialog] isn't very customizable.
  * Essentially copies dialogs from [https://cash.app]'s Android app.
  */
 class PressDialogView private constructor(context: Context) : ContourLayout(context) {
-  private val titleView = themed(TextView(context, mainTitle)).apply {
+  private val titleView = TextView(context, mainTitle).apply {
     gravity = CENTER_HORIZONTAL
     themeAware { textColor = it.textColorPrimary }
     layoutBy(
@@ -33,7 +32,7 @@ class PressDialogView private constructor(context: Context) : ContourLayout(cont
     )
   }
 
-  private val messageView = themed(TextView(context, smallTitle)).apply {
+  private val messageView = TextView(context, smallTitle).apply {
     gravity = CENTER_HORIZONTAL
     themeAware { textColor = it.textColorPrimary }
     applyLayout(
@@ -48,7 +47,7 @@ class PressDialogView private constructor(context: Context) : ContourLayout(cont
     )
   }
 
-  private val negativeButtonView = themed(PressBorderlessButton(context)).apply {
+  private val negativeButtonView = PressBorderlessButton(context).apply {
     padding = dp(16)
     themeAware { textColor = it.textColorPrimary }
     layoutBy(
@@ -57,7 +56,7 @@ class PressDialogView private constructor(context: Context) : ContourLayout(cont
     )
   }
 
-  private val positiveButtonView = themed(PressBorderlessButton(context)).apply {
+  private val positiveButtonView = PressBorderlessButton(context).apply {
     padding = dp(16)
     isSingleLine = true
     themeAware { textColor = it.accentColor }
