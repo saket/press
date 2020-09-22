@@ -17,6 +17,7 @@ import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.sync.git.GitHost
 import me.saket.press.shared.sync.git.GitHostAuthToken
 import me.saket.press.shared.sync.git.GitHostIntegrationPresenter
+import me.saket.press.shared.sync.git.GitRepositoryCache
 import me.saket.press.shared.sync.git.GitSyncer
 import me.saket.press.shared.sync.git.GitSyncerConfig
 import org.koin.core.parameter.parametersOf
@@ -47,12 +48,14 @@ class SharedSyncComponent {
         )
       }
     }
-    factory { SyncPreferencesPresenter(get(), get(), get(), get(), get(), get()) }
+    single<GitRepositoryCache> { GitRepositoryCache.InMemory() }
+    factory { SyncPreferencesPresenter(get(), get(), get(), get(), get(), get(), get()) }
     factory { (args: GitHostIntegrationPresenter.Args) ->
       GitHostIntegrationPresenter(
           args = args,
           httpClient = get(),
           authToken = get(),
+          cachedRepos = get(),
           syncCoordinator = get(),
           syncerConfig = get(named("gitsyncer_config"))
       )
@@ -85,7 +88,7 @@ class SharedSyncComponent {
       }
       install(Logging) {
         logger = Logger.SIMPLE
-        level = LogLevel.ALL
+        level = LogLevel.INFO
       }
     }
   }

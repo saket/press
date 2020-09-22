@@ -15,6 +15,7 @@ import com.badoo.reaktive.observable.startWithValue
 import com.badoo.reaktive.observable.switchMap
 import com.badoo.reaktive.observable.takeUntil
 import com.badoo.reaktive.observable.withLatestFrom
+import com.badoo.reaktive.observable.zip
 import com.badoo.reaktive.scheduler.Scheduler
 import com.soywiz.klock.TimeSpan
 import me.saket.press.shared.util.Optional
@@ -58,7 +59,7 @@ internal fun <T> Observable<T?>.filterNotNull(): Observable<T> =
   filter { it != null }
       .map { it!! }
 
-internal fun <T> Observable<T>.repeatWhen(other: Observable<*>): Observable<T> {
+internal fun <T> Observable<T>.repeatItemWhen(other: Observable<*>): Observable<T> {
   return switchMap { item ->
     other.map { item }.startWithValue(item)
   }
@@ -66,6 +67,14 @@ internal fun <T> Observable<T>.repeatWhen(other: Observable<*>): Observable<T> {
 
 internal fun <T, R> Observable<T>.combineLatestWith(other: Observable<R>): Observable<Pair<T, R>> {
   return combineLatest(this, other, ::Pair)
+}
+
+internal fun <T, R> Observable<T>.zipWith(other: Observable<R>): Observable<Pair<T, R>> {
+  return zip(this, other, ::Pair)
+}
+
+internal fun <T, R> zip(first: Observable<T>, second: Observable<R>): Observable<Pair<T, R>> {
+  return zip(first, second, ::Pair)
 }
 
 internal fun observableInterval(startDelay: Long, period: TimeSpan, scheduler: Scheduler): Observable<Long> {

@@ -9,4 +9,7 @@
   <item name="editor_textfield" type="id" />
 
   <item name="theming_done" type="id" />
+
+  <item name="git_repos_search" type="id" />
+  <item name="search_view_field" type="id" />
 </resources>

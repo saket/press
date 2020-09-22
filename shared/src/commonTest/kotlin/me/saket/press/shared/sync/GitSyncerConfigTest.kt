@@ -7,6 +7,7 @@ import me.saket.kgit.SshPrivateKey
 import me.saket.press.shared.sync.git.GitSyncerConfig
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 import me.saket.kgit.GitIdentity
+import me.saket.press.shared.fakedata.fakeRepository
 import kotlin.test.Test
 
 class GitSyncerConfigTest {
@@ -40,13 +41,7 @@ class GitSyncerConfigTest {
     assertThat(deserialized).isEqualTo(
         GitSyncerConfig(
             sshKey = SshPrivateKey("nicolascage"),
-            remote = GitRepositoryInfo(
-                name = "nationaltreasure",
-                owner = "cage",
-                url = "https://github.com/cage/nationaltreasure",
-                sshUrl = "git@github.com:cage/nationaltreasure.git",
-                defaultBranch = "trunk"
-            ),
+            remote = fakeRepository(),
             user = GitIdentity(
                 name = "niccage",
                 email = "nicolas@ca.ge"

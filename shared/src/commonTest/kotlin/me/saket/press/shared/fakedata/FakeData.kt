@@ -5,6 +5,7 @@ import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.sync.SyncState
 import me.saket.press.shared.sync.SyncState.PENDING
+import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 import me.saket.press.shared.time.Clock
 import me.saket.press.shared.time.FakeClock
 import kotlin.random.Random
@@ -29,5 +30,15 @@ fun fakeNote(
       isArchived = isArchived,
       isPendingDeletion = isPendingDeletion,
       syncState = syncState
+  )
+}
+
+fun fakeRepository(): GitRepositoryInfo {
+  return GitRepositoryInfo(
+      name = "nationaltreasure",
+      owner = "cage",
+      url = "https://github.com/cage/nationaltreasure",
+      sshUrl = "git@github.com:cage/nationaltreasure.git",
+      defaultBranch = "trunk"
   )
 }

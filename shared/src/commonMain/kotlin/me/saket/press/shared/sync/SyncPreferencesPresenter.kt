@@ -28,6 +28,7 @@ import me.saket.press.shared.sync.Syncer.Status.LastOp.Idle
 import me.saket.press.shared.sync.Syncer.Status.LastOp.InFlight
 import me.saket.press.shared.sync.git.GitHost
 import me.saket.press.shared.sync.git.GitHostAuthToken
+import me.saket.press.shared.sync.git.GitRepositoryCache
 import me.saket.press.shared.time.Clock
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.util.format
@@ -38,7 +39,8 @@ class SyncPreferencesPresenter(
   private val schedulers: Schedulers,
   private val authToken: (GitHost) -> Setting<GitHostAuthToken>,
   private val clock: Clock,
-  private val strings: Strings
+  private val strings: Strings,
+  private val cachedRepos: GitRepositoryCache
 ) : Presenter<SyncPreferencesEvent, SyncPreferencesUiModel, SyncPreferencesUiEffect>() {
 
   override fun defaultUiModel(): SyncPreferencesUiModel {
@@ -95,6 +97,7 @@ class SyncPreferencesPresenter(
     return viewEvents()
         .ofType<SetupHostClicked>()
         .map { (host) ->
+          cachedRepos.set(null)
           authToken(host).set(null)
           val service = host.service(http)
           OpenUrl(service.generateAuthUrl(host.deepLink()))

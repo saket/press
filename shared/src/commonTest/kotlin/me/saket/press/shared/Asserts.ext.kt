@@ -6,9 +6,9 @@ import assertk.assertions.support.expected
 /**
  * Prints a readable error message, unlike assertk.
  */
-fun Assert<Iterable<*>>.containsOnly(vararg elements: Any?) = given { actual ->
-  val notInActual = elements.filterNot { it in actual }
-  val notInExpected = actual.filterNot { it in elements }
+fun Assert<Iterable<*>?>.containsOnly(vararg elements: Any?) = given { actual ->
+  val notInActual = elements.filterNot { it in (actual ?: emptyList<Any>()) }
+  val notInExpected = actual?.filterNot { it in elements } ?: emptyList()
   if (notInExpected.isEmpty() && notInActual.isEmpty()) {
     return
   }
@@ -18,7 +18,8 @@ fun Assert<Iterable<*>>.containsOnly(vararg elements: Any?) = given { actual ->
     elements.toList().appendFlatString(this)
 
     append("\n\nBut was:")
-    actual.appendFlatString(this)
+    if (actual == null) append(" null")
+    else actual.appendFlatString(this)
 
     if (notInActual.isNotEmpty()) {
       append("\n\nElements not found:")

@@ -90,6 +90,7 @@ inline fun EditText.doOnTextChange(crossinline action: (Editable) -> Unit) {
   addTextChangedListener(object : SimpleTextWatcher {
     override fun afterTextChanged(text: Editable) = action(text)
   })
+  action(text)  // initial update.
 }
 
 inline fun View.updateMargins(bottom: Int) {

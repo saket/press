@@ -6,7 +6,6 @@ import press.widgets.ThemeAwareActivity
 import javax.inject.Inject
 
 class GitHostIntegrationActivity : ThemeAwareActivity() {
-
   @Inject lateinit var viewFactory: GitHostIntegrationView.Factory
 
   override fun onCreate(savedInstanceState: Bundle?) {

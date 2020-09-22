@@ -8,7 +8,6 @@ interface GitHostIntegrationEvent {
   data class SearchTextChanged(val text: String) : GitHostIntegrationEvent
 }
 
-// todo: flatten and add 'screen title'.
 sealed class GitHostIntegrationUiModel {
   object ShowProgress : GitHostIntegrationUiModel()
   data class ShowFailure(val kind: FailureKind) : GitHostIntegrationUiModel()

@@ -29,6 +29,7 @@ import me.saket.press.shared.containsOnly
 import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakedata.fakeNote
+import me.saket.press.shared.fakedata.fakeRepository
 import me.saket.press.shared.localization.ENGLISH_STRINGS
 import me.saket.press.shared.settings.FakeSetting
 import me.saket.press.shared.sync.SyncState.IN_FLIGHT
@@ -56,10 +57,7 @@ class GitSyncerTest : BaseDatabaeTest() {
   private val noteQueries get() = database.noteQueries
   private val clock = FakeClock()
   private val config = GitSyncerConfig(
-      remote = GitRepositoryInfo(
-          owner = "ignored",
-          name = "ignored",
-          url = "ignored",
+      remote = fakeRepository().copy(
           sshUrl = BuildKonfig.GIT_TEST_REPO_SSH_URL,
           defaultBranch = BuildKonfig.GIT_TEST_REPO_BRANCH
       ),

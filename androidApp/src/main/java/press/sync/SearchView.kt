@@ -3,9 +3,11 @@ package press.sync
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color.BLACK
+import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import androidx.core.view.updatePadding
 import com.google.android.material.textfield.TextInputLayout
+import me.saket.press.R
 import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.theme.blendWith
@@ -16,8 +18,10 @@ import press.widgets.dp
 class SearchView(context: Context) : TextInputLayout(context) {
   init {
     addView(EditText(context).apply {
-      applyStyle(smallBody)
+      id = R.id.search_view_field
       background = null
+      imeOptions = imeOptions or EditorInfo.IME_FLAG_NO_FULLSCREEN
+      applyStyle(smallBody)
       themeAware {
         textColor = it.textColorPrimary
       }

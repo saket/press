@@ -12,6 +12,7 @@ import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.sync.git.GitHost
 import me.saket.press.shared.sync.git.GitHostIntegrationEvent.GitRepositoryClicked
@@ -55,6 +56,7 @@ class GitHostIntegrationView @AssistedInject constructor(
   }
 
   private val searchView = SearchView(context).apply {
+    id = R.id.git_repos_search
     hint = context.strings().sync.search_git_repos
     isGone = true
     applyLayout(
