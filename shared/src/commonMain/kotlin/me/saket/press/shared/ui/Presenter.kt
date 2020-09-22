@@ -3,8 +3,10 @@ package me.saket.press.shared.ui
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.ObservableWrapper
 import com.badoo.reaktive.observable.observableOfEmpty
+import com.badoo.reaktive.observable.publish
+import com.badoo.reaktive.observable.refCount
 import com.badoo.reaktive.observable.wrap
-import com.badoo.reaktive.subject.publish.PublishSubject
+import com.badoo.reaktive.subject.unicast.UnicastSubject
 
 /**
  * @param [Event] UI events being performed by the user.
@@ -14,9 +16,12 @@ import com.badoo.reaktive.subject.publish.PublishSubject
  *                 navigating to a new screen.
  */
 abstract class Presenter<Event : Any, Model : Any, Effect : Any> {
+  private val viewEvents = UnicastSubject<Event>()
+  private val sharedViewEvents = viewEvents.publish().refCount()
 
-  private val viewEvents = PublishSubject<Event>()
-  protected fun viewEvents(): Observable<Event> = viewEvents
+  protected fun viewEvents(): Observable<Event> {
+    return sharedViewEvents
+  }
 
   fun dispatch(event: Event) {
     viewEvents.onNext(event)
