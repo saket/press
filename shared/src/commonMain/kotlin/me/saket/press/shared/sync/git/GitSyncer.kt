@@ -105,7 +105,7 @@ class GitSyncer(
     if (lastOp.value == InFlight) return  // Another sync ongoing.
 
     lastOp.onNext(InFlight)
-    loggers.onSyncStart()
+    loggers.onSyncStart(fromDevice = deviceInfo.deviceName())
     directory.makeDirectory(recursively = true)
 
     try {

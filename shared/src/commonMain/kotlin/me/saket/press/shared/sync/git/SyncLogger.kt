@@ -5,7 +5,7 @@ import com.soywiz.klock.DateTime
 
 interface SyncLogger {
   fun log(message: String)
-  fun onSyncStart() = Unit
+  fun onSyncStart(fromDevice: String) = Unit
   fun onSyncComplete()
 }
 
@@ -19,13 +19,13 @@ class SyncLoggers(private vararg val defaultLoggers: SyncLogger) : SyncLogger {
   }
 
   override fun log(message: String) = loggers.forEach { it.log(message) }
-  override fun onSyncStart() = loggers.forEach { it.onSyncStart() }
+  override fun onSyncStart(fromDevice: String) = loggers.forEach { it.onSyncStart(fromDevice) }
   override fun onSyncComplete() = loggers.forEach { it.onSyncComplete() }
 }
 
 object PrintLnSyncLogger : SyncLogger {
   override fun log(message: String) = println(message)
-  override fun onSyncStart() = println("======================================")
+  override fun onSyncStart(fromDevice: String) = println("======================================")
   override fun onSyncComplete() = println("\n")
 }
 
@@ -42,9 +42,9 @@ class FileBasedSyncLogger(private val notesDirectory: File) : SyncLogger {
     buffer.add(message)
   }
 
-  override fun onSyncStart() {
+  override fun onSyncStart(fromDevice: String) {
     buffer.clear()
-    log("Starting sync on ${DateTime.now()}\n")
+    log("Syncing notes with '$fromDevice' on ${DateTime.now()}\n")
   }
 
   override fun onSyncComplete() {
