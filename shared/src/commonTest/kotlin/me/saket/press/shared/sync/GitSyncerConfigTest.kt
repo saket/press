@@ -3,11 +3,10 @@ package me.saket.press.shared.sync
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import kotlinx.serialization.json.Json
-import me.saket.kgit.SshPrivateKey
-import me.saket.press.shared.sync.git.GitSyncerConfig
-import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 import me.saket.kgit.GitIdentity
+import me.saket.kgit.SshPrivateKey
 import me.saket.press.shared.fakedata.fakeRepository
+import me.saket.press.shared.sync.git.GitSyncerConfig
 import kotlin.test.Test
 
 class GitSyncerConfigTest {

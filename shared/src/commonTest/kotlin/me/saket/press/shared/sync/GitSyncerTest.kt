@@ -15,9 +15,7 @@ import co.touchlab.stately.concurrency.AtomicBoolean
 import com.badoo.reaktive.test.observable.assertValue
 import com.badoo.reaktive.test.observable.test
 import com.soywiz.klock.DateTime
-import com.soywiz.klock.days
 import com.soywiz.klock.hours
-import com.soywiz.klock.minutes
 import com.soywiz.klock.seconds
 import me.saket.kgit.GitConfig
 import me.saket.kgit.GitIdentity
