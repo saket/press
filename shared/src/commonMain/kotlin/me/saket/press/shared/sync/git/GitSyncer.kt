@@ -1,5 +1,6 @@
 package me.saket.press.shared.sync.git
 
+import co.touchlab.stately.concurrency.AtomicBoolean
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.combineLatest
 import com.badoo.reaktive.subject.behavior.BehaviorSubject
@@ -61,7 +62,8 @@ class GitSyncer(
   private val lastSyncedAt: Setting<LastSyncedAt>,
   private val lastPushedSha1: Setting<LastPushedSha1>,
   private val strings: Strings,
-  private val mergeConflicts: SyncMergeConflicts
+  private val mergeConflicts: SyncMergeConflicts,
+  private val backupBeforeFirstSync: AtomicBoolean = AtomicBoolean(true)
 ) : Syncer() {
 
   internal val directory = File(deviceInfo.appStorage, "git")
@@ -111,6 +113,8 @@ class GitSyncer(
     try {
       with(GitScope(git())) {
         resetState()
+        backupIfFirstSync()
+
         val pullResult = pull()
         commit(pullResult)
         processCommits(pullResult)
@@ -182,6 +186,45 @@ class GitSyncer(
     git.checkout(remote!!.defaultBranch, createIfNeeded = true)
 
     check(!git.isStagingAreaDirty()) { "Hard reset didn't work" }
+  }
+
+  /**
+   * Press uses [TimeBasedConflictResolver] for the first sync which can potentially
+   * accidentally delete users' notes. As a backup, user's notes are saved in a separate
+   * branch so that they can be manually recovered.
+   */
+  private fun GitScope.backupIfFirstSync() {
+    if (!backupBeforeFirstSync.value) return
+    if (lastPushedSha1.get() != null) return
+
+    val localNotes = noteQueries.allNotes().executeAsList()
+    if (localNotes.isEmpty()) {
+      return
+    }
+
+    val backupBranch = "notes-backup-${clock.nowUtc().unixMillisLong}"
+    log("Syncing for the first time. Backing up notes to '$backupBranch' branch.")
+
+    val restoreToBranch = git.currentBranch()
+    git.checkout(backupBranch)
+
+    for (note in localNotes) {
+      register.suggestFile(note).suggestedFile.write(note.content)
+    }
+    git.commitAll(
+        message = """
+          |Backup notes on '${deviceInfo.deviceName()}'
+          |
+          |This is a copy of your notes before Press started syncing them. 
+          |In case something goes wrong with the first sync, your notes 
+          |can be recovered from this commit.
+          """.trimMargin(),
+        timestamp = UtcTimestamp(clock),
+        allowEmpty = true
+    )
+    git.push(force = true)
+
+    git.checkout(restoreToBranch.name)
   }
 
   private data class PullResult(
@@ -498,7 +541,7 @@ class GitSyncer(
     check(git.currentBranch().name == remote!!.defaultBranch) { "Not on the default branch" }
     check(!git.isStagingAreaDirty()) { "Expected staging area to be clean before pushing" }
 
-    if (pullResult.headAfter ==  git.headCommit()) {
+    if (pullResult.headAfter == git.headCommit()) {
       noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = SYNCED)
       log("\nNothing to push.")
 

@@ -11,10 +11,14 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotInstanceOf
 import assertk.assertions.isTrue
+import co.touchlab.stately.concurrency.AtomicBoolean
 import com.badoo.reaktive.test.observable.assertValue
 import com.badoo.reaktive.test.observable.test
 import com.soywiz.klock.DateTime
+import com.soywiz.klock.days
 import com.soywiz.klock.hours
+import com.soywiz.klock.minutes
+import com.soywiz.klock.seconds
 import me.saket.kgit.GitConfig
 import me.saket.kgit.GitIdentity
 import me.saket.kgit.PushResult
@@ -44,7 +48,6 @@ import me.saket.press.shared.sync.git.UtcTimestamp
 import me.saket.press.shared.sync.git.children
 import me.saket.press.shared.sync.git.delete
 import me.saket.press.shared.sync.git.relativePathIn
-import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 import me.saket.press.shared.testDeviceInfo
 import me.saket.press.shared.time.FakeClock
 import kotlin.test.AfterTest
@@ -67,6 +70,7 @@ class GitSyncerTest : BaseDatabaeTest() {
   private val configSetting = FakeSetting(config)
   private val lastPushedSha1 = FakeSetting(null as LastPushedSha1?)
   private val mergeConflicts = SyncMergeConflicts()
+  private val backupBeforeFirstSync = AtomicBoolean(false)
   private val git = DelegatingGit(delegate = RealGit())
   private val syncer = GitSyncer(
       git = git,
@@ -77,7 +81,8 @@ class GitSyncerTest : BaseDatabaeTest() {
       lastSyncedAt = FakeSetting(null),
       lastPushedSha1 = lastPushedSha1,
       strings = ENGLISH_STRINGS,
-      mergeConflicts = mergeConflicts
+      mergeConflicts = mergeConflicts,
+      backupBeforeFirstSync = backupBeforeFirstSync
   )
 
   private val expectUnSyncedNotes = mutableListOf<NoteId>()
@@ -950,6 +955,31 @@ class GitSyncerTest : BaseDatabaeTest() {
     isConflicted.assertValue(false)
   }
 
+  @Test fun `backup notes before first sync`() {
+    // Note to self: it is important to use a constant time or else
+    // each test will create a new branch in the test repo lol.
+    clock.setTime(epochMillis = 1601612911000)
+    backupBeforeFirstSync.value = true
+
+    for (note in listOf("I couldn't", "understand half of", "the muffled dialogues", "in Tenet")) {
+      clock.advanceTimeBy(1.seconds)
+      noteQueries.testInsert(fakeNote(note, clock = clock))
+    }
+    syncer.sync()
+
+    val remote = RemoteRepositoryRobot {
+      pull()
+      clock.nowUtc().unixMillisLong
+      checkout("notes-backup-1601612911000")
+    }
+    assertThat(remote.fetchNoteFiles()).containsOnly(
+        "untitled_note.md" to "I couldn't",
+        "untitled_note_2.md" to "understand half of",
+        "untitled_note_3.md" to "the muffled dialogues",
+        "untitled_note_4.md" to "in Tenet"
+    )
+  }
+
   private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit = {}) {
     private val directory = File(deviceInfo.appStorage, "temp").apply { makeDirectory() }
     private val register = FileNameRegister(directory)
@@ -971,6 +1001,10 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     fun pull() {
       gitRepo.pull(rebase = true)
+    }
+
+    fun checkout(branch: String) {
+      gitRepo.checkout(branch, createIfNeeded = true)
     }
 
     fun forcePush() {

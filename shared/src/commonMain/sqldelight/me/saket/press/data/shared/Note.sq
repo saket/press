@@ -49,7 +49,7 @@ ORDER BY updatedAt DESC;
 allNotes:
 SELECT *
 FROM note
-ORDER BY updatedAt DESC;
+ORDER BY updatedAt ASC;
 
 notesInState:
 SELECT *
