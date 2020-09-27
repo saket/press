@@ -33,6 +33,7 @@ import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.fakedata.fakeRepository
 import me.saket.press.shared.localization.ENGLISH_STRINGS
+import me.saket.press.shared.note.NoteFolder
 import me.saket.press.shared.settings.FakeSetting
 import me.saket.press.shared.sync.SyncState.IN_FLIGHT
 import me.saket.press.shared.sync.SyncState.PENDING
@@ -53,9 +54,10 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class GitSyncerTest : BaseDatabaeTest() {
-
   private val deviceInfo = testDeviceInfo()
   private val noteQueries get() = database.noteQueries
+  private val configQueries get() = database.folderSyncConfigQueries
+
   private val clock = FakeClock()
   private val config = GitSyncerConfig(
       remote = fakeRepository().copy(
@@ -65,19 +67,15 @@ class GitSyncerTest : BaseDatabaeTest() {
       sshKey = SshPrivateKey(BuildKonfig.GIT_TEST_SSH_PRIV_KEY),
       user = GitIdentity(name = "Test syncer author", email = "test@test.com")
   )
-  private val configSetting = FakeSetting(config)
-  private val lastPushedSha1 = FakeSetting(null as LastPushedSha1?)
   private val mergeConflicts = SyncMergeConflicts()
   private val backupBeforeFirstSync = AtomicBoolean(false)
   private val git = DelegatingGit(delegate = RealGit())
   private val syncer = GitSyncer(
       git = git,
-      config = configSetting,
+      folder = null,
       database = database,
       deviceInfo = deviceInfo,
       clock = clock,
-      lastSyncedAt = FakeSetting(null),
-      lastPushedSha1 = lastPushedSha1,
       strings = ENGLISH_STRINGS,
       mergeConflicts = mergeConflicts,
       backupBeforeFirstSync = backupBeforeFirstSync
@@ -95,6 +93,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     RemoteRepositoryRobot {
       deleteEverything()
     }
+    configQueries.insert(folder = null, remote = config)
   }
 
   @AfterTest
@@ -779,7 +778,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     RemoteRepositoryRobot().let { remote2 ->
       assertThat(remote2.fetchNoteFiles()).isEmpty()
 
-      configSetting.set(config)
+      configQueries.insert(folder = null, remote = config)
       syncer.sync()
       assertThat(remote2.fetchNoteFiles()).containsOnly("potter.md" to "# Potter\nYou're a wizard Harry")
     }

@@ -1,5 +1,6 @@
 package me.saket.press.shared.sync.git
 
+import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.asObservable
 import com.badoo.reaktive.completable.asSingle
 import com.badoo.reaktive.completable.completableFromFunction
@@ -31,6 +32,7 @@ import me.saket.kgit.GitIdentity
 import me.saket.kgit.SshKeyPair
 import me.saket.kgit.SshKeygen
 import me.saket.kgit.generateRsa
+import me.saket.press.PressDatabase
 import me.saket.press.shared.rx.combineLatestWith
 import me.saket.press.shared.rx.consumeOnNext
 import me.saket.press.shared.rx.filterNotNull
@@ -60,9 +62,9 @@ class GitHostIntegrationPresenter(
   httpClient: HttpClient,
   authToken: (GitHost) -> Setting<GitHostAuthToken>,
   gitHostService: (GitHost, HttpClient) -> GitHostService = { host, http -> host.service(http) },
+  private val database: PressDatabase,
   private val cachedRepos: GitRepositoryCache,
   private val syncCoordinator: SyncCoordinator,
-  private val syncerConfig: Setting<GitSyncerConfig>
 ) : Presenter<GitHostIntegrationEvent, GitHostIntegrationUiModel, Nothing>() {
 
   private val gitHost = GitHost.readHostFromDeepLink(args.deepLink)
@@ -161,13 +163,17 @@ class GitHostIntegrationPresenter(
         }
   }
 
-  private fun completeSetup(repo: GitRepositoryInfo, sshKeys: SshKeyPair, user: GitIdentity) =
-    completableFromFunction {
+  private fun completeSetup(repo: GitRepositoryInfo, sshKeys: SshKeyPair, user: GitIdentity): Completable {
+    return completableFromFunction {
       authToken.set(null)
-      syncerConfig.set(GitSyncerConfig(repo, sshKeys.privateKey, user))
+      database.folderSyncConfigQueries.insert(
+          folder = null,
+          remote = GitSyncerConfig(repo, sshKeys.privateKey, user)
+      )
       syncCoordinator.trigger()
       args.navigator.lfg(Close)
     }
+  }
 
   private fun <T> Observable<T>.repeatItemOnRetry(
     events: Observable<GitHostIntegrationEvent>,

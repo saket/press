@@ -1,0 +1,27 @@
+import com.soywiz.klock.DateTime;
+import me.saket.press.shared.note.NoteFolder;
+import me.saket.press.shared.sync.git.GitSyncerConfig;
+
+CREATE TABLE folderSyncConfig (
+  folder TEXT AS NoteFolder,
+  remote TEXT AS GitSyncerConfig NOT NULL,
+  lastSyncedAt TEXT AS DateTime,
+  lastPushedSha1 TEXT
+);
+
+insert:
+INSERT INTO folderSyncConfig
+VALUES (:folder, :remote, NULL, NULL);
+
+select:
+SELECT * FROM folderSyncConfig
+WHERE folder = ?;
+
+update:
+UPDATE folderSyncConfig
+SET lastPushedSha1 = ?, lastSyncedAt = ?
+WHERE folder = ?;
+
+delete:
+DELETE FROM folderSyncConfig
+WHERE folder = ?;

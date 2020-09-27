@@ -1,0 +1,6 @@
+CREATE TABLE folderSyncConfig (
+  folder TEXT,
+  remote TEXT NOT NULL,
+  lastSyncedAt TEXT,
+  lastPushedSha1 TEXT
+);

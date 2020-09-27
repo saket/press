@@ -3,6 +3,7 @@ package me.saket.press.shared.sync.git
 import co.touchlab.stately.concurrency.AtomicBoolean
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.combineLatest
+import com.badoo.reaktive.scheduler.ioScheduler
 import com.badoo.reaktive.subject.behavior.BehaviorSubject
 import com.soywiz.klock.DateTime
 import kotlinx.coroutines.Runnable
@@ -27,12 +28,14 @@ import me.saket.kgit.UtcTimestamp
 import me.saket.kgit.abbreviated
 import me.saket.kgit.identify
 import me.saket.press.PressDatabase
+import me.saket.press.data.shared.FolderSyncConfig
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.note.HeadingAndBody
-import me.saket.press.shared.settings.Setting
-import me.saket.press.shared.sync.LastPushedSha1
+import me.saket.press.shared.note.NoteFolder
+import me.saket.press.shared.rx.asObservable
+import me.saket.press.shared.rx.mapToOneOrOptional
 import me.saket.press.shared.sync.LastSyncedAt
 import me.saket.press.shared.sync.SyncMergeConflicts
 import me.saket.press.shared.sync.SyncState
@@ -44,7 +47,6 @@ import me.saket.press.shared.sync.Syncer.Status.LastOp.Failed
 import me.saket.press.shared.sync.Syncer.Status.LastOp.Idle
 import me.saket.press.shared.sync.Syncer.Status.LastOp.InFlight
 import me.saket.press.shared.sync.git.FileNameRegister.FileSuggestion
-import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 import me.saket.press.shared.time.Clock
 
 // TODO:
@@ -55,12 +57,10 @@ import me.saket.press.shared.time.Clock
 //   - show errors in status UI
 class GitSyncer(
   git: Git,
-  private val config: Setting<GitSyncerConfig>,
+  private val folder: NoteFolder?,
   private val database: PressDatabase,
   private val deviceInfo: DeviceInfo,
   private val clock: Clock,
-  private val lastSyncedAt: Setting<LastSyncedAt>,
-  private val lastPushedSha1: Setting<LastPushedSha1>,
   private val strings: Strings,
   private val mergeConflicts: SyncMergeConflicts,
   private val backupBeforeFirstSync: AtomicBoolean = AtomicBoolean(true)
@@ -68,42 +68,43 @@ class GitSyncer(
 
   internal val directory = File(deviceInfo.appStorage, "git")
   private val noteQueries get() = database.noteQueries
+  private val configQueries get() = database.folderSyncConfigQueries
   private val register = FileNameRegister(directory)
-  private val remote: GitRepositoryInfo? get() = config.get()?.remote
   private val loggers = SyncLoggers(PrintLnSyncLogger, FileBasedSyncLogger(directory))
+  private val lastOp = BehaviorSubject(Idle)
   private val git = {
-    val config = config.get()!!
+    val remote = readConfig()!!.remote
     git.repository(
         path = directory.path,
-        sshKey = config.sshKey,
-        remoteSshUrl = config.remote.sshUrl,
+        sshKey = remote.sshKey,
+        remoteSshUrl = remote.remote.sshUrl,
         userConfig = GitConfig(
-            "author" to listOf("name" to config.user.name, "email" to (config.user.email ?: "")),
+            "author" to listOf("name" to remote.user.name, "email" to (remote.user.email ?: "")),
             "committer" to listOf("name" to "press", "email" to "press@saket.me"),
             "diff" to listOf("renames" to "true")
         )
     )
   }
 
-  companion object {
-    private val lastOp = BehaviorSubject(Idle)
-  }
-
   override fun status(): Observable<Status> {
-    return combineLatest(config.listen(), lastOp) { config, op ->
+    val config = configQueries.select(folder)
+        .asObservable(ioScheduler)
+        .mapToOneOrOptional()
+
+    return combineLatest(config, lastOp) { (config), op ->
       when (config) {
         null -> Status.Disabled
         else -> Status.Enabled(
             lastOp = op,
-            lastSyncedAt = lastSyncedAt.get(),
-            syncingWith = config.remote
+            lastSyncedAt = config.lastSyncedAt?.let(::LastSyncedAt),
+            syncingWith = config.remote.remote
         )
       }
     }
   }
 
   override fun sync() {
-    if (config.get() == null) return      // Sync is disabled.
+    if (readConfig() == null) return      // Sync is disabled.
     if (lastOp.value == InFlight) return  // Another sync ongoing.
 
     lastOp.onNext(InFlight)
@@ -142,9 +143,7 @@ class GitSyncer(
 
   override fun disable() {
     log("Disabling sync.")
-    config.set(null)
-    lastSyncedAt.set(null)
-    lastPushedSha1.set(null)
+    configQueries.delete(folder)
     directory.delete(recursively = true)
     noteQueries.swapSyncStates(old = SyncState.values().toList(), new = PENDING)
   }
@@ -171,7 +170,8 @@ class GitSyncer(
     }
 
     // Remove all unsynced and dirty changes.
-    val lastCleanSha1 = lastPushedSha1.get()?.sha1 ?: git.headCommit()!!.sha1.value
+    val config = readConfig()!!
+    val lastCleanSha1 = config.lastPushedSha1 ?: git.headCommit()!!.sha1.value
     log("Resetting to sha1: $lastCleanSha1.")
     git.hardResetTo(
         sha1 = lastCleanSha1,
@@ -183,7 +183,7 @@ class GitSyncer(
     // won't allow changing the branch without committing anything either
     // so Press changes it after committing something. This also acts as a
     // rollback if git is stuck in a detached head or something.
-    git.checkout(remote!!.defaultBranch, createIfNeeded = true)
+    git.checkout(config.remote.remote.defaultBranch, createIfNeeded = true)
 
     check(!git.isStagingAreaDirty()) { "Hard reset didn't work" }
   }
@@ -195,7 +195,7 @@ class GitSyncer(
    */
   private fun GitScope.backupIfFirstSync() {
     if (!backupBeforeFirstSync.value) return
-    if (lastPushedSha1.get() != null) return
+    if (readConfig()!!.lastPushedSha1 != null) return
 
     val localNotes = noteQueries.allNotes().executeAsList()
     if (localNotes.isEmpty()) {
@@ -285,7 +285,7 @@ class GitSyncer(
     // When syncing notes for the first time, pick newer notes.
     // If syncing was enabled sometime in the past, the local and the
     // remote repositories may have moved apart a lot.
-    val isFirstSync = lastPushedSha1.get() == null
+    val isFirstSync = readConfig()!!.lastPushedSha1 == null
     val conflictResolver = when {
       isFirstSync -> TimeBasedConflictResolver(git, pullResult)
       else -> DuplicateOnConflictResolver(git, pullResult)
@@ -538,7 +538,8 @@ class GitSyncer(
   }
 
   private fun GitScope.push(pullResult: PullResult) {
-    check(git.currentBranch().name == remote!!.defaultBranch) { "Not on the default branch" }
+    val remote = readConfig()!!.remote.remote
+    check(git.currentBranch().name == remote.defaultBranch) { "Not on the default branch" }
     check(!git.isStagingAreaDirty()) { "Expected staging area to be clean before pushing" }
 
     if (pullResult.headAfter == git.headCommit()) {
@@ -563,8 +564,11 @@ class GitSyncer(
       }
     }
 
-    lastSyncedAt.set(LastSyncedAt(clock.nowUtc()))
-    lastPushedSha1.set(LastPushedSha1(git.headCommit()!!))
+    configQueries.update(
+        folder = folder,
+        lastSyncedAt = clock.nowUtc(),
+        lastPushedSha1 = git.headCommit()!!.sha1.value
+    )
   }
 
   private fun log(message: String) = loggers.log(message)
@@ -576,6 +580,10 @@ class GitSyncer(
           .filterNoteChanges()
           .map { it.path to commit.dateTime }
     }.toMap()
+  }
+
+  private fun readConfig(): FolderSyncConfig? {
+    return configQueries.select(folder).executeAsOneOrNull()
   }
 }
 
@@ -610,9 +618,6 @@ private fun List<GitTreeDiff.Change>.filterNoteChanges() = filter { diff ->
     else -> true
   }
 }
-
-@Suppress("FunctionName")
-private fun LastPushedSha1(commit: GitCommit) = LastPushedSha1(commit.sha1.value)
 
 private val Unit.exhaustive: Unit
   get() = this

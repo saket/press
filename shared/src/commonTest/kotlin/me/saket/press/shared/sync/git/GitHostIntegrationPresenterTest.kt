@@ -8,6 +8,7 @@ import com.badoo.reaktive.test.observable.assertValue
 import com.badoo.reaktive.test.observable.test
 import io.ktor.client.HttpClient
 import me.saket.press.shared.containsOnly
+import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.fakedata.fakeRepository
 import me.saket.press.shared.settings.FakeSetting
 import me.saket.press.shared.sync.git.FailureKind.Authorization
@@ -18,7 +19,7 @@ import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowFailure
 import me.saket.press.shared.ui.FakeNavigator
 import kotlin.test.Test
 
-class GitHostIntegrationPresenterTest {
+class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
   private val cachedRepos = GitRepositoryCache.InMemory()
   private val gitService = FakeGitHostService()
 
@@ -29,7 +30,7 @@ class GitHostIntegrationPresenterTest {
       gitHostService = { _, _ -> gitService },
       cachedRepos = cachedRepos,
       syncCoordinator = FakeSyncCoordinator(),
-      syncerConfig = FakeSetting(null)
+      database = database
   )
 
   @Test fun `show error if auth fails`() {

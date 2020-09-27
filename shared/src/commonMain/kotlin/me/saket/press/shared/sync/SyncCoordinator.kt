@@ -9,10 +9,12 @@ import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.switchMap
 import com.badoo.reaktive.subject.publish.PublishSubject
 import com.soywiz.klock.seconds
+import me.saket.press.shared.note.NoteFolder
 import me.saket.press.shared.rx.Schedulers
 import me.saket.press.shared.rx.observableInterval
 import me.saket.press.shared.rx.takeUntil
 import me.saket.press.shared.sync.Syncer.Status.Disabled
+import me.saket.press.shared.sync.git.GitSyncer
 
 /**
  * Syncs can be triggered from multiple places at different times. This class
@@ -25,7 +27,7 @@ interface SyncCoordinator {
 }
 
 class RealSyncCoordinator(
-  private val syncer: Syncer,
+  private val syncer: Syncer.Factory,
   private val schedulers: Schedulers
 ) : SyncCoordinator {
   private val triggers = PublishSubject<Unit>()
@@ -41,6 +43,7 @@ class RealSyncCoordinator(
   }
 
   override fun syncWithResult(): Completable {
+    val syncer = syncer.create(folder = null)
     return completableFromFunction { syncer.sync() }
         .takeUntil(syncer.status().ofType<Disabled>())
         .onErrorComplete()

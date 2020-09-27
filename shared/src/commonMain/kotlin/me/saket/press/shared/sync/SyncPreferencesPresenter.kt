@@ -12,6 +12,7 @@ import com.soywiz.klock.hours
 import com.soywiz.klock.minutes
 import io.ktor.client.HttpClient
 import me.saket.press.shared.localization.Strings
+import me.saket.press.shared.note.NoteFolder
 import me.saket.press.shared.rx.Schedulers
 import me.saket.press.shared.rx.consumeOnNext
 import me.saket.press.shared.rx.mergeWith
@@ -34,14 +35,16 @@ import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.util.format
 
 class SyncPreferencesPresenter(
+  syncer: Syncer.Factory,
   private val http: HttpClient,
-  private val syncer: Syncer,
   private val schedulers: Schedulers,
   private val authToken: (GitHost) -> Setting<GitHostAuthToken>,
   private val clock: Clock,
   private val strings: Strings,
   private val cachedRepos: GitRepositoryCache
 ) : Presenter<SyncPreferencesEvent, SyncPreferencesUiModel, SyncPreferencesUiEffect>() {
+
+  private val syncer = syncer.create(folder = null)
 
   override fun defaultUiModel(): SyncPreferencesUiModel {
     return SyncDisabled(availableGitHosts = emptyList())

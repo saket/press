@@ -2,6 +2,7 @@ package me.saket.press.shared.db
 
 import com.squareup.sqldelight.db.SqlDriver
 import me.saket.press.PressDatabase
+import me.saket.press.shared.sync.createJson
 import kotlin.test.AfterTest
 
 expect fun inMemorySqlDriver(): SqlDriver
@@ -12,9 +13,8 @@ expect fun inMemorySqlDriver(): SqlDriver
  * The name of this class is not a typo.
  */
 abstract class BaseDatabaeTest {
-
   private val sqlDriver: SqlDriver = inMemorySqlDriver()
-  protected val database: PressDatabase = sqlDriver.createPressDatabase()
+  protected val database: PressDatabase = createPressDatabase(sqlDriver, createJson())
 
   @AfterTest
   fun closeDb() {
