@@ -156,7 +156,7 @@ private class SyncDisabledView(context: Context) : ContourLayout(context) {
 }
 
 private class SyncEnabledView(context: Context) : ContourLayout(context) {
-  private val setupInfoView = TextView(context, smallTitle).apply {
+  private val setupInfoView = TextView(context, smallBody).apply {
     movementMethod = BetterLinkMovementMethod.getInstance()
     themeAware { textColor = it.textColorPrimary }
     applyLayout(
@@ -165,7 +165,7 @@ private class SyncEnabledView(context: Context) : ContourLayout(context) {
     )
   }
 
-  private val statusView = TextView(context, smallTitle).apply {
+  private val statusView = TextView(context, smallBody).apply {
     themeAware { textColor = it.textColorPrimary }
     applyLayout(
         x = matchParentX(),
