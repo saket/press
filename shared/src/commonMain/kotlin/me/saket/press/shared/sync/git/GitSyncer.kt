@@ -48,11 +48,9 @@ import me.saket.press.shared.sync.Syncer.Status.LastOp.Idle
 import me.saket.press.shared.sync.Syncer.Status.LastOp.InFlight
 import me.saket.press.shared.sync.git.FileNameRegister.FileSuggestion
 import me.saket.press.shared.time.Clock
+import me.saket.press.shared.util.Optional
 
 // TODO:
-//  Stop ship
-//   - broadcast an event when a merge conflict is resolved.
-//  Others
 //   - commit deleted notes.
 //   - show errors in status UI
 class GitSyncer(
@@ -65,13 +63,11 @@ class GitSyncer(
   private val mergeConflicts: SyncMergeConflicts,
   private val backupBeforeFirstSync: AtomicBoolean = AtomicBoolean(true)
 ) : Syncer() {
-
   internal val directory = File(deviceInfo.appStorage, "git")
   private val noteQueries get() = database.noteQueries
   private val configQueries get() = database.folderSyncConfigQueries
   private val register = FileNameRegister(directory)
   private val loggers = SyncLoggers(PrintLnSyncLogger, FileBasedSyncLogger(directory))
-  private val lastOp = BehaviorSubject(Idle)
   private val git = {
     val remote = readConfig()!!.remote
     git.repository(
@@ -86,16 +82,20 @@ class GitSyncer(
     )
   }
 
+  companion object {
+    private val lastOp = ObservableMutableMap<NoteFolder?, Status.LastOp>()
+  }
+
   override fun status(): Observable<Status> {
     val config = configQueries.select(folder)
         .asObservable(ioScheduler)
         .mapToOneOrOptional()
 
-    return combineLatest(config, lastOp) { (config), op ->
+    return combineLatest(config, lastOp.listen()) { (config), ops ->
       when (config) {
         null -> Status.Disabled
         else -> Status.Enabled(
-            lastOp = op,
+            lastOp = ops[folder] ?: Idle,
             lastSyncedAt = config.lastSyncedAt?.let(::LastSyncedAt),
             syncingWith = config.remote.remote
         )
@@ -105,9 +105,9 @@ class GitSyncer(
 
   override fun sync() {
     if (readConfig() == null) return      // Sync is disabled.
-    if (lastOp.value == InFlight) return  // Another sync ongoing.
+    if (lastOp[folder] == InFlight) return  // Another sync ongoing.
 
-    lastOp.onNext(InFlight)
+    lastOp[folder] = InFlight
     loggers.onSyncStart(fromDevice = deviceInfo.deviceName())
     directory.makeDirectory(recursively = true)
 
@@ -121,7 +121,7 @@ class GitSyncer(
         processCommits(pullResult)
         push(pullResult)
       }
-      lastOp.onNext(Idle)
+      lastOp[folder] = Idle
 
     } catch (e: Throwable) {
       when (Git.identify(e)) {
@@ -133,7 +133,7 @@ class GitSyncer(
         }
       }.exhaustive
 
-      lastOp.onNext(Failed)
+      lastOp[folder] = Failed
       loggers.onSyncComplete()
       mergeConflicts.clear()
     }
