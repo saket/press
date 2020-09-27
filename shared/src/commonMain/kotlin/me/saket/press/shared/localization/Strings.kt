@@ -83,7 +83,8 @@ val ENGLISH_STRINGS = Strings(
         confirm_repo_confirm_button = "Let's go",
         confirm_repo_cancel_button = "Wait no",
         setup_sync_with_host = "Sync with %s",
-        sync_disabled_message = "Press can sync notes between your devices through a git repository.",
+        sync_disabled_message = "Press can sync notes between your devices through a git repository. This is a " +
+            "work-in-progress feature and may cause paranormal events around you.",
         sync_enabled_message = "Press is syncing your notes with %s.",
         disable_sync_button = "Disable sync on this device",
         status_in_flight = "Syncing…",
