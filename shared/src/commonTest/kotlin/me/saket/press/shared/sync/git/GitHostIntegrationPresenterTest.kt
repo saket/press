@@ -16,6 +16,7 @@ import me.saket.press.shared.sync.git.FailureKind.FetchingRepos
 import me.saket.press.shared.sync.git.GitHost.GITHUB
 import me.saket.press.shared.sync.git.GitHostIntegrationPresenter.Args
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowFailure
+import me.saket.press.shared.testDeviceInfo
 import me.saket.press.shared.ui.FakeNavigator
 import kotlin.test.Test
 
@@ -30,7 +31,8 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
       gitHostService = { _, _ -> gitService },
       cachedRepos = cachedRepos,
       syncCoordinator = FakeSyncCoordinator(),
-      database = database
+      database = database,
+      deviceInfo = testDeviceInfo()
   )
 
   @Test fun `show error if auth fails`() {
