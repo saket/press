@@ -39,5 +39,10 @@ interface GitHostService {
    * Add a deploy key to [repository] so that Press
    * can read and write commits for syncing notes.
    */
-  fun addDeployKey(token: GitHostAuthToken, repository: GitRepositoryInfo, key: SshKeyPair): Completable
+  fun addDeployKey(token: GitHostAuthToken, repository: GitRepositoryInfo, key: DeployKey): Completable
+
+  /**
+   * @param title the label that's displayed for this key.
+   */
+  class DeployKey(val title: String, val key: SshKeyPair)
 }

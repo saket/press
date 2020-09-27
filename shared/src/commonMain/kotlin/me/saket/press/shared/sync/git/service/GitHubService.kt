@@ -21,6 +21,7 @@ import me.saket.kgit.SshKeyPair
 import me.saket.press.shared.BuildKonfig
 import me.saket.press.shared.sync.git.GitHostAuthToken
 import me.saket.kgit.GitIdentity
+import me.saket.press.shared.sync.git.service.GitHostService.DeployKey
 
 class GitHubService(private val http: HttpClient) : GitHostService {
 
@@ -90,18 +91,17 @@ class GitHubService(private val http: HttpClient) : GitHostService {
     }
   }
 
-  override fun addDeployKey(token: GitHostAuthToken, repository: GitRepositoryInfo, key: SshKeyPair): Completable {
+  override fun addDeployKey(token: GitHostAuthToken, repository: GitRepositoryInfo, key: DeployKey): Completable {
     return completableFromCoroutine {
       val response = http.post<String>("https://api.github.com/repos/${repository.owner}/${repository.name}/keys") {
         header("Authorization", "token ${token.value}")
         contentType(Application.Json)
         body = CreateDeployKeyRequest(
-            title = "Press deploy key",
-            key = key.publicKey,
+            title = key.title,
+            key = key.key.publicKey,
             read_only = false
         )
       }
-      println("response: $response")
     }
   }
 }

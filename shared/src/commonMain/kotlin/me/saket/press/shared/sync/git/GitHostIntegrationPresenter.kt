@@ -62,6 +62,7 @@ class GitHostIntegrationPresenter(
   httpClient: HttpClient,
   authToken: (GitHost) -> Setting<GitHostAuthToken>,
   gitHostService: (GitHost, HttpClient) -> GitHostService = { host, http -> host.service(http) },
+  private val deviceInfo: DeviceInfo,
   private val database: PressDatabase,
   private val cachedRepos: GitRepositoryCache,
   private val syncCoordinator: SyncCoordinator,
@@ -148,14 +149,17 @@ class GitHostIntegrationPresenter(
         .map { it.repo }
         .repeatItemOnRetry(events, kind = AddingDeployKey)
         .switchMap { repo ->
-          val sshKeys = SshKeygen.generateRsa(comment = "(Created by Press)")
           val token = authToken.get()!!
+          val deployKey = GitHostService.DeployKey(
+            title = "Press (${deviceInfo.deviceName()})",
+            key = SshKeygen.generateRsa(comment = "(Created by Press)")
+          )
           zip(
-            gitHostService.addDeployKey(token, repo, sshKeys).asSingle(Unit),
+            gitHostService.addDeployKey(token, repo, deployKey).asSingle(Unit),
             gitHostService.fetchUser(token)
           ) { _, user -> user }
               .asObservable()
-              .flatMapCompletable { user -> completeSetup(repo, sshKeys, user) }
+              .flatMapCompletable { user -> completeSetup(repo, deployKey, user) }
               .asObservable<GitHostIntegrationUiModel>()
               .doOnBeforeError { e -> e.printStackTrace() }
               .onErrorReturnValue(ShowFailure(kind = AddingDeployKey))
@@ -163,12 +167,16 @@ class GitHostIntegrationPresenter(
         }
   }
 
-  private fun completeSetup(repo: GitRepositoryInfo, sshKeys: SshKeyPair, user: GitIdentity): Completable {
+  private fun completeSetup(
+    repo: GitRepositoryInfo,
+    deployKey: GitHostService.DeployKey,
+    user: GitIdentity
+  ): Completable {
     return completableFromFunction {
       authToken.set(null)
       database.folderSyncConfigQueries.insert(
           folder = null,
-          remote = GitSyncerConfig(repo, sshKeys.privateKey, user)
+          remote = GitSyncerConfig(repo, deployKey.key.privateKey, user)
       )
       syncCoordinator.trigger()
       args.navigator.lfg(Close)

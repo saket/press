@@ -42,6 +42,7 @@ class SharedSyncComponent {
           args = args,
           httpClient = get(),
           authToken = get(),
+          deviceInfo = get(),
           database = get(),
           cachedRepos = get(),
           syncCoordinator = get()
