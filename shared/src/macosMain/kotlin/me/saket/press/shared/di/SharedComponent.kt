@@ -8,7 +8,6 @@ import me.saket.press.shared.sync.git.File
 import platform.Foundation.NSUserDefaults
 
 actual object SharedComponent : BaseSharedComponent() {
-
   fun initialize() {
     setupGraph(PlatformDependencies(
         sqlDriver = { sqliteDriver() },
@@ -23,9 +22,8 @@ actual object SharedComponent : BaseSharedComponent() {
   private fun settings() =
     AppleSettings(NSUserDefaults.standardUserDefaults())
 
-  private fun deviceInfo() =
-    DeviceInfo(
-        appStorage = File("todo"),
-        deviceName = { TODO() }
-    )
+  private fun deviceInfo() = object : DeviceInfo {
+    override val appStorage get() = File("todo")
+    override fun deviceName() = TODO()
+  }
 }

@@ -11,7 +11,6 @@ import me.saket.press.shared.sync.git.DeviceInfo
 import me.saket.press.shared.sync.git.File
 
 actual object SharedComponent : BaseSharedComponent() {
-
   fun initialize(appContext: Application) {
     setupGraph(PlatformDependencies(
         sqlDriver = { sqliteDriver(appContext) },
@@ -27,13 +26,14 @@ actual object SharedComponent : BaseSharedComponent() {
     AndroidSettings(PreferenceManager.getDefaultSharedPreferences(appContext))
 
   private fun deviceInfo(context: Context): DeviceInfo {
-    return DeviceInfo(
-        appStorage = File(context.filesDir.path),
-        deviceName = {
-          // https://stackoverflow.com/a/45696806/2511884
-          val bluetoothName = Settings.Secure.getString(context.contentResolver, "bluetooth_name")
-          bluetoothName ?: android.os.Build.MODEL
-        }
-    )
+    return object : DeviceInfo {
+      override val appStorage get() = File(context.filesDir.path)
+
+      override fun deviceName(): String {
+        // https://stackoverflow.com/a/45696806/2511884
+        val bluetoothName = Settings.Secure.getString(context.contentResolver, "bluetooth_name")
+        return bluetoothName ?: android.os.Build.MODEL
+      }
+    }
   }
 }
