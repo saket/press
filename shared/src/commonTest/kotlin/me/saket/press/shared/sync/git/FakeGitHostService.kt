@@ -4,6 +4,7 @@ import com.badoo.reaktive.single.singleFromFunction
 import com.badoo.reaktive.utils.atomic.AtomicReference
 import me.saket.kgit.SshKeyPair
 import me.saket.press.shared.sync.git.service.GitHostService
+import me.saket.press.shared.sync.git.service.GitHostService.DeployKey
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 
 class FakeGitHostService : GitHostService {
@@ -15,5 +16,5 @@ class FakeGitHostService : GitHostService {
 
   override fun generateAuthUrl(redirectUrl: String): String = TODO()
   override fun fetchUser(token: GitHostAuthToken) = TODO()
-  override fun addDeployKey(token: GitHostAuthToken, repository: GitRepositoryInfo, key: SshKeyPair) = TODO()
+  override fun addDeployKey(token: GitHostAuthToken, repository: GitRepositoryInfo, key: DeployKey) = TODO()
 }
