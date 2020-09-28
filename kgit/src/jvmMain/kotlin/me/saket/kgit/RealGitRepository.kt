@@ -281,7 +281,7 @@ internal actual class RealGitRepository actual constructor(
   }
 
   override fun changesIn(commit: GitCommit): GitTreeDiff {
-    var parent: RevCommit? = null
+    var parent: RevCommit?
     RevWalk(jgit.repository).use { walk ->
       // Not sure if picking the first parent is right if
       // multiple parents are present (in case of a merge).
@@ -289,10 +289,10 @@ internal actual class RealGitRepository actual constructor(
       parent?.let { walk.parseHeaders(it) }
       walk.dispose()
     }
-    return diffBetween(parent?.let(::GitCommit), commit)
+    return changesBetween(parent?.let(::GitCommit), commit)
   }
 
-  override fun diffBetween(from: GitCommit?, to: GitCommit): GitTreeDiff {
+  override fun changesBetween(from: GitCommit?, to: GitCommit): GitTreeDiff {
     val fromTree = from?.commit?.tree
     val toTree = to.commit.tree
 

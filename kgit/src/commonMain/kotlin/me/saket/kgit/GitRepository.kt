@@ -55,7 +55,7 @@ interface GitRepository {
   /**
    * When [from] is null, the [to] commit's tree is compared with an empty tree.
    */
-  fun diffBetween(from: GitCommit?, to: GitCommit): GitTreeDiff
+  fun changesBetween(from: GitCommit?, to: GitCommit): GitTreeDiff
 
   fun currentBranch(): GitBranch
 }

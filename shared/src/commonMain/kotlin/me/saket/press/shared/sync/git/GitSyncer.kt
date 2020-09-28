@@ -4,7 +4,6 @@ import co.touchlab.stately.concurrency.AtomicBoolean
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.combineLatest
 import com.badoo.reaktive.scheduler.ioScheduler
-import com.badoo.reaktive.subject.behavior.BehaviorSubject
 import com.soywiz.klock.DateTime
 import kotlinx.coroutines.Runnable
 import me.saket.kgit.Git
@@ -48,7 +47,6 @@ import me.saket.press.shared.sync.Syncer.Status.LastOp.Idle
 import me.saket.press.shared.sync.Syncer.Status.LastOp.InFlight
 import me.saket.press.shared.sync.git.FileNameRegister.FileSuggestion
 import me.saket.press.shared.time.Clock
-import me.saket.press.shared.util.Optional
 
 // TODO:
 //   - commit deleted notes.
@@ -242,7 +240,7 @@ class GitSyncer(
     val upstreamHead = git.headCommit()!!
     if (upstreamHead != localHead) {
       log("Pulled upstream. Moved head from $localHead to $upstreamHead.")
-      val diff = git.diffBetween(localHead, upstreamHead)
+      val diff = git.changesBetween(localHead, upstreamHead)
       if (diff.isNotEmpty()) {
         log("\nPulled changes (${diff.size}):")
         log(diff.flattenToString())
@@ -320,7 +318,7 @@ class GitSyncer(
 
   private abstract class MergeConflictsResolver(git: GitRepository, pullResult: PullResult) {
     protected val pulledPaths = git
-        .diffBetween(pullResult.headBefore, pullResult.headAfter)
+        .changesBetween(pullResult.headBefore, pullResult.headAfter)
         .filterNoteChanges()
         .map { it.path }
         .toHashSet()
@@ -430,7 +428,7 @@ class GitSyncer(
     // avoid locking the DB in a transaction for long.
     val dbOperations = mutableListOf<Runnable>()
 
-    val diffs = git.diffBetween(from, to)
+    val diffs = git.changesBetween(from, to)
     val diffPathTimestamps = commits.pathTimestamps(git)
 
     log("\nProcessing changes (${diffs.size}):")
