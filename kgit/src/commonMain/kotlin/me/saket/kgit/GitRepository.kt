@@ -48,11 +48,6 @@ interface GitRepository {
   fun commonAncestor(first: GitCommit, second: GitCommit): GitCommit?
 
   /**
-   * Diff between [commit] and its parent.
-   */
-  fun changesIn(commit: GitCommit): GitTreeDiff
-
-  /**
    * When [from] is null, the [to] commit's tree is compared with an empty tree.
    */
   fun changesBetween(from: GitCommit?, to: GitCommit): GitTreeDiff

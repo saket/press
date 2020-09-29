@@ -15,7 +15,6 @@ internal actual class RealGitRepository actual constructor(
   override fun headCommit(onBranch: String?): GitCommit = TODO()
   override fun commitsBetween(from: GitCommit?, toInclusive: GitCommit): List<GitCommit> = TODO()
   override fun commonAncestor(first: GitCommit, second: GitCommit): GitCommit? = TODO()
-  override fun changesIn(commit: GitCommit): GitTreeDiff = TODO()
   override fun changesBetween(from: GitCommit?, to: GitCommit): GitTreeDiff = TODO()
   override fun currentBranch(): GitBranch = TODO()
 }
