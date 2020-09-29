@@ -112,6 +112,10 @@ internal actual class RealGitRepository actual constructor(
         .call()
   }
 
+  override fun checkout(commit: GitCommit) {
+    jgit.checkout().setName(commit.sha1.value).call()
+  }
+
   @Suppress("NAME_SHADOWING")
   override fun commitAll(
     message: String,

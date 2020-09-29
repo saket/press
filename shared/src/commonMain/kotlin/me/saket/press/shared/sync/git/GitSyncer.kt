@@ -20,9 +20,7 @@ import me.saket.kgit.GitTreeDiff.Change.Copy
 import me.saket.kgit.GitTreeDiff.Change.Delete
 import me.saket.kgit.GitTreeDiff.Change.Modify
 import me.saket.kgit.GitTreeDiff.Change.Rename
-import me.saket.kgit.PushResult.AlreadyUpToDate
 import me.saket.kgit.PushResult.Failure
-import me.saket.kgit.PushResult.Success
 import me.saket.kgit.UtcTimestamp
 import me.saket.kgit.abbreviated
 import me.saket.kgit.identify
@@ -48,9 +46,7 @@ import me.saket.press.shared.sync.Syncer.Status.LastOp.InFlight
 import me.saket.press.shared.sync.git.FileNameRegister.FileSuggestion
 import me.saket.press.shared.time.Clock
 
-// TODO:
-//   - commit deleted notes.
-//   - show errors in status UI
+// TODO: show errors in status UI
 class GitSyncer(
   git: Git,
   private val folder: NoteFolder?,
@@ -102,7 +98,7 @@ class GitSyncer(
   }
 
   override fun sync() {
-    if (readConfig() == null) return      // Sync is disabled.
+    if (readConfig() == null) return        // Sync is disabled.
     if (lastOp[folder] == InFlight) return  // Another sync ongoing.
 
     lastOp[folder] = InFlight
@@ -110,7 +106,7 @@ class GitSyncer(
     directory.makeDirectory(recursively = true)
 
     try {
-      with(GitScope(git())) {
+      with(SyncTransaction(git())) {
         resetState()
         backupIfFirstSync()
 
@@ -137,7 +133,11 @@ class GitSyncer(
     }
   }
 
-  private class GitScope(val git: GitRepository)
+  private class SyncTransaction(val git: GitRepository) {
+    // DB operations are executed in one go to
+    // avoid locking the DB in a transaction for long.
+    val dbOperations = mutableListOf<Runnable>()
+  }
 
   override fun disable() {
     log("Disabling sync.")
@@ -146,7 +146,7 @@ class GitSyncer(
     noteQueries.swapSyncStates(old = SyncState.values().toList(), new = PENDING)
   }
 
-  private fun GitScope.resetState() {
+  private fun SyncTransaction.resetState() {
     // Commit an announcement that syncing has been setup.
     if (git.headCommit() == null) {
       with(File(directory, ".press/")) {
@@ -191,7 +191,7 @@ class GitSyncer(
    * accidentally delete users' notes. As a backup, user's notes are saved in a separate
    * branch so that they can be manually recovered.
    */
-  private fun GitScope.backupIfFirstSync() {
+  private fun SyncTransaction.backupIfFirstSync() {
     if (!backupBeforeFirstSync.value) return
     if (readConfig()!!.lastPushedSha1 != null) return
 
@@ -230,7 +230,7 @@ class GitSyncer(
     val headAfter: GitCommit
   )
 
-  private fun GitScope.pull(): PullResult {
+  private fun SyncTransaction.pull(): PullResult {
     val localHead = git.headCommit()!!  // non-null because of resetState().
 
     git.pull(rebase = true).also {
@@ -265,7 +265,7 @@ class GitSyncer(
   }
 
   @Suppress("CascadeIf")
-  private fun GitScope.commit(pullResult: PullResult) {
+  private fun SyncTransaction.commit(pullResult: PullResult) {
     val pendingSyncNotes = noteQueries.notesInState(listOf(PENDING, IN_FLIGHT)).executeAsList()
     if (pendingSyncNotes.isEmpty()) {
       log("\nNothing to commit.")
@@ -294,22 +294,29 @@ class GitSyncer(
     for (note in pendingSyncNotes) {
       val suggestion = register.suggestFile(note)
       val notePath = suggestion.suggestedFilePath
+      log(" • $notePath (old=${suggestion.oldFilePath})")
 
-      val commitRename = {
+      conflictResolver.resolveAndSave(note, suggestion, commitRename = {
         git.commitAll(
             message = "Rename '${suggestion.oldFilePath}' → '$notePath'",
             timestamp = UtcTimestamp(note.updatedAt),
             allowEmpty = false
         )
-      }
-
-      log(" • $notePath")
-      conflictResolver.resolveAndSave(note, suggestion, commitRename)
+      })
 
       // Staging area may not be dirty if this note had already been processed earlier.
       if (git.isStagingAreaDirty()) {
         git.commitAll(
             message = "Update '$notePath'",
+            timestamp = UtcTimestamp(note.updatedAt)
+        )
+      }
+
+      if (note.isPendingDeletion && suggestion.suggestedFile.exists) {
+        suggestion.suggestedFile.delete()
+
+        git.commitAll(
+            message = "Delete '$notePath'",
             timestamp = UtcTimestamp(note.updatedAt)
         )
       }
@@ -410,7 +417,7 @@ class GitSyncer(
   }
 
   @Suppress("NAME_SHADOWING")
-  private fun GitScope.processCommits(pullResult: PullResult) {
+  private fun SyncTransaction.processCommits(pullResult: PullResult) {
     if (pullResult.headBefore == git.headCommit()) {
       log("Nothing to process.")
       return
@@ -420,23 +427,18 @@ class GitSyncer(
     val from = git.commonAncestor(first = pullResult.headBefore, second = to)
 
     log("\nProcessing commits from ${from?.sha1?.abbreviated} to ${to.sha1.abbreviated}")
-
     val commits = git.commitsBetween(from = from, toInclusive = to)
     commits.forEach { log(" • ${it.sha1.abbreviated} - ${it.message.lines().first()}") }
 
-    // DB operations are executed in one go to
-    // avoid locking the DB in a transaction for long.
-    val dbOperations = mutableListOf<Runnable>()
+    val diffSinceLastSync = git.changesBetween(from, to)
 
-    val diffs = git.changesBetween(from, to)
-    val diffPathTimestamps = commits.pathTimestamps(git)
-
-    log("\nProcessing changes (${diffs.size}):")
-    if (diffs.isNotEmpty()) {
-      log(diffs.flattenToString() + "\n")
+    log("\nProcessing changes (${diffSinceLastSync.size}):")
+    if (diffSinceLastSync.isNotEmpty()) {
+      log(diffSinceLastSync.flattenToString())
     }
 
-    for (diff in diffs.filterNoteChanges()) {
+    val diffPathTimestamps = commits.pathTimestamps(git)
+    for (diff in diffSinceLastSync.filterNoteChanges()) {
       dbOperations += when (diff) {
         is Copy,
         is Rename,
@@ -456,9 +458,9 @@ class GitSyncer(
           val commitTime = diffPathTimestamps[diff.path]!!
 
           if (isNewNote) {
-            log("Creating new note $noteId for (${diff.path}), isArchived? $isArchived")
+            log("\nCreating new note $noteId for (${diff.path}), isArchived? $isArchived")
           } else {
-            log("Updating $noteId (${diff.path}), isArchived? $isArchived")
+            log("\nUpdating $noteId (${diff.path}), isArchived? $isArchived")
           }
 
           if (isNewNote) {
@@ -499,22 +501,72 @@ class GitSyncer(
           }
         }
         is Delete -> {
-          // The record for this file isn't deleted here in case this DELETE had an
-          // associated ADD entry but the RENAME couldn't be detected. Stale records
-          // will get pruned in a follow-up.
+          // Handled later.
+          Runnable {}
+        }
+      }
+    }
+
+    if (git.isStagingAreaDirty()) {
+      git.commitAll(
+          message = "Create new file name records",
+          timestamp = UtcTimestamp(clock)
+      )
+    }
+
+    // Deleted notes will need to be processed commit-wise. If a note was updated _and_ deleted
+    // in pulled changes then its diff entry will not match the diff entry of its filename record.
+    if (diffSinceLastSync.filterNoteChanges().any { it is Delete }) {
+      log("\nRe-processing changes to read deletions")
+
+      val restoreToBranch = git.currentBranch()
+      for ((commit, diffs) in commits.changes(git)) {
+        git.checkout(commit)
+
+        for (diff in diffs.filterNoteChanges().filterIsInstance<Delete>()) {
           val noteId = register.noteIdFor(diff.path)
-          if (noteId == null) {
-            // Commit has already been processed earlier or this was actually a RENAME.
-            Runnable {}
-          } else {
-            log("Permanently deleting $noteId (${diff.path})")
-            Runnable {
+          log(" • '${diff.path}' deleted in ${commit.sha1.abbreviated} (${commit.message})")
+
+          if (noteId != null) {
+            log("   permanently deleting $noteId")
+            dbOperations += Runnable {
               noteQueries.markAsPendingDeletion(noteId)
               noteQueries.updateSyncState(ids = listOf(noteId), syncState = IN_FLIGHT)
               noteQueries.deleteNote(noteId)
             }
+          } else {
+            // Either this commit has already been processed
+            // earlier or this isn't a note (e.g., README.md).
+            log("   can't find file")
           }
         }
+      }
+      git.checkout(restoreToBranch.name)
+    }
+  }
+
+  private fun SyncTransaction.push(pullResult: PullResult) {
+    val remote = readConfig()!!.remote.remote
+    check(git.currentBranch().name == remote.defaultBranch) { "Not on the default branch" }
+    check(!git.isStagingAreaDirty()) { "Expected staging area to be clean before pushing" }
+
+    if (pullResult.headAfter == git.headCommit()) {
+      noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = SYNCED)
+      log("\nNothing to push.")
+
+    } else {
+      log("\nPushing changes")
+      loggers.onSyncComplete()
+      git.commitAll(
+          message = "Update sync logs",
+          timestamp = UtcTimestamp(clock)
+      )
+
+      val pushResult = git.push()
+      if (pushResult is Failure) {
+        // Merge conflicts can only be avoided if we're always on the latest version of upstream.
+        // If push fails, abort this sync. Any unsynced changes will be reset on next sync.
+        error("Couldn't push: $pushResult")
       }
     }
 
@@ -533,35 +585,11 @@ class GitSyncer(
           timestamp = UtcTimestamp(clock)
       )
     }
-  }
 
-  private fun GitScope.push(pullResult: PullResult) {
-    val remote = readConfig()!!.remote.remote
-    check(git.currentBranch().name == remote.defaultBranch) { "Not on the default branch" }
-    check(!git.isStagingAreaDirty()) { "Expected staging area to be clean before pushing" }
-
-    if (pullResult.headAfter == git.headCommit()) {
-      noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = SYNCED)
-      log("\nNothing to push.")
-
-    } else {
-      log("\nPushing changes")
-      loggers.onSyncComplete()
-      git.commitAll(
-          message = "Update sync logs",
-          timestamp = UtcTimestamp(clock)
-      )
-
-      when (val result = git.push()) {
-        is Success, is AlreadyUpToDate -> {
-          noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = SYNCED)
-        }
-        // Merge conflicts can only be avoided if we're always on the latest version of upstream.
-        // If push fails, abort this sync. Any unsynced changes will be reset on next sync.
-        is Failure -> error("Couldn't push: $result")
-      }
-    }
-
+    noteQueries.swapSyncStates(
+        old = listOf(IN_FLIGHT),
+        new = SYNCED
+    )
     configQueries.update(
         folder = folder,
         lastSyncedAt = clock.nowUtc(),
@@ -571,12 +599,16 @@ class GitSyncer(
 
   private fun log(message: String) = loggers.log(message)
 
+  private fun List<GitCommit>.changes(git: GitRepository): List<Pair<GitCommit, GitTreeDiff>> {
+    return zipWithNext(initial = null).map { (prevCommit, currentCommit) ->
+      currentCommit!! to (git.changesBetween(prevCommit, currentCommit))
+    }
+  }
+
   private fun List<GitCommit>.pathTimestamps(git: GitRepository): Map<String, DateTime> {
-    // Press stores updated-at timestamp of notes in each commit.
-    return flatMap { commit ->
-      git.changesIn(commit)
-          .filterNoteChanges()
-          .map { it.path to commit.dateTime }
+    return changes(git).flatMap { (commit, changes) ->
+      // Press stores updated-at timestamp of notes in each commit.
+      changes.map { it.path to commit.dateTime }
     }.toMap()
   }
 
@@ -615,6 +647,11 @@ private fun List<GitTreeDiff.Change>.filterNoteChanges() = filter { diff ->
     }
     else -> true
   }
+}
+
+@OptIn(ExperimentalStdlibApi::class)
+fun <T> List<T>.zipWithNext(initial: T): List<Pair<T,T>> {
+  return (listOf(initial) + this).zipWithNext()
 }
 
 private val Unit.exhaustive: Unit

@@ -1,6 +1,7 @@
 package me.saket.press.shared.sync
 
 import assertk.assertThat
+import assertk.assertions.containsAll
 import assertk.assertions.containsExactly
 import assertk.assertions.doesNotContain
 import assertk.assertions.hasSize
@@ -10,8 +11,11 @@ import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotInstanceOf
+import assertk.assertions.isNotNull
+import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import co.touchlab.stately.concurrency.AtomicBoolean
+import com.badoo.reaktive.observable.distinctUntilChanged
 import com.badoo.reaktive.test.observable.assertValue
 import com.badoo.reaktive.test.observable.test
 import com.soywiz.klock.DateTime
@@ -33,8 +37,6 @@ import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.fakedata.fakeRepository
 import me.saket.press.shared.localization.ENGLISH_STRINGS
-import me.saket.press.shared.note.NoteFolder
-import me.saket.press.shared.settings.FakeSetting
 import me.saket.press.shared.sync.SyncState.IN_FLIGHT
 import me.saket.press.shared.sync.SyncState.PENDING
 import me.saket.press.shared.sync.SyncState.SYNCED
@@ -550,35 +552,94 @@ class GitSyncerTest : BaseDatabaeTest() {
   @Test fun `sync notes deleted on remote`() {
     if (!canRunTests()) return
 
-    noteQueries.insert(
-        id = NoteId.generate(),
-        content = "# Horizon Zero Dawn",
-        createdAt = clock.nowUtc(),
-        updatedAt = clock.nowUtc()
-    )
+    val noteToDelete = fakeNote("# Uncharted")
+    noteQueries.testInsert(noteToDelete)
     syncer.sync()
 
-    val savedNotes = { noteQueries.allNotes().executeAsList() }
-    assertThat(savedNotes()).isNotEmpty()
-
-    clock.advanceTimeBy(2.hours)
     RemoteRepositoryRobot {
       pull()
       commitFiles(
-          message = "Delete notes",
-          time = clock.nowUtc(),
-          delete = listOf("horizon_zero_dawn.md")
+          message = "Delete 'uncharted.md'",
+          delete = listOf("uncharted.md")
+      )
+      commitFiles(
+          message = "Add 'horizon_zero_dawn.md'",
+          add = listOf("horizon_zero_dawn.md" to "# Horizon Zero Dawn")
       )
       forcePush()
     }
     syncer.sync()
 
-    assertThat(savedNotes()).isEmpty()
+    assertThat(noteQueries.note(noteToDelete.id).executeAsOneOrNull()).isNull()
   }
 
-  // TODO
+  @Test fun `deletion and creation of notes with the same heading on different devices`() {
+    if (!canRunTests()) return
+
+    val noteToDelete = fakeNote("# Uncharted")
+    noteQueries.testInsert(noteToDelete)
+    syncer.sync()
+
+    noteQueries.markAsPendingDeletion(noteToDelete.id)
+    RemoteRepositoryRobot {
+      pull()
+      commitFiles(
+          message = "Create 'uncharted.md' on remote",
+          add = listOf("uncharted.md" to "# Uncharted")
+      )
+      forcePush()
+    }
+    syncer.sync()
+
+    // The pulled note will be saved before the local note is deleted.
+    // This will unfortunately result in the remote note effectively get skipped.
+    assertThat(noteQueries.allNotes().executeAsList()).isEmpty()
+  }
+
   @Test fun `sync notes deleted locally`() {
     if (!canRunTests()) return
+
+    val noteToDelete = fakeNote("# Uncharted")
+    noteQueries.testInsert(noteToDelete)
+    syncer.sync()
+
+    val remote = RemoteRepositoryRobot()
+    assertThat(remote.fetchNoteFiles()).containsOnly("uncharted.md" to "# Uncharted")
+
+    noteQueries.updateContent(
+        id = noteToDelete.id,
+        content = "# Uncharted 4\nA Thief's End",
+        updatedAt = clock.nowUtc()
+    )
+    noteQueries.markAsPendingDeletion(noteToDelete.id)
+
+    val commitMessages = mutableListOf<String>()
+    git.preCommit = { commitMessages += it }
+    syncer.sync()
+
+    // Note's updated content should be saved before it's deleted, and in separate commits.
+    // Checking commit messages isn't a great way of testing, but I can't think of any other way.
+    assertThat(commitMessages).containsAll(
+        "Rename 'uncharted.md' → 'uncharted_4.md'",
+        "Update 'uncharted_4.md'"
+    )
+
+    assertThat(noteQueries.allNotes().executeAsList()).isEmpty()
+    assertThat(remote.fetchNoteFiles()).isEmpty()
+
+    // The meta-records of the note should get deleted as well. Check that
+    // its ID doesn't get reused for another note with the same content.
+    remote.run {
+      pull()
+      commitFiles(
+          message = "Add new 'uncharted.md'",
+          add = listOf("uncharted.md" to "# Uncharted 4\nA Thief's End")
+      )
+      forcePush()
+    }
+
+    syncer.sync()
+    assertThat(noteQueries.note(noteToDelete.id).executeAsOneOrNull()).isNull()
   }
 
   // TODO
@@ -836,14 +897,18 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     // Second sync fails.
     val note2 = fakeNote("# Batman 2")
-    noteQueries.testInsert(note2)
+    val note3 = fakeNote("# Batman 3", isPendingDeletion = true)
+    noteQueries.testInsert(note2, note3)
     git.prePush = { error("Two-Face") }
     syncer.sync()
 
     assertThat(unrelatedFile.exists).isFalse()
     val remoteFiles = remote.fetchNoteFiles().map { (path) -> path }
-    assertThat(remoteFiles).doesNotContain("unrelated_dirty_file.md")
     assertThat(remoteFiles).containsOnly("batman_1.md")
+    assertThat(remoteFiles).doesNotContain("unrelated_dirty_file.md")
+
+    // Any pending-deletion notes shouldn't get deleted yet.
+    assertThat(noteQueries.note(note3.id).executeAsOneOrNull()).isNotNull()
 
     val noteFiles = {
       syncer.directory
@@ -866,7 +931,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     // delete all unsynced files before starting.
     git.prePull = { error("don't need this to finish") }
     syncer.sync()
-    expectUnSyncedNotes += note2.id
+    expectUnSyncedNotes + listOf(note2.id, note3.id)
 
     assertThat(notePaths()).containsOnly("batman_1.md")
   }
@@ -933,10 +998,10 @@ class GitSyncerTest : BaseDatabaeTest() {
     )
 
     git.prePush = {
-      isConflicted.assertValue(true)
+      assertThat(isConflicted.values.last()).isTrue()
     }
     syncer.sync()
-    isConflicted.assertValue(false)
+    assertThat(isConflicted.values.last()).isFalse()
   }
 
   @Test fun `clear merge conflicts if sync fails`() {
@@ -949,7 +1014,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     git.prePull = { error("boom!") }
     syncer.sync()
 
-    isConflicted.assertValue(false)
+    assertThat(isConflicted.values.last()).isFalse()
   }
 
   @Test fun `backup notes before first sync`() {

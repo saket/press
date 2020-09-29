@@ -6,9 +6,11 @@ import me.saket.kgit.GitPullResult
 import me.saket.kgit.GitRepository
 import me.saket.kgit.PushResult
 import me.saket.kgit.SshPrivateKey
+import me.saket.kgit.UtcTimestamp
 
 class DelegatingGit(private val delegate: Git) : Git {
   var prePull: (() -> Unit)? = null
+  var preCommit: ((message: String) -> Unit)? = null
   var prePush: (() -> Unit)? = null
   var pushCount = 0
 
@@ -23,6 +25,11 @@ class DelegatingGit(private val delegate: Git) : Git {
     override fun pull(rebase: Boolean): GitPullResult {
       git.prePull?.invoke()
       return delegate.pull(rebase)
+    }
+
+    override fun commitAll(message: String, timestamp: UtcTimestamp, allowEmpty: Boolean) {
+      git.preCommit?.invoke(message)
+      delegate.commitAll(message, timestamp, allowEmpty)
     }
 
     override fun push(force: Boolean): PushResult {

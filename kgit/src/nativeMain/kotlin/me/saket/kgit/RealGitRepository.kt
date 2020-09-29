@@ -7,7 +7,8 @@ internal actual class RealGitRepository actual constructor(
   sshKey: SshPrivateKey
 ) : GitRepository {
   override fun isStagingAreaDirty(): Boolean = TODO()
-  override fun checkout(branch: String, create: Boolean): Unit = TODO()
+  override fun checkout(branch: String, createIfNeeded: Boolean): Unit = TODO()
+  override fun checkout(commit: GitCommit): Unit = TODO()
   override fun commitAll(message: String, timestamp: UtcTimestamp, allowEmpty: Boolean) = TODO()
   override fun pull(rebase: Boolean): GitPullResult = TODO()
   override fun push(force: Boolean): PushResult = TODO()

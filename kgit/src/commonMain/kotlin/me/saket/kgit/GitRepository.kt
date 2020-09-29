@@ -13,6 +13,8 @@ interface GitRepository {
 
   fun checkout(branch: String, createIfNeeded: Boolean = true)
 
+  fun checkout(commit: GitCommit)
+
   /**
    * Add all files to staging and commit.
    *
