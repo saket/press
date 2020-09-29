@@ -2,6 +2,7 @@ package me.saket.press.shared.sync
 
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.completableFromFunction
+import com.badoo.reaktive.completable.concat
 import com.badoo.reaktive.completable.onErrorComplete
 import com.badoo.reaktive.completable.subscribe
 import com.badoo.reaktive.observable.flatMapCompletable
@@ -9,12 +10,11 @@ import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.switchMap
 import com.badoo.reaktive.subject.publish.PublishSubject
 import com.soywiz.klock.seconds
-import me.saket.press.shared.note.NoteFolder
+import me.saket.press.PressDatabase
 import me.saket.press.shared.rx.Schedulers
 import me.saket.press.shared.rx.observableInterval
 import me.saket.press.shared.rx.takeUntil
 import me.saket.press.shared.sync.Syncer.Status.Disabled
-import me.saket.press.shared.sync.git.GitSyncer
 
 /**
  * Syncs can be triggered from multiple places at different times. This class
@@ -27,7 +27,8 @@ interface SyncCoordinator {
 }
 
 class RealSyncCoordinator(
-  private val syncer: Syncer.Factory,
+  private val database: PressDatabase,
+  private val syncerFactory: Syncer.Factory,
   private val schedulers: Schedulers
 ) : SyncCoordinator {
   private val triggers = PublishSubject<Unit>()
@@ -43,9 +44,14 @@ class RealSyncCoordinator(
   }
 
   override fun syncWithResult(): Completable {
-    val syncer = syncer.create(folder = null)
-    return completableFromFunction { syncer.sync() }
-        .takeUntil(syncer.status().ofType<Disabled>())
-        .onErrorComplete()
+    return database.folderSyncConfigQueries.folders()
+        .executeAsList()
+        .map {
+          val syncer = syncerFactory.create(it.folder)
+          completableFromFunction { syncer.sync() }
+              .takeUntil(syncer.status().ofType<Disabled>())
+              .onErrorComplete()
+        }
+        .concat()
   }
 }

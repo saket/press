@@ -17,6 +17,9 @@ select:
 SELECT * FROM folderSyncConfig
 WHERE folder = ?;
 
+folders:
+SELECT folder FROM folderSyncConfig;
+
 update:
 UPDATE folderSyncConfig
 SET lastPushedSha1 = ?, lastSyncedAt = ?

@@ -64,7 +64,7 @@ class SharedSyncComponent {
       }
     }
     single<SyncCoordinator> {
-      RealSyncCoordinator(get(), get())
+      RealSyncCoordinator(get(), get(), get())
     }
   }
 
