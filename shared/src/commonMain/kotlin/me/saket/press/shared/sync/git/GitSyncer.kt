@@ -57,7 +57,7 @@ class GitSyncer(
   private val mergeConflicts: SyncMergeConflicts,
   private val backupBeforeFirstSync: AtomicBoolean = AtomicBoolean(true)
 ) : Syncer() {
-  internal val directory = File(deviceInfo.appStorage, "git")
+  internal val directory = File(deviceInfo.appStorage, "git_" + (folder?.name ?: ""))
   private val noteQueries get() = database.noteQueries
   private val configQueries get() = database.folderSyncConfigQueries
   private val register = FileNameRegister(directory)
