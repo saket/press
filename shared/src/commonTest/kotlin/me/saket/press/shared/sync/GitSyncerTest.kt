@@ -8,15 +8,12 @@ import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
-import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import co.touchlab.stately.concurrency.AtomicBoolean
-import com.badoo.reaktive.observable.distinctUntilChanged
-import com.badoo.reaktive.test.observable.assertValue
 import com.badoo.reaktive.test.observable.test
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.hours
@@ -44,7 +41,7 @@ import me.saket.press.shared.sync.git.File
 import me.saket.press.shared.sync.git.FileName
 import me.saket.press.shared.sync.git.FileNameRegister
 import me.saket.press.shared.sync.git.GitSyncer
-import me.saket.press.shared.sync.git.GitSyncerConfig
+import me.saket.press.shared.sync.git.GitRemoteAndAuth
 import me.saket.press.shared.sync.git.UtcTimestamp
 import me.saket.press.shared.sync.git.children
 import me.saket.press.shared.sync.git.delete
@@ -61,7 +58,7 @@ class GitSyncerTest : BaseDatabaeTest() {
   private val configQueries get() = database.folderSyncConfigQueries
 
   private val clock = FakeClock()
-  private val config = GitSyncerConfig(
+  private val remoteAndAuth = GitRemoteAndAuth(
       remote = fakeRepository().copy(
           sshUrl = BuildKonfig.GIT_TEST_REPO_SSH_URL,
           defaultBranch = BuildKonfig.GIT_TEST_REPO_BRANCH
@@ -95,7 +92,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     RemoteRepositoryRobot {
       deleteEverything()
     }
-    configQueries.insert(folder = null, remote = config)
+    configQueries.insert(folder = null, remote = remoteAndAuth)
   }
 
   @AfterTest
@@ -839,7 +836,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     RemoteRepositoryRobot().let { remote2 ->
       assertThat(remote2.fetchNoteFiles()).isEmpty()
 
-      configQueries.insert(folder = null, remote = config)
+      configQueries.insert(folder = null, remote = remoteAndAuth)
       syncer.sync()
       assertThat(remote2.fetchNoteFiles()).containsOnly("potter.md" to "# Potter\nYou're a wizard Harry")
     }
@@ -1047,8 +1044,8 @@ class GitSyncerTest : BaseDatabaeTest() {
     private val register = FileNameRegister(directory)
     private val gitRepo = RealGit().repository(
         path = directory.path,
-        sshKey = config.sshKey,
-        remoteSshUrl = config.remote.sshUrl,
+        sshKey = remoteAndAuth.sshKey,
+        remoteSshUrl = remoteAndAuth.remote.sshUrl,
         userConfig = GitConfig(
             "author" to listOf("name" to "Test remote author", "email" to "press@saket.me"),
             "committer" to listOf("name" to "Test remote committer", "email" to "")
@@ -1057,7 +1054,7 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     init {
       gitRepo.commitAll("Initial commit", timestamp = UtcTimestamp(clock), allowEmpty = true)
-      gitRepo.checkout(config.remote.defaultBranch)
+      gitRepo.checkout(remoteAndAuth.remote.defaultBranch)
       prepare()
     }
 

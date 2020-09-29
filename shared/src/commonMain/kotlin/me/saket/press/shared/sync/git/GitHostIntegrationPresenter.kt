@@ -176,7 +176,7 @@ class GitHostIntegrationPresenter(
       authToken.set(null)
       database.folderSyncConfigQueries.insert(
           folder = null,
-          remote = GitSyncerConfig(repo, deployKey.key.privateKey, user)
+          remote = GitRemoteAndAuth(repo, deployKey.key.privateKey, user)
       )
       syncCoordinator.trigger()
       args.navigator.lfg(Close)
