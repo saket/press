@@ -50,7 +50,7 @@ class SharedSyncComponent {
     }
 
     single { SyncMergeConflicts() }
-    factory {
+    factory<Syncer> {
       GitSyncer(
           git = RealGit(),
           database = get(),

@@ -64,7 +64,7 @@ class GitHostIntegrationPresenter(
   private val deviceInfo: DeviceInfo,
   private val database: PressDatabase,
   private val cachedRepos: GitRepositoryCache,
-  private val syncCoordinator: SyncCoordinator
+  private val syncCoordinator: SyncCoordinator,
 ) : Presenter<GitHostIntegrationEvent, GitHostIntegrationUiModel, Nothing>() {
 
   private val gitHost = GitHost.readHostFromDeepLink(args.deepLink)

@@ -17,9 +17,10 @@ import io.ktor.http.URLBuilder
 import io.ktor.http.Url
 import io.ktor.http.contentType
 import kotlinx.serialization.Serializable
-import me.saket.kgit.GitIdentity
+import me.saket.kgit.SshKeyPair
 import me.saket.press.shared.BuildKonfig
 import me.saket.press.shared.sync.git.GitHostAuthToken
+import me.saket.kgit.GitIdentity
 import me.saket.press.shared.sync.git.service.GitHostService.DeployKey
 
 class GitHubService(private val http: HttpClient) : GitHostService {

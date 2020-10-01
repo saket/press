@@ -12,6 +12,7 @@ import com.soywiz.klock.hours
 import com.soywiz.klock.minutes
 import io.ktor.client.HttpClient
 import me.saket.press.shared.localization.Strings
+import me.saket.press.shared.note.NoteFolder
 import me.saket.press.shared.rx.Schedulers
 import me.saket.press.shared.rx.consumeOnNext
 import me.saket.press.shared.rx.mergeWith
