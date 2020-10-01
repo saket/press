@@ -8,7 +8,6 @@ import kotlinx.serialization.json.Json
 import me.saket.press.PressDatabase
 import me.saket.press.data.shared.FolderSyncConfig
 import me.saket.press.data.shared.Note
-import me.saket.press.shared.note.NoteFolder
 import me.saket.press.shared.sync.git.GitRemoteAndAuth
 import org.koin.core.qualifier.named
 import org.koin.dsl.module

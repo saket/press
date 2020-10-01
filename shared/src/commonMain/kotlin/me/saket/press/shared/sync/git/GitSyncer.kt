@@ -4,7 +4,6 @@ import co.touchlab.stately.concurrency.AtomicBoolean
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.combineLatest
 import com.badoo.reaktive.scheduler.ioScheduler
-import com.badoo.reaktive.subject.behavior.BehaviorRelay
 import com.badoo.reaktive.subject.behavior.BehaviorSubject
 import com.soywiz.klock.DateTime
 import kotlinx.coroutines.Runnable
@@ -32,7 +31,6 @@ import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.note.HeadingAndBody
-import me.saket.press.shared.note.NoteFolder
 import me.saket.press.shared.rx.asObservable
 import me.saket.press.shared.rx.mapToOneOrOptional
 import me.saket.press.shared.sync.LastSyncedAt
@@ -650,7 +648,7 @@ private fun List<GitTreeDiff.Change>.filterNoteChanges() = filter { diff ->
 }
 
 @OptIn(ExperimentalStdlibApi::class)
-fun <T> List<T>.zipWithNext(initial: T): List<Pair<T,T>> {
+fun <T> List<T>.zipWithNext(initial: T): List<Pair<T, T>> {
   return (listOf(initial) + this).zipWithNext()
 }
 

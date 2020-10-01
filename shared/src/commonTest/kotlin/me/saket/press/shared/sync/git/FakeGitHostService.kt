@@ -2,7 +2,6 @@ package me.saket.press.shared.sync.git
 
 import com.badoo.reaktive.single.singleFromFunction
 import com.badoo.reaktive.utils.atomic.AtomicReference
-import me.saket.kgit.SshKeyPair
 import me.saket.press.shared.sync.git.service.GitHostService
 import me.saket.press.shared.sync.git.service.GitHostService.DeployKey
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo

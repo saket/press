@@ -9,7 +9,6 @@ import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.switchMap
 import com.badoo.reaktive.subject.publish.PublishSubject
 import com.soywiz.klock.seconds
-import me.saket.press.PressDatabase
 import me.saket.press.shared.rx.Schedulers
 import me.saket.press.shared.rx.observableInterval
 import me.saket.press.shared.rx.takeUntil
