@@ -29,7 +29,6 @@ import com.badoo.reaktive.subject.behavior.BehaviorSubject
 import com.russhwolf.settings.ExperimentalListener
 import io.ktor.client.HttpClient
 import me.saket.kgit.GitIdentity
-import me.saket.kgit.SshKeyPair
 import me.saket.kgit.SshKeygen
 import me.saket.kgit.generateRsa
 import me.saket.press.PressDatabase
@@ -174,8 +173,7 @@ class GitHostIntegrationPresenter(
   ): Completable {
     return completableFromFunction {
       authToken.set(null)
-      database.folderSyncConfigQueries.insert(
-          folder = null,
+      database.folderSyncConfigQueries.save(
           remote = GitRemoteAndAuth(repo, deployKey.key.privateKey, user)
       )
       syncCoordinator.trigger()

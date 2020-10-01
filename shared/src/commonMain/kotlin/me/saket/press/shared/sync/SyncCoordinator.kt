@@ -2,7 +2,6 @@ package me.saket.press.shared.sync
 
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.completableFromFunction
-import com.badoo.reaktive.completable.concat
 import com.badoo.reaktive.completable.onErrorComplete
 import com.badoo.reaktive.completable.subscribe
 import com.badoo.reaktive.observable.flatMapCompletable
@@ -27,8 +26,7 @@ interface SyncCoordinator {
 }
 
 class RealSyncCoordinator(
-  private val database: PressDatabase,
-  private val syncerFactory: Syncer.Factory,
+  private val syncer: Syncer,
   private val schedulers: Schedulers
 ) : SyncCoordinator {
   private val triggers = PublishSubject<Unit>()
@@ -44,14 +42,8 @@ class RealSyncCoordinator(
   }
 
   override fun syncWithResult(): Completable {
-    return database.folderSyncConfigQueries.folders()
-        .executeAsList()
-        .map {
-          val syncer = syncerFactory.create(it.folder)
-          completableFromFunction { syncer.sync() }
-              .takeUntil(syncer.status().ofType<Disabled>())
-              .onErrorComplete()
-        }
-        .concat()
+    return completableFromFunction { syncer.sync() }
+        .takeUntil(syncer.status().ofType<Disabled>())
+        .onErrorComplete()
   }
 }

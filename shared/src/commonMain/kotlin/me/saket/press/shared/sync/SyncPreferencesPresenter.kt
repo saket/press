@@ -35,7 +35,7 @@ import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.util.format
 
 class SyncPreferencesPresenter(
-  syncer: Syncer.Factory,
+  private val syncer: Syncer,
   private val http: HttpClient,
   private val schedulers: Schedulers,
   private val authToken: (GitHost) -> Setting<GitHostAuthToken>,
@@ -43,8 +43,6 @@ class SyncPreferencesPresenter(
   private val strings: Strings,
   private val cachedRepos: GitRepositoryCache
 ) : Presenter<SyncPreferencesEvent, SyncPreferencesUiModel, SyncPreferencesUiEffect>() {
-
-  private val syncer = syncer.create(folder = null)
 
   override fun defaultUiModel(): SyncPreferencesUiModel {
     return SyncDisabled(availableGitHosts = emptyList())

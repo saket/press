@@ -32,7 +32,6 @@ internal fun createPressDatabase(driver: SqlDriver, json: Json): PressDatabase {
           syncStateAdapter = EnumColumnAdapter()
       ),
       folderSyncConfigAdapter = FolderSyncConfig.Adapter(
-          folderAdapter = NoteFolder.SqlAdapter,
           remoteAdapter = GitRemoteAndAuth.SqlAdapter(json),
           lastSyncedAtAdapter = DateTimeAdapter
       )

@@ -71,7 +71,6 @@ class GitSyncerTest : BaseDatabaeTest() {
   private val git = DelegatingGit(delegate = RealGit())
   private val syncer = GitSyncer(
       git = git,
-      folder = null,
       database = database,
       deviceInfo = deviceInfo,
       clock = clock,
@@ -92,7 +91,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     RemoteRepositoryRobot {
       deleteEverything()
     }
-    configQueries.insert(folder = null, remote = remoteAndAuth)
+    configQueries.save(remote = remoteAndAuth)
   }
 
   @AfterTest
@@ -836,7 +835,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     RemoteRepositoryRobot().let { remote2 ->
       assertThat(remote2.fetchNoteFiles()).isEmpty()
 
-      configQueries.insert(folder = null, remote = remoteAndAuth)
+      configQueries.save(remote = remoteAndAuth)
       syncer.sync()
       assertThat(remote2.fetchNoteFiles()).containsOnly("potter.md" to "# Potter\nYou're a wizard Harry")
     }

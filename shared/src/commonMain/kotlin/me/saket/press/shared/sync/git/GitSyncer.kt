@@ -4,6 +4,8 @@ import co.touchlab.stately.concurrency.AtomicBoolean
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.combineLatest
 import com.badoo.reaktive.scheduler.ioScheduler
+import com.badoo.reaktive.subject.behavior.BehaviorRelay
+import com.badoo.reaktive.subject.behavior.BehaviorSubject
 import com.soywiz.klock.DateTime
 import kotlinx.coroutines.Runnable
 import me.saket.kgit.Git
@@ -49,7 +51,6 @@ import me.saket.press.shared.time.Clock
 // TODO: show errors in status UI
 class GitSyncer(
   git: Git,
-  private val folder: NoteFolder?,
   private val database: PressDatabase,
   private val deviceInfo: DeviceInfo,
   private val clock: Clock,
@@ -57,7 +58,7 @@ class GitSyncer(
   private val mergeConflicts: SyncMergeConflicts,
   private val backupBeforeFirstSync: AtomicBoolean = AtomicBoolean(true)
 ) : Syncer() {
-  internal val directory = File(deviceInfo.appStorage, "git_" + (folder?.name ?: ""))
+  internal val directory = File(deviceInfo.appStorage, "git")
   private val noteQueries get() = database.noteQueries
   private val configQueries get() = database.folderSyncConfigQueries
   private val register = FileNameRegister(directory)
@@ -77,19 +78,19 @@ class GitSyncer(
   }
 
   companion object {
-    private val lastOp = ObservableMutableMap<NoteFolder?, Status.LastOp>()
+    private val lastOp = BehaviorSubject(Idle)
   }
 
   override fun status(): Observable<Status> {
-    val config = configQueries.select(folder)
+    val config = configQueries.select()
         .asObservable(ioScheduler)
         .mapToOneOrOptional()
 
-    return combineLatest(config, lastOp.listen()) { (config), ops ->
+    return combineLatest(config, lastOp) { (config), op ->
       when (config) {
         null -> Status.Disabled
         else -> Status.Enabled(
-            lastOp = ops[folder] ?: Idle,
+            lastOp = op,
             lastSyncedAt = config.lastSyncedAt?.let(::LastSyncedAt),
             syncingWith = config.remote.remote
         )
@@ -99,9 +100,9 @@ class GitSyncer(
 
   override fun sync() {
     if (readConfig() == null) return        // Sync is disabled.
-    if (lastOp[folder] == InFlight) return  // Another sync ongoing.
+    if (lastOp.value == InFlight) return  // Another sync ongoing.
 
-    lastOp[folder] = InFlight
+    lastOp.onNext(InFlight)
     loggers.onSyncStart(fromDevice = deviceInfo.deviceName())
     directory.makeDirectory(recursively = true)
 
@@ -115,7 +116,7 @@ class GitSyncer(
         processCommits(pullResult)
         push(pullResult)
       }
-      lastOp[folder] = Idle
+      lastOp.onNext(Idle)
 
     } catch (e: Throwable) {
       when (Git.identify(e)) {
@@ -127,7 +128,7 @@ class GitSyncer(
         }
       }.exhaustive
 
-      lastOp[folder] = Failed
+      lastOp.onNext(Failed)
       loggers.onSyncComplete()
       mergeConflicts.clear()
     }
@@ -141,7 +142,7 @@ class GitSyncer(
 
   override fun disable() {
     log("Disabling sync.")
-    configQueries.delete(folder)
+    configQueries.delete()
     directory.delete(recursively = true)
     noteQueries.swapSyncStates(old = SyncState.values().toList(), new = PENDING)
   }
@@ -591,7 +592,6 @@ class GitSyncer(
         new = SYNCED
     )
     configQueries.update(
-        folder = folder,
         lastSyncedAt = clock.nowUtc(),
         lastPushedSha1 = git.headCommit()!!.sha1.value
     )
@@ -613,7 +613,7 @@ class GitSyncer(
   }
 
   private fun readConfig(): FolderSyncConfig? {
-    return configQueries.select(folder).executeAsOneOrNull()
+    return configQueries.select().executeAsOneOrNull()
   }
 }
 

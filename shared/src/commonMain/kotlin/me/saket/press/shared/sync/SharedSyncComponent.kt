@@ -51,20 +51,17 @@ class SharedSyncComponent {
 
     single { SyncMergeConflicts() }
     factory {
-      Syncer.Factory { folder ->
-        GitSyncer(
-            folder = folder,
-            git = RealGit(),
-            database = get(),
-            deviceInfo = get(),
-            clock = get(),
-            strings = get(),
-            mergeConflicts = get()
-        )
-      }
+      GitSyncer(
+          git = RealGit(),
+          database = get(),
+          deviceInfo = get(),
+          clock = get(),
+          strings = get(),
+          mergeConflicts = get()
+      )
     }
     single<SyncCoordinator> {
-      RealSyncCoordinator(get(), get(), get())
+      RealSyncCoordinator(get(), get())
     }
   }
 
