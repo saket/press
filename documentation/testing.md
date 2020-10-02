@@ -41,4 +41,4 @@ Let’s make this worse. What happens if `Adder#add()` is changed to return a `S
 The test will continue to pass, but the implementation won’t work anymore.  Mocks become worse when we start passing around a “promise” of result instead of the actual result. 
 
 If you’re still unconvinced, Artur Dryomov’s blog post is a good read this subject:
-[Superior Testing: Make Fakes not Mocks](https://arturdryomov.online/posts/superior-testing-make-fakes-not-mocks/)
+[Superior Testing: Make Fakes not Mocks](https://arturdryomov.dev/posts/superior-testing-make-fakes-not-mocks/)
