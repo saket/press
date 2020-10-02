@@ -3,10 +3,6 @@ package press.sync
 import android.content.Context
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
-import android.text.Html
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import android.widget.LinearLayout
-import android.widget.LinearLayout.VERTICAL
 import android.widget.ViewFlipper
 import androidx.browser.customtabs.CustomTabsIntent
 import com.jakewharton.rxbinding3.view.detaches
@@ -14,7 +10,6 @@ import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
-import me.saket.bettermovementmethod.BetterLinkMovementMethod
 import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.sync.SyncPreferencesEvent.DisableSyncClicked
@@ -25,19 +20,11 @@ import me.saket.press.shared.sync.SyncPreferencesUiEffect.OpenUrl
 import me.saket.press.shared.sync.SyncPreferencesUiModel
 import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncDisabled
 import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncEnabled
-import me.saket.press.shared.sync.git.GitHost
-import me.saket.press.shared.theme.TextStyles.smallBody
-import me.saket.press.shared.theme.TextStyles.smallTitle
-import me.saket.press.shared.theme.TextView
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import press.extensions.setDisplayedChild
-import press.extensions.textColor
-import press.extensions.updateMargins
 import press.theme.themeAware
-import press.widgets.PressButton
 import press.widgets.PressToolbar
-import press.widgets.dp
 
 class SyncPreferencesView @AssistedInject constructor(
   @Assisted context: Context,
@@ -64,7 +51,7 @@ class SyncPreferencesView @AssistedInject constructor(
     addView(syncDisabledView)
     addView(syncEnabledView)
     applyLayout(
-        x = matchParentX(marginLeft = 22.dip, marginRight = 22.dip),
+        x = matchParentX(),
         y = topTo { toolbar.bottom() + 8.ydip }.bottomTo { parent.bottom() }
     )
   }
@@ -116,79 +103,5 @@ class SyncPreferencesView @AssistedInject constructor(
   @AssistedInject.Factory
   interface Factory {
     fun create(context: Context, onDismiss: () -> Unit): SyncPreferencesView
-  }
-}
-
-private class SyncDisabledView(context: Context) : ContourLayout(context) {
-  private val messageView = TextView(context, smallBody).apply {
-    text = context.strings().sync.sync_disabled_message
-    themeAware { textColor = it.textColorPrimary }
-    applyLayout(
-        x = matchParentX(),
-        y = topTo { parent.top() }
-    )
-  }
-
-  private val gitHostButtons = LinearLayout(context).apply {
-    orientation = VERTICAL
-    applyLayout(
-        x = matchParentX(),
-        y = topTo { messageView.bottom() + 20.ydip }
-    )
-  }
-
-  init {
-    contourHeightOf { gitHostButtons.bottom() }
-  }
-
-  fun render(model: SyncDisabled, onClick: (GitHost) -> Unit) {
-    gitHostButtons.removeAllViews()
-    model.availableGitHosts.forEach { host ->
-      val button = PressButton(context, smallBody).also {
-        it.text = context.strings().sync.setup_sync_with_host.format(host.displayName())
-        it.themeAware { palette -> it.textColor = palette.textColorPrimary }
-        it.setOnClickListener { onClick(host) }
-      }
-      gitHostButtons.addView(button, WRAP_CONTENT, WRAP_CONTENT)
-      button.updateMargins(bottom = dp(8))
-    }
-  }
-}
-
-private class SyncEnabledView(context: Context) : ContourLayout(context) {
-  private val setupInfoView = TextView(context, smallBody).apply {
-    movementMethod = BetterLinkMovementMethod.getInstance()
-    themeAware { textColor = it.textColorPrimary }
-    applyLayout(
-        x = matchParentX(),
-        y = topTo { parent.top() }
-    )
-  }
-
-  private val statusView = TextView(context, smallBody).apply {
-    themeAware { textColor = it.textColorPrimary }
-    applyLayout(
-        x = matchParentX(),
-        y = topTo { setupInfoView.bottom() + 16.ydip }
-    )
-  }
-
-  val disableButton = PressButton(context, smallBody).apply {
-    themeAware { textColor = it.textColorPrimary }
-    text = context.strings().sync.disable_sync_button
-    applyLayout(
-        x = leftTo { parent.left() },
-        y = topTo { statusView.bottom() + 20.ydip }
-    )
-  }
-
-  init {
-    contourHeightOf { disableButton.bottom() }
-  }
-
-  @Suppress("DEPRECATION")
-  fun render(model: SyncEnabled) {
-    setupInfoView.text = Html.fromHtml(model.setupInfo)
-    statusView.text = model.status
   }
 }

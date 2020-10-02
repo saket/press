@@ -52,15 +52,29 @@ class SyncPreferencesPresenter(
     val models = syncer.status()
         .map { status ->
           when (status) {
-            is Disabled -> SyncDisabled(availableGitHosts = GitHost.values().toList())
+            is Disabled -> SyncDisabled(
+                availableGitHosts = GitHost.values().toList()
+            )
             is Enabled -> {
+              // Idle:
+              //  - has timestamp: "Synced 30m ago"
+              //  - no timestamp:  "Waiting to sync"
+              // Failed:
+              //  - has timestamp: "Synced 30m ago. Last attempt failed, will retry?"
+              //  - no timestamp: "Last attempt failed, will retry?"
+              // InFlight:
+              //    "Syncing..."
+              val lastSynced = status.lastSyncedAt
               val statusText = when (status.lastOp) {
                 InFlight -> strings.sync.status_in_flight
-                Failed -> "${strings.sync.status_failed} ${relativeSyncTimestamp(status.lastSyncedAt)}."
-                Idle -> relativeSyncTimestamp(status.lastSyncedAt)
+                Idle -> lastSynced?.relativeTimestamp() ?: strings.sync.status_idle_never_synced
+                Failed -> (lastSynced?.relativeTimestamp()?.plus(". ") ?: "") + strings.sync.status_failed
               }
-              val setupInfo = strings.sync.sync_enabled_message.format(status.syncingWith.htmlLink)
-              SyncEnabled(setupInfo, statusText)
+              SyncEnabled(
+                  gitHost = status.syncingWith.host,
+                  remoteName = status.syncingWith.ownerAndName,
+                  status = statusText
+              )
             }
           }
         }.distinctUntilChanged()
@@ -70,21 +84,16 @@ class SyncPreferencesPresenter(
         .wrap()
   }
 
-  private fun relativeSyncTimestamp(lastSyncedAt: LastSyncedAt?): String {
-    return if (lastSyncedAt == null) {
-      strings.sync.status_last_synced_never
-
-    } else {
-      val timePassed = clock.nowUtc() - lastSyncedAt.value
-      strings.sync.status_last_synced_x_ago.format(
-          when {
-            timePassed < 1.minutes -> strings.sync.timestamp_now
-            timePassed < 1.hours -> strings.sync.timestamp_minutes.format(timePassed.minutes)
-            timePassed < 1.days -> strings.sync.timestamp_hours.format(timePassed.hours)
-            else -> strings.sync.timestamp_a_while_ago
-          }
-      )
-    }
+  private fun LastSyncedAt.relativeTimestamp(): String {
+    val timePassed = clock.nowUtc() - value
+    return strings.sync.status_synced_x_ago.format(
+        when {
+          timePassed < 1.minutes -> strings.sync.timestamp_now
+          timePassed < 1.hours -> strings.sync.timestamp_minutes.format(timePassed.minutes.toInt())
+          timePassed < 1.days -> strings.sync.timestamp_hours.format(timePassed.hours.toInt())
+          else -> strings.sync.timestamp_a_while_ago
+        }
+    )
   }
 
   private fun handleDisableSyncClicks(): Observable<SyncPreferencesUiModel> {

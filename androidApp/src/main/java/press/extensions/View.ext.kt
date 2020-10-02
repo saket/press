@@ -2,7 +2,12 @@
 
 package press.extensions
 
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.Rect
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.PaintDrawable
+import android.graphics.drawable.RippleDrawable
 import android.os.Build.VERSION.SDK_INT
 import android.text.Editable
 import android.util.TypedValue.COMPLEX_UNIT_PX
@@ -18,6 +23,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
+import me.saket.press.shared.theme.ThemePalette
 import me.saket.wysiwyg.widgets.SimpleTextWatcher
 import press.widgets.Attr
 import kotlin.DeprecationLevel.ERROR
@@ -108,4 +114,10 @@ fun ViewFlipper.setDisplayedChild(child: View) {
   if (displayedChild != childIndex) {     // otherwise ViewFlipper plays animation even if the same child is set.
     displayedChild = childIndex
   }
+}
+
+fun createRippleDrawable(palette: ThemePalette, borderless: Boolean = false): Drawable {
+  val shape = if (borderless) null else PaintDrawable(Color.TRANSPARENT)
+  val mask = if (borderless) null else PaintDrawable(Color.BLACK)
+  return RippleDrawable(ColorStateList.valueOf(palette.buttonPressed), shape, mask)
 }
