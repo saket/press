@@ -13,7 +13,8 @@ sealed class SyncPreferencesUiModel {
   ) : SyncPreferencesUiModel()
 
   data class SyncEnabled(
-    val setupInfo: String,
+    val gitHost: GitHost,
+    val remoteName: String,
     val status: String
   ) : SyncPreferencesUiModel()
 }

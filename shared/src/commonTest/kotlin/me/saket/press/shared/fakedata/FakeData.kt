@@ -5,6 +5,7 @@ import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.sync.SyncState
 import me.saket.press.shared.sync.SyncState.PENDING
+import me.saket.press.shared.sync.git.GitHost.GITHUB
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 import me.saket.press.shared.time.Clock
 import me.saket.press.shared.time.FakeClock
@@ -35,6 +36,7 @@ fun fakeNote(
 
 fun fakeRepository(): GitRepositoryInfo {
   return GitRepositoryInfo(
+      host = GITHUB,
       name = "nationaltreasure",
       owner = "cage",
       url = "https://github.com/cage/nationaltreasure",

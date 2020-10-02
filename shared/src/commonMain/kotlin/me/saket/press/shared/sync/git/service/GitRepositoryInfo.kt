@@ -1,6 +1,7 @@
 package me.saket.press.shared.sync.git.service
 
 import kotlinx.serialization.Serializable
+import me.saket.press.shared.sync.git.GitHost
 
 /**
  * @param url URL to use for opening the repository in a web browser.
@@ -8,6 +9,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class GitRepositoryInfo(
+  val host: GitHost,
   val name: String,
   val owner: String,
   val url: String,
