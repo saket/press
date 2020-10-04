@@ -20,6 +20,6 @@ internal actual class RealGitRepository actual constructor(
   override fun currentBranch(): GitBranch = TODO()
 }
 
-actual fun Git.Companion.identify(e: Throwable): GitError {
+actual fun Git.Companion.tryRecovering(e: Throwable): GitErrorRecoveryResult {
   TODO()
 }

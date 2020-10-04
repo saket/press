@@ -10,9 +10,10 @@ import kotlinx.coroutines.Runnable
 import me.saket.kgit.Git
 import me.saket.kgit.GitCommit
 import me.saket.kgit.GitConfig
-import me.saket.kgit.GitError.AuthFailed
-import me.saket.kgit.GitError.NetworkError
-import me.saket.kgit.GitError.Unknown
+import me.saket.kgit.GitErrorRecoveryResult.AuthFailed
+import me.saket.kgit.GitErrorRecoveryResult.NetworkError
+import me.saket.kgit.GitErrorRecoveryResult.Recovered
+import me.saket.kgit.GitErrorRecoveryResult.UnknownError
 import me.saket.kgit.GitPullResult
 import me.saket.kgit.GitRepository
 import me.saket.kgit.GitTreeDiff
@@ -24,7 +25,7 @@ import me.saket.kgit.GitTreeDiff.Change.Rename
 import me.saket.kgit.PushResult.Failure
 import me.saket.kgit.UtcTimestamp
 import me.saket.kgit.abbreviated
-import me.saket.kgit.identify
+import me.saket.kgit.tryRecovering
 import me.saket.press.PressDatabase
 import me.saket.press.data.shared.FolderSyncConfig
 import me.saket.press.data.shared.Note
@@ -97,7 +98,7 @@ class GitSyncer(
   }
 
   override fun sync() {
-    if (readConfig() == null) return        // Sync is disabled.
+    if (readConfig() == null) return      // Sync is disabled.
     if (lastOp.value == InFlight) return  // Another sync ongoing.
 
     lastOp.onNext(InFlight)
@@ -117,9 +118,10 @@ class GitSyncer(
       lastOp.onNext(Idle)
 
     } catch (e: Throwable) {
-      when (Git.identify(e)) {
+      when (Git.tryRecovering(e)) {
+        Recovered -> log("Failed with a known error. Will retry later.")
         NetworkError -> log("Network error. Will retry later.")
-        Unknown -> log("Unknown error. Will retry later. ${e.stackTraceToString()}")
+        UnknownError -> log("Unknown error. Will retry later. ${e.stackTraceToString()}")
         AuthFailed -> {
           log("Auth failed. Deploy key was likely revoked. Disabling sync. ${e.stackTraceToString()}")
           disable()

@@ -2,6 +2,10 @@ package me.saket.kgit
 
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.Session
+import me.saket.kgit.GitErrorRecoveryResult.AuthFailed
+import me.saket.kgit.GitErrorRecoveryResult.NetworkError
+import me.saket.kgit.GitErrorRecoveryResult.Recovered
+import me.saket.kgit.GitErrorRecoveryResult.UnknownError
 import me.saket.kgit.GitTreeDiff.Change.Add
 import me.saket.kgit.GitTreeDiff.Change.Copy
 import me.saket.kgit.GitTreeDiff.Change.Delete
@@ -18,6 +22,7 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType.COPY
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.DELETE
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.MODIFY
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.RENAME
+import org.eclipse.jgit.errors.LockFailedException
 import org.eclipse.jgit.lib.BranchConfig.BranchRebaseMode.REBASE
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.RepositoryState.SAFE
@@ -176,8 +181,6 @@ internal actual class RealGitRepository actual constructor(
 
   override fun hardResetTo(sha1: String, resetState: Boolean, deleteUntrackedFiles: Boolean) {
     if (resetState) {
-      JavaFile("${jgit.repository.indexFile.path}.lock").delete()
-
       fun state() = jgit.repository.repositoryState
       if (state().isRebasing) jgit.rebase().setOperation(ABORT).call()
       check(state() == SAFE) { "Couldn't recover from: ${state()}" }
@@ -329,17 +332,22 @@ private fun RebaseResult.toStringFix(): String {
       "uncommitted: $uncommittedChanges, currentCommit: ${GitCommit(currentCommit)}"
 }
 
-actual fun Git.Companion.identify(e: Throwable): GitError {
+actual fun Git.Companion.tryRecovering(e: Throwable): GitErrorRecoveryResult {
+  if (e is LockFailedException) {
+    e.file.delete()
+    return Recovered
+  }
+
   if (e is org.eclipse.jgit.api.errors.TransportException) {
     if (e.message?.contains("unknown host", ignoreCase = true) == true) {
-      return GitError.NetworkError
+      return NetworkError
     }
     if (e.cause is IOException) {
-      return GitError.NetworkError
+      return NetworkError
     }
     if (e.message?.contains("Auth fail", ignoreCase = true) == true) {
-      return GitError.AuthFailed
+      return AuthFailed
     }
   }
-  return GitError.Unknown
+  return UnknownError
 }
