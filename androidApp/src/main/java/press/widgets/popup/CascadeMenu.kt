@@ -7,7 +7,10 @@ import android.graphics.Color.WHITE
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.PaintDrawable
+import android.os.Build.VERSION.SDK_INT
 import android.view.Gravity
+import android.view.Gravity.CENTER_VERTICAL
+import android.view.Gravity.START
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MenuItem.OnMenuItemClickListener
@@ -20,18 +23,25 @@ import android.widget.LinearLayout
 import android.widget.LinearLayout.VERTICAL
 import android.widget.TextView
 import androidx.appcompat.view.menu.MenuBuilder
-import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.iterator
-import androidx.core.view.setPadding
-import androidx.core.view.updatePadding
+import androidx.core.view.updatePaddingRelative
+import me.saket.press.R
+import press.extensions.getDrawable
 
-// TODO
-//  - window margins.
+/**
+ * TODO
+ *  - window margins.
+ *  - use theme colors
+ *    - menu background
+ *    - item ripple color
+ *    - item icon
+ *    - submenu indicator triangle
+ * */
 @SuppressLint("RestrictedApi")
-class CascadeMenu(
+open class CascadeMenu(
   private val context: Context,
-  fixedWidthInDp: Int = 200,
-  private val gravity: Int = Gravity.START or Gravity.CENTER_VERTICAL
+  private val styler: Styler,
+  fixedWidthInDp: Int = 200
 ) : CascadePopupWindow(context) {
   val menu: Menu = MenuBuilder(context)
   var onMenuItemClickListener: OnMenuItemClickListener? = null
@@ -43,72 +53,94 @@ class CascadeMenu(
     val menuItem: (TextView, MenuItem) -> Unit = { _, _ -> }
   )
 
-  fun show(anchor: View, styler: Styler) {
+  override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int, gravity: Int) {
+    prepareMenuContent()
+    super.showAsDropDown(anchor, xoff, yoff, gravity)
+  }
+
+  override fun showAtLocation(parent: View?, gravity: Int, x: Int, y: Int) {
+    prepareMenuContent()
+    super.showAtLocation(parent, gravity, x, y)
+  }
+
+  private fun prepareMenuContent() {
     contentView = HeightAnimatableViewFlipper(context).apply {
       background = styler.background(PaintDrawable(WHITE).apply { setCornerRadius(2f.dip) })
       clipToOutline = true
-
-      val onClick = { item: MenuItem ->
-        if (item.subMenu != null) {
-          showView(createMenuView(item.subMenu, styler, onClick = {
-            check(it.subMenu == null) { "todo: support nested menus" }
-            onMenuItemClickListener?.onMenuItemClick(it)
-            dismiss()
-          }))
-
-        } else {
-          onMenuItemClickListener?.onMenuItemClick(item)
-          dismiss()
-        }
-      }
-      showView(createMenuView(menu, styler, onClick))
     }
-
-    if (false) {
-      PopupMenu(context, anchor).also {
-        it.menu.add("Open")
-        it.menu.addSubMenu("Remove").also { sub ->
-          sub.add("Confirm remove")
-          sub.add("Wait no")
-        }
-        it.menu.add("Logs")
-        it.show()
-      }
-    } else {
-      showAsDropDown(anchor, 0, 0, gravity)
-    }
+    showMenu(menu)
   }
 
-  private fun createMenuView(
-    menu: Menu,
-    styler: Styler,
-    onClick: (MenuItem) -> Unit
-  ): View {
+  private fun Menu.createLayout(): View {
     return LinearLayout(context).apply {
       orientation = VERTICAL
       layoutParams = LayoutParams(fixedWidth, WRAP_CONTENT)
 
-      if (menu is SubMenu) {
+      if (this@createLayout is SubMenu) {
         addView(TextView(context).also {
           it.textSize = 14f
-          it.text = menu.item.title
+          it.text = item.title
           it.typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
-          it.updatePadding(left = 16.dip, right = 16.dip, top = 16.dip, bottom = 8.dip)
-          styler.menuTitle(it, menu.item)
+          it.updatePaddingRelative(start = 16.dip, end = 16.dip, top = 16.dip, bottom = 8.dip)
+          styler.menuTitle(it, item)
         })
       }
 
-      for (item in menu) {
+      for (item in this@createLayout) {
         addView(TextView(context).also {
           it.textSize = 16f
           it.text = item.title
           it.background = createRippleDrawable(Color.GRAY)
-          it.setPadding(16.dip)
+          it.gravity = START or CENTER_VERTICAL
+          it.compoundDrawablePadding = 14.dip
+
+          val icon = item.tintedIcon()
+          val subMenuIndicator = if (item.subMenu != null) createIndicatorIcon() else null
+          it.setCompoundDrawables(start = icon, end = subMenuIndicator)
+          it.updatePaddingRelative(
+              start = if (item.icon != null) it.compoundDrawablePadding else 16.dip,
+              end = if (subMenuIndicator != null) 4.dip else 16.dip,
+              top = 16.dip,
+              bottom = 16.dip
+          )
           styler.menuItem(it, item)
-          it.setOnClickListener { onClick(item) }
+          it.setOnClickListener { handleOnClick(item) }
         }, MATCH_PARENT, WRAP_CONTENT)
       }
     }
   }
+
+  private fun MenuItem.tintedIcon(): Drawable? {
+    val icon = icon ?: return null
+    icon.mutate()
+    icon.setTintList(iconTintList)
+
+    if (SDK_INT >= 29) {
+      icon.setTintBlendMode(iconTintBlendMode)
+    } else {
+      icon.setTintMode(iconTintMode)
+    }
+    return icon
+  }
+
+  private fun createIndicatorIcon(): Drawable {
+    return context.getDrawable(R.drawable.ic_round_arrow_right_8, Color.GRAY)
+  }
+
+  protected fun handleOnClick(item: MenuItem) {
+    if (item.subMenu != null) {
+      showMenu(item.subMenu)
+    } else {
+      onMenuItemClickListener?.onMenuItemClick(item)
+      dismiss()
+    }
+  }
+
+  private fun showMenu(menu: Menu) {
+    (contentView as HeightAnimatableViewFlipper).addView(menu.createLayout())
+  }
 }
 
+private fun TextView.setCompoundDrawables(start: Drawable?, end: Drawable?) {
+  setCompoundDrawablesRelativeWithIntrinsicBounds(start, null, end, null)
+}

@@ -9,9 +9,11 @@ import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup.LayoutParams
 import android.view.ViewOutlineProvider
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AnimationUtils
-import android.widget.FrameLayout
+import android.view.animation.DecelerateInterpolator
 import android.widget.ViewFlipper
 import androidx.core.animation.doOnEnd
 import androidx.core.graphics.withClip
@@ -21,23 +23,25 @@ import me.saket.press.R
 
 @Suppress("NAME_SHADOWING")
 internal class HeightAnimatableViewFlipper(context: Context) : BaseHeightClippableFlipper(context) {
-  fun showView(view: View) {
+
+  override fun addView(child: View, index: Int, params: android.view.ViewGroup.LayoutParams) {
     if (childCount == 0) {
-      super.addView(view)
+      super.addView(child, index, params)
       return
     }
 
+    // Queue children so that they show up one-by-one.
     waitForOngoingAnimation {
-      super.addView(view)
+      super.addView(child, index, params)
 
       setupFlipAnimation(goingForward = true)
       val prevView = getChildAt(displayedChild)
-      displayedChild = indexOfChild(view)
+      displayedChild = indexOfChild(child)
 
       doOnLayout {
         animateHeight(
             from = prevView.height,
-            to = view.height,
+            to = child.height,
             onEnd = {
               // ViewFlipper plays animation if the view
               // count goes down, which isn't wanted here.
@@ -64,7 +68,7 @@ internal class HeightAnimatableViewFlipper(context: Context) : BaseHeightClippab
     val inflate = { animRes: Int ->
       AnimationUtils.loadAnimation(context, animRes).also {
         it.duration = animationDuration
-        it.interpolator = FastOutSlowInInterpolator()
+        it.interpolator = animationInterpolator
       }
     }
 
@@ -111,7 +115,8 @@ private class MatrixReader {
 
 @Suppress("LeakingThis")
 abstract class BaseHeightClippableFlipper(context: Context) : ViewFlipper(context) {
-  protected val animationDuration = 350L
+  protected var animationDuration = 350L
+  protected var animationInterpolator = FastOutSlowInInterpolator()
 
   // Because ViewGroup#getClipBounds creates a new Rect everytime.
   private var clippedDimens: Rect? = null
