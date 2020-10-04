@@ -17,7 +17,7 @@ import androidx.core.view.doOnLayout
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import me.saket.press.R
 
-internal class HeightAnimatableViewFlipper(context: Context) : BaseExpandableFlipper(context) {
+internal class HeightAnimatableViewFlipper(context: Context) : BaseHeightClippableFlipper(context) {
   fun showView(view: View) {
     if (childCount == 0) {
       super.addView(view)
@@ -36,6 +36,8 @@ internal class HeightAnimatableViewFlipper(context: Context) : BaseExpandableFli
             from = prevView.height,
             to = view.height,
             onEnd = {
+              // ViewFlipper plays animation if the view
+              // count goes down, which isn't wanted here.
               inAnimation = null
               outAnimation = null
               removeView(prevView)
@@ -98,10 +100,9 @@ private class MatrixReader {
   }
 }
 
-/** Copied from [https://github.com/saket/InboxRecyclerView]. */
 @Suppress("LeakingThis")
-abstract class BaseExpandableFlipper(context: Context) : ViewFlipper(context) {
-  protected val animationDuration = 1000L
+abstract class BaseHeightClippableFlipper(context: Context) : ViewFlipper(context) {
+  protected val animationDuration = 350L
 
   // Because ViewGroup#getClipBounds creates a new Rect everytime.
   private var clippedDimens: Rect? = null
@@ -136,20 +137,22 @@ abstract class BaseExpandableFlipper(context: Context) : ViewFlipper(context) {
 
   @Suppress("DEPRECATION")
   override fun setBackgroundDrawable(background: Drawable?) {
-    super.setBackgroundDrawable(background?.let(::DrawSkippableDrawable))
+    super.setBackgroundDrawable(background?.let(::DrawSuppressibleDrawable))
   }
 
-  internal fun background() = background as? DrawSkippableDrawable
+  internal fun background() = background as? DrawSuppressibleDrawable
 
   override fun draw(canvas: Canvas) {
+    // Draw the background manually with clipped bounds, because
+    // super.draw() will always reset it to View's bounds.
     background()?.let {
-      it.skip = false
       it.setBounds(left, top, right, clippedDimens?.height() ?: bottom)
       it.draw(canvas)
     }
 
-    background()?.skip = true
-    super.draw(canvas)
+    background().withDrawSuppressed {
+      super.draw(canvas)
+    }
   }
 
   private fun setClippedHeight(newHeight: Int) {
