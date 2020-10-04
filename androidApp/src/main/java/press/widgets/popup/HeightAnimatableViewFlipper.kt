@@ -7,9 +7,11 @@ import android.graphics.Canvas
 import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewOutlineProvider
 import android.view.animation.AnimationUtils
+import android.widget.FrameLayout
 import android.widget.ViewFlipper
 import androidx.core.animation.doOnEnd
 import androidx.core.graphics.withClip
@@ -17,6 +19,7 @@ import androidx.core.view.doOnLayout
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import me.saket.press.R
 
+@Suppress("NAME_SHADOWING")
 internal class HeightAnimatableViewFlipper(context: Context) : BaseHeightClippableFlipper(context) {
   fun showView(view: View) {
     if (childCount == 0) {
@@ -89,6 +92,12 @@ internal class HeightAnimatableViewFlipper(context: Context) : BaseHeightClippab
     }
     error("unreachable")
   }
+
+  override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+    // Outgoing Views don't receive touch events.
+    val displayed: View? = getChildAt(displayedChild)
+    return displayed?.dispatchTouchEvent(ev) ?: super.dispatchTouchEvent(ev)
+  }
 }
 
 private class MatrixReader {
@@ -140,17 +149,15 @@ abstract class BaseHeightClippableFlipper(context: Context) : ViewFlipper(contex
     super.setBackgroundDrawable(background?.let(::DrawSuppressibleDrawable))
   }
 
-  internal fun background() = background as? DrawSuppressibleDrawable
-
   override fun draw(canvas: Canvas) {
     // Draw the background manually with clipped bounds, because
     // super.draw() will always reset it to View's bounds.
-    background()?.let {
+    background?.let {
       it.setBounds(left, top, right, clippedDimens?.height() ?: bottom)
       it.draw(canvas)
     }
 
-    background().withDrawSuppressed {
+    (background as DrawSuppressibleDrawable?).withDrawSuppressed {
       super.draw(canvas)
     }
   }

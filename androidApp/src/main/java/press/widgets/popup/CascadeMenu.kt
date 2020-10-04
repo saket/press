@@ -45,7 +45,7 @@ class CascadeMenu(
 
   fun show(anchor: View, styler: Styler) {
     contentView = HeightAnimatableViewFlipper(context).apply {
-      background = styler.background(PaintDrawable(WHITE).apply { setCornerRadius(20f.dip) })
+      background = styler.background(PaintDrawable(WHITE).apply { setCornerRadius(2f.dip) })
       clipToOutline = true
 
       val onClick = { item: MenuItem ->
