@@ -68,7 +68,7 @@ class CascadeMenu(
 
   fun show(anchor: View, styler: Styler) {
     contentView = HeightAnimatableViewFlipper(context).apply {
-      background = styler.background(PaintDrawable(WHITE).apply { setCornerRadius(20f.dip) })
+      background = createBackground(styler)
       clipToOutline = true
 
       val onClick = { item: MenuItem ->
@@ -112,6 +112,10 @@ class CascadeMenu(
       layoutParams = LayoutParams(fixedWidth, WRAP_CONTENT)
 
       if (menu is SubMenu) {
+        // Apart from the parent container, each sub-menu must have also
+        // have a background to avoid leaking the outgoing menu behind.
+        background = createBackground(styler)
+
         addView(TextView(context).also {
           it.textSize = 14f
           it.text = menu.item.title
@@ -132,6 +136,10 @@ class CascadeMenu(
         }, MATCH_PARENT, WRAP_CONTENT)
       }
     }
+  }
+
+  private fun createBackground(styler: Styler): Drawable {
+    return styler.background(PaintDrawable(WHITE).apply { setCornerRadius(20f.dip) })
   }
 
   // Copies android's @transition/popup_window_enter

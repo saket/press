@@ -8,7 +8,7 @@ import android.graphics.drawable.DrawableWrapper
 import android.graphics.drawable.ScaleDrawable
 import android.view.Gravity
 
-internal class DrawSkippableDrawable(delegate: Drawable) : DrawableWrapperCompat(delegate) {
+internal class DrawSkippableDrawable(val delegate: Drawable) : DrawableWrapperCompat(delegate) {
   var skip = false
 
   override fun draw(canvas: Canvas) {
