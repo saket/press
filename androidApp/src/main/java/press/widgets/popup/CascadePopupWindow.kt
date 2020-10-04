@@ -1,17 +1,19 @@
 package press.widgets.popup
 
+import android.R.attr.listChoiceBackgroundIndicator
+import android.R.attr.popupBackground
+import android.R.attr.popupElevation
+import android.R.attr.popupEnterTransition
+import android.R.attr.popupExitTransition
 import android.content.Context
-import android.content.res.ColorStateList
-import android.graphics.Color
-import android.graphics.drawable.Drawable
-import android.graphics.drawable.PaintDrawable
-import android.graphics.drawable.RippleDrawable
-import android.transition.Fade
-import android.transition.Transition
-import android.transition.TransitionSet
+import android.transition.TransitionInflater
 import android.util.TypedValue
+import android.util.TypedValue.COMPLEX_UNIT_DIP
 import android.widget.PopupMenu
 import android.widget.PopupWindow
+import androidx.core.content.res.getDimensionOrThrow
+import androidx.core.content.res.getDrawableOrThrow
+import androidx.core.content.res.getResourceIdOrThrow
 import androidx.core.widget.PopupWindowCompat
 
 /**
@@ -25,47 +27,53 @@ abstract class CascadePopupWindow(
   private val context: Context
 ) : PopupWindow(context, null) {
 
+  protected val Int.dip: Int
+    get() {
+      val metrics = context.resources.displayMetrics
+      return TypedValue.applyDimension(COMPLEX_UNIT_DIP, this.toFloat(), metrics).toInt()
+    }
+
+  protected val themeAttrs = ThemeAttributes(context)
+
   init {
-    elevation = 16f.dip   // @dimen/floating_window_z
     isFocusable = true    // Dismiss on outside touch.
     isOutsideTouchable = true
+    elevation = themeAttrs.popupElevation()
 
     setBackgroundDrawable(null)   // Remove PopupWindow's default frame around the content.
     PopupWindowCompat.setOverlapAnchor(this, true)
 
-    enterTransition = createEnterTransition()
-    exitTransition = createExitTransition()
+    enterTransition = themeAttrs.popupEnterTransition()
+    exitTransition = themeAttrs.popupExitTransition()
   }
 
-  // Copies android's @transition/popup_window_enter
-  private fun createEnterTransition(): Transition {
-    return TransitionSet().apply {
-      ordering = TransitionSet.ORDERING_TOGETHER
-      addTransition(EpicenterTranslateClipReveal().also { it.duration = 250 })
-      addTransition(Fade().also { it.duration = 100; })
-    }
-  }
+  class ThemeAttributes(private val context: Context) {
+    private val attrs = intArrayOf(
+        popupBackground,
+        popupElevation,
+        popupEnterTransition,
+        popupExitTransition,
+        listChoiceBackgroundIndicator
+    )
+    private val styledAttrs = context.obtainStyledAttributes(android.R.style.Widget_Material_PopupMenu, attrs)
 
-  // Copies android's @transition/popup_window_exit
-  private fun createExitTransition(): Transition {
-    return Fade().also { it.duration = 300 }
-  }
+    fun popupBackground() =
+      styledAttrs.getDrawableOrThrow(attrs.indexOf(popupBackground))
 
-  protected val Float.dip: Float
-    get() {
-      val metrics = context.resources.displayMetrics
-      return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this, metrics)
-    }
+    fun popupElevation() =
+      styledAttrs.getDimensionOrThrow(attrs.indexOf(popupElevation))
 
-  protected val Int.dip: Int
-    get() {
-      val metrics = context.resources.displayMetrics
-      return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), metrics).toInt()
-    }
+    fun touchFeedback() =
+      styledAttrs.getDrawableOrThrow(attrs.indexOf(listChoiceBackgroundIndicator))
 
-  protected fun createRippleDrawable(color: Int): Drawable {
-    val shape = PaintDrawable(Color.TRANSPARENT)
-    val mask = PaintDrawable(Color.BLACK)
-    return RippleDrawable(ColorStateList.valueOf(color), shape, mask)
+    fun popupEnterTransition() =
+      with(TransitionInflater.from(context)) {
+        inflateTransition(styledAttrs.getResourceIdOrThrow(attrs.indexOf(popupEnterTransition)))
+      }
+
+    fun popupExitTransition() =
+      with(TransitionInflater.from(context)) {
+        inflateTransition(styledAttrs.getResourceIdOrThrow(attrs.indexOf(popupExitTransition)))
+      }
   }
 }
