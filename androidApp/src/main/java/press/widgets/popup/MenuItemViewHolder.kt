@@ -1,10 +1,6 @@
 package press.widgets.popup
 
-import android.content.Context
-import android.util.TypedValue
-import android.util.TypedValue.COMPLEX_UNIT_DIP
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
@@ -15,6 +11,7 @@ import androidx.appcompat.view.menu.ListMenuItemView
 import androidx.appcompat.view.menu.MenuItemImpl
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePaddingRelative
+import androidx.recyclerview.widget.RecyclerView
 import me.saket.press.R
 import kotlin.LazyThreadSafetyMode.NONE
 
@@ -22,33 +19,25 @@ import kotlin.LazyThreadSafetyMode.NONE
  * Layout for a menu item.
  */
 class MenuItemViewHolder(
-  private val parent: ViewGroup,
-  private val item: MenuItem,
+  private val view: ListMenuItemView,
   private val hasSubMenuSiblings: Boolean
-) {
-  private val context: Context get() = parent.context
-  val layout: ListMenuItemView = LayoutInflater
-      .from(context)
-      .inflate(R.layout.abc_popup_menu_item_layout, parent, false) as ListMenuItemView
-
-  val titleView: TextView = layout.findViewById(R.id.title)
+) : RecyclerView.ViewHolder(view) {
+  val titleView: TextView = view.findViewById(R.id.title)
   val titleContainerView: ViewGroup = titleView.parent as ViewGroup
 
-  val contentView: View = layout.findViewById(R.id.content)
-  val iconView: ImageView by lazy(NONE) { layout.findViewById(R.id.icon) }
-  val subMenuArrowView: ImageView = layout.findViewById(R.id.submenuarrow)
+  val contentView: View = view.findViewById(R.id.content)
+  val iconView: ImageView by lazy(NONE) { view.findViewById(R.id.icon) }
+  val subMenuArrowView: ImageView = view.findViewById(R.id.submenuarrow)
+
+  lateinit var item: MenuItemImpl
 
   private val Int.dip: Int
-    get() {
-      val metrics = context.resources.displayMetrics
-      return TypedValue.applyDimension(COMPLEX_UNIT_DIP, this.toFloat(), metrics).toInt()
-    }
+    get() = view.context.dip(this)
 
-  init {
-    check(item is MenuItemImpl)
-    layout.setForceShowIcon(true)
-    layout.initialize(item, 0)
-    layout.setGroupDividerEnabled(false)
+  fun render() {
+    view.setForceShowIcon(true)
+    view.initialize(item, 0)
+    view.setGroupDividerEnabled(false)
 
     titleView.textSize = 16f
 
@@ -69,14 +58,17 @@ class MenuItemViewHolder(
   }
 
   fun setContentSpacing(@Px start: Int, @Px end: Int, @Px iconSpacing: Int) {
-    if (item.icon != null) {
-      iconView.updateMargin(start = start)
-      titleContainerView.updateMargin(start = iconSpacing)
-      contentView.updatePaddingRelative(end = end)
+    val hasIcon = item.icon != null
+    iconView.updateMargin(start = if (hasIcon) start else 0)
+    titleContainerView.updateMargin(start = if (hasIcon) iconSpacing else start)
+    contentView.updatePaddingRelative(end = end)
+  }
 
-    } else {
-      titleContainerView.updateMargin(start = start)
-      contentView.updatePaddingRelative(end = end)
+  companion object {
+    fun inflate(parent: ViewGroup, hasSubMenuSiblings: Boolean): MenuItemViewHolder {
+      val inflater = LayoutInflater.from(parent.context).cloneInContext(parent.context)
+      val view = inflater.inflate(R.layout.abc_popup_menu_item_layout, parent, false)
+      return MenuItemViewHolder(view as ListMenuItemView, hasSubMenuSiblings)
     }
   }
 }

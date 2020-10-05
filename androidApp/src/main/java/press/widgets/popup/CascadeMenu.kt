@@ -3,24 +3,18 @@ package press.widgets.popup
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MenuItem.OnMenuItemClickListener
-import android.view.SubMenu
 import android.view.View
+import android.view.View.SCROLLBARS_INSIDE_OVERLAY
 import android.view.ViewGroup.LayoutParams
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import android.widget.LinearLayout
-import android.widget.LinearLayout.VERTICAL
-import android.widget.TextView
-import androidx.annotation.Px
-import androidx.annotation.StyleRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.view.menu.MenuBuilder
-import androidx.core.view.iterator
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 @SuppressLint("RestrictedApi")
 open class CascadeMenu @JvmOverloads constructor(
@@ -35,8 +29,9 @@ open class CascadeMenu @JvmOverloads constructor(
 
   class Styler(
     val background: (Drawable) -> Drawable = { it },
-    val menuTitle: (TextView, MenuItem) -> Unit = { _, _ -> },
-    val menuItem: (TextView, MenuItem) -> Unit = { _, _ -> }
+    val menuList: (RecyclerView) -> Unit = {},
+    val menuTitle: (MenuHeaderViewHolder) -> Unit = {},
+    val menuItem: (MenuItemViewHolder) -> Unit = {}
   )
 
   override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int, gravity: Int) {
@@ -58,33 +53,16 @@ open class CascadeMenu @JvmOverloads constructor(
   }
 
   private fun showMenu(menu: Menu) {
-    (contentView as HeightAnimatableViewFlipper).addView(createLayout(menu))
-  }
-
-  private fun createLayout(menu: Menu): View {
-    return LinearLayout(context).apply {
-      orientation = VERTICAL
-      layoutParams = LayoutParams(fixedWidth, WRAP_CONTENT)
-
-      if (menu is SubMenu) {
-        val headerView = MenuHeaderViewHolder(parent = this, menu)
-        styler.menuTitle(headerView.textView, menu.item)
-        addView(headerView.layout)
-      }
-
-      val hasSubMenu = menu.items.any { it.hasSubMenu() }
-      for (item in menu) {
-        val view = MenuItemViewHolder(
-            item = item,
-            parent = this,
-            hasSubMenuSiblings = hasSubMenu
-        )
-        view.layout.setBackgroundResource(themeAttrs.touchFeedbackRes)
-        styler.menuItem(view.titleView, item)
-        view.layout.setOnClickListener { handleOnClick(item) }
-        addView(view.layout, MATCH_PARENT, WRAP_CONTENT)
-      }
+    val menuList = RecyclerView(context).apply {
+      isVerticalScrollBarEnabled = true
+      scrollBarStyle = SCROLLBARS_INSIDE_OVERLAY
+      layoutManager = LinearLayoutManager(context)
+      adapter = CascadeMenuAdapter(menu, styler, themeAttrs, onClick = { handleOnClick(it) })
+      styler.menuList(this)
     }
+
+    val flipper = contentView as HeightAnimatableViewFlipper
+    flipper.addView(menuList, LayoutParams(fixedWidth, WRAP_CONTENT))
   }
 
   protected fun handleOnClick(item: MenuItem) {
@@ -97,13 +75,7 @@ open class CascadeMenu @JvmOverloads constructor(
   }
 }
 
-@OptIn(ExperimentalStdlibApi::class)
-private val Menu.items: List<MenuItem>
-  get() {
-    return this.iterator().asSequence().toList()
-  }
-
-private fun Context.dip(dp: Int): Int {
+internal fun Context.dip(dp: Int): Int {
   val metrics = resources.displayMetrics
   return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp.toFloat(), metrics).toInt()
 }
