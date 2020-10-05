@@ -14,6 +14,7 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.LinearLayout
 import android.widget.LinearLayout.VERTICAL
 import android.widget.TextView
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.view.iterator
 
@@ -54,7 +55,7 @@ open class CascadeMenu(
 
   private fun prepareMenuContent() {
     contentView = HeightAnimatableViewFlipper(context).apply {
-      background = styler.background(themeAttrs.popupBackground())
+      background = styler.background(AppCompatResources.getDrawable(context, themeAttrs.popupBackgroundRes)!!)
       clipToOutline = true
     }
     showMenu(menu)
@@ -79,7 +80,7 @@ open class CascadeMenu(
       for (item in menu) {
         val itemView = MenuItemViewHolder(context, parent = this).also {
           it.render(item)
-          it.layout.background = themeAttrs.touchFeedback()
+          it.layout.setBackgroundResource(themeAttrs.touchFeedbackRes)
           styler.menuItem(it.titleView, item)
           it.layout.setOnClickListener { handleOnClick(item) }
         }
