@@ -8,12 +8,14 @@ import android.R.attr.popupExitTransition
 import android.content.Context
 import android.transition.Transition
 import android.transition.TransitionInflater
+import android.util.AttributeSet
 import android.util.TypedValue
 import android.util.TypedValue.COMPLEX_UNIT_DIP
 import android.widget.PopupMenu
 import android.widget.PopupWindow
 import androidx.annotation.DrawableRes
 import androidx.annotation.Px
+import androidx.annotation.StyleRes
 import androidx.core.content.res.getDimensionOrThrow
 import androidx.core.content.res.getResourceIdOrThrow
 import androidx.core.content.res.use
@@ -26,9 +28,10 @@ import androidx.core.widget.PopupWindowCompat
  * - setting a default elevation
  */
 @Suppress("LeakingThis")
-abstract class CascadePopupWindow(
-  private val context: Context
-) : PopupWindow(context, null) {
+abstract class CascadePopupWindow @JvmOverloads constructor(
+  private val context: Context,
+  private val defStyleAttr: Int = android.R.style.Widget_Material_PopupMenu
+) : PopupWindow(context, null, defStyleAttr) {
 
   protected val Int.dip: Int
     get() {
@@ -39,7 +42,7 @@ abstract class CascadePopupWindow(
   protected val themeAttrs = resolveThemeAttrs()
 
   init {
-    isFocusable = true    // Dismiss on outside touch.
+    isFocusable = true            // Dismiss on outside touch.
     isOutsideTouchable = true
     elevation = themeAttrs.popupElevation
 
@@ -59,7 +62,7 @@ abstract class CascadePopupWindow(
         listChoiceBackgroundIndicator
     )
 
-    return context.obtainStyledAttributes(android.R.style.Widget_Material_PopupMenu, attrs).use {
+    return context.obtainStyledAttributes(defStyleAttr, attrs).use {
       val inflateTransition = { resId: Int -> TransitionInflater.from(context).inflateTransition(resId) }
       ThemeAttributes(
           popupBackgroundRes = it.getResourceIdOrThrow(attrs.indexOf(popupBackground)),

@@ -3,6 +3,8 @@ package press.widgets.popup
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MenuItem.OnMenuItemClickListener
@@ -14,19 +16,22 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.LinearLayout
 import android.widget.LinearLayout.VERTICAL
 import android.widget.TextView
+import androidx.annotation.Px
+import androidx.annotation.StyleRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.view.iterator
 
 @SuppressLint("RestrictedApi")
-open class CascadeMenu(
+open class CascadeMenu @JvmOverloads constructor(
   private val context: Context,
   private val styler: Styler,
-  fixedWidthInDp: Int = 200
-) : CascadePopupWindow(context) {
+  private val fixedWidth: Int = context.dip(200),
+  private val defStyleAttr: Int = android.R.style.Widget_Material_PopupMenu
+) : CascadePopupWindow(context, defStyleAttr) {
+
   val menu: Menu = MenuBuilder(context)
   var onMenuItemClickListener: OnMenuItemClickListener? = null
-  private val fixedWidth = fixedWidthInDp.dip
 
   class Styler(
     val background: (Drawable) -> Drawable = { it },
@@ -93,6 +98,12 @@ open class CascadeMenu(
 }
 
 @OptIn(ExperimentalStdlibApi::class)
-private val Menu.items: List<MenuItem> get() {
-  return this.iterator().asSequence().toList()
+private val Menu.items: List<MenuItem>
+  get() {
+    return this.iterator().asSequence().toList()
+  }
+
+private fun Context.dip(dp: Int): Int {
+  val metrics = resources.displayMetrics
+  return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp.toFloat(), metrics).toInt()
 }
