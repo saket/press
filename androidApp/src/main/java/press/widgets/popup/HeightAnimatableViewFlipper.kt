@@ -14,6 +14,8 @@ import android.view.ViewOutlineProvider
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AnimationUtils
 import android.view.animation.DecelerateInterpolator
+import android.widget.FrameLayout.LayoutParams.MATCH_PARENT
+import android.widget.FrameLayout.LayoutParams.WRAP_CONTENT
 import android.widget.ViewFlipper
 import androidx.core.animation.doOnEnd
 import androidx.core.graphics.withClip
@@ -23,25 +25,35 @@ import me.saket.press.R
 
 @Suppress("NAME_SHADOWING")
 internal class HeightAnimatableViewFlipper(context: Context) : BaseHeightClippableFlipper(context) {
+  fun goForward(child: View) {
+    show(child, forward = true)
+  }
 
-  override fun addView(child: View, index: Int, params: android.view.ViewGroup.LayoutParams) {
+  fun goBack(child: View) {
+    show(child, forward = false)
+  }
+
+  private fun show(view: View, forward: Boolean) {
+    val index = if (forward) childCount else 0
+    val params = view.layoutParams ?: LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+
     if (childCount == 0) {
-      super.addView(child, index, params)
+      super.addView(view, index, params)
       return
     }
 
     // Queue children so that they show up one-by-one.
     waitForOngoingAnimation {
-      super.addView(child, index, params)
+      super.addView(view, index, params)
 
-      setupFlipAnimation(goingForward = true)
+      setupFlipAnimation(forward)
       val prevView = getChildAt(displayedChild)
-      displayedChild = indexOfChild(child)
+      displayedChild = indexOfChild(view)
 
       doOnLayout {
         animateHeight(
             from = prevView.height,
-            to = child.height,
+            to = view.height,
             onEnd = {
               // ViewFlipper plays animation if the view
               // count goes down, which isn't wanted here.
@@ -52,6 +64,11 @@ internal class HeightAnimatableViewFlipper(context: Context) : BaseHeightClippab
         )
       }
     }
+
+  }
+
+  override fun addView(child: View, index: Int, params: android.view.ViewGroup.LayoutParams) {
+    throw error("Use goForward() / goBack() instead")
   }
 
   private fun waitForOngoingAnimation(action: () -> Unit) {

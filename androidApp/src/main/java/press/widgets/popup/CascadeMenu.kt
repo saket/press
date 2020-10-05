@@ -61,8 +61,12 @@ open class CascadeMenu @JvmOverloads constructor(
       styler.menuList(this)
     }
 
+    // PopupWindow doesn't allow its content to have a fixed
+    // width so any fixed size must be set on its children instead.
+    menuList.layoutParams = LayoutParams(fixedWidth, WRAP_CONTENT)
+
     val flipper = contentView as HeightAnimatableViewFlipper
-    flipper.addView(menuList, LayoutParams(fixedWidth, WRAP_CONTENT))
+    flipper.goForward(menuList)
   }
 
   protected fun handleOnClick(item: MenuItem) {
