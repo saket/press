@@ -22,7 +22,8 @@ internal class CascadeMenuAdapter(
   menu: Menu,
   private val styler: Styler,
   private val themeAttrs: ThemeAttributes,
-  private val onClick: (MenuItem) -> Unit
+  private val onTitleClick: (SubMenuBuilder) -> Unit,
+  private val onItemClick: (MenuItem) -> Unit
 ) : Adapter<ViewHolder>() {
 
   sealed class ItemType {
@@ -41,10 +42,13 @@ internal class CascadeMenuAdapter(
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
     return when (viewType) {
-      VIEW_TYPE_HEADER -> MenuHeaderViewHolder.inflate(parent)
+      VIEW_TYPE_HEADER -> MenuHeaderViewHolder.inflate(parent).apply {
+        itemView.setBackgroundResource(themeAttrs.touchFeedbackRes)
+        itemView.setOnClickListener { onTitleClick(menu) }
+      }
       VIEW_TYPE_ITEM -> MenuItemViewHolder.inflate(parent, hasSubMenuItems).apply {
         itemView.setBackgroundResource(themeAttrs.touchFeedbackRes)
-        itemView.setOnClickListener { onClick(item) }
+        itemView.setOnClickListener { onItemClick(item) }
       }
       else -> TODO()
     }

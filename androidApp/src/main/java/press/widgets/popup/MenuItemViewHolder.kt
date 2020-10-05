@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.DrawableRes
 import androidx.annotation.Px
 import androidx.appcompat.view.menu.ListMenuItemView
 import androidx.appcompat.view.menu.MenuItemImpl
@@ -38,8 +39,6 @@ class MenuItemViewHolder(
     view.setForceShowIcon(true)
     view.initialize(item, 0)
     view.setGroupDividerEnabled(false)
-
-    titleView.textSize = 16f
 
     if (item.hasSubMenu()) {
       subMenuArrowView.setImageResource(R.drawable.ic_round_arrow_right_24)

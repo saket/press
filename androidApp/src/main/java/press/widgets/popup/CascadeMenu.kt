@@ -7,12 +7,14 @@ import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MenuItem.OnMenuItemClickListener
+import android.view.SubMenu
 import android.view.View
 import android.view.View.SCROLLBARS_INSIDE_OVERLAY
 import android.view.ViewGroup.LayoutParams
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.view.menu.MenuBuilder
+import androidx.appcompat.view.menu.SubMenuBuilder
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
@@ -49,29 +51,41 @@ open class CascadeMenu @JvmOverloads constructor(
       clipToOutline = true
       background = styler.background(themeAttrs.popupBackground())
     }
-    showMenu(menu)
+    showMenu(menu, goingForward = true)
   }
 
-  private fun showMenu(menu: Menu) {
+  private fun showMenu(menu: Menu, goingForward: Boolean) {
     val menuList = RecyclerView(context).apply {
       isVerticalScrollBarEnabled = true
       scrollBarStyle = SCROLLBARS_INSIDE_OVERLAY
       layoutManager = LinearLayoutManager(context)
-      adapter = CascadeMenuAdapter(menu, styler, themeAttrs, onClick = { handleOnClick(it) })
       styler.menuList(this)
+      adapter = CascadeMenuAdapter(menu, styler, themeAttrs,
+          onTitleClick = { handleTitleClick(it) },
+          onItemClick = { handleItemClick(it) }
+      )
+
+      // Give an opaque background to avoid cross-drawing of menus during animation.
+      if (menu is SubMenu) {
+        background = themeAttrs.popupBackground()
+      }
+
+      // PopupWindow doesn't allow its content to have a fixed
+      // width so any fixed size must be set on its children instead.
+      layoutParams = LayoutParams(fixedWidth, WRAP_CONTENT)
     }
 
-    // PopupWindow doesn't allow its content to have a fixed
-    // width so any fixed size must be set on its children instead.
-    menuList.layoutParams = LayoutParams(fixedWidth, WRAP_CONTENT)
-
     val flipper = contentView as HeightAnimatableViewFlipper
-    flipper.goForward(menuList)
+    flipper.show(menuList, goingForward)
   }
 
-  protected fun handleOnClick(item: MenuItem) {
+  protected fun handleTitleClick(menu: SubMenuBuilder) {
+    showMenu(menu.parentMenu, goingForward = false)
+  }
+
+  protected fun handleItemClick(item: MenuItem) {
     if (item.hasSubMenu()) {
-      showMenu(item.subMenu)
+      showMenu(item.subMenu, goingForward = true)
     } else {
       onMenuItemClickListener?.onMenuItemClick(item)
       dismiss()
