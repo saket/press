@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.Px
 import androidx.appcompat.view.menu.ListMenuItemView
 import androidx.appcompat.view.menu.MenuItemImpl
 import androidx.core.view.updateLayoutParams
@@ -17,15 +18,25 @@ import androidx.core.view.updatePaddingRelative
 import me.saket.press.R
 import kotlin.LazyThreadSafetyMode.NONE
 
-class MenuItemViewHolder(private val context: Context, parent: ViewGroup) {
+/**
+ * Layout for a menu item.
+ */
+class MenuItemViewHolder(
+  private val parent: ViewGroup,
+  private val item: MenuItem,
+  private val hasSubMenuSiblings: Boolean
+) {
+  private val context: Context get() = parent.context
   val layout: ListMenuItemView = LayoutInflater
       .from(context)
       .inflate(R.layout.abc_popup_menu_item_layout, parent, false) as ListMenuItemView
 
   val titleView: TextView = layout.findViewById(R.id.title)
-  private val contentView: View = layout.findViewById(R.id.content)
-  private val iconView: ImageView by lazy(NONE) { layout.findViewById(R.id.icon) }
-  private val arrowView: ImageView = layout.findViewById(R.id.submenuarrow)
+  val titleContainerView: ViewGroup = titleView.parent as ViewGroup
+
+  val contentView: View = layout.findViewById(R.id.content)
+  val iconView: ImageView by lazy(NONE) { layout.findViewById(R.id.icon) }
+  val subMenuArrowView: ImageView = layout.findViewById(R.id.submenuarrow)
 
   private val Int.dip: Int
     get() {
@@ -33,7 +44,7 @@ class MenuItemViewHolder(private val context: Context, parent: ViewGroup) {
       return TypedValue.applyDimension(COMPLEX_UNIT_DIP, this.toFloat(), metrics).toInt()
     }
 
-  fun render(item: MenuItem) {
+  init {
     check(item is MenuItemImpl)
     layout.setForceShowIcon(true)
     layout.initialize(item, 0)
@@ -41,13 +52,37 @@ class MenuItemViewHolder(private val context: Context, parent: ViewGroup) {
 
     titleView.textSize = 16f
 
-    iconView.updateLayoutParams<MarginLayoutParams> {
-      leftMargin = 14.dip
+    if (item.hasSubMenu()) {
+      subMenuArrowView.setImageResource(R.drawable.ic_round_arrow_right_24)
     }
 
-    if (item.hasSubMenu()) {
-      arrowView.setImageResource(R.drawable.ic_round_arrow_right_24)
-      contentView.updatePaddingRelative(end = 4.dip)
+    subMenuArrowView.updateMargin(start = 0.dip)
+    setContentSpacing(
+        start = if (item.icon != null) 12.dip else 14.dip,
+        end = when {
+          item.hasSubMenu() -> 4.dip
+          hasSubMenuSiblings -> 28.dip
+          else -> 14.dip
+        },
+        iconSpacing = 14.dip
+    )
+  }
+
+  fun setContentSpacing(@Px start: Int, @Px end: Int, @Px iconSpacing: Int) {
+    if (item.icon != null) {
+      iconView.updateMargin(start = start)
+      titleContainerView.updateMargin(start = iconSpacing)
+      contentView.updatePaddingRelative(end = end)
+
+    } else {
+      titleContainerView.updateMargin(start = start)
+      contentView.updatePaddingRelative(end = end)
     }
+  }
+}
+
+private fun View.updateMargin(start: Int) {
+  updateLayoutParams<MarginLayoutParams> {
+    marginStart = start
   }
 }

@@ -18,15 +18,6 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.view.iterator
 
-/**
- * TODO
- *  - window margins.
- *  - go back
- *  - scrollable container
- *  - use theme colors
- *    - text color
- *    - submenu indicator triangle
- * */
 @SuppressLint("RestrictedApi")
 open class CascadeMenu(
   private val context: Context,
@@ -71,20 +62,22 @@ open class CascadeMenu(
       layoutParams = LayoutParams(fixedWidth, WRAP_CONTENT)
 
       if (menu is SubMenu) {
-        val headerView = MenuHeaderViewHolder(context, parent = this)
-        headerView.render(menu)
+        val headerView = MenuHeaderViewHolder(parent = this, menu)
         styler.menuTitle(headerView.textView, menu.item)
         addView(headerView.layout)
       }
 
+      val hasSubMenu = menu.items.any { it.hasSubMenu() }
       for (item in menu) {
-        val itemView = MenuItemViewHolder(context, parent = this).also {
-          it.render(item)
-          it.layout.setBackgroundResource(themeAttrs.touchFeedbackRes)
-          styler.menuItem(it.titleView, item)
-          it.layout.setOnClickListener { handleOnClick(item) }
-        }
-        addView(itemView.layout, MATCH_PARENT, WRAP_CONTENT)
+        val view = MenuItemViewHolder(
+            item = item,
+            parent = this,
+            hasSubMenuSiblings = hasSubMenu
+        )
+        view.layout.setBackgroundResource(themeAttrs.touchFeedbackRes)
+        styler.menuItem(view.titleView, item)
+        view.layout.setOnClickListener { handleOnClick(item) }
+        addView(view.layout, MATCH_PARENT, WRAP_CONTENT)
       }
     }
   }
@@ -97,4 +90,9 @@ open class CascadeMenu(
       dismiss()
     }
   }
+}
+
+@OptIn(ExperimentalStdlibApi::class)
+private val Menu.items: List<MenuItem> get() {
+  return this.iterator().asSequence().toList()
 }
