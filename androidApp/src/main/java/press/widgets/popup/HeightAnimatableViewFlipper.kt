@@ -23,8 +23,8 @@ import androidx.core.view.doOnLayout
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import me.saket.press.R
 
-@Suppress("NAME_SHADOWING")
-internal class HeightAnimatableViewFlipper(context: Context) : BaseHeightClippableFlipper(context) {
+/** A [ViewFlipper] that smoothly changes its height for the currently displayed child. */
+class HeightAnimatableViewFlipper(context: Context) : BaseHeightClippableFlipper(context) {
   fun goForward(child: View) {
     show(child, forward = true)
   }
@@ -68,7 +68,7 @@ internal class HeightAnimatableViewFlipper(context: Context) : BaseHeightClippab
   }
 
   override fun addView(child: View, index: Int, params: android.view.ViewGroup.LayoutParams) {
-    throw error("Use goForward() / goBack() instead")
+    throw error("Use show() / goForward() / goBack() instead")
   }
 
   private fun waitForOngoingAnimation(action: () -> Unit) {
@@ -113,12 +113,6 @@ internal class HeightAnimatableViewFlipper(context: Context) : BaseHeightClippab
     }
     error("unreachable")
   }
-
-  override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-    // Outgoing Views don't receive touch events.
-    val displayed: View? = getChildAt(displayedChild)
-    return displayed?.dispatchTouchEvent(ev) ?: super.dispatchTouchEvent(ev)
-  }
 }
 
 private class MatrixReader {
@@ -135,8 +129,7 @@ abstract class BaseHeightClippableFlipper(context: Context) : ViewFlipper(contex
   protected var animationDuration = 350L
   protected var animationInterpolator = FastOutSlowInInterpolator()
 
-  // Because ViewGroup#getClipBounds creates a new Rect everytime.
-  private var clippedDimens: Rect? = null
+  private var clipBounds2: Rect? = null // Because View#clipBounds creates a new Rect on every call
   protected var animator: ValueAnimator = ObjectAnimator()
 
   init {
@@ -151,7 +144,6 @@ abstract class BaseHeightClippableFlipper(context: Context) : ViewFlipper(contex
 
   protected fun animateHeight(from: Int, to: Int, onEnd: () -> Unit) {
     animator.cancel()
-
     animator = ObjectAnimator.ofFloat(0f, 1f).apply {
       duration = animationDuration
       interpolator = FastOutSlowInInterpolator()
@@ -175,7 +167,7 @@ abstract class BaseHeightClippableFlipper(context: Context) : ViewFlipper(contex
     // Draw the background manually with clipped bounds, because
     // super.draw() will always reset it to View's bounds.
     background?.let {
-      it.setBounds(left, top, right, clippedDimens?.height() ?: bottom)
+      it.setBounds(left, top, right, clipBounds2?.height() ?: bottom)
       it.draw(canvas)
     }
 
@@ -185,12 +177,25 @@ abstract class BaseHeightClippableFlipper(context: Context) : ViewFlipper(contex
   }
 
   private fun setClippedHeight(newHeight: Int) {
-    clippedDimens = (clippedDimens ?: Rect()).also {
+    clipBounds2 = (clipBounds2 ?: Rect()).also {
       it.set(left, top, right, newHeight)
+      clipBounds = it
     }
-    clipBounds = clippedDimens
-
     invalidate()
-    invalidateOutline()
   }
+
+  override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+    return if (clipBounds2 != null && !clipBounds2!!.contains(ev)) false
+    else super.dispatchTouchEvent(ev)
+  }
+}
+
+private var ViewFlipper.displayedChildView: View?
+  get() = getChildAt(displayedChild)
+  set(value) {
+    displayedChild = indexOfChild(value)
+  }
+
+private fun Rect.contains(ev: MotionEvent): Boolean {
+  return contains(ev.x.toInt(), ev.y.toInt())
 }
