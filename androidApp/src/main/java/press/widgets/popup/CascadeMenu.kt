@@ -47,7 +47,7 @@ open class CascadeMenu @JvmOverloads constructor(
   private fun prepareMenuContent() {
     contentView = HeightAnimatableViewFlipper(context).apply {
       clipToOutline = true
-      background = styler.background(themeAttrs.popupBackground)
+      background = styler.background(themeAttrs.popupBackground())
     }
     showMenu(menu)
   }

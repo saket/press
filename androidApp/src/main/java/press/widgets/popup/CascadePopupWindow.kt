@@ -15,6 +15,7 @@ import android.widget.PopupMenu
 import android.widget.PopupWindow
 import androidx.annotation.DrawableRes
 import androidx.annotation.Px
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.res.getDimensionOrThrow
 import androidx.core.content.res.getDrawableOrThrow
 import androidx.core.content.res.getResourceIdOrThrow
@@ -65,8 +66,8 @@ abstract class CascadePopupWindow @JvmOverloads constructor(
     return context.obtainStyledAttributes(defStyleAttr, attrs).use {
       val inflateTransition = { resId: Int -> TransitionInflater.from(context).inflateTransition(resId) }
       ThemeAttributes(
-          popupBackground = it.getDrawableOrThrow(attrs.indexOf(popupBackground)),
           popupElevation = it.getDimensionOrThrow(attrs.indexOf(popupElevation)),
+          popupBackgroundRes = it.getResourceIdOrThrow(attrs.indexOf(popupBackground)),
           popupEnterTransition = inflateTransition(it.getResourceIdOrThrow(attrs.indexOf(popupEnterTransition))),
           popupExitTransition = inflateTransition(it.getResourceIdOrThrow(attrs.indexOf(popupExitTransition))),
           touchFeedbackRes = it.getResourceIdOrThrow(attrs.indexOf(listChoiceBackgroundIndicator))
@@ -75,10 +76,14 @@ abstract class CascadePopupWindow @JvmOverloads constructor(
   }
 
   data class ThemeAttributes(
-    val popupBackground: Drawable,
     @Px val popupElevation: Float,
+    @DrawableRes val popupBackgroundRes: Int,
     @DrawableRes val touchFeedbackRes: Int,
     val popupEnterTransition: Transition,
     val popupExitTransition: Transition
   )
+
+  fun ThemeAttributes.popupBackground(): Drawable {
+    return AppCompatResources.getDrawable(context, popupBackgroundRes)!!
+  }
 }

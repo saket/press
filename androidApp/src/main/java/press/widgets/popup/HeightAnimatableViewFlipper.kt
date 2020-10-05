@@ -4,7 +4,6 @@ import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.view.MotionEvent
@@ -18,7 +17,6 @@ import android.widget.FrameLayout.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout.LayoutParams.WRAP_CONTENT
 import android.widget.ViewFlipper
 import androidx.core.animation.doOnEnd
-import androidx.core.graphics.withClip
 import androidx.core.view.doOnLayout
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import me.saket.press.R
@@ -64,7 +62,6 @@ class HeightAnimatableViewFlipper(context: Context) : BaseHeightClippableFlipper
         )
       }
     }
-
   }
 
   override fun addView(child: View, index: Int, params: android.view.ViewGroup.LayoutParams) {
@@ -96,31 +93,6 @@ class HeightAnimatableViewFlipper(context: Context) : BaseHeightClippableFlipper
       inAnimation = inflate(R.anim.cascademenu_mainmenu_enter)
       outAnimation = inflate(R.anim.cascademenu_submenu_exit)
     }
-  }
-
-  private val matrixReader = MatrixReader()
-  override fun drawChild(canvas: Canvas, child: View, drawingTime: Long): Boolean {
-    val default = { super.drawChild(canvas, child, drawingTime) }
-    val incomingView = getChildAt(indexOfChild(child) + 1) ?: return default()
-    val incomingMatrix = incomingView.animationMatrix ?: return default()
-
-    // Incoming view may not have any background, resulting in cross-drawing of views
-    // during animation. Clip the outgoing view to make it appear as if the incoming
-    // view had an opaque background.
-    val incomingX = incomingView.x + matrixReader.translationX(incomingMatrix)
-    canvas.withClip(left, top, incomingX.toInt(), bottom) {
-      return super.drawChild(canvas, child, drawingTime)
-    }
-    error("unreachable")
-  }
-}
-
-private class MatrixReader {
-  private val matrixBuffer = FloatArray(9)
-
-  fun translationX(matrix: Matrix): Float {
-    matrix.getValues(matrixBuffer)
-    return matrixBuffer[Matrix.MTRANS_X]
   }
 }
 
