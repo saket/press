@@ -9,32 +9,52 @@ import android.graphics.drawable.Drawable
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewOutlineProvider
+import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.FrameLayout.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout.LayoutParams.WRAP_CONTENT
 import android.widget.ViewFlipper
+import androidx.annotation.AnimRes
 import androidx.core.animation.doOnEnd
 import androidx.core.view.doOnLayout
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import me.saket.press.R
 
 /**
- * A [ViewFlipper] that smoothly changes its height for the currently displayed child.
+ * A [ViewFlipper] that wraps its height to the currently displayed child and animates change in its height.
+ *
+ * See [show], [goForward] and [goBack].
  */
-class HeightAnimatableViewFlipper(context: Context) : BaseHeightClippableFlipper(context) {
+open class HeightAnimatableViewFlipper(context: Context) : BaseHeightClippableFlipper(context) {
 
-  fun show(view: View, forward: Boolean) {
+  init {
+    animateFirstView = false
+  }
+
+  fun show(
+    view: View,
+    forward: Boolean,
+    inAnimation: Animation = when {
+      forward -> inflate(R.anim.cascademenu_submenu_enter)
+      else -> inflate(R.anim.cascademenu_mainmenu_enter)
+    },
+    outAnimation: Animation = when {
+      forward -> inflate(R.anim.cascademenu_mainmenu_exit)
+      else -> inflate(R.anim.cascademenu_submenu_exit)
+    }
+  ) {
     enqueueAnimation {
       val index = if (forward) childCount else 0
       val params = view.layoutParams ?: LayoutParams(MATCH_PARENT, WRAP_CONTENT)
       super.addView(view, index, params)
-
-      if (childCount == 1) {
+      if (childCount == 1 && !animateFirstView) {
         return@enqueueAnimation
       }
 
-      setupFlipAnimation(forward)
       val prevView = displayedChildView!!
+
+      this.inAnimation = inAnimation
+      this.outAnimation = outAnimation
       displayedChildView = view
 
       doOnLayout {
@@ -44,8 +64,8 @@ class HeightAnimatableViewFlipper(context: Context) : BaseHeightClippableFlipper
             onEnd = {
               // ViewFlipper plays animation if the view
               // count goes down, which isn't wanted here.
-              inAnimation = null
-              outAnimation = null
+              this.inAnimation = null
+              this.outAnimation = null
               removeView(prevView)
             }
         )
@@ -53,11 +73,11 @@ class HeightAnimatableViewFlipper(context: Context) : BaseHeightClippableFlipper
     }
   }
 
-  fun goForward(child: View) =
-    show(child, forward = true)
+  open fun goForward(toView: View) =
+    show(toView, forward = true)
 
-  fun goBack(child: View) =
-    show(child, forward = false)
+  open fun goBack(toView: View) =
+    show(toView, forward = false)
 
   override fun addView(child: View, index: Int, params: android.view.ViewGroup.LayoutParams) =
     throw error("Use show() / goForward() / goBack() instead")
@@ -67,20 +87,10 @@ class HeightAnimatableViewFlipper(context: Context) : BaseHeightClippableFlipper
     else animator.doOnEnd { action() }
   }
 
-  private fun setupFlipAnimation(goingForward: Boolean) {
-    val inflate = { animRes: Int ->
-      AnimationUtils.loadAnimation(context, animRes).also {
-        it.duration = animationDuration
-        it.interpolator = animationInterpolator
-      }
-    }
-
-    if (goingForward) {
-      inAnimation = inflate(R.anim.cascademenu_submenu_enter)
-      outAnimation = inflate(R.anim.cascademenu_mainmenu_exit)
-    } else {
-      inAnimation = inflate(R.anim.cascademenu_mainmenu_enter)
-      outAnimation = inflate(R.anim.cascademenu_submenu_exit)
+  private fun inflate(@AnimRes animRes: Int): Animation {
+    return AnimationUtils.loadAnimation(context, animRes).also {
+      it.duration = animationDuration
+      it.interpolator = animationInterpolator
     }
   }
 }
