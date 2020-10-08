@@ -32,8 +32,12 @@ internal class CascadeMenuAdapter(
   }
 
   private val items: List<ItemType> = buildList {
-    if (menu is SubMenu) add(Header(menu as SubMenuBuilder))
-    addAll(menu.items.map { Item(it as MenuItemImpl) })
+    if (menu is SubMenu) {
+      add(Header(menu as SubMenuBuilder))
+    }
+    for (item in menu) {
+      add(Item(item as MenuItemImpl))
+    }
   }
 
   private val hasSubMenuItems = items
@@ -86,6 +90,3 @@ internal class CascadeMenuAdapter(
     const val VIEW_TYPE_ITEM = 1
   }
 }
-
-private val Menu.items: List<MenuItem>
-  get() = this.iterator().asSequence().toList()

@@ -1,4 +1,5 @@
 @file:SuppressLint("RestrictedApi")
+@file:Suppress("DeprecatedCallableAddReplaceWith")
 
 package press.widgets.popup
 
@@ -22,11 +23,13 @@ import androidx.appcompat.view.menu.SubMenuBuilder
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import java.util.Stack
+import kotlin.DeprecationLevel.ERROR
 
 open class CascadeMenu @JvmOverloads constructor(
   private val context: Context,
   private val anchor: View,
-  var gravity: Int = Gravity.NO_GRAVITY,
+  private var gravity: Int = Gravity.NO_GRAVITY,
   private val styler: Styler = Styler(),
   private val fixedWidth: Int = context.dip(200),
   private val defStyleAttr: Int = android.R.style.Widget_Material_PopupMenu
@@ -35,6 +38,7 @@ open class CascadeMenu @JvmOverloads constructor(
   val menu: Menu = MenuBuilder(context)
   private val popup = CascadePopupWindow(context, defStyleAttr)
   private val themeAttrs get() = popup.themeAttrs
+  private val backstack = Stack<Menu>()
 
   class Styler(
     val background: (Drawable) -> Drawable = { it },
@@ -50,11 +54,12 @@ open class CascadeMenu @JvmOverloads constructor(
     popup.showAsDropDown(anchor, 0, 0, gravity)
   }
 
-  fun goBackFrom(item: MenuItem) {
-    println("item: $item")
-    check(item is SubMenuBuilder)
-    check(item.parentMenu is SubMenu) { "todo: doc" }
-    showMenu(item.parentMenu, goingForward = false)
+  fun navigateBack() {
+    check(backstack.isNotEmpty()) { "There is no visible menu." }
+    check(backstack.peek() is SubMenu) { "Already on the root menu. Can't go back any further." }
+
+    val currentMenu = backstack.pop() as SubMenuBuilder
+    showMenu(currentMenu.parentMenu, goingForward = false)
   }
 
   private fun showMenu(menu: Menu, goingForward: Boolean) {
@@ -64,7 +69,7 @@ open class CascadeMenu @JvmOverloads constructor(
       layoutManager = LinearLayoutManager(context)
       styler.menuList(this)
       adapter = CascadeMenuAdapter(menu, styler, themeAttrs,
-          onTitleClick = { handleTitleClick(it) },
+          onTitleClick = { navigateBack() },
           onItemClick = { handleItemClick(it) }
       )
 
@@ -78,11 +83,9 @@ open class CascadeMenu @JvmOverloads constructor(
       // width so any fixed size must be set on its children instead.
       layoutParams = LayoutParams(fixedWidth, WRAP_CONTENT)
     }
-    popup.contentView.show(menuList, goingForward)
-  }
 
-  protected open fun handleTitleClick(menu: SubMenuBuilder) {
-    showMenu(menu.parentMenu, goingForward = false)
+    backstack.push(menu)
+    popup.contentView.show(menuList, goingForward)
   }
 
   protected open fun handleItemClick(item: MenuItem) {
@@ -91,8 +94,12 @@ open class CascadeMenu @JvmOverloads constructor(
       return
     }
 
+    val backstackBefore = backstack.peek()
     (item as MenuItemImpl).invoke()
-    popup.dismiss()
+
+    if (backstack.peek() === backstackBefore) {
+      popup.dismiss()
+    }
   }
 
 // === APIs to maintain compatibility with PopupMenu === //
@@ -105,17 +112,8 @@ open class CascadeMenu @JvmOverloads constructor(
 
   fun dismiss() =
     popup.dismiss()
-}
 
-internal fun Context.dip(dp: Int): Int {
-  val metrics = resources.displayMetrics
-  return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp.toFloat(), metrics).toInt()
-}
-
-private fun MenuBuilder.setCallback(listener: PopupMenu.OnMenuItemClickListener?) {
-  setCallback(object : MenuBuilder.Callback {
-    override fun onMenuModeChange(menu: MenuBuilder) = Unit
-    override fun onMenuItemSelected(menu: MenuBuilder, item: MenuItem): Boolean =
-      listener?.onMenuItemClick(item) ?: false
-  })
+  @get:JvmName("getDragToOpenListener")
+  @Deprecated("CascadeMenu doesn't support drag-to-open.", level = ERROR)
+  val dragToOpenListener: View.OnTouchListener get() = error("can't")
 }
