@@ -6,7 +6,6 @@ package press.widgets.popup
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.util.TypedValue
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
@@ -64,14 +63,15 @@ open class CascadeMenu @JvmOverloads constructor(
 
   private fun showMenu(menu: Menu, goingForward: Boolean) {
     val menuList = RecyclerView(context).apply {
+      layoutManager = LinearLayoutManager(context)
       isVerticalScrollBarEnabled = true
       scrollBarStyle = SCROLLBARS_INSIDE_OVERLAY
-      layoutManager = LinearLayoutManager(context)
       styler.menuList(this)
       adapter = CascadeMenuAdapter(menu, styler, themeAttrs,
           onTitleClick = { navigateBack() },
           onItemClick = { handleItemClick(it) }
       )
+      addOnScrollListener(OverScrollIfContentScrolls())
 
       // Opaque background to avoid cross-drawing
       // of menus during entry/exit animation.
@@ -115,5 +115,6 @@ open class CascadeMenu @JvmOverloads constructor(
 
   @get:JvmName("getDragToOpenListener")
   @Deprecated("CascadeMenu doesn't support drag-to-open.", level = ERROR)
-  val dragToOpenListener: View.OnTouchListener get() = error("can't")
+  val dragToOpenListener: View.OnTouchListener
+    get() = error("can't")
 }
