@@ -1,33 +1,40 @@
+@file:SuppressLint("RestrictedApi")
+
 package press.widgets.popup
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.util.TypedValue
+import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
-import android.view.MenuItem.OnMenuItemClickListener
 import android.view.SubMenu
 import android.view.View
 import android.view.View.SCROLLBARS_INSIDE_OVERLAY
 import android.view.ViewGroup.LayoutParams
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import androidx.appcompat.content.res.AppCompatResources
+import androidx.annotation.MenuRes
+import androidx.appcompat.view.SupportMenuInflater
 import androidx.appcompat.view.menu.MenuBuilder
+import androidx.appcompat.view.menu.MenuItemImpl
 import androidx.appcompat.view.menu.SubMenuBuilder
+import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-@SuppressLint("RestrictedApi")
 open class CascadeMenu @JvmOverloads constructor(
   private val context: Context,
-  private val styler: Styler,
+  private val anchor: View,
+  var gravity: Int = Gravity.NO_GRAVITY,
+  private val styler: Styler = Styler(),
   private val fixedWidth: Int = context.dip(200),
   private val defStyleAttr: Int = android.R.style.Widget_Material_PopupMenu
-) : CascadePopupWindow(context, defStyleAttr) {
+) {
 
   val menu: Menu = MenuBuilder(context)
-  var onMenuItemClickListener: OnMenuItemClickListener? = null
+  private val popup = CascadePopupWindow(context, defStyleAttr)
+  private val themeAttrs get() = popup.themeAttrs
 
   class Styler(
     val background: (Drawable) -> Drawable = { it },
@@ -36,22 +43,18 @@ open class CascadeMenu @JvmOverloads constructor(
     val menuItem: (MenuItemViewHolder) -> Unit = {}
   )
 
-  override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int, gravity: Int) {
-    prepareMenuContent()
-    super.showAsDropDown(anchor, xoff, yoff, gravity)
-  }
+  fun show() {
+    popup.contentView.background = styler.background(popup.contentView.background)
 
-  override fun showAtLocation(parent: View?, gravity: Int, x: Int, y: Int) {
-    prepareMenuContent()
-    super.showAtLocation(parent, gravity, x, y)
-  }
-
-  private fun prepareMenuContent() {
-    contentView = HeightAnimatableViewFlipper(context).apply {
-      clipToOutline = true
-      background = styler.background(themeAttrs.popupBackground())
-    }
     showMenu(menu, goingForward = true)
+    popup.showAsDropDown(anchor, 0, 0, gravity)
+  }
+
+  fun goBackFrom(item: MenuItem) {
+    println("item: $item")
+    check(item is SubMenuBuilder)
+    check(item.parentMenu is SubMenu) { "todo: doc" }
+    showMenu(item.parentMenu, goingForward = false)
   }
 
   private fun showMenu(menu: Menu, goingForward: Boolean) {
@@ -65,35 +68,54 @@ open class CascadeMenu @JvmOverloads constructor(
           onItemClick = { handleItemClick(it) }
       )
 
-      // Give an opaque background to avoid cross-drawing of menus during animation.
+      // Opaque background to avoid cross-drawing
+      // of menus during entry/exit animation.
       if (menu is SubMenu) {
-        background = themeAttrs.popupBackground()
+        background = themeAttrs.popupBackground(context)
       }
 
       // PopupWindow doesn't allow its content to have a fixed
       // width so any fixed size must be set on its children instead.
       layoutParams = LayoutParams(fixedWidth, WRAP_CONTENT)
     }
-
-    val flipper = contentView as HeightAnimatableViewFlipper
-    flipper.show(menuList, goingForward)
+    popup.contentView.show(menuList, goingForward)
   }
 
-  protected fun handleTitleClick(menu: SubMenuBuilder) {
+  protected open fun handleTitleClick(menu: SubMenuBuilder) {
     showMenu(menu.parentMenu, goingForward = false)
   }
 
-  protected fun handleItemClick(item: MenuItem) {
+  protected open fun handleItemClick(item: MenuItem) {
     if (item.hasSubMenu()) {
       showMenu(item.subMenu, goingForward = true)
-    } else {
-      onMenuItemClickListener?.onMenuItemClick(item)
-      dismiss()
+      return
     }
+
+    (item as MenuItemImpl).invoke()
+    popup.dismiss()
   }
+
+// === APIs to maintain compatibility with PopupMenu === //
+
+  fun inflate(@MenuRes menuRes: Int) =
+    SupportMenuInflater(context).inflate(menuRes, menu)
+
+  fun setOnMenuItemClickListener(listener: PopupMenu.OnMenuItemClickListener?) =
+    (menu as MenuBuilder).setCallback(listener)
+
+  fun dismiss() =
+    popup.dismiss()
 }
 
 internal fun Context.dip(dp: Int): Int {
   val metrics = resources.displayMetrics
   return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp.toFloat(), metrics).toInt()
+}
+
+private fun MenuBuilder.setCallback(listener: PopupMenu.OnMenuItemClickListener?) {
+  setCallback(object : MenuBuilder.Callback {
+    override fun onMenuModeChange(menu: MenuBuilder) = Unit
+    override fun onMenuItemSelected(menu: MenuBuilder, item: MenuItem): Boolean =
+      listener?.onMenuItemClick(item) ?: false
+  })
 }

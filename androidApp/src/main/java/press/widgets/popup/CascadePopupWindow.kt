@@ -11,6 +11,7 @@ import android.transition.Transition
 import android.transition.TransitionInflater
 import android.util.TypedValue
 import android.util.TypedValue.COMPLEX_UNIT_DIP
+import android.view.View
 import android.widget.PopupMenu
 import android.widget.PopupWindow
 import androidx.annotation.DrawableRes
@@ -21,6 +22,7 @@ import androidx.core.content.res.getDrawableOrThrow
 import androidx.core.content.res.getResourceIdOrThrow
 import androidx.core.content.res.use
 import androidx.core.widget.PopupWindowCompat
+import press.widgets.popup.CascadePopupWindow.ThemeAttributes
 
 /**
  * Mimics [PopupMenu] by,
@@ -29,7 +31,7 @@ import androidx.core.widget.PopupWindowCompat
  * - setting a default elevation
  */
 @Suppress("LeakingThis")
-abstract class CascadePopupWindow @JvmOverloads constructor(
+open class CascadePopupWindow @JvmOverloads constructor(
   private val context: Context,
   private val defStyleAttr: Int = android.R.style.Widget_Material_PopupMenu
 ) : PopupWindow(context, null, defStyleAttr) {
@@ -40,18 +42,28 @@ abstract class CascadePopupWindow @JvmOverloads constructor(
       return TypedValue.applyDimension(COMPLEX_UNIT_DIP, this.toFloat(), metrics).toInt()
     }
 
-  protected val themeAttrs = resolveThemeAttrs()
+  val themeAttrs = resolveThemeAttrs()
 
   init {
-    isFocusable = true            // Dismiss on outside touch.
+    // Dismiss on outside touch.
+    isFocusable = true
     isOutsideTouchable = true
     elevation = themeAttrs.popupElevation
-
-    setBackgroundDrawable(null)   // Remove PopupWindow's default frame around the content.
-    PopupWindowCompat.setOverlapAnchor(this, true)
-
     enterTransition = themeAttrs.popupEnterTransition
     exitTransition = themeAttrs.popupExitTransition
+
+    // Remove PopupWindow's default frame around the content.
+    setBackgroundDrawable(null)
+    PopupWindowCompat.setOverlapAnchor(this, true)
+
+    contentView = HeightAnimatableViewFlipper(context).apply {
+      clipToOutline = true
+      background = themeAttrs.popupBackground(context)
+    }
+  }
+
+  override fun getContentView(): HeightAnimatableViewFlipper {
+    return super.getContentView() as HeightAnimatableViewFlipper
   }
 
   private fun resolveThemeAttrs(): ThemeAttributes {
@@ -82,8 +94,8 @@ abstract class CascadePopupWindow @JvmOverloads constructor(
     val popupEnterTransition: Transition,
     val popupExitTransition: Transition
   )
+}
 
-  fun ThemeAttributes.popupBackground(): Drawable {
-    return AppCompatResources.getDrawable(context, popupBackgroundRes)!!
-  }
+fun ThemeAttributes.popupBackground(context: Context): Drawable {
+  return AppCompatResources.getDrawable(context, popupBackgroundRes)!!
 }
