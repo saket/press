@@ -30,7 +30,7 @@ open class CascadeMenu @JvmOverloads constructor(
   private val anchor: View,
   private var gravity: Int = Gravity.NO_GRAVITY,
   private val styler: Styler = Styler(),
-  private val fixedWidth: Int = context.dip(200),
+  private val fixedWidth: Int = context.dip(196),
   private val defStyleAttr: Int = android.R.style.Widget_Material_PopupMenu
 ) {
 
