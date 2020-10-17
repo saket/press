@@ -5,11 +5,16 @@ import androidx.appcompat.app.AppCompatActivity
 import com.jakewharton.rxbinding3.view.attaches
 import com.jakewharton.rxbinding3.view.detaches
 import io.reactivex.Observable
+import me.saket.press.shared.theme.AppTheme
 import me.saket.press.shared.theme.ThemePalette
+import me.saket.press.shared.theme.listenRx
 import press.PressApp
 import press.extensions.onDestroys
 
-fun themePalette(): Observable<ThemePalette> = PressApp.component.themePalette()
+fun appTheme(): AppTheme = PressApp.component.theme()
+
+fun themePalette(): Observable<ThemePalette> =
+  appTheme().listenRx()
 
 fun View.themeAware(onThemeChange: (ThemePalette) -> Unit) {
   val stream = themePalette()
@@ -26,4 +31,3 @@ fun AppCompatActivity.themeAware(onThemeChange: (ThemePalette) -> Unit) {
       .takeUntil(onDestroys())
       .subscribe { onThemeChange(it) }
 }
-

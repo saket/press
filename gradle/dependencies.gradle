@@ -102,7 +102,9 @@ buildscript {
       'binding': 'com.jakewharton.rxbinding3:rxbinding:3.0.0-alpha2',
       'relay': 'com.jakewharton.rxrelay2:rxrelay:2.1.0',
       'kotlin': 'io.reactivex.rxjava2:rxkotlin:2.2.0',
-      'traceur': 'com.tspoon.traceur:traceur:1.0.1'
+      'traceur': 'com.tspoon.traceur:traceur:1.0.1',
+      'replayingShare': "com.jakewharton.rx2:replaying-share:2.2.0",
+      'replayingShareKotlin': "com.jakewharton.rx2:replaying-share-kotlin:2.2.0",
     ],
     'junit': 'junit:junit:4.12',
     'truth': 'com.google.truth:truth:0.40',

@@ -27,6 +27,7 @@ import press.extensions.createRippleDrawable
 import press.extensions.getDrawable
 import press.extensions.textColor
 import press.theme.AutoThemer
+import press.theme.appTheme
 import press.theme.themeAware
 import press.theme.themePalette
 import press.widgets.PressButton
@@ -50,9 +51,7 @@ class SyncEnabledView(context: Context) : ContourLayout(context) {
       context.startActivity(Intent(ACTION_VIEW, Uri.parse(model.remoteUrl)))
     }
     itemView.optionsButton.setOnClickListener {
-      themePalette().take(1).subscribe {
-        showOptionsMenu(it)
-      }
+      showOptionsMenu(palette = appTheme().palette)
     }
   }
 

@@ -88,7 +88,6 @@ private fun <T : Button> themed(view: T): T = view.apply {
 }
 
 private fun <T : EditText> themed(view: T): T = view.apply {
-  require(view !is AppCompatEditText) { "Cursor tinting doesn't work with AppCompatEditText, not sure why." }
   val selectionHandleDrawables = TextViewCompat.textSelectionHandles(this)
 
   themeAware { palette ->

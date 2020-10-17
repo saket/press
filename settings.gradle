@@ -4,5 +4,4 @@ enableFeaturePreview('GRADLE_METADATA')
 include ':shared'
 include ':wysiwyg'
 include ':androidApp'
-include ':resourceinterceptor'
 include ':kgit'

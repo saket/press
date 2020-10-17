@@ -52,7 +52,6 @@ android {
 dependencies {
   implementation project(':wysiwyg')
   implementation project(':shared')
-  implementation project(':resourceinterceptor')
 
   implementation deps.androidx.appCompat
   implementation deps.androidx.recyclerView
@@ -69,6 +68,8 @@ dependencies {
   implementation deps.rx2.android
   implementation deps.rx2.binding
   implementation deps.rx2.kotlin
+  implementation deps.rx2.replayingShare
+  implementation deps.rx2.replayingShareKotlin
   implementation deps.dagger.runtime
   implementation deps.assistedInject.annotations
   kapt deps.dagger.compiler
