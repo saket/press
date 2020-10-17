@@ -37,7 +37,7 @@ object AutoThemer {
     themeGroup(activity.findViewById(ID_ANDROID_CONTENT))
   }
 
-  private fun themeGroup(viewGroup: ViewGroup) {
+  fun themeGroup(viewGroup: ViewGroup) {
     viewGroup.setOnHierarchyChangeListener(object : OnHierarchyChangeListener {
       override fun onChildViewAdded(parent: View, child: View) {
         when (child) {

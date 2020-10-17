@@ -1,12 +1,19 @@
 package press.sync
 
 import android.content.Context
+import android.content.Intent
+import android.content.Intent.ACTION_VIEW
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.PaintDrawable
+import android.net.Uri
 import android.text.TextUtils.TruncateAt.END
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ImageView.ScaleType.CENTER_INSIDE
 import androidx.core.view.updatePadding
 import com.squareup.contour.ContourLayout
+import me.saket.cascade.CascadePopupMenu
 import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncEnabled
@@ -14,35 +21,79 @@ import me.saket.press.shared.sync.git.GitHost.GITHUB
 import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextStyles.smallTitle
 import me.saket.press.shared.theme.TextView
+import me.saket.press.shared.theme.ThemePalette
+import me.saket.press.shared.theme.applyStyle
 import press.extensions.createRippleDrawable
+import press.extensions.getDrawable
 import press.extensions.textColor
+import press.theme.AutoThemer
 import press.theme.themeAware
+import press.theme.themePalette
 import press.widgets.PressButton
 
 class SyncEnabledView(context: Context) : ContourLayout(context) {
   private val itemView = ItemView(context)
-
-  val disableButton = PressButton(context, smallBody).apply {
-    text = context.strings().sync.disable_sync_button
-    themeAware { textColor = it.textColorPrimary }
-  }
+  lateinit var onDisableClick: () -> Unit
 
   init {
     itemView.layoutBy(
         x = matchParentX(),
         y = topTo { parent.top() }
     )
-    disableButton.layoutBy(
-        x = leftTo { parent.left() + itemView.paddingLeft },
-        y = topTo { itemView.bottom() + 20.ydip }
-    )
-
-    contourHeightOf { disableButton.bottom() }
+    contourHeightWrapContent()
   }
 
-  @Suppress("DEPRECATION")
   fun render(model: SyncEnabled) {
     itemView.render(model)
+
+    itemView.setOnClickListener {
+      context.startActivity(Intent(ACTION_VIEW, Uri.parse(model.remoteUrl)))
+    }
+    itemView.optionsButton.setOnClickListener {
+      themePalette().take(1).subscribe {
+        showOptionsMenu(it)
+      }
+    }
+  }
+
+  private fun showOptionsMenu(palette: ThemePalette) {
+    val styler = CascadePopupMenu.Styler(
+        background = {
+          roundedRectDrawable(palette.buttonNormal, radius = 4f.dip)
+        },
+        menuList = {
+          AutoThemer.themeGroup(it)
+        },
+        menuTitle = {
+          it.titleView.textColor = palette.textColorSecondary
+          it.titleView.applyStyle(smallTitle)
+          it.itemView.background = createRippleDrawable(palette)
+        },
+        menuItem = {
+          it.titleView.textColor = palette.textColorPrimary
+          it.titleView.applyStyle(smallBody)
+          it.itemView.background = createRippleDrawable(palette)
+        }
+    )
+
+    CascadePopupMenu(context, anchor = itemView.optionsButton, styler = styler).apply {
+      menu.add(context.strings().sync.open_repository).also {
+        it.icon = context.getDrawable(R.drawable.ic_twotone_web_24, palette.textColorPrimary)
+      }
+      menu.addSubMenu(context.strings().sync.remove_repository).also {
+        it.setIcon(context.getDrawable(R.drawable.ic_twotone_delete_24, palette.textColorPrimary))
+        it.setHeaderTitle(context.strings().sync.remove_repository_confirm_question)
+        it.add(context.strings().sync.remove_repository_confirm).setOnMenuItemClickListener {
+          onDisableClick()
+          true
+        }
+        it.add(context.strings().sync.remove_repository_cancel).setOnMenuItemClickListener {
+          navigateBack()
+          true
+        }
+      }
+      show()
+    }
   }
 
   private class ItemView(context: Context) : ContourLayout(context) {
@@ -51,7 +102,7 @@ class SyncEnabledView(context: Context) : ContourLayout(context) {
       themeAware { setColorFilter(it.textColorPrimary) }
     }
 
-    private val nameView = TextView(context, smallTitle).apply {
+    val nameView = TextView(context, smallTitle).apply {
       maxLines = 1
       ellipsize = END
       themeAware { textColor = it.textColorPrimary }
@@ -61,7 +112,7 @@ class SyncEnabledView(context: Context) : ContourLayout(context) {
       themeAware { textColor = it.textColorSecondary }
     }
 
-    private val optionsButton = ImageButton(context).apply {
+    val optionsButton = ImageButton(context).apply {
       setImageResource(R.drawable.ic_more_horiz_24)
       themeAware {
         setColorFilter(it.textColorSecondary)
@@ -87,14 +138,11 @@ class SyncEnabledView(context: Context) : ContourLayout(context) {
           y = topTo { parent.top() }.heightOf { 40.ydip }
       )
 
-      updatePadding(left = 20.dip, top = 20.dip, right = 20.dip, bottom = 20.dip)
+      updatePadding(left = 20.dip, top = 20.dip, right = 10.dip, bottom = 20.dip)
       contourHeightWrapContent()
-
       themeAware {
         background = createRippleDrawable(it)
       }
-      setOnClickListener {  }
-      optionsButton.setOnClickListener {  }
     }
 
     fun render(model: SyncEnabled) {
@@ -112,5 +160,9 @@ class SyncEnabledView(context: Context) : ContourLayout(context) {
       // TODO: Fix this bug in ContourLayout
       requestLayout()
     }
+  }
+
+  private fun roundedRectDrawable(color: Int, radius: Float): Drawable {
+    return PaintDrawable(color).also { it.setCornerRadius(radius) }
   }
 }

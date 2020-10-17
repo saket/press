@@ -65,7 +65,7 @@ class SyncPreferencesView @AssistedInject constructor(
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
 
-    syncEnabledView.disableButton.setOnClickListener {
+    syncEnabledView.onDisableClick = {
       presenter.dispatch(DisableSyncClicked)
     }
 

@@ -56,14 +56,14 @@ class SyncPreferencesPresenter(
                 availableGitHosts = GitHost.values().toList()
             )
             is Enabled -> {
-              // Idle:
-              //  - has timestamp: "Synced 30m ago"
-              //  - no timestamp:  "Waiting to sync"
-              // Failed:
-              //  - has timestamp: "Synced 30m ago. Last attempt failed, will retry?"
-              //  - no timestamp: "Last attempt failed, will retry?"
               // InFlight:
-              //    "Syncing..."
+              //   "Syncing..."
+              // Idle:
+              //   - has timestamp: "Synced 30m ago"
+              //   - no timestamp:  "Waiting to sync"
+              // Failed:
+              //   - has timestamp: "Synced 30m ago. Last attempt failed, will retry?"
+              //   - no timestamp: "Last attempt failed, will retry?"
               val lastSynced = status.lastSyncedAt
               val statusText = when (status.lastOp) {
                 InFlight -> strings.sync.status_in_flight
@@ -73,6 +73,7 @@ class SyncPreferencesPresenter(
               SyncEnabled(
                   gitHost = status.syncingWith.host,
                   remoteName = status.syncingWith.ownerAndName,
+                  remoteUrl = status.syncingWith.url,
                   status = statusText
               )
             }
