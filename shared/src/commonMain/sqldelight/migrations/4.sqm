@@ -1,4 +1,4 @@
-DROP TABLE folderSyncConfig;
+DROP TABLE IF EXISTS folderSyncConfig;
 CREATE TABLE folderSyncConfig (
   remote TEXT NOT NULL,
   lastSyncedAt TEXT,
