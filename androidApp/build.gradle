@@ -78,6 +78,7 @@ dependencies {
   implementation deps.klock.android
   implementation deps.itemAnimators
   implementation deps.betterLinkMovementMethod
+  implementation deps.cascade
 
   debugImplementation deps.flipper.debug.core
   debugImplementation deps.flipper.debug.soLoader

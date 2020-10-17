@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.WindowManager.LayoutParams
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.graphics.drawable.toBitmap
 import me.saket.press.R
 import me.saket.resourceinterceptor.ContextResourceWrapper
@@ -31,7 +32,8 @@ abstract class ThemeAwareActivity : AppCompatActivity() {
 
   @Suppress("DEPRECATION")
   private fun applyPaletteTheme() {
-    val resources = resources as InterceptibleResources
+    // TODO: UGH. Find a better way to tint cursors or give up if it's not worth the effort!
+    val resources = (baseContext as ContextThemeWrapper).baseContext.resources as InterceptibleResources
 
     // EditText cursor.
     resources.setInterceptor(

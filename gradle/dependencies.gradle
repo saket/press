@@ -17,6 +17,7 @@ buildscript {
     workManager: '2.4.0',
     ktLint: '0.36.0', // blocked on https://github.com/pinterest/ktlint/issues/816
     ktLintPlugin: '9.1.1',
+    cascade: '1.2.0-SNAPSHOT',
 
     // multiplatform dependencies
     sqlDelight: '1.4.3',
@@ -190,6 +191,7 @@ buildscript {
     'kotlinx': [
       'serialization': "org.jetbrains.kotlinx:kotlinx-serialization-core:$versions.kotlinxSerialization",
       'coroutines': "org.jetbrains.kotlinx:kotlinx-coroutines-core:$versions.kotlinxCoroutinesNativeMt"
-    ]
+    ],
+    'cascade': "me.saket.cascade:cascade:$versions.cascade"
   ]
 }
