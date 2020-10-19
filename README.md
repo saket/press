@@ -18,10 +18,11 @@ Press was created as a proof-of-concept for exploring Kotlin Multiplatform, as w
 
 ### Documentation
 - [Building the projects](documentation/building.md)
-- Architecture design records
+- Architecture design
   - [Overview of the UI architecture](documentation/architecture.md)
+  - [Syncing of notes through git](documentation/syncing.md)
   - [Why Press uses custom Views for screens](documentation/screens_as_custom_views.md)
-  - [Dependency injection with respect to shared code](documentation/dependency_injection.md)
+  - [Dependency injection in shared code](documentation/dependency_injection.md)
   - [Testing and debugging shared code](documentation/testing.md)
 
 ### Contributing
