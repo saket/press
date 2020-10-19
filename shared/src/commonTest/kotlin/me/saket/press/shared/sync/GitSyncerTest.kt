@@ -40,8 +40,8 @@ import me.saket.press.shared.sync.SyncState.SYNCED
 import me.saket.press.shared.sync.git.File
 import me.saket.press.shared.sync.git.FileName
 import me.saket.press.shared.sync.git.FileNameRegister
-import me.saket.press.shared.sync.git.GitSyncer
 import me.saket.press.shared.sync.git.GitRemoteAndAuth
+import me.saket.press.shared.sync.git.GitSyncer
 import me.saket.press.shared.sync.git.UtcTimestamp
 import me.saket.press.shared.sync.git.children
 import me.saket.press.shared.sync.git.delete
@@ -1014,6 +1014,8 @@ class GitSyncerTest : BaseDatabaeTest() {
   }
 
   @Test fun `backup notes before first sync`() {
+    if (!canRunTests()) return
+
     // Note to self: it is important to use a constant time or else
     // each test will create a new branch in the test repo lol.
     clock.setTime(epochMillis = 1601612911000)
@@ -1036,6 +1038,41 @@ class GitSyncerTest : BaseDatabaeTest() {
         "untitled_note_3.md" to "the muffled dialogues",
         "untitled_note_4.md" to "in Tenet"
     )
+  }
+
+  /**
+   * Any changes made after a push are in danger of creating merge conflicts.
+   */
+  @Test fun `no commits are made once local changes are pushed to remote`() {
+    if (!canRunTests()) return
+
+    noteQueries.testInsert(fakeNote("# Shopping list"))
+    syncer.sync()
+
+    // There was a bug where stale file records were pruned after changes had been pushed to remote.
+    // When a note is deleted, it's record isn't deleted alongside. It's instead deleted during pruning
+    // and will cause a commit to be made.
+    RemoteRepositoryRobot {
+      pull()
+      commitFiles(
+          message = "Delete 'shopping_list.md'",
+          delete = listOf("shopping_list.md")
+      )
+      forcePush()
+    }
+
+    var pushed = false
+    git.postPush = {
+      println("pushed")
+      pushed = true
+    }
+    git.preCommit = {
+      println("committing $it")
+      check(!pushed)
+    }
+
+    noteQueries.testInsert(fakeNote("# Shopping list 2"))
+    syncer.sync()
   }
 
   private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit = {}) {

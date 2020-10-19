@@ -185,6 +185,17 @@ class GitSyncer(
     git.checkout(config.remote.remote.defaultBranch, createIfNeeded = true)
 
     check(!git.isStagingAreaDirty()) { "Hard reset didn't work" }
+
+    val savedNotes = noteQueries.allNotes().executeAsList()
+    register.pruneStaleRecords(savedNotes)
+    if (git.isStagingAreaDirty()) {
+      // This commit will be discarded if this sync is aborted,
+      // but that's okay. This step can be safely run again.
+      git.commitAll(
+          message = "Prune stale file name records",
+          timestamp = UtcTimestamp(clock)
+      )
+    }
   }
 
   /**
@@ -576,15 +587,6 @@ class GitSyncer(
         dbOperations.forEach { it.run() }
       }
       mergeConflicts.clear()
-    }
-
-    val savedNotes = noteQueries.allNotes().executeAsList()
-    register.pruneStaleRecords(savedNotes)
-    if (git.isStagingAreaDirty()) {
-      git.commitAll(
-          message = "Prune stale file name records",
-          timestamp = UtcTimestamp(clock)
-      )
     }
 
     noteQueries.swapSyncStates(

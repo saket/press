@@ -12,6 +12,7 @@ class DelegatingGit(private val delegate: Git) : Git {
   var prePull: (() -> Unit)? = null
   var preCommit: ((message: String) -> Unit)? = null
   var prePush: (() -> Unit)? = null
+  var postPush: (() -> Unit)? = null
   var pushCount = 0
 
   override fun repository(path: String, sshKey: SshPrivateKey, remoteSshUrl: String, userConfig: GitConfig) =
@@ -35,7 +36,9 @@ class DelegatingGit(private val delegate: Git) : Git {
     override fun push(force: Boolean): PushResult {
       git.pushCount++
       git.prePush?.invoke()
-      return delegate.push(force)
+      return delegate.push(force).also {
+        git.postPush?.invoke()
+      }
     }
   }
 }
