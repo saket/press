@@ -5,14 +5,15 @@ package press.extensions
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Rect
-import android.graphics.drawable.Drawable
 import android.graphics.drawable.PaintDrawable
 import android.graphics.drawable.RippleDrawable
 import android.os.Build.VERSION.SDK_INT
 import android.text.Editable
 import android.util.TypedValue.COMPLEX_UNIT_PX
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
+import android.view.ViewGroup.OnHierarchyChangeListener
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
@@ -116,8 +117,19 @@ fun ViewFlipper.setDisplayedChild(child: View) {
   }
 }
 
-fun createRippleDrawable(palette: ThemePalette, borderless: Boolean = false): Drawable {
-  val shape = if (borderless) null else PaintDrawable(Color.TRANSPARENT)
+fun createRippleDrawable(
+  palette: ThemePalette,
+  background: Int = Color.TRANSPARENT,
+  borderless: Boolean = false
+): RippleDrawable {
+  val shape = if (borderless) null else PaintDrawable(background)
   val mask = if (borderless) null else PaintDrawable(Color.BLACK)
   return RippleDrawable(ColorStateList.valueOf(palette.buttonPressed), shape, mask)
+}
+
+inline fun ViewGroup.onViewAdds(crossinline action: (View) -> Unit) {
+  setOnHierarchyChangeListener(object : OnHierarchyChangeListener {
+    override fun onChildViewAdded(parent: View, child: View) = action(child)
+    override fun onChildViewRemoved(parent: View, child: View) = Unit
+  })
 }

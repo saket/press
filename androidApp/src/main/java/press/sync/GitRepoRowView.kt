@@ -17,6 +17,7 @@ import me.saket.press.shared.theme.TextStyles.smallTitle
 import me.saket.press.shared.theme.TextView
 import me.saket.press.shared.theme.ThemePalette
 import press.extensions.attr
+import press.extensions.createRippleDrawable
 import press.extensions.textColor
 import press.theme.themeAware
 import press.theme.themePalette
@@ -48,11 +49,10 @@ class GitRepoRowView(context: Context) : ContourLayout(context) {
 
   init {
     contourHeightOf { dividerView.bottom() }
-    foreground = attr(R.attr.selectableItemBackground).asDrawable()
 
     themeAware {
       // RV item animations nicer if the items don't leak through each other.
-      setBackgroundColor(it.window.backgroundColor)
+      background = createRippleDrawable(it, background = it.window.backgroundColor)
     }
   }
 

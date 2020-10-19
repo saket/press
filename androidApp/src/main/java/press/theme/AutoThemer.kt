@@ -3,18 +3,17 @@ package press.theme
 import android.app.Activity
 import android.content.res.ColorStateList
 import android.graphics.PorterDuff.Mode.SRC_IN
-import android.graphics.drawable.ColorDrawable
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewGroup.OnHierarchyChangeListener
 import android.view.Window.ID_ANDROID_CONTENT
 import android.widget.Button
 import android.widget.EdgeEffect
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.ScrollView
 import android.widget.TextView
-import androidx.appcompat.widget.AppCompatEditText
+import androidx.appcompat.widget.ActionMenuView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
@@ -22,11 +21,14 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import me.saket.press.R
+import press.extensions.createRippleDrawable
 import press.extensions.findTitleView
+import press.extensions.onViewAdds
 import press.extensions.textColor
 import press.widgets.PorterDuffColorFilterWrapper
 import press.widgets.PressButton
 import press.widgets.ScrollViewCompat
+import press.widgets.dp
 
 /**
  * Registers theme change listeners on each Views of a View hierarchy so
@@ -38,16 +40,12 @@ object AutoThemer {
   }
 
   fun themeGroup(viewGroup: ViewGroup) {
-    viewGroup.setOnHierarchyChangeListener(object : OnHierarchyChangeListener {
-      override fun onChildViewAdded(parent: View, child: View) {
-        when (child) {
-          is ViewGroup -> themeGroup(child)
-          else -> themeView(child)
-        }
+    viewGroup.onViewAdds { child ->
+      when (child) {
+        is ViewGroup -> themeGroup(child)
+        else -> themeView(child)
       }
-
-      override fun onChildViewRemoved(parent: View, child: View) = Unit
-    })
+    }
 
     themeView(viewGroup)
     viewGroup.children.forEach { child ->
@@ -119,6 +117,30 @@ private fun themed(toolbar: Toolbar) = toolbar.apply {
   themeAware {
     titleView.textColor = it.textColorHeading
   }
+
+  val setRipple = { child: View ->
+    child.themeAware {
+      child.background = createRippleDrawable(it, borderless = true).apply {
+        radius = maxOf(radius, context.dp(20))
+      }
+    }
+  }
+
+  toolbar.viewChanges { child ->
+    if (child is ImageButton) {
+      // Navigation icon.
+      setRipple(child)
+    }
+    if (child is ActionMenuView) {
+      // Menu items.
+      child.viewChanges(setRipple)
+    }
+  }
+}
+
+private fun ViewGroup.viewChanges(action: (View) -> Unit) {
+  children.forEach(action)
+  onViewAdds(action)
 }
 
 private fun themed(view: FloatingActionButton) = view.apply {
