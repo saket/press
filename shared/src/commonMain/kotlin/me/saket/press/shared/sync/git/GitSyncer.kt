@@ -119,7 +119,7 @@ class GitSyncer(
 
     } catch (e: Throwable) {
       when (Git.tryRecovering(e)) {
-        Recovered -> log("Failed with a known error. Will retry later.")
+        Recovered -> log("Failed with a known error. Will retry later. ${e.stackTraceToString()}")
         NetworkError -> log("Network error. Will retry later.")
         UnknownError -> log("Unknown error. Will retry later. ${e.stackTraceToString()}")
         AuthFailed -> {

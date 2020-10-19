@@ -17,12 +17,14 @@ import org.eclipse.jgit.api.RebaseCommand.Operation.ABORT
 import org.eclipse.jgit.api.RebaseResult
 import org.eclipse.jgit.api.ResetCommand.ResetType.HARD
 import org.eclipse.jgit.api.TransportConfigCallback
+import org.eclipse.jgit.api.errors.JGitInternalException
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.ADD
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.COPY
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.DELETE
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.MODIFY
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.RENAME
 import org.eclipse.jgit.errors.LockFailedException
+import org.eclipse.jgit.internal.storage.file.LockFile
 import org.eclipse.jgit.lib.BranchConfig.BranchRebaseMode.REBASE
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.RepositoryState.SAFE
@@ -332,9 +334,15 @@ private fun RebaseResult.toStringFix(): String {
       "uncommitted: $uncommittedChanges, currentCommit: ${GitCommit(currentCommit)}"
 }
 
+@Suppress("NAME_SHADOWING")
 actual fun Git.Companion.tryRecovering(e: Throwable): GitErrorRecoveryResult {
+  val e = when {
+    e is JGitInternalException && e.cause != null -> e.cause!!
+    else -> e
+  }
+
   if (e is LockFailedException) {
-    e.file.delete()
+    LockFile.unlock(e.file)
     return Recovered
   }
 
