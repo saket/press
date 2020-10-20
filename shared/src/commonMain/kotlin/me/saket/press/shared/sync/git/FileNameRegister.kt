@@ -91,7 +91,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
         it.parent?.makeDirectory(recursively = true)
         createNewRecordFor(it, note.id)
       })
-    } else if (oldNoteFile.relativePathIn(notesDirectory) == newNoteName) {
+    } else if (oldNoteFile.relativePathIn(notesDirectory) == newNoteName) { // todo: use oldRecord.noteFilePath?
       // A file already exists and the name matches the note's heading.
       FileSuggestion(notesDirectory, oldNoteFile)
     } else {
@@ -133,6 +133,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
     val existingNames = notesDirectory
         .children(recursively = true)
         .map { it.relativePathIn(notesDirectory) }
+        .filter { it.endsWith(".md") }
 
     // Suffix the name to avoid conflicts, e.g., "untitled_note_2".
     var uniqueName: String

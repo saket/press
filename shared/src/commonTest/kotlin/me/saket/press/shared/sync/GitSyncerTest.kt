@@ -1040,9 +1040,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     )
   }
 
-  /**
-   * Any changes made after a push are in danger of creating merge conflicts.
-   */
+  /** Any changes made after a push are in danger of creating merge conflicts. */
   @Test fun `no commits are made once local changes are pushed to remote`() {
     if (!canRunTests()) return
 
@@ -1073,6 +1071,29 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     noteQueries.testInsert(fakeNote("# Shopping list 2"))
     syncer.sync()
+  }
+
+  @Test fun `delete notes after syncing them`() {
+    if (!canRunTests()) return
+
+    // Testing two cases:
+    // 1. Deletion on first sync
+    // 2. Deletion on subsequent syncs.
+    val note1 = fakeNote("# Raji 1")
+    val note2 = fakeNote("# Raji 2")
+    noteQueries.testInsert(note1, note2)
+    noteQueries.markAsPendingDeletion(note2.id)
+    syncer.sync()
+
+    val remote = RemoteRepositoryRobot()
+    assertThat(remote.fetchNoteFiles()).containsOnly("raji_1.md" to "# Raji 1")
+    assertThat(noteQueries.allNotes().executeAsList().map { it.id }).containsOnly(note1.id)
+
+    noteQueries.markAsPendingDeletion(note1.id)
+    syncer.sync()
+
+    assertThat(remote.fetchNoteFiles()).isEmpty()
+    assertThat(noteQueries.allNotes().executeAsList()).isEmpty()
   }
 
   private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit = {}) {

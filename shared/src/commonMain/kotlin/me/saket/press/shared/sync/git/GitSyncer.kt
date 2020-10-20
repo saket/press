@@ -306,7 +306,7 @@ class GitSyncer(
     for (note in pendingSyncNotes) {
       val suggestion = register.suggestFile(note)
       val notePath = suggestion.suggestedFilePath
-      log(" • $notePath (old=${suggestion.oldFilePath})")
+      log(" • $notePath (old=${suggestion.oldFilePath}, id=${note.id})")
 
       conflictResolver.resolveAndSave(note, suggestion, commitRename = {
         git.commitAll(
@@ -325,6 +325,7 @@ class GitSyncer(
       }
 
       if (note.isPendingDeletion && suggestion.suggestedFile.exists) {
+        log("   deleting $notePath")
         suggestion.suggestedFile.delete()
 
         git.commitAll(
@@ -528,33 +529,35 @@ class GitSyncer(
 
     // Deleted notes will need to be processed commit-wise. If a note was updated _and_ deleted
     // in pulled changes then its diff entry will not match the diff entry of its filename record.
-    if (diffSinceLastSync.filterNoteChanges().any { it is Delete }) {
-      log("\nRe-processing changes to read deletions")
+    log("\nRe-processing changes to read deletions")
 
-      val restoreToBranch = git.currentBranch()
-      for ((commit, diffs) in commits.changes(git)) {
-        git.checkout(commit)
+    val restoreToBranch = git.currentBranch()
+    for ((commit, diffs) in commits.changes(git)) {
+      if (!diffs.any { it is Delete }) {
+        continue
+      }
 
-        for (diff in diffs.filterNoteChanges().filterIsInstance<Delete>()) {
-          val noteId = register.noteIdFor(diff.path)
-          log(" • '${diff.path}' deleted in ${commit.sha1.abbreviated} (${commit.message})")
+      git.checkout(commit)
 
-          if (noteId != null) {
-            log("   permanently deleting $noteId")
-            dbOperations += Runnable {
-              noteQueries.markAsPendingDeletion(noteId)
-              noteQueries.updateSyncState(ids = listOf(noteId), syncState = IN_FLIGHT)
-              noteQueries.deleteNote(noteId)
-            }
-          } else {
-            // Either this commit has already been processed
-            // earlier or this isn't a note (e.g., README.md).
-            log("   can't find file")
+      for (diff in diffs.filterNoteChanges().filterIsInstance<Delete>()) {
+        val noteId = register.noteIdFor(diff.path)
+        log(" • '${diff.path}' deleted in ${commit.sha1.abbreviated}")
+
+        if (noteId != null) {
+          log("   permanently deleting $noteId")
+          dbOperations += Runnable {
+            noteQueries.markAsPendingDeletion(noteId)
+            noteQueries.updateSyncState(ids = listOf(noteId), syncState = IN_FLIGHT)
+            noteQueries.deleteNote(noteId)
           }
+        } else {
+          // Either this commit has already been processed
+          // earlier or this isn't a note (e.g., README.md).
+          log("   can't find file")
         }
       }
-      git.checkout(restoreToBranch.name)
     }
+    git.checkout(restoreToBranch.name)
   }
 
   private fun SyncTransaction.push(pullResult: PullResult) {
