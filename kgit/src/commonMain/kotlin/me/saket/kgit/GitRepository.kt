@@ -55,4 +55,6 @@ interface GitRepository {
   fun changesBetween(from: GitCommit?, to: GitCommit): GitTreeDiff
 
   fun currentBranch(): GitBranch
+
+  fun tryRecovering(e: Throwable): GitErrorRecoveryResult
 }

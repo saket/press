@@ -25,7 +25,6 @@ import me.saket.kgit.GitTreeDiff.Change.Rename
 import me.saket.kgit.PushResult.Failure
 import me.saket.kgit.UtcTimestamp
 import me.saket.kgit.abbreviated
-import me.saket.kgit.tryRecovering
 import me.saket.press.PressDatabase
 import me.saket.press.data.shared.FolderSyncConfig
 import me.saket.press.data.shared.Note
@@ -105,8 +104,8 @@ class GitSyncer(
     loggers.onSyncStart(fromDevice = deviceInfo.deviceName())
     directory.makeDirectory(recursively = true)
 
-    try {
-      with(SyncTransaction(git())) {
+    with(SyncTransaction(git())) {
+      try {
         resetState()
         backupIfFirstSync()
 
@@ -114,23 +113,23 @@ class GitSyncer(
         commit(pullResult)
         processCommits(pullResult)
         push(pullResult)
+        lastOp.onNext(Idle)
+
+      } catch (e: Throwable) {
+        when (git.tryRecovering(e)) {
+          Recovered -> log("Failed with a known error. Will retry later. ${e.stackTraceToString()}")
+          NetworkError -> log("Network error. Will retry later.")
+          UnknownError -> log("Unknown error. Will retry later. ${e.stackTraceToString()}")
+          AuthFailed -> {
+            log("Auth failed. Deploy key was likely revoked. Disabling sync. ${e.stackTraceToString()}")
+            disable()
+          }
+        }.exhaustive
+
+        lastOp.onNext(Failed)
+        loggers.onSyncComplete()
+        mergeConflicts.clear()
       }
-      lastOp.onNext(Idle)
-
-    } catch (e: Throwable) {
-      when (Git.tryRecovering(e)) {
-        Recovered -> log("Failed with a known error. Will retry later. ${e.stackTraceToString()}")
-        NetworkError -> log("Network error. Will retry later.")
-        UnknownError -> log("Unknown error. Will retry later. ${e.stackTraceToString()}")
-        AuthFailed -> {
-          log("Auth failed. Deploy key was likely revoked. Disabling sync. ${e.stackTraceToString()}")
-          disable()
-        }
-      }.exhaustive
-
-      lastOp.onNext(Failed)
-      loggers.onSyncComplete()
-      mergeConflicts.clear()
     }
   }
 

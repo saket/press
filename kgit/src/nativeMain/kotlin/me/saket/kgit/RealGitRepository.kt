@@ -18,8 +18,5 @@ internal actual class RealGitRepository actual constructor(
   override fun commonAncestor(first: GitCommit, second: GitCommit): GitCommit? = TODO()
   override fun changesBetween(from: GitCommit?, to: GitCommit): GitTreeDiff = TODO()
   override fun currentBranch(): GitBranch = TODO()
-}
-
-actual fun Git.Companion.tryRecovering(e: Throwable): GitErrorRecoveryResult {
-  TODO()
+  override fun tryRecovering(e: Throwable): GitErrorRecoveryResult = TODO()
 }

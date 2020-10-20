@@ -26,6 +26,8 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType.RENAME
 import org.eclipse.jgit.errors.LockFailedException
 import org.eclipse.jgit.internal.storage.file.LockFile
 import org.eclipse.jgit.lib.BranchConfig.BranchRebaseMode.REBASE
+import org.eclipse.jgit.lib.Constants
+import org.eclipse.jgit.lib.Constants.LOCK_SUFFIX
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.RepositoryState.SAFE
 import org.eclipse.jgit.merge.StrategyRecursive
@@ -41,6 +43,7 @@ import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.EmptyTreeIterator
 import org.eclipse.jgit.util.FS
 import java.io.IOException
+import java.nio.file.Files
 import java.util.Date
 import java.util.TimeZone
 import org.eclipse.jgit.api.Git as JGit
@@ -326,36 +329,43 @@ internal actual class RealGitRepository actual constructor(
       error("HEAD is detached and isn't pointing to any branch.")
     }
   }
+
+  @Suppress("NAME_SHADOWING")
+  override fun tryRecovering(e: Throwable): GitErrorRecoveryResult {
+    val e = when {
+      e is JGitInternalException && e.cause != null -> e.cause!!
+      else -> e
+    }
+
+    if (e is LockFailedException) {
+      LockFile.unlock(e.file)
+      return Recovered
+    }
+    if (e is JGitInternalException && e.message?.contains("cannot lock", ignoreCase = true) == true) {
+      // Should have been a LockFailedException :facepalm:
+      Files.walk(jgit.repository.directory.toPath())
+          .filter { it.toString().endsWith(LOCK_SUFFIX) }
+          .forEach { it.toFile().delete() }
+      return Recovered
+    }
+
+    if (e is org.eclipse.jgit.api.errors.TransportException) {
+      if (e.message?.contains("unknown host", ignoreCase = true) == true) {
+        return NetworkError
+      }
+      if (e.cause is IOException) {
+        return NetworkError
+      }
+      if (e.message?.contains("Auth fail", ignoreCase = true) == true) {
+        return AuthFailed
+      }
+    }
+    return UnknownError
+  }
 }
 
 /** Because JGit forgot to implement [RebaseResult.toString]. */
 private fun RebaseResult.toStringFix(): String {
   return "Rebase status: $status, conflicts: $conflicts, failing: $failingPaths, " +
       "uncommitted: $uncommittedChanges, currentCommit: ${GitCommit(currentCommit)}"
-}
-
-@Suppress("NAME_SHADOWING")
-actual fun Git.Companion.tryRecovering(e: Throwable): GitErrorRecoveryResult {
-  val e = when {
-    e is JGitInternalException && e.cause != null -> e.cause!!
-    else -> e
-  }
-
-  if (e is LockFailedException) {
-    LockFile.unlock(e.file)
-    return Recovered
-  }
-
-  if (e is org.eclipse.jgit.api.errors.TransportException) {
-    if (e.message?.contains("unknown host", ignoreCase = true) == true) {
-      return NetworkError
-    }
-    if (e.cause is IOException) {
-      return NetworkError
-    }
-    if (e.message?.contains("Auth fail", ignoreCase = true) == true) {
-      return AuthFailed
-    }
-  }
-  return UnknownError
 }

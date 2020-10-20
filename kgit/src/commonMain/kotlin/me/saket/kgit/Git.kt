@@ -7,8 +7,6 @@ interface Git {
     remoteSshUrl: String,
     userConfig: GitConfig = GitConfig()
   ): GitRepository
-
-  companion object
 }
 
 class RealGit : Git {
@@ -19,5 +17,3 @@ class RealGit : Git {
     userConfig: GitConfig
   ): GitRepository = RealGitRepository(path, GitRemote("origin", remoteSshUrl), userConfig, sshKey)
 }
-
-expect fun Git.Companion.tryRecovering(e: Throwable): GitErrorRecoveryResult
