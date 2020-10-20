@@ -90,7 +90,7 @@ class FileNameRegisterTest {
     assertThat(register.noteIdFor(note1File.name)).isEqualTo(note1.id)
     assertThat(register.noteIdFor(note2File.name)).isEqualTo(note2.id)
 
-    register.pruneStaleRecords(latestNotes = listOf(note1))
+    register.pruneStaleRecords(currentIds = listOf(note1.id))
 
     assertThat(register.noteIdFor(note1File.name)).isEqualTo(note1.id)
     assertThat(register.noteIdFor(note2File.name)).isNull()

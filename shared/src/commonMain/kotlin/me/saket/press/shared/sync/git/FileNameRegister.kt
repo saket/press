@@ -161,10 +161,10 @@ internal class FileNameRegister(private val notesDirectory: File) {
     return if (isArchived) "archived" else null
   }
 
-  fun pruneStaleRecords(latestNotes: List<Note>) {
+  fun pruneStaleRecords(currentIds: Collection<NoteId>) {
     if (!registerDirectory.exists) return
 
-    val noteIds = latestNotes.map { it.id.value.toString() }
+    val noteIds = currentIds.map { it.value.toString() }
     for (file in allRegisterFiles().reversed()) {
       val record = Record.from(registerDirectory, file)
       if (record.noteIdString !in noteIds) {

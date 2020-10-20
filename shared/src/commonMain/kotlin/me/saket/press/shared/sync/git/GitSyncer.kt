@@ -137,7 +137,18 @@ class GitSyncer(
   private class SyncTransaction(val git: GitRepository) {
     // DB operations are executed in one go to
     // avoid locking the DB in a transaction for long.
-    val dbOperations = mutableListOf<Runnable>()
+    val dbOperations = mutableListOf<DbOperation>()
+  }
+
+  class DbOperation(
+    val updateIds: (MutableSet<NoteId>) -> Unit,
+    val operation: () -> Unit
+  ) {
+    companion object {
+      fun includeId(id: NoteId, op: () -> Unit) = DbOperation(updateIds = { it.add(id) }, operation = op)
+      fun excludeId(id: NoteId, op: () -> Unit) = DbOperation(updateIds = { it.remove(id) }, operation = op)
+      fun empty() = DbOperation({}, {})
+    }
   }
 
   override fun disable() {
@@ -226,7 +237,7 @@ class GitSyncer(
     git.checkout(restoreToBranch.name)
   }
 
-  private data class PullResult(
+  private class PullResult(
     val headBefore: GitCommit,
     val headAfter: GitCommit
   )
@@ -466,7 +477,7 @@ class GitSyncer(
           }
 
           if (isNewNote) {
-            Runnable {
+            DbOperation.includeId(noteId) {
               noteQueries.insert(
                   id = noteId,
                   content = content,
@@ -484,7 +495,7 @@ class GitSyncer(
               )
             }
           } else {
-            Runnable {
+            DbOperation.includeId(noteId) {
               noteQueries.updateContent(
                   id = noteId,
                   content = content,
@@ -502,10 +513,7 @@ class GitSyncer(
             }
           }
         }
-        is Delete -> {
-          // Handled later.
-          Runnable {}
-        }
+        is Delete -> DbOperation.empty()  // Handled later.
       }
     }
 
@@ -534,7 +542,7 @@ class GitSyncer(
 
         if (noteId != null) {
           log("   permanently deleting $noteId")
-          dbOperations += Runnable {
+          dbOperations += DbOperation.excludeId(noteId) {
             noteQueries.markAsPendingDeletion(noteId)
             noteQueries.updateSyncState(ids = listOf(noteId), syncState = IN_FLIGHT)
             noteQueries.deleteNote(noteId)
@@ -553,6 +561,23 @@ class GitSyncer(
     val remote = readConfig()!!.remote.remote
     check(git.currentBranch().name == remote.defaultBranch) { "Not on the default branch" }
     check(!git.isStagingAreaDirty()) { "Expected staging area to be clean before pushing" }
+
+    val expectedIdsAfterSync = noteQueries.allNotes()
+        .executeAsList()
+        .map { it.id }
+        .toMutableSet()
+        .also { ids ->
+          // Scheduled DB operations run only after the changes are
+          // pushed to remote so they must be manually included.
+          dbOperations.forEach { it.updateIds(ids) }
+        }
+    register.pruneStaleRecords(expectedIdsAfterSync)
+    if (git.isStagingAreaDirty()) {
+      git.commitAll(
+          message = "Prune stale file name records",
+          timestamp = UtcTimestamp(clock)
+      )
+    }
 
     if (pullResult.headAfter == git.headCommit()) {
       noteQueries.swapSyncStates(old = listOf(IN_FLIGHT), new = SYNCED)
@@ -576,7 +601,7 @@ class GitSyncer(
 
     if (dbOperations.isNotEmpty()) {
       noteQueries.transaction {
-        dbOperations.forEach { it.run() }
+        dbOperations.forEach { it.operation() }
       }
       mergeConflicts.clear()
     }
