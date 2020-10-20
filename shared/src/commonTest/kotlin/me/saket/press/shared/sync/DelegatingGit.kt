@@ -9,14 +9,18 @@ import me.saket.kgit.SshPrivateKey
 import me.saket.kgit.UtcTimestamp
 
 class DelegatingGit(private val delegate: Git) : Git {
-  var prePull: (() -> Unit)? = null
-  var preCommit: ((message: String) -> Unit)? = null
-  var prePush: (() -> Unit)? = null
-  var postPush: (() -> Unit)? = null
+  lateinit var repository: GitRepository
+  val prePulls = mutableListOf<() -> Unit>()
+  val preCommits = mutableListOf<(message: String) -> Unit>()
+  val prePushes = mutableListOf<() -> Unit>()
+  val postPushes = mutableListOf<() -> Unit>()
+  var postHardReset = {}
   var pushCount = 0
 
   override fun repository(path: String, sshKey: SshPrivateKey, remoteSshUrl: String, userConfig: GitConfig) =
-    DelegatingGitRepository(this, delegate.repository(path, sshKey, remoteSshUrl, userConfig))
+    DelegatingGitRepository(this, delegate.repository(path, sshKey, remoteSshUrl, userConfig)).also {
+      repository = it
+    }
 
   class DelegatingGitRepository(
     private val git: DelegatingGit,
@@ -24,21 +28,26 @@ class DelegatingGit(private val delegate: Git) : Git {
   ) : GitRepository by delegate {
 
     override fun pull(rebase: Boolean): GitPullResult {
-      git.prePull?.invoke()
+      git.prePulls.forEach { it() }
       return delegate.pull(rebase)
     }
 
     override fun commitAll(message: String, timestamp: UtcTimestamp, allowEmpty: Boolean) {
-      git.preCommit?.invoke(message)
+      git.preCommits.forEach { it(message) }
       delegate.commitAll(message, timestamp, allowEmpty)
     }
 
     override fun push(force: Boolean): PushResult {
       git.pushCount++
-      git.prePush?.invoke()
+      git.prePushes.forEach { it() }
       return delegate.push(force).also {
-        git.postPush?.invoke()
+        git.postPushes.forEach { it() }
       }
+    }
+
+    override fun hardResetTo(sha1: String, resetState: Boolean, deleteUntrackedFiles: Boolean) {
+      delegate.hardResetTo(sha1, resetState, deleteUntrackedFiles)
+      git.postHardReset()
     }
   }
 }

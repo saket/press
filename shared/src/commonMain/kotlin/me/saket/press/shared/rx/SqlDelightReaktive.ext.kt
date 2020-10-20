@@ -44,6 +44,10 @@ internal fun <T : Any> Observable<Query<T>>.mapToOneOrOptional(): Observable<Opt
   return map { it.executeAsOneOrNull().toOptional() }
 }
 
+internal fun <T : Any> Observable<Query<T>>.mapToOne(): Observable<T> {
+  return map { it.executeAsOne() }
+}
+
 internal fun <T : Any> Observable<Query<T>>.mapToList(): Observable<List<T>> {
   return map { it.executeAsList() }
 }

@@ -92,6 +92,8 @@ class GitSyncerTest : BaseDatabaeTest() {
       deleteEverything()
     }
     configQueries.save(remote = remoteAndAuth)
+
+    preventCommitsBeforePullsOrAfterPushes()
   }
 
   @AfterTest
@@ -610,7 +612,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     noteQueries.markAsPendingDeletion(noteToDelete.id)
 
     val commitMessages = mutableListOf<String>()
-    git.preCommit = { commitMessages += it }
+    git.preCommits += { commitMessages += it }
     syncer.sync()
 
     // Note's updated content should be saved before it's deleted, and in separate commits.
@@ -862,11 +864,12 @@ class GitSyncerTest : BaseDatabaeTest() {
     noteQueries.testInsert(newNote)
 
     // Syncs fail in different ways.
-    git.prePull = { error("You just couldn't let me go, could you?") }
+    val prePull = { error("You just couldn't let me go, could you?") }
+    git.prePulls += prePull
     syncer.sync()
 
-    git.prePull = null
-    git.prePush = { error("Joker") }
+    git.prePulls -= prePull
+    git.prePushes += { error("Joker") }
     syncer.sync()
 
     // Verify: the new note doesn't get mark as synced.
@@ -895,7 +898,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     val note2 = fakeNote("# Batman 2")
     val note3 = fakeNote("# Batman 3", isPendingDeletion = true)
     noteQueries.testInsert(note2, note3)
-    git.prePush = { error("Two-Face") }
+    git.prePushes += { error("Two-Face") }
     syncer.sync()
 
     assertThat(unrelatedFile.exists).isFalse()
@@ -925,9 +928,9 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     // When sync is started again, it should
     // delete all unsynced files before starting.
-    git.prePull = { error("don't need this to finish") }
+    git.prePulls += { error("don't need this to finish") }
     syncer.sync()
-    expectUnSyncedNotes + listOf(note2.id, note3.id)
+    expectUnSyncedNotes += listOf(note2.id, note3.id)
 
     assertThat(notePaths()).containsOnly("batman_1.md")
   }
@@ -993,7 +996,7 @@ class GitSyncerTest : BaseDatabaeTest() {
         updatedAt = clock.nowUtc()
     )
 
-    git.prePush = {
+    git.prePushes += {
       assertThat(isConflicted.values.last()).isTrue()
     }
     syncer.sync()
@@ -1007,7 +1010,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     mergeConflicts.add(noteId)
     val isConflicted = mergeConflicts.isConflicted(noteId).test()
 
-    git.prePull = { error("boom!") }
+    git.prePulls += { error("boom!") }
     syncer.sync()
 
     assertThat(isConflicted.values.last()).isFalse()
@@ -1040,39 +1043,6 @@ class GitSyncerTest : BaseDatabaeTest() {
     )
   }
 
-  /** Any changes made after a push are in danger of creating merge conflicts. */
-  @Test fun `no commits are made once local changes are pushed to remote`() {
-    if (!canRunTests()) return
-
-    noteQueries.testInsert(fakeNote("# Shopping list"))
-    syncer.sync()
-
-    // There was a bug where stale file records were pruned after changes had been pushed to remote.
-    // When a note is deleted, it's record isn't deleted alongside. It's instead deleted during pruning
-    // and will cause a commit to be made.
-    RemoteRepositoryRobot {
-      pull()
-      commitFiles(
-          message = "Delete 'shopping_list.md'",
-          delete = listOf("shopping_list.md")
-      )
-      forcePush()
-    }
-
-    var pushed = false
-    git.postPush = {
-      println("pushed")
-      pushed = true
-    }
-    git.preCommit = {
-      println("committing $it")
-      check(!pushed)
-    }
-
-    noteQueries.testInsert(fakeNote("# Shopping list 2"))
-    syncer.sync()
-  }
-
   @Test fun `delete notes after syncing them`() {
     if (!canRunTests()) return
 
@@ -1094,6 +1064,43 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     assertThat(remote.fetchNoteFiles()).isEmpty()
     assertThat(noteQueries.allNotes().executeAsList()).isEmpty()
+  }
+
+  /**
+   * Any changes that isn't available on remote are in danger of creating merge conflicts.
+   * There was a bug where stale file records were pruned after changes had been pushed to remote.
+   * When a note is deleted, it's record isn't deleted alongside. It's instead deleted during pruning
+   * and will cause a commit to be made.
+   */
+  private fun preventCommitsBeforePullsOrAfterPushes() {
+    val isDefaultBranch = {
+      // This ignores the initial commit for backing-up of notes
+      // and announcement commit, which are made on different branches.
+      git.repository.currentBranch().name == configQueries.select().executeAsOne().remote.remote.defaultBranch
+    }
+
+    var committed = false
+    var pushed = false
+    git.preCommits += {
+      if (isDefaultBranch()) {
+        committed = true
+        check(!pushed)
+      }
+    }
+    git.prePulls += {
+      if (isDefaultBranch()) {
+        check(!committed)
+      }
+    }
+    git.postPushes += {
+      if (isDefaultBranch()) {
+        pushed = true
+      }
+    }
+    git.postHardReset = {
+      committed = false
+      pushed = false
+    }
   }
 
   private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit = {}) {

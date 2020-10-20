@@ -185,17 +185,6 @@ class GitSyncer(
     git.checkout(config.remote.remote.defaultBranch, createIfNeeded = true)
 
     check(!git.isStagingAreaDirty()) { "Hard reset didn't work" }
-
-    val savedNotes = noteQueries.allNotes().executeAsList()
-    register.pruneStaleRecords(savedNotes)
-    if (git.isStagingAreaDirty()) {
-      // This commit will be discarded if this sync is aborted,
-      // but that's okay. This step can be safely run again.
-      git.commitAll(
-          message = "Prune stale file name records",
-          timestamp = UtcTimestamp(clock)
-      )
-    }
   }
 
   /**
@@ -529,7 +518,7 @@ class GitSyncer(
 
     // Deleted notes will need to be processed commit-wise. If a note was updated _and_ deleted
     // in pulled changes then its diff entry will not match the diff entry of its filename record.
-    log("\nRe-processing changes to read deletions")
+    log("\nRe-processing changes to read deletions (if any)")
 
     val restoreToBranch = git.currentBranch()
     for ((commit, diffs) in commits.changes(git)) {
