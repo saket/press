@@ -44,7 +44,7 @@ class FileBasedSyncLogger(private val notesDirectory: File) : SyncLogger {
 
   override fun onSyncStart(fromDevice: String) {
     buffer.clear()
-    log("Syncing notes with '$fromDevice' on ${DateTime.now()}\n")
+    log("Syncing notes with '$fromDevice' on ${DateTime.now()}")
   }
 
   override fun onSyncComplete() {

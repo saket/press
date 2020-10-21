@@ -5,3 +5,6 @@ expect class GitCommit {
   val message: String
   val utcTimestamp: UtcTimestamp
 }
+
+val GitCommit.shortMessage
+  get() = message.lineSequence().first()

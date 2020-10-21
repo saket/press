@@ -24,6 +24,7 @@ import me.saket.kgit.GitTreeDiff.Change.Rename
 import me.saket.kgit.PushResult.Failure
 import me.saket.kgit.UtcTimestamp
 import me.saket.kgit.abbreviated
+import me.saket.kgit.shortMessage
 import me.saket.press.PressDatabase
 import me.saket.press.data.shared.FolderSyncConfig
 import me.saket.press.data.shared.Note
@@ -193,12 +194,14 @@ class GitSyncer(
     // Remove all unsynced and dirty changes.
     val config = readConfig()!!
     val lastCleanSha1 = config.lastPushedSha1 ?: git.headCommit()!!.sha1.value
-    log("Resetting to sha1: $lastCleanSha1.")
     git.hardResetTo(
         sha1 = lastCleanSha1,
         resetState = true,
         deleteUntrackedFiles = true
     )
+    git.headCommit()!!.let {
+      log("Resetting to sha1: ${it.sha1} (${it.shortMessage}).")
+    }
 
     // JGit doesn't offer a way to set the initial branch name and it
     // won't allow changing the branch without committing anything either
@@ -317,7 +320,7 @@ class GitSyncer(
     for (note in pendingSyncNotes) {
       val suggestion = register.suggestFile(note)
       val notePath = suggestion.suggestedFilePath
-      log(" • $notePath (old=${suggestion.oldFilePath}, id=${note.id})")
+      log(" • $notePath (${suggestion.oldFilePath?.let { "old = $it, " } ?: ""}id=${note.id.value})")
 
       conflictResolver.resolveAndSave(note, suggestion, commitRename = {
         git.commitAll(
@@ -452,7 +455,7 @@ class GitSyncer(
 
     log("\nProcessing commits from ${from?.sha1?.abbreviated} to ${to.sha1.abbreviated}")
     val commits = git.commitsBetween(from = from, toInclusive = to)
-    commits.forEach { log(" • ${it.sha1.abbreviated} - ${it.message.lines().first()}") }
+    commits.forEach { log(" • $it") }
 
     val diffSinceLastSync = git.changesBetween(from, to)
 

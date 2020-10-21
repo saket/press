@@ -20,7 +20,7 @@ actual class GitCommit(internal val commit: RevCommit) {
     )
 
   override fun toString(): String {
-    return "GitCommit[${sha1.abbreviated} - ${message.takeWhile { it != '\n' }}]"
+    return "${sha1.abbreviated} - $shortMessage"
   }
 
   override fun equals(other: Any?): Boolean {

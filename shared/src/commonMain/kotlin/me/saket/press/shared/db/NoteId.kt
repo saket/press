@@ -14,6 +14,8 @@ import kotlinx.serialization.encoding.Encoder
 
 // Inline class would have been nice if Kotlin multiplatform supported it.
 data class NoteId(val value: Uuid) {
+  override fun toString() = "NoteId($value)"
+
   object SqlAdapter : ColumnAdapter<NoteId, String> {
     override fun decode(databaseValue: String) = NoteId(uuidFrom(databaseValue))
     override fun encode(value: NoteId) = value.value.toString()
