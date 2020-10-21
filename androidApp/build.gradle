@@ -10,7 +10,7 @@ android {
     minSdkVersion versions.minSdk
     targetSdkVersion versions.compileSdk
     versionCode 8
-    versionName "1.6"
+    versionName "1.5.1"
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     archivesBaseName = "press_v${versionName}_(${versionCode})"
   }
