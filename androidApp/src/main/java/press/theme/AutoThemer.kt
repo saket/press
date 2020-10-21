@@ -75,9 +75,12 @@ object AutoThemer {
 }
 
 private fun <T : TextView> themed(view: T): T = view.apply {
-  themeAware {
-    setLinkTextColor(it.accentColor)
-    highlightColor = it.textHighlightColor
+  val selectionHandleDrawables = TextViewCompat.textSelectionHandles(this)
+
+  themeAware { palette ->
+    highlightColor = palette.textHighlightColor
+    selectionHandleDrawables.forEach { it.setColorFilter(palette.accentColor, SRC_IN) }
+    setLinkTextColor(palette.accentColor)
   }
 }
 
@@ -86,11 +89,9 @@ private fun <T : Button> themed(view: T): T = view.apply {
 }
 
 private fun <T : EditText> themed(view: T): T = view.apply {
-  val selectionHandleDrawables = TextViewCompat.textSelectionHandles(this)
+  themed(view as TextView)
 
   themeAware { palette ->
-    selectionHandleDrawables.forEach { it.setColorFilter(palette.accentColor, SRC_IN) }
-    highlightColor = palette.textHighlightColor
     setHintTextColor(palette.textColorSecondary)
   }
 }

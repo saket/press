@@ -12,6 +12,8 @@
     <item name="android:windowBackground">@color/default_window_background</item>
     <item name="android:statusBarColor">@color/default_window_background</item>
 
+    <item name="android:scrollViewStyle">@style/DefaultScrollViewStyle</item>
+    <item name="android:horizontalScrollViewStyle">@style/DefaultScrollViewStyle</item>
     <item name="recyclerViewStyle">@style/DefaultRecyclerViewStyle</item>
   </style>
 
@@ -23,6 +25,11 @@
 
   <style name="DefaultEditTextStyle" parent="Widget.AppCompat.EditText">
     <item name="android:textCursorDrawable">@drawable/tinted_cursor_drawable</item>
+  </style>
+
+  <style name="DefaultScrollViewStyle">
+    <item name="android:scrollbars">vertical</item>
+    <item name="android:scrollbarStyle">insideOverlay</item>
   </style>
 
   <style name="DefaultRecyclerViewStyle">

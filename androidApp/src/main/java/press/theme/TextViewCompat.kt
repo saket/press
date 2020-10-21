@@ -18,7 +18,7 @@ object TextViewCompat {
       val rightDrawableResId = reflect(TextView::class, "mTextSelectHandleRightRes")!!.getInt(view)
 
       val editorField = reflect(TextView::class, "mEditor")
-      val editor = editorField!!.get(view)
+      val editor: Any = editorField!!.get(view) ?: return emptyArray()
 
       val centerDrawable = getDrawable(view.context, centerDrawableResId)!!
       val leftDrawable = getDrawable(view.context, leftDrawableResId)!!
