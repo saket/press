@@ -4,11 +4,13 @@ import android.app.Activity
 import android.content.res.ColorStateList
 import android.graphics.PorterDuff.Mode.SRC_IN
 import android.view.View
+import android.view.View.SCROLLBARS_INSIDE_OVERLAY
 import android.view.ViewGroup
 import android.view.Window.ID_ANDROID_CONTENT
 import android.widget.Button
 import android.widget.EdgeEffect
 import android.widget.EditText
+import android.widget.HorizontalScrollView
 import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.ScrollView
@@ -66,6 +68,7 @@ object AutoThemer {
       is Button -> themed(view)
       is TextView -> themed(view)
       is ScrollView -> themed(view)
+      is HorizontalScrollView -> themed(view)
       is RecyclerView -> themed(view)
       is Toolbar -> themed(view)
       is FloatingActionButton -> themed(view)
@@ -97,6 +100,12 @@ private fun <T : EditText> themed(view: T): T = view.apply {
 }
 
 private fun themed(view: ScrollView) = view.apply {
+  themeAware {
+    ScrollViewCompat.setEdgeEffectColor(view, it.accentColor)
+  }
+}
+
+private fun themed(view: HorizontalScrollView) = view.apply {
   themeAware {
     ScrollViewCompat.setEdgeEffectColor(view, it.accentColor)
   }

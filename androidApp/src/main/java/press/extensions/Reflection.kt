@@ -25,6 +25,7 @@ class Reflection(private val clazz: Class<out Any>) {
           try {
             Some(clazz.getDeclaredField(name).apply { isAccessible = true })
           } catch (e: NoSuchFieldException) {
+            e.printStackTrace()
             None
           }
         }
@@ -37,6 +38,7 @@ class Reflection(private val clazz: Class<out Any>) {
           try {
             Some(clazz.getDeclaredMethod(name, *paramTypes).apply { isAccessible = true })
           } catch (e: NoSuchMethodException) {
+            e.printStackTrace()
             None
           }
         }
