@@ -52,7 +52,7 @@ class SyncPreferencesView @AssistedInject constructor(
     addView(syncEnabledView)
     applyLayout(
         x = matchParentX(),
-        y = topTo { toolbar.bottom() + 8.ydip }.bottomTo { parent.bottom() }
+        y = topTo { toolbar.bottom() }.bottomTo { parent.bottom() }
     )
   }
 

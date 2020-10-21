@@ -24,7 +24,7 @@ class SyncDisabledView(context: Context) : ContourLayout(context) {
     themeAware { textColor = it.textColorPrimary }
     applyLayout(
         x = matchParentX(marginLeft = 22.dip, marginRight = 22.dip),
-        y = topTo { parent.top() }
+        y = topTo { parent.top() + 8.ydip }
     )
   }
 
