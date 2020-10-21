@@ -58,7 +58,8 @@ data class Strings(
     val conflicted_note_explanation_dialog_button: String,
 
     val nerd_stats_title: String,
-    val nerd_stats_git_size: String
+    val nerd_stats_git_size: String,
+    val nerd_stats_logs_label: String
   )
 }
 
@@ -120,6 +121,7 @@ val ENGLISH_STRINGS = Strings(
         conflicted_note_explanation_dialog_button = "Close note",
 
         nerd_stats_title = "Stats for nerds",
-        nerd_stats_git_size = "Git directory size: %s"
+        nerd_stats_git_size = "Git directory size: %s",
+        nerd_stats_logs_label = "Logs: "
     )
 )

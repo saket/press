@@ -3,13 +3,13 @@ package me.saket.press.shared.sync.git
 import co.touchlab.stately.collections.IsoMutableList
 import com.soywiz.klock.DateTime
 
-interface SyncLogger {
+internal interface SyncLogger {
   fun log(message: String)
   fun onSyncStart(fromDevice: String) = Unit
   fun onSyncComplete()
 }
 
-class SyncLoggers(private vararg val defaultLoggers: SyncLogger) : SyncLogger {
+internal class SyncLoggers(private vararg val defaultLoggers: SyncLogger) : SyncLogger {
   private val loggers = IsoMutableList<SyncLogger>().apply {
     addAll(defaultLoggers.toList())
   }
@@ -34,9 +34,9 @@ object PrintLnSyncLogger : SyncLogger {
  * Git maintains its revision history so the logs are reset on every sync and Press does not
  * have to evict stale logs.
  */
-class FileBasedSyncLogger(private val notesDirectory: File) : SyncLogger {
+internal class FileBasedSyncLogger(private val notesDirectory: File) : SyncLogger {
   private val buffer = IsoMutableList<String>()
-  private val file get() = File(notesDirectory, ".press/sync_log.txt")
+  val file get() = File(notesDirectory, ".press/sync_log.txt")
 
   override fun log(message: String) {
     buffer.add(message)

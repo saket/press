@@ -1,7 +1,12 @@
 package press.sync.stats
 
 import android.content.Context
-import androidx.core.view.updatePaddingRelative
+import android.text.Selection
+import android.text.Spannable
+import android.widget.HorizontalScrollView
+import android.widget.ScrollView
+import android.widget.TextView.BufferType.SPANNABLE
+import androidx.core.view.setPadding
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
@@ -10,6 +15,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.sync.stats.SyncStatsForNerdsPresenter
 import me.saket.press.shared.sync.stats.SyncStatsForNerdsUiModel
+import me.saket.press.shared.theme.TextStyles.mainBody
 import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextView
 import me.saket.press.shared.ui.subscribe
@@ -29,11 +35,37 @@ class SyncStatsForNerdsView @AssistedInject constructor(
     setNavigationOnClickListener { findActivity().finish() }
   }
 
-  private val directorySizeView = TextView(context, smallBody).apply {
-    updatePaddingRelative(start = 16.dip, end = 16.dip)
+  private val directorySizeView = TextView(context, mainBody).apply {
     themeAware {
-      textColor = it.textColorSecondary
+      textColor = it.textColorPrimary
     }
+  }
+
+  private val logsLabelView = TextView(context, mainBody).apply {
+    text = context.strings().sync.nerd_stats_logs_label
+    themeAware {
+      textColor = it.textColorPrimary
+    }
+  }
+
+  private val logsView = TextView(context, smallBody).apply {
+    setTextIsSelectable(true)
+    themeAware {
+      textColor = it.textColorPrimary
+    }
+  }
+
+  private val logsScrollView = ScrollView(context).apply {
+    isFillViewport = true
+    themeAware {
+      setBackgroundColor(it.window.editorBackgroundColor)
+    }
+
+    addView(HorizontalScrollView(context).also {
+      it.clipToPadding = false
+      it.setPadding(22.dip)
+      it.addView(logsView)
+    })
   }
 
   init {
@@ -42,9 +74,18 @@ class SyncStatsForNerdsView @AssistedInject constructor(
         y = topTo { parent.top() }
     )
     directorySizeView.layoutBy(
-        x = matchParentX(),
+        x = matchParentX(marginLeft = 22.dip, marginRight = 22.dip),
         y = topTo { toolbar.bottom() + 8.ydip }
     )
+    logsLabelView.layoutBy(
+        x = matchXTo(directorySizeView),
+        y = topTo { directorySizeView.bottom() + 8.ydip }
+    )
+    logsScrollView.layoutBy(
+        x = matchParentX(),
+        y = topTo { logsLabelView.bottom() + 16.ydip }.bottomTo { parent.bottom() }
+    )
+    contourHeightMatchParent()
 
     themeAware {
       setBackgroundColor(it.window.backgroundColor)
@@ -62,6 +103,7 @@ class SyncStatsForNerdsView @AssistedInject constructor(
 
   private fun render(model: SyncStatsForNerdsUiModel) {
     directorySizeView.text = model.gitDirectorySize
+    logsView.text = model.logs
   }
 
   @AssistedInject.Factory

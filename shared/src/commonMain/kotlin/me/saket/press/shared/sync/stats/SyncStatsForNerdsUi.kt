@@ -1,7 +1,6 @@
 package me.saket.press.shared.sync.stats
 
 data class SyncStatsForNerdsUiModel(
-  val gitDirectorySize: String
+  val gitDirectorySize: String,
+  val logs: String
 )
-
-data class FileSize(val bytes: Long)

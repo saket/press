@@ -1,19 +1,19 @@
 package me.saket.press.shared.sync
 
 import com.badoo.reaktive.observable.Observable
-import com.badoo.reaktive.single.Single
 import com.soywiz.klock.DateTime
 import me.saket.press.shared.sync.git.File
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
-import me.saket.press.shared.sync.stats.FileSize
-import me.saket.press.shared.util.Optional
 
 /** Syncs notes with a remote destination. */
 abstract class Syncer {
 
-  internal abstract fun status(): Observable<Status>
-
-  abstract fun directorySize(): FileSize?
+  /**
+   * Directory where the notes are stored. Currently only used for logging size
+   * to find out how large the folder can grow for GitSyncer. It may be useful to
+   * truncate the git history in the future. A full history isn't needed on clients.
+   */
+  abstract val directory: File
 
   /**
    * Called every time a note's content is updated,
@@ -22,6 +22,8 @@ abstract class Syncer {
   internal abstract fun sync()
 
   abstract fun disable()
+
+  internal abstract fun status(): Observable<Status>
 
   sealed class Status {
     object Disabled : Status()
