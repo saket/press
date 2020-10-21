@@ -48,6 +48,11 @@
       </intent-filter>
     </activity>
 
+    <activity
+      android:name="press.sync.stats.SyncStatsForNerdsActivity"
+      android:launchMode="singleTask"
+      android:windowSoftInputMode="adjustResize" />
+
     <activity android:name="press.ShortcutReceiverActivity">
       <intent-filter>
         <action android:name="android.intent.action.SEND" />

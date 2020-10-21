@@ -3,7 +3,6 @@ package press.sync
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_VIEW
-import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.PaintDrawable
 import android.net.Uri
@@ -26,11 +25,10 @@ import me.saket.press.shared.theme.applyStyle
 import press.extensions.createRippleDrawable
 import press.extensions.getDrawable
 import press.extensions.textColor
+import press.sync.stats.SyncStatsForNerdsActivity
 import press.theme.AutoThemer
 import press.theme.appTheme
 import press.theme.themeAware
-import press.theme.themePalette
-import press.widgets.PressButton
 
 class SyncEnabledView(context: Context) : ContourLayout(context) {
   private val itemView = ItemView(context)
@@ -47,15 +45,15 @@ class SyncEnabledView(context: Context) : ContourLayout(context) {
   fun render(model: SyncEnabled) {
     itemView.render(model)
 
-    itemView.setOnClickListener {
-      context.startActivity(Intent(ACTION_VIEW, Uri.parse(model.remoteUrl)))
-    }
+    val openRepo = { context.startActivity(Intent(ACTION_VIEW, Uri.parse(model.remoteUrl))) }
+    itemView.setOnClickListener { openRepo() }
+
     itemView.optionsButton.setOnClickListener {
-      showOptionsMenu(palette = appTheme().palette)
+      showOptionsMenu(palette = appTheme().palette, openRepo)
     }
   }
 
-  private fun showOptionsMenu(palette: ThemePalette) {
+  private fun showOptionsMenu(palette: ThemePalette, openRepo: () -> Unit) {
     val styler = CascadePopupMenu.Styler(
         background = {
           roundedRectDrawable(palette.buttonNormal, radius = 4f.dip)
@@ -76,21 +74,34 @@ class SyncEnabledView(context: Context) : ContourLayout(context) {
     )
 
     CascadePopupMenu(context, anchor = itemView.optionsButton, styler = styler).apply {
-      menu.add(context.strings().sync.open_repository).also {
-        it.icon = context.getDrawable(R.drawable.ic_twotone_web_24, palette.textColorPrimary)
-      }
-      menu.addSubMenu(context.strings().sync.remove_repository).also {
-        it.setIcon(context.getDrawable(R.drawable.ic_twotone_delete_24, palette.textColorPrimary))
-        it.setHeaderTitle(context.strings().sync.remove_repository_confirm_question)
-        it.add(context.strings().sync.remove_repository_confirm).setOnMenuItemClickListener {
-          onDisableClick()
-          true
-        }
-        it.add(context.strings().sync.remove_repository_cancel).setOnMenuItemClickListener {
-          navigateBack()
-          true
-        }
-      }
+      menu.add(context.strings().sync.open_repository)
+          .setIcon(context.getDrawable(R.drawable.ic_twotone_web_24, palette.textColorPrimary))
+          .setOnMenuItemClickListener {
+            openRepo()
+            true
+          }
+
+      menu.addSubMenu(context.strings().sync.remove_repository)
+          .setIcon(context.getDrawable(R.drawable.ic_twotone_delete_24, palette.textColorPrimary))
+          .setHeaderTitle(context.strings().sync.remove_repository_confirm_question).also {
+            it.add(context.strings().sync.remove_repository_confirm)
+                .setOnMenuItemClickListener {
+                  onDisableClick()
+                  true
+                }
+            it.add(context.strings().sync.remove_repository_cancel)
+                .setOnMenuItemClickListener {
+                  navigateBack()
+                  true
+                }
+          }
+
+      menu.add(context.strings().sync.show_sync_stats)
+          .setIcon(context.getDrawable(R.drawable.ic_twotone_bug_report_24, palette.textColorPrimary))
+          .setOnMenuItemClickListener {
+            context.startActivity(SyncStatsForNerdsActivity.intent(context))
+            true
+          }
       show()
     }
   }

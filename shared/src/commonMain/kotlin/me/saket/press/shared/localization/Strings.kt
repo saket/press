@@ -38,6 +38,7 @@ data class Strings(
     val remove_repository_confirm_question: String,
     val remove_repository_confirm: String,
     val remove_repository_cancel: String,
+    val show_sync_stats: String,
     val sync_disabled_message: String,
     val cd_sync_repository_options: String,
     val status_in_flight: String,
@@ -54,7 +55,9 @@ data class Strings(
     val conflicted_note_heading_prefix: String,
     val conflicted_note_explanation_dialog_title: String,
     val conflicted_note_explanation_dialog_message: String,
-    val conflicted_note_explanation_dialog_button: String
+    val conflicted_note_explanation_dialog_button: String,
+
+    val nerd_stats_title: String
   )
 }
 
@@ -112,6 +115,9 @@ val ENGLISH_STRINGS = Strings(
             "and had to be duplicated. Please close and re-open this note? \n\nSync conflicts are unfortunate but " +
             "unavoidable if edits to the same note are made on multiple devices, either around the same time or at" +
             " different times while offline.",
-        conflicted_note_explanation_dialog_button = "Close note"
+        conflicted_note_explanation_dialog_button = "Close note",
+
+        show_sync_stats = "Stats for nerds",
+        nerd_stats_title = "Stats for nerds",
     )
 )

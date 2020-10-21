@@ -8,7 +8,6 @@ import press.widgets.ThemeAwareActivity
 import javax.inject.Inject
 
 class PreferencesActivity : ThemeAwareActivity() {
-
   @Inject lateinit var viewFactory: SyncPreferencesView.Factory
 
   override fun onCreate(savedInstanceState: Bundle?) {
