@@ -33,6 +33,10 @@ internal fun observableInterval(interval: TimeSpan, scheduler: Scheduler): Obser
   return observableInterval(interval.milliseconds.toLong(), scheduler)
 }
 
+internal fun observableInterval(startDelay: Long, period: TimeSpan, scheduler: Scheduler): Observable<Long> {
+  return observableInterval(startDelay, period.millisecondsLong, scheduler)
+}
+
 internal fun <T, O> Observable<T>.withLatestFrom(other: Observable<O>): Observable<Pair<T, O>> {
   return withLatestFrom(other, ::Pair)
 }
@@ -75,10 +79,6 @@ internal fun <T, R> Observable<T>.zipWith(other: Observable<R>): Observable<Pair
 
 internal fun <T, R> zip(first: Observable<T>, second: Observable<R>): Observable<Pair<T, R>> {
   return zip(first, second, ::Pair)
-}
-
-internal fun observableInterval(startDelay: Long, period: TimeSpan, scheduler: Scheduler): Observable<Long> {
-  return observableInterval(startDelay, period.millisecondsLong, scheduler)
 }
 
 fun Completable.takeUntil(until: Observable<*>): Completable {

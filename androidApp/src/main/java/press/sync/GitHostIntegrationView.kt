@@ -95,7 +95,7 @@ class GitHostIntegrationView @AssistedInject constructor(
 
   init {
     themeAware {
-      background = ColorDrawable(it.window.backgroundColor)
+      setBackgroundColor(it.window.backgroundColor)
     }
 
     recyclerView.addOnScrollListener(object : OnScrollListener() {

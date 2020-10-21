@@ -11,6 +11,7 @@ import me.saket.press.shared.theme.AppTheme
 import press.PressApp
 import press.sync.GitHostIntegrationActivity
 import press.sync.PreferencesActivity
+import press.sync.stats.SyncStatsForNerdsActivity
 import javax.inject.Singleton
 
 @Singleton
@@ -25,4 +26,5 @@ interface AppComponent {
   fun inject(target: EditorActivity)
   fun inject(target: PreferencesActivity)
   fun inject(target: GitHostIntegrationActivity)
+  fun inject(target: SyncStatsForNerdsActivity)
 }

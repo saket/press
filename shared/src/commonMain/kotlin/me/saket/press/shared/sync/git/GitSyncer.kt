@@ -43,6 +43,7 @@ import me.saket.press.shared.sync.Syncer.Status.LastOp.Failed
 import me.saket.press.shared.sync.Syncer.Status.LastOp.Idle
 import me.saket.press.shared.sync.Syncer.Status.LastOp.InFlight
 import me.saket.press.shared.sync.git.FileNameRegister.FileSuggestion
+import me.saket.press.shared.sync.stats.FileSize
 import me.saket.press.shared.time.Clock
 
 // TODO: show errors in status UI
@@ -92,6 +93,18 @@ class GitSyncer(
             syncingWith = config.remote.remote
         )
       }
+    }
+  }
+
+  override fun directorySize(): FileSize? {
+    return try {
+      FileSize(bytes = directory
+          .children(recursively = true)
+          .map { it.sizeInBytes() }
+          .sum())
+    } catch (e: Throwable) {
+      e.printStackTrace()
+      null
     }
   }
 

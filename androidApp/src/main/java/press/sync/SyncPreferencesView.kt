@@ -58,7 +58,7 @@ class SyncPreferencesView @AssistedInject constructor(
 
   init {
     themeAware {
-      background = ColorDrawable(it.window.backgroundColor)
+      setBackgroundColor(it.window.backgroundColor)
     }
   }
 

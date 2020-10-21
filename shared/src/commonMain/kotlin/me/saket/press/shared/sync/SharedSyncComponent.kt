@@ -16,6 +16,7 @@ import me.saket.press.shared.sync.git.GitHostAuthToken
 import me.saket.press.shared.sync.git.GitHostIntegrationPresenter
 import me.saket.press.shared.sync.git.GitRepositoryCache
 import me.saket.press.shared.sync.git.GitSyncer
+import me.saket.press.shared.sync.stats.SyncStatsForNerdsPresenter
 import org.koin.core.parameter.parametersOf
 import org.koin.dsl.module
 
@@ -63,6 +64,14 @@ class SharedSyncComponent {
     single<SyncCoordinator> {
       RealSyncCoordinator(get(), get())
     }
+
+    factory {
+      SyncStatsForNerdsPresenter(
+          syncer = get(),
+          strings = get(),
+          schedulers = get()
+      )
+    }
   }
 
   private fun httpClient(json: Json): HttpClient {
@@ -79,6 +88,7 @@ class SharedSyncComponent {
 
   companion object {
     fun preferencesPresenter(): SyncPreferencesPresenter = koin()
+    fun statsForNerdsPresenter(): SyncStatsForNerdsPresenter = koin()
 
     fun integrationPresenter(args: GitHostIntegrationPresenter.Args) =
       koin<GitHostIntegrationPresenter> { parametersOf(args) }

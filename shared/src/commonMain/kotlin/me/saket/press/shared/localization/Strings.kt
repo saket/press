@@ -57,7 +57,8 @@ data class Strings(
     val conflicted_note_explanation_dialog_message: String,
     val conflicted_note_explanation_dialog_button: String,
 
-    val nerd_stats_title: String
+    val nerd_stats_title: String,
+    val nerd_stats_git_size: String
   )
 }
 
@@ -97,6 +98,7 @@ val ENGLISH_STRINGS = Strings(
         remove_repository_confirm_question = "Are you sure?",
         remove_repository_confirm = "Yep",
         remove_repository_cancel = "Cancel",
+        show_sync_stats = "Stats for nerds",
         status_in_flight = "Syncing…",
         status_idle_never_synced = "Waiting to sync",
         status_failed = "Last attempt failed, will retry in sometime.",
@@ -117,7 +119,7 @@ val ENGLISH_STRINGS = Strings(
             " different times while offline.",
         conflicted_note_explanation_dialog_button = "Close note",
 
-        show_sync_stats = "Stats for nerds",
         nerd_stats_title = "Stats for nerds",
+        nerd_stats_git_size = "Git directory size: %s"
     )
 )
