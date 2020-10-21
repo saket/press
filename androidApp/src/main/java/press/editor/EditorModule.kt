@@ -11,12 +11,7 @@ import me.saket.press.shared.settings.Setting
 object EditorModule {
 
   @Provides
-  fun presenter(): EditorPresenter.Factory {
-    // SAM conversion of Kotlin interfaces would have been nice.
-    return object : EditorPresenter.Factory {
-      override fun create(args: EditorPresenter.Args) = SharedEditorComponent.presenter(args)
-    }
-  }
+  fun presenter() = EditorPresenter.Factory { SharedEditorComponent.presenter(it) }
 
   @Provides
   fun autoCorrectEnabled(): Setting<AutoCorrectEnabled> = SharedEditorComponent.autoCorrectEnabled()

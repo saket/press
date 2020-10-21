@@ -201,7 +201,7 @@ class EditorPresenter(
         }
   }
 
-  interface Factory {
+  fun interface Factory {
     fun create(args: Args): EditorPresenter
   }
 

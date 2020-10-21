@@ -185,7 +185,7 @@ class GitHostIntegrationPresenter(
     kind: FailureKind
   ) = repeatItemWhen(events.ofType<RetryClicked>().filter { it.failure == kind })
 
-  interface Factory {
+  fun interface Factory {
     fun create(args: Args): GitHostIntegrationPresenter
   }
 

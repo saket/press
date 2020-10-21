@@ -10,15 +10,10 @@ import me.saket.press.shared.sync.git.GitHostIntegrationPresenter
 object SyncModule {
 
   @Provides
-  fun preferencesPresenter(): SyncPreferencesPresenter =
+  fun preferencesPresenter() =
     SharedSyncComponent.preferencesPresenter()
 
   @Provides
-  fun integrationPresenter(): GitHostIntegrationPresenter.Factory {
-    // SAM conversion of Kotlin interfaces would have been nice.
-    return object : GitHostIntegrationPresenter.Factory {
-      override fun create(args: GitHostIntegrationPresenter.Args) =
-        SharedSyncComponent.integrationPresenter(args)
-    }
-  }
+  fun integrationPresenter() =
+    GitHostIntegrationPresenter.Factory { SharedSyncComponent.integrationPresenter(it) }
 }
