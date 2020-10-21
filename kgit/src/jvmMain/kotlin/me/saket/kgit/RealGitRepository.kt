@@ -26,7 +26,6 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType.RENAME
 import org.eclipse.jgit.errors.LockFailedException
 import org.eclipse.jgit.internal.storage.file.LockFile
 import org.eclipse.jgit.lib.BranchConfig.BranchRebaseMode.REBASE
-import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Constants.LOCK_SUFFIX
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.RepositoryState.SAFE

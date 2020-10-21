@@ -6,7 +6,6 @@ import com.badoo.reaktive.observable.combineLatest
 import com.badoo.reaktive.scheduler.ioScheduler
 import com.badoo.reaktive.subject.behavior.BehaviorSubject
 import com.soywiz.klock.DateTime
-import kotlinx.coroutines.Runnable
 import me.saket.kgit.Git
 import me.saket.kgit.GitCommit
 import me.saket.kgit.GitConfig

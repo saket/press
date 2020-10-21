@@ -9,7 +9,6 @@ import com.badoo.reaktive.observable.ObservableWrapper
 import com.badoo.reaktive.observable.distinctUntilChanged
 import com.badoo.reaktive.observable.doOnBeforeError
 import com.badoo.reaktive.observable.filter
-import com.badoo.reaktive.observable.firstOrComplete
 import com.badoo.reaktive.observable.flatMapCompletable
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
@@ -18,7 +17,6 @@ import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.onErrorResumeNext
 import com.badoo.reaktive.observable.onErrorReturnValue
 import com.badoo.reaktive.observable.publish
-import com.badoo.reaktive.observable.repeatWhen
 import com.badoo.reaktive.observable.startWithValue
 import com.badoo.reaktive.observable.switchMap
 import com.badoo.reaktive.observable.take
@@ -90,16 +88,16 @@ class GitHostIntegrationPresenter(
     return cachedRepos.listen()
         .take(1)
         .filterNull()
+        .repeatItemOnRetry(events, kind = Authorization)
         .switchMap {
           gitHostService.completeAuth(args.deepLink)
               .asObservable()
-              .repeatOnRetry(events, kind = Authorization)
               .consumeOnNext<GitHostAuthToken, GitHostIntegrationUiModel> {
                 authToken.set(it)
               }
               .doOnBeforeError { e -> e.printStackTrace() }
               .onErrorReturnValue(ShowFailure(kind = Authorization))
-              .startWithValue(defaultUiModel())
+              .startWithValue(ShowProgress)
         }
   }
 
@@ -111,18 +109,19 @@ class GitHostIntegrationPresenter(
         cachedRepos.listen().filterNull()
     )
         .take(1)
+        .repeatItemOnRetry(events, kind = FetchingRepos)
         .switchMap { (token) ->
           gitHostService.fetchUserRepos(token)
               .asObservable()
-              .repeatOnRetry(events, kind = FetchingRepos)
-        }
-        .publish { userRepos ->
-          merge(
-              userRepos.ignoreErrors().consumeOnNext { cachedRepos.set(it) },
-              userRepos
-                  .doOnBeforeError { e -> e.printStackTrace() }
-                  .onErrorReturnValue(ShowFailure(kind = FetchingRepos))
-          )
+              .publish { userRepos ->
+                merge(
+                    userRepos.ignoreErrors().consumeOnNext { cachedRepos.set(it) },
+                    userRepos
+                        .doOnBeforeError { e -> e.printStackTrace() }
+                        .onErrorReturnValue(ShowFailure(kind = FetchingRepos))
+                        .startWithValue(ShowProgress)
+                )
+              }
         }
         .ofType()
   }
@@ -186,11 +185,6 @@ class GitHostIntegrationPresenter(
     kind: FailureKind
   ) = repeatItemWhen(events.ofType<RetryClicked>().filter { it.failure == kind })
 
-  private fun <T> Observable<T>.repeatOnRetry(
-    events: Observable<GitHostIntegrationEvent>,
-    kind: FailureKind
-  ) = repeatWhen { events.ofType<RetryClicked>().filter { it.failure == kind }.firstOrComplete() }
-
   interface Factory {
     fun create(args: Args): GitHostIntegrationPresenter
   }
@@ -228,7 +222,7 @@ interface GitRepositoryCache {
 
   class InMemory : GitRepositoryCache {
     private val cache = BehaviorSubject<List<GitRepositoryInfo>?>(null)
-    override fun listen() = cache
+    override fun listen(): Observable<List<GitRepositoryInfo>?> = cache
     override fun set(repos: List<GitRepositoryInfo>?) = cache.onNext(repos)
   }
 }

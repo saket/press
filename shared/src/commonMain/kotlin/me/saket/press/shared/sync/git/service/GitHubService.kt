@@ -94,7 +94,7 @@ class GitHubService(private val http: HttpClient) : GitHostService {
 
   override fun addDeployKey(token: GitHostAuthToken, repository: GitRepositoryInfo, key: DeployKey): Completable {
     return completableFromCoroutine {
-      val response = http.post<String>("https://api.github.com/repos/${repository.owner}/${repository.name}/keys") {
+      http.post<String>("https://api.github.com/repos/${repository.owner}/${repository.name}/keys") {
         header("Authorization", "token ${token.value}")
         contentType(Application.Json)
         body = CreateDeployKeyRequest(

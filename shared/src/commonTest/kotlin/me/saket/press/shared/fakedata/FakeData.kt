@@ -34,10 +34,12 @@ fun fakeNote(
   )
 }
 
-fun fakeRepository(): GitRepositoryInfo {
+fun fakeRepository(
+  name: String = "nationaltreasure"
+): GitRepositoryInfo {
   return GitRepositoryInfo(
       host = GITHUB,
-      name = "nationaltreasure",
+      name = name,
       owner = "cage",
       url = "https://github.com/cage/nationaltreasure",
       sshUrl = "git@github.com:cage/nationaltreasure.git",
