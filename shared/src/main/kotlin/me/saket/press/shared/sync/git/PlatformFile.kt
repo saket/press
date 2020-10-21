@@ -79,6 +79,12 @@ actual class PlatformFile constructor(private val delegate: JavaFile) : File {
     check(delegate.delete()) { "Failed to delete file: $this" }
   }
 
+  override fun sizeInBytes(): Long {
+    check(exists)
+    check(!isDirectory)
+    return delegate.length()
+  }
+
   override fun children(): List<File> {
     check(exists)
     check(delegate.isDirectory)

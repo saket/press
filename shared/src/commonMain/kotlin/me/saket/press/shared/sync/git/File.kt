@@ -33,6 +33,8 @@ interface File {
 
   fun delete()
 
+  fun sizeInBytes(): Long
+
   fun children(): List<File>
 
   /** @return the same [newFile] for convenience. */

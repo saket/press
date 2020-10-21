@@ -16,5 +16,6 @@ actual class PlatformFile actual constructor(parentPath: String, name: String) :
   override fun equalsContent(content: String): Boolean = TODO()
   override fun makeDirectory(recursively: Boolean): Unit = TODO()
   override fun delete(): Unit = TODO()
+  override fun sizeInBytes(): Long = TODO()
   override fun children(): List<File> = TODO()
 }
