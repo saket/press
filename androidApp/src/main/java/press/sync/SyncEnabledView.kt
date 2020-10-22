@@ -3,13 +3,17 @@ package press.sync
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_VIEW
+import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.PaintDrawable
 import android.net.Uri
 import android.text.TextUtils.TruncateAt.END
+import android.view.TouchDelegate
+import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ImageView.ScaleType.CENTER_INSIDE
+import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
 import com.squareup.contour.ContourLayout
 import me.saket.cascade.CascadePopupMenu
@@ -153,6 +157,13 @@ class SyncEnabledView(context: Context) : ContourLayout(context) {
       themeAware {
         background = createRippleDrawable(it)
       }
+
+      // Avoid accidental taps on parent by increasing the option button's tap area.
+      optionsButton.doOnLayout {
+        val optionsRect = it.getHitRect()
+        optionsRect.inset(-it.top, -it.top)
+        touchDelegate = TouchDelegate(optionsRect, it)
+      }
     }
 
     fun render(model: SyncEnabled) {
@@ -175,4 +186,8 @@ class SyncEnabledView(context: Context) : ContourLayout(context) {
   private fun roundedRectDrawable(color: Int, radius: Float): Drawable {
     return PaintDrawable(color).also { it.setCornerRadius(radius) }
   }
+}
+
+private fun View.getHitRect(): Rect {
+  return Rect().also { getHitRect(it) }
 }
