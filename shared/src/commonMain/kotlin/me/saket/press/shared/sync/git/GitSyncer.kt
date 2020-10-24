@@ -320,16 +320,13 @@ class GitSyncer(
       val notePath = suggestion.suggestedFilePath
       log(" • $notePath (${suggestion.oldFilePath?.let { "old = $it, " } ?: ""}id=${note.id.value})")
 
-      conflictResolver.resolveAndSave(
-        note, suggestion,
-        commitRename = {
-          git.commitAll(
-            message = "Rename '${suggestion.oldFilePath}' → '$notePath'",
-            timestamp = UtcTimestamp(note.updatedAt),
-            allowEmpty = false
-          )
-        }
-      )
+      conflictResolver.resolveAndSave(note, suggestion, commitRename = {
+        git.commitAll(
+          message = "Rename '${suggestion.oldFilePath}' → '$notePath'",
+          timestamp = UtcTimestamp(note.updatedAt),
+          allowEmpty = false
+        )
+      })
 
       // Staging area may not be dirty if this note had already been processed earlier.
       if (git.isStagingAreaDirty()) {
@@ -543,17 +540,19 @@ class GitSyncer(
 
     // Deleted notes will need to be processed commit-wise. If a note was updated _and_ deleted
     // in pulled changes then its diff entry will not match the diff entry of its filename record.
-    log("\nChecking if any notes were deleted")
-
     val restoreToBranch = git.currentBranch()
-    for ((commit, diffs) in commits.changes(git)) {
-      if (!diffs.any { it is Delete }) {
-        continue
-      }
+    val deletedDiffs = commits.changes(git)
+      .map { (commit, diffs) -> commit to diffs.filterNoteChanges().filterIsInstance<Delete>() }
+      .filter { (_, diffs) -> diffs.isNotEmpty() }
 
+    if (deletedDiffs.isNotEmpty()) {
+      log("\nChecking deleted notes")
+    }
+
+    for ((commit, diffs) in deletedDiffs) {
       git.checkout(commit)
 
-      for (diff in diffs.filterNoteChanges().filterIsInstance<Delete>()) {
+      for (diff in diffs) {
         val noteId = register.noteIdFor(diff.path)
         log(" • '${diff.path}' deleted in ${commit.sha1.abbreviated}")
 
