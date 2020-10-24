@@ -26,9 +26,10 @@ fun TextView.applyStyle(style: UiStyles.Text) {
 }
 
 fun UiStyles.Font.asTypeface(context: Context): Typeface {
-  val fontFamily = ResourcesCompat.getFont(context, when (family) {
+  val fontResId = when (family) {
     WORK_SANS -> R.font.work_sans
-  })
+  }
+  val fontFamily = ResourcesCompat.getFont(context, fontResId)
 
   return if (SDK_INT >= P) {
     val isItalic = variant.isItalic
