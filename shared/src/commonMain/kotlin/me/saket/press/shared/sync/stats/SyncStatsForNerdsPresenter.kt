@@ -13,6 +13,7 @@ import me.saket.press.shared.sync.Syncer
 import me.saket.press.shared.sync.git.File
 import me.saket.press.shared.sync.git.FileBasedSyncLogger
 import me.saket.press.shared.sync.git.children
+import me.saket.press.shared.sync.git.existsOrNull
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.util.format
 
@@ -68,7 +69,8 @@ class SyncStatsForNerdsPresenter(
 
   private fun readSyncLogs(): String {
     return FileBasedSyncLogger(syncer.directory).file
-      .read()
-      .ifBlank { "Logs will be shown here after the first sync" }
+      .existsOrNull()
+      ?.read()
+      ?: "Logs will be shown here after the first sync"
   }
 }
