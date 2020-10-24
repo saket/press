@@ -14,7 +14,7 @@ expect fun inMemorySqlDriver(): SqlDriver
  */
 abstract class BaseDatabaeTest {
   private val sqlDriver: SqlDriver = inMemorySqlDriver()
-  protected val database: PressDatabase = createPressDatabase(sqlDriver, createJson())
+  protected open val database: PressDatabase = createPressDatabase(sqlDriver, createJson())
 
   @AfterTest
   fun closeDb() {

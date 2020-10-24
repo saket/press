@@ -14,6 +14,7 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import co.touchlab.stately.concurrency.AtomicBoolean
+import co.touchlab.stately.concurrency.value
 import com.badoo.reaktive.test.observable.test
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.hours
@@ -53,10 +54,11 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class GitSyncerTest : BaseDatabaeTest() {
-  private val deviceInfo = testDeviceInfo()
+  override val database = DelegatingPressDatabase(super.database)
   private val noteQueries get() = database.noteQueries
   private val configQueries get() = database.folderSyncConfigQueries
 
+  private val deviceInfo = testDeviceInfo()
   private val clock = FakeClock()
   private val remoteAndAuth = GitRemoteAndAuth(
       remote = fakeRepository().copy(
@@ -250,12 +252,6 @@ class GitSyncerTest : BaseDatabaeTest() {
             updatedAt = localTime2
         )
     )
-
-    println("\nNotes in local DB before sync: ")
-    noteQueries.visibleNotes()
-        .executeAsList()
-        .sortedBy { it.updatedAt }
-        .forEach { println("${it.id} ${it.content.replace("\n", " ")}") }
 
     syncer.sync()
 
@@ -1064,6 +1060,17 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     assertThat(remote.fetchNoteFiles()).isEmpty()
     assertThat(noteQueries.allNotes().executeAsList()).isEmpty()
+  }
+
+  @Test fun `avoid re-saving locally updated note`() {
+    if (!canRunTests()) return
+
+    val note = fakeNote("# Raji")
+    noteQueries.testInsert(note)
+    assertThat(noteQueries.updateCount.value).isEqualTo(0)
+
+    syncer.sync()
+    assertThat(noteQueries.updateCount.value).isEqualTo(0)
   }
 
   /**

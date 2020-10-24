@@ -108,10 +108,18 @@ class GitSyncer(
         resetState()
         backupIfFirstSync()
 
-        val pullResult = pull()
-        commit(pullResult)
-        processCommits(pullResult)
-        push(pullResult)
+        val pulled = pull()
+        processCommits(since = pulled.headBefore)
+
+        val committed = commit(pulled)
+        if (committed != null) {
+          // Modifications are ignored to avoid re-writing committed notes back to
+          // the DB, which can accidentally cause overriding of any uncommitted changes.
+          // Only newly added notes or deleted notes are processed.
+          processCommits(since = committed.headBefore, ignoreModifications = true)
+        }
+
+        push(pulled)
         lastOp.onNext(Idle)
 
       } catch (e: Throwable) {
@@ -276,13 +284,17 @@ class GitSyncer(
     return PullResult(headBefore = localHead, headAfter = upstreamHead)
   }
 
+  private class CommitResult(val headBefore: GitCommit)
+
   @Suppress("CascadeIf")
-  private fun SyncTransaction.commit(pullResult: PullResult) {
+  private fun SyncTransaction.commit(pullResult: PullResult): CommitResult? {
     val pendingSyncNotes = noteQueries.notesInState(listOf(PENDING, IN_FLIGHT)).executeAsList()
     if (pendingSyncNotes.isEmpty()) {
       log("\nNothing to commit.")
-      return
+      return null
     }
+
+    val headBefore = git.headCommit()!!
 
     // Having an intermediate sync state between PENDING and SYNCED
     // is important in case a note gets updated while it is syncing,
@@ -301,7 +313,7 @@ class GitSyncer(
       else -> DuplicateOnConflictResolver(git, pullResult)
     }
 
-    log("\nReading unsynced notes (${pendingSyncNotes.size}):")
+    log("\nCommitting unsynced notes (${pendingSyncNotes.size}):")
 
     for (note in pendingSyncNotes) {
       val suggestion = register.suggestFile(note)
@@ -334,6 +346,7 @@ class GitSyncer(
         )
       }
     }
+    return CommitResult(headBefore)
   }
 
   private abstract class MergeConflictsResolver(git: GitRepository, pullResult: PullResult) {
@@ -430,34 +443,34 @@ class GitSyncer(
   }
 
   @Suppress("NAME_SHADOWING")
-  private fun SyncTransaction.processCommits(pullResult: PullResult) {
-    if (pullResult.headBefore == git.headCommit()) {
+  private fun SyncTransaction.processCommits(since: GitCommit, ignoreModifications: Boolean = false) {
+    if (since == git.headCommit()) {
       log("Nothing to process.")
       return
     }
 
     val to = git.headCommit()!!
-    val from = git.commonAncestor(first = pullResult.headBefore, second = to)
+    val from = git.commonAncestor(first = since, second = to)
 
     log("\nProcessing commits from ${from?.sha1?.abbreviated} to ${to.sha1.abbreviated}")
     val commits = git.commitsBetween(from = from, toInclusive = to)
     commits.forEach { log(" • $it") }
 
     val diffSinceLastSync = git.changesBetween(from, to)
-
-    log("\nProcessing changes (${diffSinceLastSync.size}):")
-    if (diffSinceLastSync.isNotEmpty()) {
-      log(diffSinceLastSync.flattenToString())
-    }
-
     val diffPathTimestamps = commits.pathTimestamps(git)
-    for (diff in diffSinceLastSync.filterNoteChanges()) {
+
+    log("\nSyncing changes (${diffSinceLastSync.size}):")
+    for (diff in diffSinceLastSync) {
+      log(" • $diff")
+      if (!diff.isNoteChange()) {
+        continue
+      }
+
       dbOperations += when (diff) {
         is Copy,
-        is Rename,
-          // Renaming of note files are ignored. Press
-          // generates a name as per the note's heading.
-        is Add, is Modify -> {
+        is Rename,  // Renaming of note files are ignored. Press generates a name as per the note's heading.
+        is Add,
+        is Modify -> {
           val file = File(directory, diff.path)
           val content = file.read()
 
@@ -471,12 +484,7 @@ class GitSyncer(
           val commitTime = diffPathTimestamps[diff.path]!!
 
           if (isNewNote) {
-            log("\nCreating new note $noteId for (${diff.path}), isArchived? $isArchived")
-          } else {
-            log("\nUpdating $noteId (${diff.path}), isArchived? $isArchived")
-          }
-
-          if (isNewNote) {
+            log("   creating new note for ${diff.path} with id=${noteId.value} (isArchived=$isArchived)")
             DbOperation.includeId(noteId) {
               noteQueries.insert(
                   id = noteId,
@@ -495,21 +503,27 @@ class GitSyncer(
               )
             }
           } else {
-            DbOperation.includeId(noteId) {
-              noteQueries.updateContent(
-                  id = noteId,
-                  content = content,
-                  updatedAt = commitTime
-              )
-              noteQueries.setArchived(
-                  id = noteId,
-                  isArchived = isArchived,
-                  updatedAt = commitTime
-              )
-              noteQueries.updateSyncState(
-                  ids = listOf(noteId),
-                  syncState = IN_FLIGHT
-              )
+            if (!ignoreModifications) {
+              log("   updating ${diff.path} with id=${noteId.value} (isArchived=$isArchived)")
+              DbOperation.includeId(noteId) {
+                noteQueries.updateContent(
+                    id = noteId,
+                    content = content,
+                    updatedAt = commitTime
+                )
+                noteQueries.setArchived(
+                    id = noteId,
+                    isArchived = isArchived,
+                    updatedAt = commitTime
+                )
+                noteQueries.updateSyncState(
+                    ids = listOf(noteId),
+                    syncState = IN_FLIGHT
+                )
+              }
+            } else {
+              log("   skipping ${diff.path} (already saved)")
+              DbOperation.empty()
             }
           }
         }
@@ -526,7 +540,7 @@ class GitSyncer(
 
     // Deleted notes will need to be processed commit-wise. If a note was updated _and_ deleted
     // in pulled changes then its diff entry will not match the diff entry of its filename record.
-    log("\nRe-processing changes to read deletions (if any)")
+    log("\nChecking if any notes were deleted")
 
     val restoreToBranch = git.currentBranch()
     for ((commit, diffs) in commits.changes(git)) {
@@ -653,20 +667,19 @@ private fun GitTreeDiff.flattenToString(): String {
   return joinToString(prefix = " • ", separator = "\n • ")
 }
 
-private fun List<GitTreeDiff.Change>.filterNoteChanges() = filter { diff ->
-  val path = diff.path
-  when {
-    !path.endsWith(".md") -> false                                        // Not a markdown note.
-    path.startsWith(".press/") -> false                                   // Meta-files, ignore.
-    path.contains("/") -> {
-      when {
-        path.startsWith("archived/") && !path.hasMultipleOf('/') -> true  // Archived note.
-        else -> error("Folders aren't supported yet: '$path'")
-      }
+private fun GitTreeDiff.Change.isNoteChange() = when {
+  !path.endsWith(".md") -> false                                        // Not a markdown note.
+  path.startsWith(".press/") -> false                                   // Meta-files, ignore.
+  path.contains("/") -> {
+    when {
+      path.startsWith("archived/") && !path.hasMultipleOf('/') -> true  // Archived note.
+      else -> error("Folders aren't supported yet: '$path'")
     }
-    else -> true
   }
+  else -> true
 }
+
+private fun List<GitTreeDiff.Change>.filterNoteChanges() = filter { it.isNoteChange() }
 
 @OptIn(ExperimentalStdlibApi::class)
 fun <T> List<T>.zipWithNext(initial: T): List<Pair<T, T>> {
