@@ -16,15 +16,15 @@ abstract class BaseSharedComponent {
   fun setupGraph(platform: PlatformDependencies) {
     startKoin {
       modules(
-          listOf(
-              SharedAppComponent().module,
-              SharedHomeComponent().module,
-              SharedEditorComponent().module,
-              SharedNoteComponent().module,
-              SharedDatabaseComponent().module,
-              SharedSyncComponent().module,
-              platform.asKoinModule()
-          )
+        listOf(
+          SharedAppComponent().module,
+          SharedHomeComponent().module,
+          SharedEditorComponent().module,
+          SharedNoteComponent().module,
+          SharedDatabaseComponent().module,
+          SharedSyncComponent().module,
+          platform.asKoinModule()
+        )
       )
     }
 

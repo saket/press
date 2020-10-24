@@ -63,14 +63,14 @@ class GitSyncer(
   private val git = {
     val remote = readConfig()!!.remote
     git.repository(
-        path = directory.path,
-        sshKey = remote.sshKey,
-        remoteSshUrl = remote.remote.sshUrl,
-        userConfig = GitConfig(
-            "author" to listOf("name" to remote.user.name, "email" to (remote.user.email ?: "")),
-            "committer" to listOf("name" to "press", "email" to "press@saket.me"),
-            "diff" to listOf("renames" to "true")
-        )
+      path = directory.path,
+      sshKey = remote.sshKey,
+      remoteSshUrl = remote.remote.sshUrl,
+      userConfig = GitConfig(
+        "author" to listOf("name" to remote.user.name, "email" to (remote.user.email ?: "")),
+        "committer" to listOf("name" to "press", "email" to "press@saket.me"),
+        "diff" to listOf("renames" to "true")
+      )
     )
   }
 
@@ -80,16 +80,16 @@ class GitSyncer(
 
   override fun status(): Observable<Status> {
     val config = configQueries.select()
-        .asObservable(ioScheduler)
-        .mapToOneOrOptional()
+      .asObservable(ioScheduler)
+      .mapToOneOrOptional()
 
     return combineLatest(config, lastOp) { (config), op ->
       when (config) {
         null -> Status.Disabled
         else -> Status.Enabled(
-            lastOp = op,
-            lastSyncedAt = config.lastSyncedAt?.let(::LastSyncedAt),
-            syncingWith = config.remote.remote
+          lastOp = op,
+          lastSyncedAt = config.lastSyncedAt?.let(::LastSyncedAt),
+          syncingWith = config.remote.remote
         )
       }
     }
@@ -170,18 +170,18 @@ class GitSyncer(
       with(File(directory, ".press/")) {
         makeDirectory(recursively = true)
         File(this, "README.md").write(
-            "Press uses files in this directory for storing meta-data of your synced notes. " +
-                "They are auto-generated and shouldn't be modified. If you run into any " +
-                "issues with syncing of notes, feel free to file a [bug report here]" +
-                "(https://github.com/saket/press/issues) and attach [sync logs](sync_log.txt)" +
-                " after removing/redacting any private info."
+          "Press uses files in this directory for storing meta-data of your synced notes. " +
+            "They are auto-generated and shouldn't be modified. If you run into any " +
+            "issues with syncing of notes, feel free to file a [bug report here]" +
+            "(https://github.com/saket/press/issues) and attach [sync logs](sync_log.txt)" +
+            " after removing/redacting any private info."
         )
       }
 
       git.commitAll(
-          message = "Setup syncing on '${deviceInfo.deviceName()}'",
-          timestamp = UtcTimestamp(clock),
-          allowEmpty = true
+        message = "Setup syncing on '${deviceInfo.deviceName()}'",
+        timestamp = UtcTimestamp(clock),
+        allowEmpty = true
       )
     }
 
@@ -189,9 +189,9 @@ class GitSyncer(
     val config = readConfig()!!
     val lastCleanSha1 = config.lastPushedSha1 ?: git.headCommit()!!.sha1.value
     git.hardResetTo(
-        sha1 = lastCleanSha1,
-        resetState = true,
-        deleteUntrackedFiles = true
+      sha1 = lastCleanSha1,
+      resetState = true,
+      deleteUntrackedFiles = true
     )
     git.headCommit()!!.let {
       log("Resetting to sha1: ${it.sha1} (${it.shortMessage}).")
@@ -230,15 +230,15 @@ class GitSyncer(
       register.suggestFile(note).suggestedFile.write(note.content)
     }
     git.commitAll(
-        message = """
+      message = """
           |Backup notes on '${deviceInfo.deviceName()}'
           |
           |This is a copy of your notes before Press started syncing them. 
           |In case something goes wrong with the first sync, your notes 
           |can be recovered from this commit.
           """.trimMargin(),
-        timestamp = UtcTimestamp(clock),
-        allowEmpty = true
+      timestamp = UtcTimestamp(clock),
+      allowEmpty = true
     )
     git.push(force = true)
 
@@ -276,8 +276,8 @@ class GitSyncer(
     if (git.isStagingAreaDirty()) {
       log("\nPruned invalid file name records")
       git.commitAll(
-          message = "Prune invalid file name records",
-          timestamp = UtcTimestamp(clock)
+        message = "Prune invalid file name records",
+        timestamp = UtcTimestamp(clock)
       )
     }
 
@@ -300,8 +300,8 @@ class GitSyncer(
     // is important in case a note gets updated while it is syncing,
     // in which case it'll get marked as PENDING again.
     noteQueries.updateSyncState(
-        ids = pendingSyncNotes.map { it.id },
-        syncState = IN_FLIGHT
+      ids = pendingSyncNotes.map { it.id },
+      syncState = IN_FLIGHT
     )
 
     // When syncing notes for the first time, pick newer notes.
@@ -320,19 +320,22 @@ class GitSyncer(
       val notePath = suggestion.suggestedFilePath
       log(" • $notePath (${suggestion.oldFilePath?.let { "old = $it, " } ?: ""}id=${note.id.value})")
 
-      conflictResolver.resolveAndSave(note, suggestion, commitRename = {
-        git.commitAll(
+      conflictResolver.resolveAndSave(
+        note, suggestion,
+        commitRename = {
+          git.commitAll(
             message = "Rename '${suggestion.oldFilePath}' → '$notePath'",
             timestamp = UtcTimestamp(note.updatedAt),
             allowEmpty = false
-        )
-      })
+          )
+        }
+      )
 
       // Staging area may not be dirty if this note had already been processed earlier.
       if (git.isStagingAreaDirty()) {
         git.commitAll(
-            message = "Update '$notePath'",
-            timestamp = UtcTimestamp(note.updatedAt)
+          message = "Update '$notePath'",
+          timestamp = UtcTimestamp(note.updatedAt)
         )
       }
 
@@ -341,8 +344,8 @@ class GitSyncer(
         suggestion.suggestedFile.delete()
 
         git.commitAll(
-            message = "Delete '$notePath'",
-            timestamp = UtcTimestamp(note.updatedAt)
+          message = "Delete '$notePath'",
+          timestamp = UtcTimestamp(note.updatedAt)
         )
       }
     }
@@ -351,10 +354,10 @@ class GitSyncer(
 
   private abstract class MergeConflictsResolver(git: GitRepository, pullResult: PullResult) {
     protected val pulledPaths = git
-        .changesBetween(pullResult.headBefore, pullResult.headAfter)
-        .filterNoteChanges()
-        .map { it.path }
-        .toHashSet()
+      .changesBetween(pullResult.headBefore, pullResult.headAfter)
+      .filterNoteChanges()
+      .map { it.path }
+      .toHashSet()
 
     abstract fun resolveAndSave(note: Note, suggestion: FileSuggestion, commitRename: () -> Unit?)
   }
@@ -364,8 +367,8 @@ class GitSyncer(
     pullResult: PullResult
   ) : MergeConflictsResolver(git, pullResult) {
     private val pulledPathTimestamps = git
-        .commitsBetween(null, pullResult.headAfter)
-        .pathTimestamps(git)
+      .commitsBetween(null, pullResult.headAfter)
+      .pathTimestamps(git)
 
     @Suppress("MapGetWithNotNullAssertionOperator")
     override fun resolveAndSave(note: Note, suggestion: FileSuggestion, commitRename: () -> Unit?) {
@@ -437,8 +440,8 @@ class GitSyncer(
 
     private val Note.conflictedContent
       get() = HeadingAndBody.prefixHeading(
-          content = content,
-          prefix = "${strings.sync.conflicted_note_heading_prefix}: "
+        content = content,
+        prefix = "${strings.sync.conflicted_note_heading_prefix}: "
       )
   }
 
@@ -476,7 +479,7 @@ class GitSyncer(
 
           val oldPath = if (diff is Rename) diff.fromPath else null
           val record = register.recordFor(diff.path, oldPath = oldPath)
-              ?: register.createNewRecordFor(file, id = NoteId.generate())
+            ?: register.createNewRecordFor(file, id = NoteId.generate())
 
           val noteId = record.noteId
           val isArchived = record.noteFolder == "archived"
@@ -487,19 +490,19 @@ class GitSyncer(
             log("   creating new note for ${diff.path} with id=${noteId.value} (isArchived=$isArchived)")
             DbOperation.includeId(noteId) {
               noteQueries.insert(
-                  id = noteId,
-                  content = content,
-                  createdAt = commitTime,
-                  updatedAt = commitTime
+                id = noteId,
+                content = content,
+                createdAt = commitTime,
+                updatedAt = commitTime
               )
               noteQueries.setArchived(
-                  id = noteId,
-                  isArchived = isArchived,
-                  updatedAt = commitTime
+                id = noteId,
+                isArchived = isArchived,
+                updatedAt = commitTime
               )
               noteQueries.updateSyncState(
-                  ids = listOf(noteId),
-                  syncState = IN_FLIGHT
+                ids = listOf(noteId),
+                syncState = IN_FLIGHT
               )
             }
           } else {
@@ -507,18 +510,18 @@ class GitSyncer(
               log("   updating ${diff.path} with id=${noteId.value} (isArchived=$isArchived)")
               DbOperation.includeId(noteId) {
                 noteQueries.updateContent(
-                    id = noteId,
-                    content = content,
-                    updatedAt = commitTime
+                  id = noteId,
+                  content = content,
+                  updatedAt = commitTime
                 )
                 noteQueries.setArchived(
-                    id = noteId,
-                    isArchived = isArchived,
-                    updatedAt = commitTime
+                  id = noteId,
+                  isArchived = isArchived,
+                  updatedAt = commitTime
                 )
                 noteQueries.updateSyncState(
-                    ids = listOf(noteId),
-                    syncState = IN_FLIGHT
+                  ids = listOf(noteId),
+                  syncState = IN_FLIGHT
                 )
               }
             } else {
@@ -533,8 +536,8 @@ class GitSyncer(
 
     if (git.isStagingAreaDirty()) {
       git.commitAll(
-          message = "Create new file name records",
-          timestamp = UtcTimestamp(clock)
+        message = "Create new file name records",
+        timestamp = UtcTimestamp(clock)
       )
     }
 
@@ -577,19 +580,19 @@ class GitSyncer(
     check(!git.isStagingAreaDirty()) { "Expected staging area to be clean before pushing" }
 
     val expectedIdsAfterSync = noteQueries.allNotes()
-        .executeAsList()
-        .map { it.id }
-        .toMutableSet()
-        .also { ids ->
-          // Scheduled DB operations run only after the changes are
-          // pushed to remote so they must be manually included.
-          dbOperations.forEach { it.updateIds(ids) }
-        }
+      .executeAsList()
+      .map { it.id }
+      .toMutableSet()
+      .also { ids ->
+        // Scheduled DB operations run only after the changes are
+        // pushed to remote so they must be manually included.
+        dbOperations.forEach { it.updateIds(ids) }
+      }
     register.pruneStaleRecords(expectedIdsAfterSync)
     if (git.isStagingAreaDirty()) {
       git.commitAll(
-          message = "Prune stale file name records",
-          timestamp = UtcTimestamp(clock)
+        message = "Prune stale file name records",
+        timestamp = UtcTimestamp(clock)
       )
     }
 
@@ -601,8 +604,8 @@ class GitSyncer(
       log("\nPushing changes")
       loggers.onSyncComplete()
       git.commitAll(
-          message = "Update sync logs",
-          timestamp = UtcTimestamp(clock)
+        message = "Update sync logs",
+        timestamp = UtcTimestamp(clock)
       )
 
       val pushResult = git.push()
@@ -621,12 +624,12 @@ class GitSyncer(
     }
 
     noteQueries.swapSyncStates(
-        old = listOf(IN_FLIGHT),
-        new = SYNCED
+      old = listOf(IN_FLIGHT),
+      new = SYNCED
     )
     configQueries.update(
-        lastSyncedAt = clock.nowUtc(),
-        lastPushedSha1 = git.headCommit()!!.sha1.value
+      lastSyncedAt = clock.nowUtc(),
+      lastPushedSha1 = git.headCommit()!!.sha1.value
     )
   }
 

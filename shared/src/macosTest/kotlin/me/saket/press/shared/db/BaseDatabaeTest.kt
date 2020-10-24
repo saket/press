@@ -7,15 +7,15 @@ import com.squareup.sqldelight.drivers.native.wrapConnection
 import me.saket.press.PressDatabase
 
 actual fun inMemorySqlDriver(): SqlDriver = NativeSqliteDriver(
-    DatabaseConfiguration(
-        name = "press.test.db",
-        version = 1,
-        inMemory = true,
-        create = { connection ->
-          wrapConnection(connection) { PressDatabase.Schema.create(it) }
-        },
-        upgrade = { connection, oldVersion, newVersion ->
-          wrapConnection(connection) { PressDatabase.Schema.migrate(it, oldVersion, newVersion) }
-        }
-    )
+  DatabaseConfiguration(
+    name = "press.test.db",
+    version = 1,
+    inMemory = true,
+    create = { connection ->
+      wrapConnection(connection) { PressDatabase.Schema.create(it) }
+    },
+    upgrade = { connection, oldVersion, newVersion ->
+      wrapConnection(connection) { PressDatabase.Schema.migrate(it, oldVersion, newVersion) }
+    }
+  )
 )

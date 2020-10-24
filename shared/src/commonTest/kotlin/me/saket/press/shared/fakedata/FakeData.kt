@@ -23,14 +23,14 @@ fun fakeNote(
   syncState: SyncState = PENDING
 ): Note {
   return Note(
-      localId = localId,
-      id = id,
-      content = content,
-      createdAt = createdAt,
-      updatedAt = updatedAt,
-      isArchived = isArchived,
-      isPendingDeletion = isPendingDeletion,
-      syncState = syncState
+    localId = localId,
+    id = id,
+    content = content,
+    createdAt = createdAt,
+    updatedAt = updatedAt,
+    isArchived = isArchived,
+    isPendingDeletion = isPendingDeletion,
+    syncState = syncState
   )
 }
 
@@ -38,11 +38,11 @@ fun fakeRepository(
   name: String = "nationaltreasure"
 ): GitRepositoryInfo {
   return GitRepositoryInfo(
-      host = GITHUB,
-      name = name,
-      owner = "cage",
-      url = "https://github.com/cage/nationaltreasure",
-      sshUrl = "git@github.com:cage/nationaltreasure.git",
-      defaultBranch = "trunk"
+    host = GITHUB,
+    name = name,
+    owner = "cage",
+    url = "https://github.com/cage/nationaltreasure",
+    sshUrl = "git@github.com:cage/nationaltreasure.git",
+    defaultBranch = "trunk"
   )
 }

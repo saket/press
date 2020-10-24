@@ -45,12 +45,12 @@ class EditorPresenterTest {
     deleteBlankNoteOnExit: Boolean = true
   ): EditorPresenter {
     return EditorPresenter(
-        args = Args(openMode, deleteBlankNoteOnExit, navigator),
-        noteRepository = repository,
-        schedulers = FakeSchedulers(computation = testScheduler),
-        strings = ENGLISH_STRINGS,
-        config = config,
-        syncConflicts = syncConflicts
+      args = Args(openMode, deleteBlankNoteOnExit, navigator),
+      noteRepository = repository,
+      schedulers = FakeSchedulers(computation = testScheduler),
+      strings = ENGLISH_STRINGS,
+      config = config,
+      syncConflicts = syncConflicts
     )
   }
 
@@ -58,8 +58,8 @@ class EditorPresenterTest {
     assertThat(repository.savedNotes).hasSize(0)
 
     val observer = presenter(NewNote(noteId))
-        .uiModels()
-        .test()
+      .uiModels()
+      .test()
 
     repository.savedNotes.single().let {
       assertThat(it.id).isEqualTo(noteId)
@@ -70,14 +70,14 @@ class EditorPresenterTest {
 
   @Test fun `auto-save note at regular intervals`() {
     repository.savedNotes += fakeNote(
-        id = noteId,
-        content = "# "
+      id = noteId,
+      content = "# "
     )
 
     val presenter = presenter(NewNote(noteId))
     val observer = presenter
-        .uiModels()
-        .test()
+      .uiModels()
+      .test()
 
     val savedNote = { repository.savedNotes.single { it.id == noteId } }
 
@@ -100,8 +100,8 @@ class EditorPresenterTest {
     repository.savedNotes += fakeNote(id = noteId, content = "Nicolas")
 
     val observer = presenter(ExistingNote(noteId))
-        .uiModels()
-        .test()
+      .uiModels()
+      .test()
 
     repository.savedNotes.single().let {
       assertThat(it.id).isEqualTo(noteId)
@@ -112,8 +112,8 @@ class EditorPresenterTest {
 
   @Test fun `updating an existing note on close when its content is non-blank`() {
     repository.savedNotes += fakeNote(
-        id = noteId,
-        content = "Existing note"
+      id = noteId,
+      content = "Existing note"
     )
 
     val presenter = presenter(NewNote(noteId))
@@ -125,8 +125,8 @@ class EditorPresenterTest {
 
   @Test fun `delete new blank notes on close when enabled`() {
     val presenter = presenter(
-        openMode = NewNote(noteId, preFilledNote = "# Nicolas Cage"),
-        deleteBlankNoteOnExit = true
+      openMode = NewNote(noteId, preFilledNote = "# Nicolas Cage"),
+      deleteBlankNoteOnExit = true
     )
     presenter.uiModels().test()
 
@@ -145,8 +145,8 @@ class EditorPresenterTest {
 
   @Test fun `avoid deleting new blank note on close when disabled`() {
     val presenter = presenter(
-        openMode = NewNote(noteId, preFilledNote = "# Nicolas Cage"),
-        deleteBlankNoteOnExit = false
+      openMode = NewNote(noteId, preFilledNote = "# Nicolas Cage"),
+      deleteBlankNoteOnExit = false
     )
     presenter.uiModels().test()
 
@@ -176,8 +176,8 @@ class EditorPresenterTest {
   @Test fun `show hint text until the text is changed`() {
     val presenter = presenter(NewNote(noteId))
     val uiModels = presenter
-        .uiModels()
-        .test()
+      .uiModels()
+      .test()
 
     val hintText = { uiModels.values.last().hintText?.drop("# ".length) }
 
@@ -201,52 +201,52 @@ class EditorPresenterTest {
 
   @Test fun `populate existing note's content on start`() {
     repository.savedNotes += fakeNote(
-        id = noteId,
-        content = "Nicolas Cage favorite dialogues"
+      id = noteId,
+      content = "Nicolas Cage favorite dialogues"
     )
 
     presenter(ExistingNote(noteId))
-        .uiEffects()
-        .test()
-        .apply {
-          assertValue(UpdateNoteText("Nicolas Cage favorite dialogues", newSelection = null))
-          assertNotError()
-        }
+      .uiEffects()
+      .test()
+      .apply {
+        assertValue(UpdateNoteText("Nicolas Cage favorite dialogues", newSelection = null))
+        assertNotError()
+      }
   }
 
   @Test fun `populate new note's content with placeholder on start`() {
     presenter(NewNote(noteId, preFilledNote = "   "))
-        .uiEffects()
-        .test()
-        .apply {
-          assertValue(
-              UpdateNoteText(
-                  newText = NEW_NOTE_PLACEHOLDER,
-                  newSelection = TextSelection.cursor(NEW_NOTE_PLACEHOLDER.length)
-              )
+      .uiEffects()
+      .test()
+      .apply {
+        assertValue(
+          UpdateNoteText(
+            newText = NEW_NOTE_PLACEHOLDER,
+            newSelection = TextSelection.cursor(NEW_NOTE_PLACEHOLDER.length)
           )
-          assertNotError()
-        }
+        )
+        assertNotError()
+      }
   }
 
   @Test fun `populate new note's content with pre-filled note on start`() {
     val note = "Hello, World!"
     presenter(NewNote(noteId, note))
-        .uiEffects()
-        .test()
-        .apply {
-          assertValue(UpdateNoteText(newText = note, newSelection = null))
-          assertNotError()
-        }
+      .uiEffects()
+      .test()
+      .apply {
+        assertValue(UpdateNoteText(newText = note, newSelection = null))
+        assertNotError()
+      }
   }
 
   @Test fun `block editing if note is marked as sync-conflicted`() {
     repository.savedNotes += fakeNote(id = noteId, content = "# Existing note")
     presenter(ExistingNote(noteId)).uiEffects()
-        .ofType<BlockedDueToSyncConflict>()
-        .test()
-        .also { syncConflicts.add(noteId) }
-        .assertValue(BlockedDueToSyncConflict)
+      .ofType<BlockedDueToSyncConflict>()
+      .test()
+      .also { syncConflicts.add(noteId) }
+      .assertValue(BlockedDueToSyncConflict)
   }
 
   @Test fun `stop updating saved note once note is marked as sync-conflicted`() {

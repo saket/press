@@ -12,11 +12,13 @@ import me.saket.press.shared.sync.git.File
 
 actual object SharedComponent : BaseSharedComponent() {
   fun initialize(appContext: Application) {
-    setupGraph(PlatformDependencies(
+    setupGraph(
+      PlatformDependencies(
         sqlDriver = { sqliteDriver(appContext) },
         settings = { settings(appContext) },
         deviceInfo = { deviceInfo(appContext) }
-    ))
+      )
+    )
   }
 
   private fun sqliteDriver(appContext: Application) =

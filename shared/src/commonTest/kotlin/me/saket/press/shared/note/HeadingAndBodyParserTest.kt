@@ -10,7 +10,7 @@ class HeadingAndBodyParserTest {
 
   @Test fun `text with h1 and body`() {
     val (heading, body) = HeadingAndBody.parse(
-        """
+      """
         |# Level 1 heading
         |Body
         """.trimMargin()
@@ -21,7 +21,7 @@ class HeadingAndBodyParserTest {
 
   @Test fun `text with h1 with leading line break and body`() {
     val (heading, body) = HeadingAndBody.parse(
-        """
+      """
         |
         |# Level 1 heading
         |Body
@@ -33,7 +33,7 @@ class HeadingAndBodyParserTest {
 
   @Test fun `text with h1 and body separated by multiple line breaks`() {
     val (heading, body) = HeadingAndBody.parse(
-        """
+      """
         |# Level 1 heading
         |
         |
@@ -46,7 +46,7 @@ class HeadingAndBodyParserTest {
 
   @Test fun `text with h6 and body`() {
     val (heading, body) = HeadingAndBody.parse(
-        """
+      """
         |###### Level 6 heading
         |Body
         """.trimMargin()
@@ -57,7 +57,7 @@ class HeadingAndBodyParserTest {
 
   @Test fun `text with heading only`() {
     val (heading, body) = HeadingAndBody.parse(
-        """
+      """
         |# Heading
         """.trimMargin()
     )
@@ -67,7 +67,7 @@ class HeadingAndBodyParserTest {
 
   @Test fun `text with body only`() {
     val (heading, body) = HeadingAndBody.parse(
-        """
+      """
         |Body
         """.trimMargin()
     )
@@ -77,7 +77,7 @@ class HeadingAndBodyParserTest {
 
   @Test fun `text with empty heading`() {
     val (heading, body) = HeadingAndBody.parse(
-        """
+      """
         |#
         |#
         | 
@@ -89,7 +89,7 @@ class HeadingAndBodyParserTest {
 
   @Test fun `text with heading without any space after #`() {
     val (heading, body) = HeadingAndBody.parse(
-        """
+      """
         |#Heading
         |Body
         """.trimMargin()
@@ -144,6 +144,6 @@ class HeadingAndBodyParserTest {
     assertThat(prefix("# Heading only")).isEqualTo("# Conflicted: Heading only")
     assertThat(prefix("Body only")).isEqualTo("Conflicted: Body only")
     assertThat(prefix(" ##  Heading\nBody\nwith weird spacings"))
-        .isEqualTo(" ##  Conflicted: Heading\nBody\nwith weird spacings")
+      .isEqualTo(" ##  Conflicted: Heading\nBody\nwith weird spacings")
   }
 }

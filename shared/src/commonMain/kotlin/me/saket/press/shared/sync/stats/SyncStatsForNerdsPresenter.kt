@@ -24,22 +24,22 @@ class SyncStatsForNerdsPresenter(
 
   override fun defaultUiModel(): SyncStatsForNerdsUiModel {
     return SyncStatsForNerdsUiModel(
-        gitDirectorySize = strings.sync.nerd_stats_git_size.format("..."),
-        logs = ""
+      gitDirectorySize = strings.sync.nerd_stats_git_size.format("..."),
+      logs = ""
     )
   }
 
   override fun uiModels(): ObservableWrapper<SyncStatsForNerdsUiModel> {
     return observableInterval(startDelay = 0, period = 1.seconds, schedulers.computation)
-        .map {
-          SyncStatsForNerdsUiModel(
-              gitDirectorySize = syncer.directory.formatSize(),
-              logs = readSyncLogs()
-          )
-        }
-        .startWithValue(defaultUiModel())
-        .distinctUntilChanged()
-        .wrap()
+      .map {
+        SyncStatsForNerdsUiModel(
+          gitDirectorySize = syncer.directory.formatSize(),
+          logs = readSyncLogs()
+        )
+      }
+      .startWithValue(defaultUiModel())
+      .distinctUntilChanged()
+      .wrap()
   }
 
   private fun File.formatSize(): String {
@@ -68,7 +68,7 @@ class SyncStatsForNerdsPresenter(
 
   private fun readSyncLogs(): String {
     return FileBasedSyncLogger(syncer.directory).file
-        .read()
-        .ifBlank { "Logs will be shown here after the first sync" }
+      .read()
+      .ifBlank { "Logs will be shown here after the first sync" }
   }
 }

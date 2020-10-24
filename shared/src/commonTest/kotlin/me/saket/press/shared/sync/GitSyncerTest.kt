@@ -61,24 +61,24 @@ class GitSyncerTest : BaseDatabaeTest() {
   private val deviceInfo = testDeviceInfo()
   private val clock = FakeClock()
   private val remoteAndAuth = GitRemoteAndAuth(
-      remote = fakeRepository().copy(
-          sshUrl = BuildKonfig.GIT_TEST_REPO_SSH_URL,
-          defaultBranch = BuildKonfig.GIT_TEST_REPO_BRANCH
-      ),
-      sshKey = SshPrivateKey(BuildKonfig.GIT_TEST_SSH_PRIV_KEY),
-      user = GitIdentity(name = "Test syncer author", email = "test@test.com")
+    remote = fakeRepository().copy(
+      sshUrl = BuildKonfig.GIT_TEST_REPO_SSH_URL,
+      defaultBranch = BuildKonfig.GIT_TEST_REPO_BRANCH
+    ),
+    sshKey = SshPrivateKey(BuildKonfig.GIT_TEST_SSH_PRIV_KEY),
+    user = GitIdentity(name = "Test syncer author", email = "test@test.com")
   )
   private val mergeConflicts = SyncMergeConflicts()
   private val backupBeforeFirstSync = AtomicBoolean(false)
   private val git = DelegatingGit(delegate = RealGit())
   private val syncer = GitSyncer(
-      git = git,
-      database = database,
-      deviceInfo = deviceInfo,
-      clock = clock,
-      strings = ENGLISH_STRINGS,
-      mergeConflicts = mergeConflicts,
-      backupBeforeFirstSync = backupBeforeFirstSync
+    git = git,
+    database = database,
+    deviceInfo = deviceInfo,
+    clock = clock,
+    strings = ENGLISH_STRINGS,
+    mergeConflicts = mergeConflicts,
+    backupBeforeFirstSync = backupBeforeFirstSync
   )
 
   private val expectUnSyncedNotes = mutableListOf<NoteId>()
@@ -103,8 +103,8 @@ class GitSyncerTest : BaseDatabaeTest() {
     deviceInfo.appStorage.delete(recursively = true)
 
     val unsyncedNotes = noteQueries.allNotes().executeAsList()
-        .filter { it.syncState != SYNCED }
-        .filterNot { it.id in expectUnSyncedNotes }
+      .filter { it.syncState != SYNCED }
+      .filterNot { it.id in expectUnSyncedNotes }
 
     if (unsyncedNotes.isNotEmpty()) {
       println("\nUNSYNCED NOTES FOUND: ")
@@ -122,20 +122,20 @@ class GitSyncerTest : BaseDatabaeTest() {
     // Given: Remote repository has some notes over multiple commits.
     RemoteRepositoryRobot {
       commitFiles(
-          message = "First commit",
-          time = firstCommitTime,
-          add = listOf(
-              "note_1.md" to "# The Witcher",
-              "note_2.md" to "# Uncharted: The Lost Legacy"
-          )
+        message = "First commit",
+        time = firstCommitTime,
+        add = listOf(
+          "note_1.md" to "# The Witcher",
+          "note_2.md" to "# Uncharted: The Lost Legacy"
+        )
       )
       commitFiles(
-          message = "Second commit",
-          time = secondCommitTime,
-          add = listOf(
-              "note_3.md" to "# Overcooked",
-              "note_4.md" to "# The Last of Us"
-          )
+        message = "Second commit",
+        time = secondCommitTime,
+        add = listOf(
+          "note_3.md" to "# Overcooked",
+          "note_4.md" to "# The Last of Us"
+        )
       )
       forcePush()
     }
@@ -148,10 +148,10 @@ class GitSyncerTest : BaseDatabaeTest() {
     // Check that the notes were pulled and saved into DB.
     val notesAfterSync = noteQueries.visibleNotes().executeAsList()
     assertThat(notesAfterSync.map { it.content }).containsOnly(
-        "# The Witcher",
-        "# Uncharted: The Lost Legacy",
-        "# Overcooked",
-        "# The Last of Us"
+      "# The Witcher",
+      "# Uncharted: The Lost Legacy",
+      "# Overcooked",
+      "# The Last of Us"
     )
 
     notesAfterSync.first { it.content == "# The Witcher" }.apply {
@@ -174,22 +174,22 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     // Given: This device has some notes.
     noteQueries.testInsert(
-        fakeNote(
-            content = "# Nicolas Cage \nis a national treasure",
-            clock = clock
-        ),
-        fakeNote(
-            content = "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures",
-            clock = clock
-        )
+      fakeNote(
+        content = "# Nicolas Cage \nis a national treasure",
+        clock = clock
+      ),
+      fakeNote(
+        content = "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures",
+        clock = clock
+      )
     )
 
     syncer.sync()
 
     // Check that the local note(s) were pushed to remote.
     assertThat(remote.fetchNoteFiles()).containsOnly(
-        "nicolas_cage.md" to "# Nicolas Cage \nis a national treasure",
-        "witcher_3.md" to "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures"
+      "nicolas_cage.md" to "# Nicolas Cage \nis a national treasure",
+      "witcher_3.md" to "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures"
     )
   }
 
@@ -198,12 +198,12 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     RemoteRepositoryRobot {
       commitFiles(
-          message = "Create test.md",
-          time = clock.nowUtc(),
-          add = listOf(
-              "test.md" to "# Test",
-              "test2.md" to "# Test"
-          )
+        message = "Create test.md",
+        time = clock.nowUtc(),
+        add = listOf(
+          "test.md" to "# Test",
+          "test2.md" to "# Test"
+        )
       )
       forcePush()
     }
@@ -212,8 +212,8 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     val localNotes = noteQueries.visibleNotes().executeAsList().map { it.content }
     assertThat(localNotes).containsOnly(
-        "# Test",
-        "# Test"
+      "# Test",
+      "# Test"
     )
   }
 
@@ -229,49 +229,49 @@ class GitSyncerTest : BaseDatabaeTest() {
     // Given: Remote repository has some notes over multiple commits.
     val remote = RemoteRepositoryRobot {
       commitFiles(
-          message = "First commit",
-          time = remoteTime1,
-          add = listOf("note_1.md" to "# Uncharted: The Lost Legacy")
+        message = "First commit",
+        time = remoteTime1,
+        add = listOf("note_1.md" to "# Uncharted: The Lost Legacy")
       )
       commitFiles(
-          message = "Second commit",
-          time = remoteTime2,
-          add = listOf("note_2.md" to "# The Last of Us")
+        message = "Second commit",
+        time = remoteTime2,
+        add = listOf("note_2.md" to "# The Last of Us")
       )
       forcePush()
     }
 
     // Given: This device has some notes.
     noteQueries.testInsert(
-        fakeNote(
-            content = "# Nicolas Cage \nis a national treasure",
-            updatedAt = localTime1
-        ),
-        fakeNote(
-            content = "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures",
-            updatedAt = localTime2
-        )
+      fakeNote(
+        content = "# Nicolas Cage \nis a national treasure",
+        updatedAt = localTime1
+      ),
+      fakeNote(
+        content = "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures",
+        updatedAt = localTime2
+      )
     )
 
     syncer.sync()
 
     // Check: both local and remote have same notes with same timestamps.
     val localNotes = noteQueries.visibleNotes()
-        .executeAsList()
-        .sortedBy { it.updatedAt }
+      .executeAsList()
+      .sortedBy { it.updatedAt }
 
     assertThat(localNotes.map { it.content }).containsExactly(
-        "# Uncharted: The Lost Legacy",
-        "# Nicolas Cage \nis a national treasure",
-        "# The Last of Us",
-        "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures"
+      "# Uncharted: The Lost Legacy",
+      "# Nicolas Cage \nis a national treasure",
+      "# The Last of Us",
+      "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures"
     )
 
     assertThat(remote.fetchNoteFiles()).containsOnly(
-        "note_1.md" to "# Uncharted: The Lost Legacy",
-        "note_2.md" to "# The Last of Us",
-        "nicolas_cage.md" to "# Nicolas Cage \nis a national treasure",
-        "witcher_3.md" to "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures"
+      "note_1.md" to "# Uncharted: The Lost Legacy",
+      "note_2.md" to "# The Last of Us",
+      "nicolas_cage.md" to "# Nicolas Cage \nis a national treasure",
+      "witcher_3.md" to "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures"
     )
   }
 
@@ -284,8 +284,8 @@ class GitSyncerTest : BaseDatabaeTest() {
     RemoteRepositoryRobot {
       createRecord("uncharted.md", note.id)
       commitFiles(
-          message = "Create 'uncharted.md",
-          add = listOf("uncharted.md" to "# Uncharted\nThe Lost Legacy")
+        message = "Create 'uncharted.md",
+        add = listOf("uncharted.md" to "# Uncharted\nThe Lost Legacy")
       )
       forcePush()
     }
@@ -305,9 +305,9 @@ class GitSyncerTest : BaseDatabaeTest() {
     // Given: a note was created on another device.
     val remote = RemoteRepositoryRobot {
       commitFiles(
-          message = "Create 'uncharted.md'",
-          time = clock.nowUtc(),
-          add = listOf("uncharted.md" to "# Uncharted")
+        message = "Create 'uncharted.md'",
+        time = clock.nowUtc(),
+        add = listOf("uncharted.md" to "# Uncharted")
       )
       forcePush()
     }
@@ -317,18 +317,18 @@ class GitSyncerTest : BaseDatabaeTest() {
     val locallyEditedNote = noteQueries.visibleNotes().executeAsOne()
     clock.advanceTimeBy(1.hours)
     noteQueries.updateContent(
-        id = locallyEditedNote.id,
-        content = "# Uncharted\nLocal edit",
-        updatedAt = clock.nowUtc()
+      id = locallyEditedNote.id,
+      content = "# Uncharted\nLocal edit",
+      updatedAt = clock.nowUtc()
     )
 
     // Given: the same note was edited on remote in a conflicting way.
     clock.advanceTimeBy(1.hours)
     with(remote) {
       commitFiles(
-          message = "Update 'uncharted.md'",
-          time = clock.nowUtc(),
-          add = listOf("uncharted.md" to "# Uncharted\nRemote edit")
+        message = "Update 'uncharted.md'",
+        time = clock.nowUtc(),
+        add = listOf("uncharted.md" to "# Uncharted\nRemote edit")
       )
       forcePush()
     }
@@ -356,9 +356,9 @@ class GitSyncerTest : BaseDatabaeTest() {
     // Given: a note was created on another device.
     val remote = RemoteRepositoryRobot {
       commitFiles(
-          message = "Create 'uncharted.md'",
-          time = clock.nowUtc(),
-          add = listOf("uncharted.md" to "# Uncharted")
+        message = "Create 'uncharted.md'",
+        time = clock.nowUtc(),
+        add = listOf("uncharted.md" to "# Uncharted")
       )
       forcePush()
     }
@@ -368,9 +368,9 @@ class GitSyncerTest : BaseDatabaeTest() {
     val locallyEditedNote = noteQueries.visibleNotes().executeAsOne()
     clock.advanceTimeBy(1.hours)
     noteQueries.updateContent(
-        id = locallyEditedNote.id,
-        content = "# Uncharted2\nLocal edit",
-        updatedAt = clock.nowUtc()
+      id = locallyEditedNote.id,
+      content = "# Uncharted2\nLocal edit",
+      updatedAt = clock.nowUtc()
     )
 
     // Given: the same note was edited on remote
@@ -378,9 +378,9 @@ class GitSyncerTest : BaseDatabaeTest() {
     with(remote) {
       pull()
       commitFiles(
-          message = "Update 'uncharted.md'",
-          time = clock.nowUtc(),
-          add = listOf("uncharted.md" to "# Uncharted\nRemote edit")
+        message = "Update 'uncharted.md'",
+        time = clock.nowUtc(),
+        add = listOf("uncharted.md" to "# Uncharted\nRemote edit")
       )
       forcePush()
     }
@@ -413,9 +413,9 @@ class GitSyncerTest : BaseDatabaeTest() {
     val remote = RemoteRepositoryRobot {
       createRecord("uncharted.md", id = remoteNoteId)
       commitFiles(
-          message = "Create 'uncharted.md'",
-          time = clock.nowUtc(),
-          add = listOf("uncharted.md" to "# Uncharted")
+        message = "Create 'uncharted.md'",
+        time = clock.nowUtc(),
+        add = listOf("uncharted.md" to "# Uncharted")
       )
       forcePush()
     }
@@ -424,9 +424,9 @@ class GitSyncerTest : BaseDatabaeTest() {
     // Given: the same note was renamed locally, effectively DELETING the old file.
     clock.advanceTimeBy(1.hours)
     noteQueries.updateContent(
-        id = remoteNoteId,
-        content = "# Uncharted2\nLocal edit",
-        updatedAt = clock.nowUtc()
+      id = remoteNoteId,
+      content = "# Uncharted2\nLocal edit",
+      updatedAt = clock.nowUtc()
     )
 
     // Given: the same note was edited on remote
@@ -434,9 +434,9 @@ class GitSyncerTest : BaseDatabaeTest() {
     with(remote) {
       pull()
       commitFiles(
-          message = "Update 'uncharted.md'",
-          time = clock.nowUtc(),
-          add = listOf("uncharted.md" to "# Uncharted\nRemote edit")
+        message = "Update 'uncharted.md'",
+        time = clock.nowUtc(),
+        add = listOf("uncharted.md" to "# Uncharted\nRemote edit")
       )
       forcePush()
     }
@@ -467,9 +467,9 @@ class GitSyncerTest : BaseDatabaeTest() {
     RemoteRepositoryRobot {
       createRecord("uncharted.md", id = remoteNoteId)
       commitFiles(
-          message = "Create 'uncharted.md'",
-          time = clock.nowUtc(),
-          add = listOf("uncharted.md" to "# Uncharted")
+        message = "Create 'uncharted.md'",
+        time = clock.nowUtc(),
+        add = listOf("uncharted.md" to "# Uncharted")
       )
       forcePush()
     }
@@ -500,19 +500,19 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     val now = clock.nowUtc()
     noteQueries.testInsert(
-        fakeNote(updatedAt = now + 1.hours, content = "# Shopping List\nMangoes and strawberries"),
-        fakeNote(updatedAt = now + 2.hours, content = "# Shopping List\nMilk and eggs"),
-        fakeNote(updatedAt = now + 3.hours, content = "Note without heading"),
-        fakeNote(updatedAt = now + 4.hours, content = "Another note without heading")
+      fakeNote(updatedAt = now + 1.hours, content = "# Shopping List\nMangoes and strawberries"),
+      fakeNote(updatedAt = now + 2.hours, content = "# Shopping List\nMilk and eggs"),
+      fakeNote(updatedAt = now + 3.hours, content = "Note without heading"),
+      fakeNote(updatedAt = now + 4.hours, content = "Another note without heading")
     )
     syncer.sync()
 
     val remoteFiles = RemoteRepositoryRobot().fetchNoteFiles()
     assertThat(remoteFiles).containsOnly(
-        "shopping_list.md" to "# Shopping List\nMangoes and strawberries",
-        "shopping_list_2.md" to "# Shopping List\nMilk and eggs",
-        "untitled_note.md" to "Note without heading",
-        "untitled_note_2.md" to "Another note without heading"
+      "shopping_list.md" to "# Shopping List\nMangoes and strawberries",
+      "shopping_list_2.md" to "# Shopping List\nMilk and eggs",
+      "untitled_note.md" to "Note without heading",
+      "untitled_note_2.md" to "Another note without heading"
     )
   }
 
@@ -526,8 +526,8 @@ class GitSyncerTest : BaseDatabaeTest() {
     val remote = RemoteRepositoryRobot {
       pull()
       commitFiles(
-          message = "Create new shopping list",
-          add = listOf("shopping_list.md" to "# Shopping List\n(remote)")
+        message = "Create new shopping list",
+        add = listOf("shopping_list.md" to "# Shopping List\n(remote)")
       )
       forcePush()
     }
@@ -538,8 +538,8 @@ class GitSyncerTest : BaseDatabaeTest() {
     assertThat(localNotes).hasSize(2)
 
     assertThat(remote.fetchNoteFiles()).containsOnly(
-        "shopping_list.md" to "# Shopping List\n(remote)",
-        "shopping_list_2.md" to "# Shopping List\n(local)"
+      "shopping_list.md" to "# Shopping List\n(remote)",
+      "shopping_list_2.md" to "# Shopping List\n(local)"
     )
   }
 
@@ -553,12 +553,12 @@ class GitSyncerTest : BaseDatabaeTest() {
     RemoteRepositoryRobot {
       pull()
       commitFiles(
-          message = "Delete 'uncharted.md'",
-          delete = listOf("uncharted.md")
+        message = "Delete 'uncharted.md'",
+        delete = listOf("uncharted.md")
       )
       commitFiles(
-          message = "Add 'horizon_zero_dawn.md'",
-          add = listOf("horizon_zero_dawn.md" to "# Horizon Zero Dawn")
+        message = "Add 'horizon_zero_dawn.md'",
+        add = listOf("horizon_zero_dawn.md" to "# Horizon Zero Dawn")
       )
       forcePush()
     }
@@ -578,8 +578,8 @@ class GitSyncerTest : BaseDatabaeTest() {
     RemoteRepositoryRobot {
       pull()
       commitFiles(
-          message = "Create 'uncharted.md' on remote",
-          add = listOf("uncharted.md" to "# Uncharted")
+        message = "Create 'uncharted.md' on remote",
+        add = listOf("uncharted.md" to "# Uncharted")
       )
       forcePush()
     }
@@ -601,9 +601,9 @@ class GitSyncerTest : BaseDatabaeTest() {
     assertThat(remote.fetchNoteFiles()).containsOnly("uncharted.md" to "# Uncharted")
 
     noteQueries.updateContent(
-        id = noteToDelete.id,
-        content = "# Uncharted 4\nA Thief's End",
-        updatedAt = clock.nowUtc()
+      id = noteToDelete.id,
+      content = "# Uncharted 4\nA Thief's End",
+      updatedAt = clock.nowUtc()
     )
     noteQueries.markAsPendingDeletion(noteToDelete.id)
 
@@ -614,8 +614,8 @@ class GitSyncerTest : BaseDatabaeTest() {
     // Note's updated content should be saved before it's deleted, and in separate commits.
     // Checking commit messages isn't a great way of testing, but I can't think of any other way.
     assertThat(commitMessages).containsAll(
-        "Rename 'uncharted.md' → 'uncharted_4.md'",
-        "Update 'uncharted_4.md'"
+      "Rename 'uncharted.md' → 'uncharted_4.md'",
+      "Update 'uncharted_4.md'"
     )
 
     assertThat(noteQueries.allNotes().executeAsList()).isEmpty()
@@ -626,8 +626,8 @@ class GitSyncerTest : BaseDatabaeTest() {
     remote.run {
       pull()
       commitFiles(
-          message = "Add new 'uncharted.md'",
-          add = listOf("uncharted.md" to "# Uncharted 4\nA Thief's End")
+        message = "Add new 'uncharted.md'",
+        add = listOf("uncharted.md" to "# Uncharted 4\nA Thief's End")
       )
       forcePush()
     }
@@ -645,14 +645,14 @@ class GitSyncerTest : BaseDatabaeTest() {
     if (!canRunTests()) return
 
     noteQueries.testInsert(
-        fakeNote(content = "# The Last of Us II", syncState = SYNCED, clock = clock),
-        fakeNote(content = "# Horizon Zero Dawn", syncState = PENDING, clock = clock)
+      fakeNote(content = "# The Last of Us II", syncState = SYNCED, clock = clock),
+      fakeNote(content = "# Horizon Zero Dawn", syncState = PENDING, clock = clock)
     )
     syncer.sync()
 
     val remoteFiles = RemoteRepositoryRobot().fetchNoteFiles()
     assertThat(remoteFiles).containsOnly(
-        "horizon_zero_dawn.md" to "# Horizon Zero Dawn"
+      "horizon_zero_dawn.md" to "# Horizon Zero Dawn"
     )
   }
 
@@ -661,25 +661,25 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     val noteId = NoteId.generate()
     noteQueries.testInsert(
-        fakeNote(
-            id = noteId,
-            content = """
+      fakeNote(
+        id = noteId,
+        content = """
             |# John
             |I'm thinking I'm back
             """.trimMargin()
-        )
+      )
     )
     syncer.sync()
 
     val remote = RemoteRepositoryRobot()
     assertThat(remote.fetchNoteFiles()).containsOnly(
-        "john.md" to "# John\nI'm thinking I'm back"
+      "john.md" to "# John\nI'm thinking I'm back"
     )
 
     noteQueries.updateContent(
-        id = noteId,
-        updatedAt = clock.nowUtc(),
-        content =
+      id = noteId,
+      updatedAt = clock.nowUtc(),
+      content =
         """
         |# John Wick
         |I'm thinking I'm back
@@ -688,7 +688,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     syncer.sync()
 
     assertThat(remote.fetchNoteFiles()).containsOnly(
-        "john_wick.md" to "# John Wick\nI'm thinking I'm back"
+      "john_wick.md" to "# John Wick\nI'm thinking I'm back"
     )
   }
 
@@ -702,9 +702,9 @@ class GitSyncerTest : BaseDatabaeTest() {
     syncer.sync()
 
     noteQueries.setArchived(
-        id = note3.id,
-        isArchived = true,
-        updatedAt = clock.nowUtc()
+      id = note3.id,
+      isArchived = true,
+      updatedAt = clock.nowUtc()
     )
     syncer.sync()
 
@@ -712,9 +712,9 @@ class GitSyncerTest : BaseDatabaeTest() {
     assertThat(notes.all { it.isArchived }).isTrue()
 
     assertThat(RemoteRepositoryRobot().fetchNoteFiles()).containsOnly(
-        "archived/horizon_zero_dawn.md" to "# Horizon Zero Dawn",
-        "archived/uncharted.md" to "# Uncharted",
-        "archived/uncharted_2.md" to "# Uncharted"
+      "archived/horizon_zero_dawn.md" to "# Horizon Zero Dawn",
+      "archived/uncharted.md" to "# Uncharted",
+      "archived/uncharted_2.md" to "# Uncharted"
     )
   }
 
@@ -731,10 +731,10 @@ class GitSyncerTest : BaseDatabaeTest() {
     val remote = RemoteRepositoryRobot {
       pull()
       commitFiles(
-          message = "Archive uncharted.md",
-          rename = listOf(
-              "uncharted.md" to "archived/uncharted.md"
-          )
+        message = "Archive uncharted.md",
+        rename = listOf(
+          "uncharted.md" to "archived/uncharted.md"
+        )
       )
       forcePush()
     }
@@ -745,8 +745,8 @@ class GitSyncerTest : BaseDatabaeTest() {
     assertThat(notes.all { it.isArchived }).isTrue()
 
     assertThat(remote.fetchNoteFiles()).containsOnly(
-        "archived/horizon_zero_dawn.md" to "# Horizon Zero Dawn",
-        "archived/uncharted.md" to "# Uncharted"
+      "archived/horizon_zero_dawn.md" to "# Horizon Zero Dawn",
+      "archived/uncharted.md" to "# Uncharted"
     )
   }
 
@@ -755,8 +755,8 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     RemoteRepositoryRobot {
       commitFiles(
-          message = "Archive uncharted.md",
-          add = listOf("archived/uncharted.md" to "# Uncharted")
+        message = "Archive uncharted.md",
+        add = listOf("archived/uncharted.md" to "# Uncharted")
       )
       forcePush()
     }
@@ -769,8 +769,8 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     val remote = RemoteRepositoryRobot {
       commitFiles(
-          message = "Archive uncharted.md",
-          add = listOf("archived/uncharted.md" to "# Uncharted")
+        message = "Archive uncharted.md",
+        add = listOf("archived/uncharted.md" to "# Uncharted")
       )
       forcePush()
     }
@@ -778,9 +778,9 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     val note = { noteQueries.allNotes().executeAsOne() }
     noteQueries.setArchived(
-        id = note().id,
-        isArchived = false,
-        updatedAt = clock.nowUtc()
+      id = note().id,
+      isArchived = false,
+      updatedAt = clock.nowUtc()
     )
     syncer.sync()
 
@@ -802,9 +802,9 @@ class GitSyncerTest : BaseDatabaeTest() {
     RemoteRepositoryRobot {
       pull()
       commitFiles(
-          message = "Archive horizon_zero_dawn.md",
-          delete = listOf("horizon_zero_dawn.md"),
-          add = listOf("archived/horizon_zero_dawn.md" to "# Horizon Zero Dawn")
+        message = "Archive horizon_zero_dawn.md",
+        delete = listOf("horizon_zero_dawn.md"),
+        add = listOf("archived/horizon_zero_dawn.md" to "# Horizon Zero Dawn")
       )
       forcePush()
     }
@@ -849,8 +849,8 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     val remote = RemoteRepositoryRobot {
       commitFiles(
-          message = "Create 'nicolas.md'",
-          add = listOf("nicolas.md" to "# Nicolas")
+        message = "Create 'nicolas.md'",
+        add = listOf("nicolas.md" to "# Nicolas")
       )
       forcePush()
     }
@@ -880,8 +880,8 @@ class GitSyncerTest : BaseDatabaeTest() {
     // First sync goes through fine.
     val remote = RemoteRepositoryRobot {
       commitFiles(
-          message = "Create 'batman_1.md'",
-          add = listOf("batman_1.md" to "# Batman 1")
+        message = "Create 'batman_1.md'",
+        add = listOf("batman_1.md" to "# Batman 1")
       )
       forcePush()
     }
@@ -907,11 +907,11 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     val noteFiles = {
       syncer.directory
-          .children(recursively = true)
-          .filter {
-            val path = it.relativePathIn(syncer.directory)
-            path.endsWith(".md") && !path.startsWith(".")
-          }
+        .children(recursively = true)
+        .filter {
+          val path = it.relativePathIn(syncer.directory)
+          path.endsWith(".md") && !path.startsWith(".")
+        }
     }
 
     // Both synced and unsynced notes will be present in the file directory right now.
@@ -933,15 +933,15 @@ class GitSyncerTest : BaseDatabaeTest() {
 
   @Test fun `pickup all unsynced notes on start`() {
     noteQueries.testInsert(
-        fakeNote("# The Dark Knight", syncState = PENDING),
-        fakeNote("# The Dark Knight Rises", syncState = IN_FLIGHT)
+      fakeNote("# The Dark Knight", syncState = PENDING),
+      fakeNote("# The Dark Knight Rises", syncState = IN_FLIGHT)
     )
 
     syncer.sync()
 
     assertThat(RemoteRepositoryRobot().fetchNoteFiles()).containsOnly(
-        "the_dark_knight.md" to "# The Dark Knight",
-        "the_dark_knight_rises.md" to "# The Dark Knight Rises"
+      "the_dark_knight.md" to "# The Dark Knight",
+      "the_dark_knight_rises.md" to "# The Dark Knight Rises"
     )
     val unsyncedNotes = noteQueries.notesInState(listOf(PENDING, IN_FLIGHT)).executeAsList()
     assertThat(unsyncedNotes).isEmpty()
@@ -960,8 +960,8 @@ class GitSyncerTest : BaseDatabaeTest() {
     RemoteRepositoryRobot {
       createRecord("nicolas.md", id = NoteId.generate())
       commitFiles(
-          message = "Create 'nicolas.md'",
-          add = listOf("nicolas.md" to "# Nicolas")
+        message = "Create 'nicolas.md'",
+        add = listOf("nicolas.md" to "# Nicolas")
       )
       forcePush()
     }
@@ -981,15 +981,15 @@ class GitSyncerTest : BaseDatabaeTest() {
     RemoteRepositoryRobot {
       pull()
       commitFiles(
-          message = "Update witcher.md on remote",
-          add = listOf("witcher.md" to "# Witcher\nThe wild hunt")
+        message = "Update witcher.md on remote",
+        add = listOf("witcher.md" to "# Witcher\nThe wild hunt")
       )
       forcePush()
     }
     noteQueries.updateContent(
-        id = note.id,
-        content = "# Witcher\nAssassins of kings",
-        updatedAt = clock.nowUtc()
+      id = note.id,
+      content = "# Witcher\nAssassins of kings",
+      updatedAt = clock.nowUtc()
     )
 
     git.prePushes += {
@@ -1032,10 +1032,10 @@ class GitSyncerTest : BaseDatabaeTest() {
       checkout("notes-backup-1601612911000")
     }
     assertThat(remote.fetchNoteFiles()).containsOnly(
-        "untitled_note.md" to "I couldn't",
-        "untitled_note_2.md" to "understand half of",
-        "untitled_note_3.md" to "the muffled dialogues",
-        "untitled_note_4.md" to "in Tenet"
+      "untitled_note.md" to "I couldn't",
+      "untitled_note_2.md" to "understand half of",
+      "untitled_note_3.md" to "the muffled dialogues",
+      "untitled_note_4.md" to "in Tenet"
     )
   }
 
@@ -1114,13 +1114,13 @@ class GitSyncerTest : BaseDatabaeTest() {
     private val directory = File(deviceInfo.appStorage, "temp").apply { makeDirectory() }
     private val register = FileNameRegister(directory)
     private val gitRepo = RealGit().repository(
-        path = directory.path,
-        sshKey = remoteAndAuth.sshKey,
-        remoteSshUrl = remoteAndAuth.remote.sshUrl,
-        userConfig = GitConfig(
-            "author" to listOf("name" to "Test remote author", "email" to "press@saket.me"),
-            "committer" to listOf("name" to "Test remote committer", "email" to "")
-        )
+      path = directory.path,
+      sshKey = remoteAndAuth.sshKey,
+      remoteSshUrl = remoteAndAuth.remote.sshUrl,
+      userConfig = GitConfig(
+        "author" to listOf("name" to "Test remote author", "email" to "press@saket.me"),
+        "committer" to listOf("name" to "Test remote committer", "email" to "")
+      )
     )
 
     init {
@@ -1173,9 +1173,9 @@ class GitSyncerTest : BaseDatabaeTest() {
     fun fetchNoteFiles(): List<Pair<String, String>> {
       gitRepo.pull(rebase = true)
       return directory
-          .children(recursively = true)
-          .filter { it.extension == "md" && !it.relativePathIn(directory).startsWith(".") }
-          .map { it.relativePathIn(directory) to it.read() }
+        .children(recursively = true)
+        .filter { it.extension == "md" && !it.relativePathIn(directory).startsWith(".") }
+        .map { it.relativePathIn(directory) to it.read() }
     }
 
     fun deleteEverything() {

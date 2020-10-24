@@ -6,8 +6,8 @@ import com.badoo.reaktive.observable.map
 
 fun <T : Any> Observable<Optional<T>>.filterSome() =
   filter { it is Some<T> }
-      .map { (it as Some<T>).value }
+    .map { (it as Some<T>).value }
 
 fun <T : Any> Observable<Optional<T>>.filterNone() =
   filter { it is None }
-      .map { None }
+    .map { None }

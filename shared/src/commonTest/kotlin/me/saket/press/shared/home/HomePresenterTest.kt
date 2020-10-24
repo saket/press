@@ -24,72 +24,72 @@ class HomePresenterTest {
 
   private fun presenter(includeEmptyNotes: Boolean = true): HomePresenter {
     return HomePresenter(
-        args = Args(includeEmptyNotes, navigator),
-        repository = noteRepository,
-        keyboardShortcuts = keyboardShortcuts
+      args = Args(includeEmptyNotes, navigator),
+      repository = noteRepository,
+      keyboardShortcuts = keyboardShortcuts
     )
   }
 
   @Test fun `populate notes on creation`() {
     val noteId = NoteId.generate()
     noteRepository.savedNotes += listOf(
-        fakeNote(
-            id = noteId,
-            localId = -1L,
-            content = "# Nicolas Cage\nOur national treasure"
-        )
+      fakeNote(
+        id = noteId,
+        localId = -1L,
+        content = "# Nicolas Cage\nOur national treasure"
+      )
     )
 
     val noteModel = presenter()
-        .uiModels()
-        .test()
-        .values[0]
-        .notes
+      .uiModels()
+      .test()
+      .values[0]
+      .notes
 
     assertThat(noteModel).containsOnly(
-        Note(
-            noteId = noteId,
-            adapterId = -1L,
-            title = "Nicolas Cage",
-            body = "Our national treasure"
-        )
+      Note(
+        noteId = noteId,
+        adapterId = -1L,
+        title = "Nicolas Cage",
+        body = "Our national treasure"
+      )
     )
   }
 
   @Test fun `filter out empty notes if requested`() {
     noteRepository.savedNotes += listOf(
-        fakeNote(id = NoteId.generate(), content = "# Non-empty note"),
-        fakeNote(id = NoteId.generate(), content = NEW_NOTE_PLACEHOLDER),
-        fakeNote(id = NoteId.generate(), content = "")
+      fakeNote(id = NoteId.generate(), content = "# Non-empty note"),
+      fakeNote(id = NoteId.generate(), content = NEW_NOTE_PLACEHOLDER),
+      fakeNote(id = NoteId.generate(), content = "")
     )
 
     presenter(includeEmptyNotes = false)
-        .uiModels()
-        .test()
-        .apply {
-          val titleAndBodies = values[0].notes.map { it.title to it.body }
-          assertThat(titleAndBodies).containsOnly("Non-empty note" to "")
-        }
+      .uiModels()
+      .test()
+      .apply {
+        val titleAndBodies = values[0].notes.map { it.title to it.body }
+        assertThat(titleAndBodies).containsOnly("Non-empty note" to "")
+      }
   }
 
   @Test fun `include empty notes if requested`() {
     noteRepository.savedNotes += listOf(
-        fakeNote(id = NoteId.generate(), content = "# Non-empty note"),
-        fakeNote(id = NoteId.generate(), content = NEW_NOTE_PLACEHOLDER),
-        fakeNote(id = NoteId.generate(), content = "")
+      fakeNote(id = NoteId.generate(), content = "# Non-empty note"),
+      fakeNote(id = NoteId.generate(), content = NEW_NOTE_PLACEHOLDER),
+      fakeNote(id = NoteId.generate(), content = "")
     )
 
     presenter(includeEmptyNotes = true)
-        .uiModels()
-        .test()
-        .apply {
-          val titleAndBodies = values[0].notes.map { it.title to it.body }
-          assertThat(titleAndBodies).containsOnly(
-              "Non-empty note" to "",
-              "" to "",
-              "" to ""
-          )
-        }
+      .uiModels()
+      .test()
+      .apply {
+        val titleAndBodies = values[0].notes.map { it.title to it.body }
+        assertThat(titleAndBodies).containsOnly(
+          "Non-empty note" to "",
+          "" to "",
+          "" to ""
+        )
+      }
   }
 
   @Test fun `open new note screen when new note is clicked`() {

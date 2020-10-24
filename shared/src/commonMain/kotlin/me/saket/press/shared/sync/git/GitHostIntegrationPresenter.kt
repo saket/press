@@ -74,10 +74,10 @@ class GitHostIntegrationPresenter(
   override fun uiModels(): ObservableWrapper<GitHostIntegrationUiModel> {
     return viewEvents().publish { events ->
       merge(
-          completeAuth(events),
-          fetchRepositories(events),
-          displayRepositories(events),
-          selectRepository(events)
+        completeAuth(events),
+        fetchRepositories(events),
+        displayRepositories(events),
+        selectRepository(events)
       )
     }.wrap()
   }
@@ -86,83 +86,83 @@ class GitHostIntegrationPresenter(
     events: Observable<GitHostIntegrationEvent>
   ): Observable<GitHostIntegrationUiModel> {
     return cachedRepos.listen()
-        .take(1)
-        .filterNull()
-        .repeatItemOnRetry(events, kind = Authorization)
-        .switchMap {
-          gitHostService.completeAuth(args.deepLink)
-              .asObservable()
-              .consumeOnNext<GitHostAuthToken, GitHostIntegrationUiModel> {
-                authToken.set(it)
-              }
-              .doOnBeforeError { e -> e.printStackTrace() }
-              .onErrorReturnValue(ShowFailure(kind = Authorization))
-              .startWithValue(ShowProgress)
-        }
+      .take(1)
+      .filterNull()
+      .repeatItemOnRetry(events, kind = Authorization)
+      .switchMap {
+        gitHostService.completeAuth(args.deepLink)
+          .asObservable()
+          .consumeOnNext<GitHostAuthToken, GitHostIntegrationUiModel> {
+            authToken.set(it)
+          }
+          .doOnBeforeError { e -> e.printStackTrace() }
+          .onErrorReturnValue(ShowFailure(kind = Authorization))
+          .startWithValue(ShowProgress)
+      }
   }
 
   private fun fetchRepositories(
     events: Observable<GitHostIntegrationEvent>
   ): Observable<GitHostIntegrationUiModel> {
     return zip(
-        authToken.listen().filterNotNull(),
-        cachedRepos.listen().filterNull()
+      authToken.listen().filterNotNull(),
+      cachedRepos.listen().filterNull()
     )
-        .take(1)
-        .repeatItemOnRetry(events, kind = FetchingRepos)
-        .switchMap { (token) ->
-          gitHostService.fetchUserRepos(token)
-              .asObservable()
-              .publish { userRepos ->
-                merge(
-                    userRepos.ignoreErrors().consumeOnNext { cachedRepos.set(it) },
-                    userRepos
-                        .doOnBeforeError { e -> e.printStackTrace() }
-                        .onErrorReturnValue(ShowFailure(kind = FetchingRepos))
-                        .startWithValue(ShowProgress)
-                )
-              }
-        }
-        .ofType()
+      .take(1)
+      .repeatItemOnRetry(events, kind = FetchingRepos)
+      .switchMap { (token) ->
+        gitHostService.fetchUserRepos(token)
+          .asObservable()
+          .publish { userRepos ->
+            merge(
+              userRepos.ignoreErrors().consumeOnNext { cachedRepos.set(it) },
+              userRepos
+                .doOnBeforeError { e -> e.printStackTrace() }
+                .onErrorReturnValue(ShowFailure(kind = FetchingRepos))
+                .startWithValue(ShowProgress)
+            )
+          }
+      }
+      .ofType()
   }
 
   private fun displayRepositories(
     events: Observable<GitHostIntegrationEvent>
   ): Observable<GitHostIntegrationUiModel> {
     val searchEvents = events
-        .ofType<SearchTextChanged>()
-        .map { it.text }
+      .ofType<SearchTextChanged>()
+      .map { it.text }
 
     return cachedRepos.listen()
-        .filterNotNull()
-        .combineLatestWith(searchEvents)
-        .map { (repos, searchText) -> SelectRepo(repos.toUiModels(searchText)) }
-        .distinctUntilChanged()
+      .filterNotNull()
+      .combineLatestWith(searchEvents)
+      .map { (repos, searchText) -> SelectRepo(repos.toUiModels(searchText)) }
+      .distinctUntilChanged()
   }
 
   private fun selectRepository(
     events: Observable<GitHostIntegrationEvent>
   ): Observable<GitHostIntegrationUiModel> {
     return events.ofType<GitRepositoryClicked>()
-        .map { it.repo }
-        .repeatItemOnRetry(events, kind = AddingDeployKey)
-        .switchMap { repo ->
-          val token = authToken.get()!!
-          val deployKey = GitHostService.DeployKey(
-            title = "Press (${deviceInfo.deviceName()})",
-            key = SshKeygen.generateRsa(comment = "(Created by Press)")
-          )
-          zip(
-            gitHostService.addDeployKey(token, repo, deployKey).asSingle(Unit),
-            gitHostService.fetchUser(token)
-          ) { _, user -> user }
-              .asObservable()
-              .flatMapCompletable { user -> completeSetup(repo, deployKey, user) }
-              .asObservable<GitHostIntegrationUiModel>()
-              .doOnBeforeError { e -> e.printStackTrace() }
-              .onErrorReturnValue(ShowFailure(kind = AddingDeployKey))
-              .startWithValue(ShowProgress)
-        }
+      .map { it.repo }
+      .repeatItemOnRetry(events, kind = AddingDeployKey)
+      .switchMap { repo ->
+        val token = authToken.get()!!
+        val deployKey = GitHostService.DeployKey(
+          title = "Press (${deviceInfo.deviceName()})",
+          key = SshKeygen.generateRsa(comment = "(Created by Press)")
+        )
+        zip(
+          gitHostService.addDeployKey(token, repo, deployKey).asSingle(Unit),
+          gitHostService.fetchUser(token)
+        ) { _, user -> user }
+          .asObservable()
+          .flatMapCompletable { user -> completeSetup(repo, deployKey, user) }
+          .asObservable<GitHostIntegrationUiModel>()
+          .doOnBeforeError { e -> e.printStackTrace() }
+          .onErrorReturnValue(ShowFailure(kind = AddingDeployKey))
+          .startWithValue(ShowProgress)
+      }
   }
 
   private fun completeSetup(
@@ -173,7 +173,7 @@ class GitHostIntegrationPresenter(
     return completableFromFunction {
       authToken.set(null)
       database.folderSyncConfigQueries.save(
-          remote = GitRemoteAndAuth(repo, deployKey.key.privateKey, user)
+        remote = GitRemoteAndAuth(repo, deployKey.key.privateKey, user)
       )
       syncCoordinator.trigger()
       args.navigator.lfg(Close)
@@ -208,10 +208,10 @@ private fun List<GitRepositoryInfo>.toUiModels(searchText: String): List<RepoUiM
   }
   return filtered.map {
     RepoUiModel(
-        id = it.ownerAndName,
-        owner = HighlightedText.from(it.owner, searchText),
-        name = HighlightedText.from(it.name, searchText),
-        repo = it
+      id = it.ownerAndName,
+      owner = HighlightedText.from(it.owner, searchText),
+      name = HighlightedText.from(it.name, searchText),
+      repo = it
     )
   }
 }

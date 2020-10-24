@@ -40,9 +40,9 @@ class GitHubService(private val http: HttpClient) : GitHostService {
       val response = http.post<GetAccessTokenResponse>("https://github.com/login/oauth/access_token") {
         contentType(Application.Json)
         body = GetAccessTokenRequest(
-            client_id = BuildKonfig.GITHUB_CLIENT_ID,
-            client_secret = BuildKonfig.GITHUB_CLIENT_SECRET,
-            code = Url(callbackUrl).parameters["code"]!!
+          client_id = BuildKonfig.GITHUB_CLIENT_ID,
+          client_secret = BuildKonfig.GITHUB_CLIENT_SECRET,
+          code = Url(callbackUrl).parameters["code"]!!
         )
       }
       GitHostAuthToken(response.access_token)
@@ -65,16 +65,18 @@ class GitHubService(private val http: HttpClient) : GitHostService {
           }
 
           val responseBody = response.receive<List<GitHubRepo>>()
-          addAll(responseBody.map {
-            GitRepositoryInfo(
+          addAll(
+            responseBody.map {
+              GitRepositoryInfo(
                 host = GITHUB,
                 owner = it.owner.login,
                 name = it.name,
                 url = it.html_url,
                 sshUrl = it.ssh_url,
                 defaultBranch = it.default_branch
-            )
-          })
+              )
+            }
+          )
 
           hasNextPage = "rel=\"next\"" in response.headers["Link"].orEmpty()
         }
@@ -98,9 +100,9 @@ class GitHubService(private val http: HttpClient) : GitHostService {
         header("Authorization", "token ${token.value}")
         contentType(Application.Json)
         body = CreateDeployKeyRequest(
-            title = key.title,
-            key = key.key.publicKey,
-            read_only = false
+          title = key.title,
+          key = key.key.publicKey,
+          read_only = false
         )
       }
     }

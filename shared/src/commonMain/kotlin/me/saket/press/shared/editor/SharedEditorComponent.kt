@@ -12,21 +12,21 @@ class SharedEditorComponent {
   val module = module {
     factory { (args: EditorPresenter.Args) ->
       EditorPresenter(
-          args = args,
-          noteRepository = get(),
-          schedulers = get(),
-          strings = get(),
-          config = editorConfig(),
-          syncConflicts = get()
+        args = args,
+        noteRepository = get(),
+        schedulers = get(),
+        strings = get(),
+        config = editorConfig(),
+        syncConflicts = get()
       )
     }
     factory(named("autocorrect")) {
       Setting.create(
-          settings = get(),
-          key = "autocorrect",
-          from = { AutoCorrectEnabled(it.toBoolean()) },
-          to = { it.enabled.toString() },
-          defaultValue = AutoCorrectEnabled(true)
+        settings = get(),
+        key = "autocorrect",
+        from = { AutoCorrectEnabled(it.toBoolean()) },
+        to = { it.enabled.toString() },
+        defaultValue = AutoCorrectEnabled(true)
       )
     }
   }

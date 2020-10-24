@@ -6,7 +6,7 @@ import me.saket.press.PressDatabase
 import me.saket.press.data.shared.NoteQueries
 import me.saket.press.shared.db.NoteId
 
-class DelegatingPressDatabase(val delegate: PressDatabase): PressDatabase by delegate {
+class DelegatingPressDatabase(val delegate: PressDatabase) : PressDatabase by delegate {
   private val delegatingNoteQueries = DelegatingNoteQueries(delegate.noteQueries)
   override val noteQueries: DelegatingNoteQueries get() = delegatingNoteQueries
 }

@@ -6,9 +6,11 @@ import kotlin.text.format as kotlinFormat
 import kotlin.text.isLetterOrDigit as kotlinIsLetterOrDigit
 
 actual inline fun String.toLowerCase(locale: Locale): String {
-  return toLowerCase(when (locale) {
-    Locale.US -> java.util.Locale.US
-  })
+  return toLowerCase(
+    when (locale) {
+      Locale.US -> java.util.Locale.US
+    }
+  )
 }
 
 actual inline fun Char.isLetterOrDigit(): Boolean {

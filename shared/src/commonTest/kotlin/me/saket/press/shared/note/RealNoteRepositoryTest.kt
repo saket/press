@@ -20,9 +20,9 @@ class RealNoteRepositoryTest : BaseDatabaeTest() {
   private val noteQueries get() = database.noteQueries
 
   private fun repository() = RealNoteRepository(
-      noteQueries = noteQueries,
-      schedulers = FakeSchedulers(),
-      clock = clock
+    noteQueries = noteQueries,
+    schedulers = FakeSchedulers(),
+    clock = clock
   )
 
   @Test fun `insert a note correctly`() {

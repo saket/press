@@ -32,8 +32,8 @@ class RealSyncCoordinator(
 
   override fun start() {
     triggers.switchMap { observableInterval(0, 30.seconds, schedulers.computation) }
-        .flatMapCompletable { syncWithResult() }
-        .subscribe()
+      .flatMapCompletable { syncWithResult() }
+      .subscribe()
   }
 
   override fun trigger() {
@@ -42,7 +42,7 @@ class RealSyncCoordinator(
 
   override fun syncWithResult(): Completable {
     return completableFromFunction { syncer.sync() }
-        .takeUntil(syncer.status().ofType<Disabled>())
-        .onErrorComplete()
+      .takeUntil(syncer.status().ofType<Disabled>())
+      .onErrorComplete()
   }
 }

@@ -51,17 +51,17 @@ internal fun <T> Observable<T>.delay(span: TimeSpan, scheduler: Scheduler): Obse
 
 internal fun <T, R> Observable<T>.consumeOnNext(consume: (T) -> Unit): Observable<R> {
   return doOnBeforeNext { consume(it) }
-      .asCompletable()
-      .asObservable()
+    .asCompletable()
+    .asObservable()
 }
 
 internal fun <T> Observable<T?>.filterNull(): Observable<T?> =
   filter { it == null }
-      .map { null }
+    .map { null }
 
 internal fun <T> Observable<T?>.filterNotNull(): Observable<T> =
   filter { it != null }
-      .map { it!! }
+    .map { it!! }
 
 internal fun <T> Observable<T>.repeatItemWhen(other: Observable<*>): Observable<T> {
   return switchMap { item ->

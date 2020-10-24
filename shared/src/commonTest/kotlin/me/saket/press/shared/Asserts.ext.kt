@@ -13,23 +13,25 @@ fun Assert<Iterable<*>?>.containsOnly(vararg elements: Any?) = given { actual ->
     return
   }
 
-  expected(buildString {
-    append("to contain only:")
-    elements.toList().appendFlatString(this)
+  expected(
+    buildString {
+      append("to contain only:")
+      elements.toList().appendFlatString(this)
 
-    append("\n\nBut was:")
-    if (actual == null) append(" null")
-    else actual.appendFlatString(this)
+      append("\n\nBut was:")
+      if (actual == null) append(" null")
+      else actual.appendFlatString(this)
 
-    if (notInActual.isNotEmpty()) {
-      append("\n\nElements not found:")
-      notInActual.appendFlatString(this)
+      if (notInActual.isNotEmpty()) {
+        append("\n\nElements not found:")
+        notInActual.appendFlatString(this)
+      }
+      if (notInExpected.isNotEmpty()) {
+        append("\n\nExtra elements found:")
+        notInExpected.appendFlatString(this)
+      }
     }
-    if (notInExpected.isNotEmpty()) {
-      append("\n\nExtra elements found:")
-      notInExpected.appendFlatString(this)
-    }
-  })
+  )
 }
 
 private fun Iterable<*>.appendFlatString(builder: StringBuilder) {

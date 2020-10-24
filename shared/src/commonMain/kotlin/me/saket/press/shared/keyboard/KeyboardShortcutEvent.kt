@@ -15,8 +15,8 @@ data class KeyboardShortcutEvent private constructor(val keys: List<Key>) {
         // Using valueOf(character.toUppercase()) would be
         // nice, but Kotlin MP doesn't accept a locale.
         return values()
-            .firstOrNull { it.name.equals(character, ignoreCase = true) }
-            ?: error("Mapping missing for $character")
+          .firstOrNull { it.name.equals(character, ignoreCase = true) }
+          ?: error("Mapping missing for $character")
       }
     }
   }

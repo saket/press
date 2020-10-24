@@ -61,8 +61,8 @@ class EditorPresenter(
 
   override fun uiModels(): ObservableWrapper<EditorUiModel> {
     val uiModels = viewEvents()
-        .toggleHintText()
-        .map { (hint) -> EditorUiModel(hintText = hint) }
+      .toggleHintText()
+      .map { (hint) -> EditorUiModel(hintText = hint) }
 
     val autoSave = viewEvents().autoSaveContent()
 
@@ -71,8 +71,8 @@ class EditorPresenter(
 
   override fun uiEffects(): ObservableWrapper<EditorUiEffect> {
     return merge(
-        populateExistingNoteOnStart(),
-        blockEditingOnSyncConflict()
+      populateExistingNoteOnStart(),
+      blockEditingOnSyncConflict()
     ).wrap()
   }
 
@@ -86,13 +86,13 @@ class EditorPresenter(
       // This function can get called multiple times if it's re-subscribed.
       // Create a new note only if one doesn't exist already.
       noteRepository
-          .note(newOrExistingId)
-          .take(1)
-          .filterNone()
-          .flatMapCompletable {
-            val content = openMode.preFilledNote.ifBlankOrNull { NEW_NOTE_PLACEHOLDER }
-            noteRepository.create(newOrExistingId, content)
-          }
+        .note(newOrExistingId)
+        .take(1)
+        .filterNone()
+        .flatMapCompletable {
+          val content = openMode.preFilledNote.ifBlankOrNull { NEW_NOTE_PLACEHOLDER }
+          noteRepository.create(newOrExistingId, content)
+        }
     } else {
       // If the note gets deleted on another device (that is, deletedAt != null),
       // Press will continue updating the same note.
@@ -100,20 +100,20 @@ class EditorPresenter(
     }
 
     return createIfNeeded
-        .andThen(noteRepository.note(newOrExistingId))
-        .mapToSome()
+      .andThen(noteRepository.note(newOrExistingId))
+      .mapToSome()
   }
 
   private fun populateExistingNoteOnStart(): Observable<EditorUiEffect> {
     return noteStream
-        .take(1)
-        .map {
-          val isNewNote = it.content == NEW_NOTE_PLACEHOLDER
-          UpdateNoteText(
-              newText = it.content,
-              newSelection = if (isNewNote) TextSelection.cursor(it.content.length) else null
-          )
-        }
+      .take(1)
+      .map {
+        val isNewNote = it.content == NEW_NOTE_PLACEHOLDER
+        UpdateNoteText(
+          newText = it.content,
+          newSelection = if (isNewNote) TextSelection.cursor(it.content.length) else null
+        )
+      }
   }
 
   private fun blockEditingOnSyncConflict(): Observable<EditorUiEffect> {
@@ -122,10 +122,10 @@ class EditorPresenter(
 
   private fun noteConflicts(): Observable<Unit> {
     return noteStream
-        .take(1)
-        .flatMap { syncConflicts.isConflicted(it.id) }
-        .filter { it }
-        .map { Unit }
+      .take(1)
+      .flatMap { syncConflicts.isConflicted(it.id) }
+      .filter { it }
+      .map { Unit }
   }
 
   /**
@@ -133,51 +133,51 @@ class EditorPresenter(
    */
   private fun closeIfNoteGetsDeleted(): Observable<EditorUiModel> {
     return noteStream
-        .filter { it.isPendingDeletion }
-        .take(1)
-        .consumeOnNext {
-          args.navigator.lfg(Close)
-        }
+      .filter { it.isPendingDeletion }
+      .take(1)
+      .consumeOnNext {
+        args.navigator.lfg(Close)
+      }
   }
 
   private fun Observable<EditorEvent>.toggleHintText(): Observable<Optional<String>> {
     val randomHint = strings.editor.new_note_hints.shuffled().first()
 
     return ofType<NoteTextChanged>()
-        .distinctUntilChanged()
-        .mapToOptional { (text) ->
-          when {
-            text.trimEnd() == NEW_NOTE_PLACEHOLDER.trim() -> "# $randomHint"
-            else -> null
-          }
+      .distinctUntilChanged()
+      .mapToOptional { (text) ->
+        when {
+          text.trimEnd() == NEW_NOTE_PLACEHOLDER.trim() -> "# $randomHint"
+          else -> null
         }
+      }
   }
 
   private fun Observable<EditorEvent>.autoSaveContent(): Observable<EditorUiModel> {
     val textChanges = ofType<NoteTextChanged>().map { it.text }
 
     return noteStream
-        .take(1)
-        .flatMapCompletable { note ->
-          observableInterval(config.autoSaveEvery, schedulers.computation)
-              .withLatestFrom(textChanges) { _, text -> text }
-              .distinctUntilChanged()
-              .takeUntil(noteConflicts())
-              .flatMapCompletable { text -> noteRepository.update(note.id, text) }
-        }
-        .andThen(observableOfEmpty())
+      .take(1)
+      .flatMapCompletable { note ->
+        observableInterval(config.autoSaveEvery, schedulers.computation)
+          .withLatestFrom(textChanges) { _, text -> text }
+          .distinctUntilChanged()
+          .takeUntil(noteConflicts())
+          .flatMapCompletable { text -> noteRepository.update(note.id, text) }
+      }
+      .andThen(observableOfEmpty())
   }
 
   fun saveEditorContentOnClose(content: String) {
     updateOrDeleteNote(content)
-        .subscribeOn(schedulers.io)
-        .subscribe()
+      .subscribeOn(schedulers.io)
+      .subscribe()
   }
 
   private fun updateOrDeleteNote(content: String): Completable {
     val shouldDelete = openMode is NewNote
-        && args.deleteBlankNewNoteOnExit
-        && content.trim().let { it.isBlank() || it == NEW_NOTE_PLACEHOLDER.trim() }
+      && args.deleteBlankNewNoteOnExit
+      && content.trim().let { it.isBlank() || it == NEW_NOTE_PLACEHOLDER.trim() }
 
     val noteId = when (openMode) {
       is NewNote -> openMode.placeholderId
@@ -188,17 +188,17 @@ class EditorPresenter(
     // when this function is called after EditorView gets detached. Fetching
     // the note again here.
     return noteRepository.note(noteId)
-        .mapToSome()
-        .combineLatestWith(syncConflicts.isConflicted(noteId))
-        .filter { (_, isConflicted) -> !isConflicted }
-        .take(1)
-        .flatMapCompletable { (note) ->
-          val maybeDelete = when {
-            shouldDelete -> noteRepository.markAsPendingDeletion(note.id)
-            else -> completableOfEmpty()
-          }
-          noteRepository.update(note.id, content).andThen(maybeDelete)
+      .mapToSome()
+      .combineLatestWith(syncConflicts.isConflicted(noteId))
+      .filter { (_, isConflicted) -> !isConflicted }
+      .take(1)
+      .flatMapCompletable { (note) ->
+        val maybeDelete = when {
+          shouldDelete -> noteRepository.markAsPendingDeletion(note.id)
+          else -> completableOfEmpty()
         }
+        noteRepository.update(note.id, content).andThen(maybeDelete)
+      }
   }
 
   fun interface Factory {

@@ -50,68 +50,68 @@ class SyncPreferencesPresenter(
   @Suppress("NAME_SHADOWING")
   override fun uiModels(): ObservableWrapper<SyncPreferencesUiModel> {
     val models = syncer.status()
-        .map { status ->
-          when (status) {
-            is Disabled -> SyncDisabled(
-                availableGitHosts = GitHost.values().toList()
-            )
-            is Enabled -> {
-              // InFlight:
-              //   "Syncing..."
-              // Idle:
-              //   - has timestamp: "Synced 30m ago"
-              //   - no timestamp:  "Waiting to sync"
-              // Failed:
-              //   - has timestamp: "Synced 30m ago. Last attempt failed, will retry?"
-              //   - no timestamp: "Last attempt failed, will retry?"
-              val lastSynced = status.lastSyncedAt
-              val statusText = when (status.lastOp) {
-                InFlight -> strings.sync.status_in_flight
-                Idle -> lastSynced?.relativeTimestamp() ?: strings.sync.status_idle_never_synced
-                Failed -> (lastSynced?.relativeTimestamp()?.plus(". ") ?: "") + strings.sync.status_failed
-              }
-              SyncEnabled(
-                  gitHost = status.syncingWith.host,
-                  remoteName = status.syncingWith.ownerAndName,
-                  remoteUrl = status.syncingWith.url,
-                  status = statusText
-              )
+      .map { status ->
+        when (status) {
+          is Disabled -> SyncDisabled(
+            availableGitHosts = GitHost.values().toList()
+          )
+          is Enabled -> {
+            // InFlight:
+            //   "Syncing..."
+            // Idle:
+            //   - has timestamp: "Synced 30m ago"
+            //   - no timestamp:  "Waiting to sync"
+            // Failed:
+            //   - has timestamp: "Synced 30m ago. Last attempt failed, will retry?"
+            //   - no timestamp: "Last attempt failed, will retry?"
+            val lastSynced = status.lastSyncedAt
+            val statusText = when (status.lastOp) {
+              InFlight -> strings.sync.status_in_flight
+              Idle -> lastSynced?.relativeTimestamp() ?: strings.sync.status_idle_never_synced
+              Failed -> (lastSynced?.relativeTimestamp()?.plus(". ") ?: "") + strings.sync.status_failed
             }
+            SyncEnabled(
+              gitHost = status.syncingWith.host,
+              remoteName = status.syncingWith.ownerAndName,
+              remoteUrl = status.syncingWith.url,
+              status = statusText
+            )
           }
-        }.distinctUntilChanged()
+        }
+      }.distinctUntilChanged()
 
     return models
-        .mergeWith(handleDisableSyncClicks())
-        .wrap()
+      .mergeWith(handleDisableSyncClicks())
+      .wrap()
   }
 
   private fun LastSyncedAt.relativeTimestamp(): String {
     val timePassed = clock.nowUtc() - value
     return strings.sync.status_synced_x_ago.format(
-        when {
-          timePassed < 1.minutes -> strings.sync.timestamp_now
-          timePassed < 1.hours -> strings.sync.timestamp_minutes.format(timePassed.minutes.toInt())
-          timePassed < 1.days -> strings.sync.timestamp_hours.format(timePassed.hours.toInt())
-          else -> strings.sync.timestamp_a_while_ago
-        }
+      when {
+        timePassed < 1.minutes -> strings.sync.timestamp_now
+        timePassed < 1.hours -> strings.sync.timestamp_minutes.format(timePassed.minutes.toInt())
+        timePassed < 1.days -> strings.sync.timestamp_hours.format(timePassed.hours.toInt())
+        else -> strings.sync.timestamp_a_while_ago
+      }
     )
   }
 
   private fun handleDisableSyncClicks(): Observable<SyncPreferencesUiModel> {
     return viewEvents().ofType<DisableSyncClicked>()
-        .observeOn(schedulers.io)
-        .consumeOnNext { syncer.disable() }
+      .observeOn(schedulers.io)
+      .consumeOnNext { syncer.disable() }
   }
 
   override fun uiEffects(): ObservableWrapper<SyncPreferencesUiEffect> {
     return viewEvents()
-        .ofType<SetupHostClicked>()
-        .map { (host) ->
-          cachedRepos.set(null)
-          authToken(host).set(null)
-          val service = host.service(http)
-          OpenUrl(service.generateAuthUrl(host.deepLink()))
-        }
-        .wrap()
+      .ofType<SetupHostClicked>()
+      .map { (host) ->
+        cachedRepos.set(null)
+        authToken(host).set(null)
+        val service = host.service(http)
+        OpenUrl(service.generateAuthUrl(host.deepLink()))
+      }
+      .wrap()
   }
 }

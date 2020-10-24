@@ -9,11 +9,13 @@ import platform.Foundation.NSUserDefaults
 
 actual object SharedComponent : BaseSharedComponent() {
   fun initialize() {
-    setupGraph(PlatformDependencies(
+    setupGraph(
+      PlatformDependencies(
         sqlDriver = { sqliteDriver() },
         settings = { settings() },
         deviceInfo = { deviceInfo() }
-    ))
+      )
+    )
   }
 
   private fun sqliteDriver() =

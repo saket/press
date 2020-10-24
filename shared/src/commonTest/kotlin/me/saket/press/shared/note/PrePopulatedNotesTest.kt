@@ -12,9 +12,9 @@ class PrePopulatedNotesTest {
   private val repository = FakeNoteRepository()
 
   private val prePopulatedNotes = PrePopulatedNotes(
-      setting = setting,
-      repository = repository,
-      schedulers = FakeSchedulers()
+    setting = setting,
+    repository = repository,
+    schedulers = FakeSchedulers()
   )
 
   @Test fun `notes are pre-populated on first app launch`() {

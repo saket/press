@@ -23,16 +23,16 @@ internal class SharedDatabaseComponent {
 
 internal fun createPressDatabase(driver: SqlDriver, json: Json): PressDatabase {
   return PressDatabase(
-      driver = driver,
-      noteAdapter = Note.Adapter(
-          idAdapter = NoteId.SqlAdapter,
-          createdAtAdapter = DateTimeAdapter,
-          updatedAtAdapter = DateTimeAdapter,
-          syncStateAdapter = EnumColumnAdapter()
-      ),
-      folderSyncConfigAdapter = FolderSyncConfig.Adapter(
-          remoteAdapter = GitRemoteAndAuth.SqlAdapter(json),
-          lastSyncedAtAdapter = DateTimeAdapter
-      )
+    driver = driver,
+    noteAdapter = Note.Adapter(
+      idAdapter = NoteId.SqlAdapter,
+      createdAtAdapter = DateTimeAdapter,
+      updatedAtAdapter = DateTimeAdapter,
+      syncStateAdapter = EnumColumnAdapter()
+    ),
+    folderSyncConfigAdapter = FolderSyncConfig.Adapter(
+      remoteAdapter = GitRemoteAndAuth.SqlAdapter(json),
+      lastSyncedAtAdapter = DateTimeAdapter
+    )
   )
 }

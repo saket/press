@@ -28,11 +28,11 @@ class SharedSyncComponent {
     factory {
       { host: GitHost ->
         Setting.create(
-            settings = get(),
-            key = "${host.name}_auth_token",
-            from = ::GitHostAuthToken,
-            to = GitHostAuthToken::value,
-            defaultValue = null
+          settings = get(),
+          key = "${host.name}_auth_token",
+          from = ::GitHostAuthToken,
+          to = GitHostAuthToken::value,
+          defaultValue = null
         )
       }
     }
@@ -40,25 +40,25 @@ class SharedSyncComponent {
     factory { SyncPreferencesPresenter(get(), get(), get(), get(), get(), get(), get()) }
     factory { (args: GitHostIntegrationPresenter.Args) ->
       GitHostIntegrationPresenter(
-          args = args,
-          httpClient = get(),
-          authToken = get(),
-          deviceInfo = get(),
-          database = get(),
-          cachedRepos = get(),
-          syncCoordinator = get()
+        args = args,
+        httpClient = get(),
+        authToken = get(),
+        deviceInfo = get(),
+        database = get(),
+        cachedRepos = get(),
+        syncCoordinator = get()
       )
     }
 
     single { SyncMergeConflicts() }
     factory<Syncer> {
       GitSyncer(
-          git = RealGit(),
-          database = get(),
-          deviceInfo = get(),
-          clock = get(),
-          strings = get(),
-          mergeConflicts = get()
+        git = RealGit(),
+        database = get(),
+        deviceInfo = get(),
+        clock = get(),
+        strings = get(),
+        mergeConflicts = get()
       )
     }
     single<SyncCoordinator> {
@@ -67,9 +67,9 @@ class SharedSyncComponent {
 
     factory {
       SyncStatsForNerdsPresenter(
-          syncer = get(),
-          strings = get(),
-          schedulers = get()
+        syncer = get(),
+        strings = get(),
+        schedulers = get()
       )
     }
   }

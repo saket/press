@@ -38,14 +38,14 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
   private val rxRule = RxRule()
 
   private val presenter = GitHostIntegrationPresenter(
-      args = Args(deepLink = GITHUB.deepLink(), navigator),
-      httpClient = HttpClient(),
-      authToken = { authToken },
-      gitHostService = { _, _ -> gitService },
-      cachedRepos = cachedRepos,
-      syncCoordinator = syncCoordinator,
-      database = database,
-      deviceInfo = testDeviceInfo()
+    args = Args(deepLink = GITHUB.deepLink(), navigator),
+    httpClient = HttpClient(),
+    authToken = { authToken },
+    gitHostService = { _, _ -> gitService },
+    cachedRepos = cachedRepos,
+    syncCoordinator = syncCoordinator,
+    database = database,
+    deviceInfo = testDeviceInfo()
   )
 
   @AfterTest
@@ -57,9 +57,9 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
     gitService.completeAuth.value = { error("boom!") }
 
     val models = presenter.uiModels()
-        .test(rxRule)
-        .assertValue(ShowProgress)
-        .assertValue(ShowFailure(kind = Authorization))
+      .test(rxRule)
+      .assertValue(ShowProgress)
+      .assertValue(ShowFailure(kind = Authorization))
 
     gitService.completeAuth.value = { GitHostAuthToken("nicolas.cage") }
     presenter.dispatch(RetryClicked(failure = Authorization))
@@ -67,8 +67,8 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
     assertThat(authToken.get()).isEqualTo(GitHostAuthToken("nicolas.cage"))
 
     models
-        .assertValue(ShowProgress)
-        .popAllValues()
+      .assertValue(ShowProgress)
+      .popAllValues()
   }
 
   @Test fun `retry fetching of repositories`() {
@@ -77,17 +77,17 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
     presenter.dispatch(SearchTextChanged("")) // Initial event sent by the view.
 
     val models = presenter.uiModels()
-        .distinctUntilChanged()
-        .test(rxRule)
-        .assertValue(ShowProgress)
-        .assertValue(ShowFailure(kind = FetchingRepos))
+      .distinctUntilChanged()
+      .test(rxRule)
+      .assertValue(ShowProgress)
+      .assertValue(ShowFailure(kind = FetchingRepos))
 
     gitService.userRepos.value = { listOf(fakeRepository()) }
     presenter.dispatch(RetryClicked(failure = FetchingRepos))
 
     models
-        .assertValue(ShowProgress)
-        .assertValue { it is SelectRepo }
+      .assertValue(ShowProgress)
+      .assertValue { it is SelectRepo }
   }
 
   @Test fun `retry selection of repo`() {
@@ -99,15 +99,15 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
     presenter.dispatch(GitRepositoryClicked(repo))
 
     val models = presenter.uiModels()
-        .test(rxRule)
-        .assertValue(ShowProgress)
-        .assertValue(ShowFailure(kind = AddingDeployKey))
+      .test(rxRule)
+      .assertValue(ShowProgress)
+      .assertValue(ShowFailure(kind = AddingDeployKey))
 
     gitService.user.value = { user }
     presenter.dispatch(RetryClicked(failure = AddingDeployKey))
     models
-        .assertValue(ShowProgress)
-        .assertValue(ShowFailure(kind = AddingDeployKey))
+      .assertValue(ShowProgress)
+      .assertValue(ShowFailure(kind = AddingDeployKey))
 
     gitService.deployKey.value = { Unit }
     presenter.dispatch(RetryClicked(failure = AddingDeployKey))
@@ -128,12 +128,12 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
     gitService.userRepos.value = { listOf(repo) }
 
     presenter.uiModels()
-        .test(rxRule)
-        .assertEmpty()
+      .test(rxRule)
+      .assertEmpty()
 
     cachedRepos.listen()
-        .test(rxRule)
-        .assertValue(emptyList())
+      .test(rxRule)
+      .assertValue(emptyList())
   }
 
   @Test fun `skip fetching of repositories if it's already in cache`() {
@@ -142,13 +142,13 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
     gitService.userRepos.value = { listOf(repo) }
 
     presenter.uiModels()
-        .test(rxRule)
-        .assertValue(ShowProgress)
-        .popAllValues()
+      .test(rxRule)
+      .assertValue(ShowProgress)
+      .popAllValues()
 
     cachedRepos.listen()
-        .test(rxRule)
-        .assertValue(listOf(repo))
+      .test(rxRule)
+      .assertValue(listOf(repo))
   }
 
   @Test fun `show empty view if user doesn't have any repository`() {

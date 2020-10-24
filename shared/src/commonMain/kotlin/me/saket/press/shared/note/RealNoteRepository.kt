@@ -21,14 +21,14 @@ internal class RealNoteRepository(
 
   override fun note(id: NoteId): Observable<Optional<Note>> {
     return noteQueries.note(id)
-        .asObservable(schedulers.io)
-        .mapToOneOrOptional()
+      .asObservable(schedulers.io)
+      .mapToOneOrOptional()
   }
 
   override fun visibleNotes(): Observable<List<Note>> {
     return noteQueries.visibleNotes()
-        .asObservable(schedulers.io)
-        .mapToList()
+      .asObservable(schedulers.io)
+      .mapToList()
   }
 
   override fun create(vararg insertNotes: InsertNote): Completable {
@@ -36,10 +36,10 @@ internal class RealNoteRepository(
       noteQueries.transaction {
         for (note in insertNotes) {
           noteQueries.insert(
-              id = note.id,
-              content = note.content,
-              createdAt = note.createdAt ?: clock.nowUtc(),
-              updatedAt = note.createdAt ?: clock.nowUtc()
+            id = note.id,
+            content = note.content,
+            createdAt = note.createdAt ?: clock.nowUtc(),
+            updatedAt = note.createdAt ?: clock.nowUtc()
           )
         }
       }
@@ -49,9 +49,9 @@ internal class RealNoteRepository(
   override fun update(id: NoteId, content: String): Completable {
     return completableFromFunction {
       noteQueries.updateContent(
-          id = id,
-          content = content,
-          updatedAt = clock.nowUtc()
+        id = id,
+        content = content,
+        updatedAt = clock.nowUtc()
       )
     }
   }
@@ -65,9 +65,9 @@ internal class RealNoteRepository(
   override fun markAsArchived(id: NoteId): Completable {
     return completableFromFunction {
       noteQueries.setArchived(
-          id = id,
-          isArchived = true,
-          updatedAt = clock.nowUtc()
+        id = id,
+        isArchived = true,
+        updatedAt = clock.nowUtc()
       )
     }
   }

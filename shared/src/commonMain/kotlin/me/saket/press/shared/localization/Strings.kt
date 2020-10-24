@@ -64,64 +64,64 @@ data class Strings(
 }
 
 val ENGLISH_STRINGS = Strings(
-    common = Common(
-        close_nav_icon_description = "Go back",
-        generic_error = "Something went wrong, try again?",
-        retry = "Retry"
+  common = Common(
+    close_nav_icon_description = "Go back",
+    generic_error = "Something went wrong, try again?",
+    retry = "Retry"
+  ),
+  home = Home(
+    preferences = "Preferences"
+  ),
+  editor = Editor(
+    new_note_hints = listOf(
+      "A wonderful note",
+      "It begins with a word",
+      "This is the beginning",
+      "Once upon a time",
+      "Unleash those wild ideas",
+      "Untitled composition",
+      "Here we go",
+      "Type your heart out"
     ),
-    home = Home(
-        preferences = "Preferences"
-    ),
-    editor = Editor(
-        new_note_hints = listOf(
-            "A wonderful note",
-            "It begins with a word",
-            "This is the beginning",
-            "Once upon a time",
-            "Unleash those wild ideas",
-            "Untitled composition",
-            "Here we go",
-            "Type your heart out"
-        ),
-        open_url = "Open",
-        edit_url = "Edit"
-    ),
-    sync = Sync(
-        title = "Sync",
-        confirm_repo_message = "Are you sure you want to give Press access to <b>%s</b>?",
-        confirm_repo_confirm_button = "Let's go",
-        confirm_repo_cancel_button = "Wait no",
-        setup_sync_with_host = "Sync with %s",
-        sync_disabled_message = "Press can sync notes between your devices through a git repository. This is a " +
-            "work-in-progress feature and may cause paranormal events around you.",
-        open_repository = "Open",
-        remove_repository = "Remove",
-        remove_repository_confirm_question = "Are you sure?",
-        remove_repository_confirm = "Yep",
-        remove_repository_cancel = "Cancel",
-        show_sync_stats = "Stats for nerds",
-        status_in_flight = "Syncing…",
-        status_idle_never_synced = "Waiting to sync",
-        status_failed = "Last attempt failed, will retry in sometime.",
-        status_synced_x_ago = "Synced %s",
-        timestamp_now = "just now",
-        timestamp_minutes = "%sm ago",
-        timestamp_hours = "%sh ago",
-        timestamp_days = "%sd ago",
-        timestamp_a_while_ago = "a while ago",
-        cd_sync_repository_options = "Show options for %s git repository",
-        search_git_repos = "Search your repositories…",
+    open_url = "Open",
+    edit_url = "Edit"
+  ),
+  sync = Sync(
+    title = "Sync",
+    confirm_repo_message = "Are you sure you want to give Press access to <b>%s</b>?",
+    confirm_repo_confirm_button = "Let's go",
+    confirm_repo_cancel_button = "Wait no",
+    setup_sync_with_host = "Sync with %s",
+    sync_disabled_message = "Press can sync notes between your devices through a git repository. This is a " +
+      "work-in-progress feature and may cause paranormal events around you.",
+    open_repository = "Open",
+    remove_repository = "Remove",
+    remove_repository_confirm_question = "Are you sure?",
+    remove_repository_confirm = "Yep",
+    remove_repository_cancel = "Cancel",
+    show_sync_stats = "Stats for nerds",
+    status_in_flight = "Syncing…",
+    status_idle_never_synced = "Waiting to sync",
+    status_failed = "Last attempt failed, will retry in sometime.",
+    status_synced_x_ago = "Synced %s",
+    timestamp_now = "just now",
+    timestamp_minutes = "%sm ago",
+    timestamp_hours = "%sh ago",
+    timestamp_days = "%sd ago",
+    timestamp_a_while_ago = "a while ago",
+    cd_sync_repository_options = "Show options for %s git repository",
+    search_git_repos = "Search your repositories…",
 
-        conflicted_note_heading_prefix = "Conflicted",
-        conflicted_note_explanation_dialog_title = "Sync conflict detected",
-        conflicted_note_explanation_dialog_message = "This note was edited on another device in a conflicting way, " +
-            "and had to be duplicated. Please close and re-open this note? \n\nSync conflicts are unfortunate but " +
-            "unavoidable if edits to the same note are made on multiple devices, either around the same time or at" +
-            " different times while offline.",
-        conflicted_note_explanation_dialog_button = "Close note",
+    conflicted_note_heading_prefix = "Conflicted",
+    conflicted_note_explanation_dialog_title = "Sync conflict detected",
+    conflicted_note_explanation_dialog_message = "This note was edited on another device in a conflicting way, " +
+      "and had to be duplicated. Please close and re-open this note? \n\nSync conflicts are unfortunate but " +
+      "unavoidable if edits to the same note are made on multiple devices, either around the same time or at" +
+      " different times while offline.",
+    conflicted_note_explanation_dialog_button = "Close note",
 
-        nerd_stats_title = "Stats for nerds",
-        nerd_stats_git_size = "Git directory size: %s",
-        nerd_stats_logs_label = "Logs: "
-    )
+    nerd_stats_title = "Stats for nerds",
+    nerd_stats_git_size = "Git directory size: %s",
+    nerd_stats_logs_label = "Logs: "
+  )
 )

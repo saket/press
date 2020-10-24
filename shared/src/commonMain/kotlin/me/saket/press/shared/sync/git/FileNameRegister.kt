@@ -40,7 +40,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
 
   fun recordFor(relativePath: FileName, oldPath: String?): Record? {
     val oldRecord = oldPath?.let { recordFor(it) }
-        ?: return recordFor(relativePath)
+      ?: return recordFor(relativePath)
 
     val noteFile = File(notesDirectory, relativePath)
     return createNewRecordFor(noteFile, id = oldRecord.noteId).also {
@@ -87,21 +87,27 @@ internal class FileNameRegister(private val notesDirectory: File) {
 
     return if (oldNoteFile == null) {
       // New note. A new file needs to be created.
-      FileSuggestion(notesDirectory, File(notesDirectory, newNoteName).also {
-        it.parent?.makeDirectory(recursively = true)
-        createNewRecordFor(it, note.id)
-      })
+      FileSuggestion(
+        notesDirectory,
+        File(notesDirectory, newNoteName).also {
+          it.parent?.makeDirectory(recursively = true)
+          createNewRecordFor(it, note.id)
+        }
+      )
     } else if (oldNoteFile.relativePathIn(notesDirectory) == newNoteName) { // todo: use oldRecord.noteFilePath?
       // A file already exists and the name matches the note's heading.
       FileSuggestion(notesDirectory, oldNoteFile)
     } else {
       // A file already exists, but the heading/folder was changed. Rename the file.
       val newFile = File(notesDirectory, newNoteName)
-      FileSuggestion(notesDirectory, newFile, oldNoteFile, acceptRename = {
-        oldNoteFile.renameTo(newFile)
-        oldRecord!!.delete()
-        createNewRecordFor(newFile, note.id)
-      })
+      FileSuggestion(
+        notesDirectory, newFile, oldNoteFile,
+        acceptRename = {
+          oldNoteFile.renameTo(newFile)
+          oldRecord!!.delete()
+          createNewRecordFor(newFile, note.id)
+        }
+      )
     }
   }
 
@@ -131,9 +137,9 @@ internal class FileNameRegister(private val notesDirectory: File) {
     val folder = note.folder()?.plus("/") ?: ""
 
     val existingNames = notesDirectory
-        .children(recursively = true)
-        .map { it.relativePathIn(notesDirectory) }
-        .filter { it.endsWith(".md") }
+      .children(recursively = true)
+      .map { it.relativePathIn(notesDirectory) }
+      .filter { it.endsWith(".md") }
 
     // Suffix the name to avoid conflicts, e.g., "untitled_note_2".
     var uniqueName: String
@@ -197,7 +203,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
         require(!relativePath.hasMultipleOf('/')) { "Nested folders aren't supported yet" }
 
         val registerFile = File(registerDirectory, relativePath.dropLast(".md".length))
-            .existsOrNull() ?: return null
+          .existsOrNull() ?: return null
         return from(registerDirectory, registerFile)
       }
 

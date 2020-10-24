@@ -36,13 +36,13 @@ class HomePresenter(
 
   private fun openNewNoteScreen(): Observable<HomeUiModel> {
     return viewEvents().ofType<NewNoteClicked>()
-        .mergeWith(keyboardShortcuts.listen(newNote))
-        .flatMapCompletable {
-          completableFromFunction {
-            args.navigator.lfg(ComposeNewNote(newNoteId = NoteId.generate()))
-          }
+      .mergeWith(keyboardShortcuts.listen(newNote))
+      .flatMapCompletable {
+        completableFromFunction {
+          args.navigator.lfg(ComposeNewNote(newNoteId = NoteId.generate()))
         }
-        .andThen(observableOfEmpty())
+      }
+      .andThen(observableOfEmpty())
   }
 
   private fun populateNotes(): Observable<HomeUiModel> {
@@ -51,18 +51,20 @@ class HomePresenter(
     }
 
     return repository.visibleNotes()
-        .map { notes -> notes.filter { canInclude(it) } }
-        .map {
-          HomeUiModel(it.map { note ->
+      .map { notes -> notes.filter { canInclude(it) } }
+      .map {
+        HomeUiModel(
+          it.map { note ->
             val (heading, body) = HeadingAndBody.parse(note.content)
             HomeUiModel.Note(
-                noteId = note.id,
-                adapterId = note.localId,
-                title = heading,
-                body = body
+              noteId = note.id,
+              adapterId = note.localId,
+              title = heading,
+              body = body
             )
-          })
-        }
+          }
+        )
+      }
   }
 
   interface Factory {

@@ -61,32 +61,32 @@ data class MarkdownPalette(
 
 fun WysiwygStyle.Companion.from(palette: MarkdownPalette, displayUnits: DisplayUnits) =
   WysiwygStyle(
-      syntaxColor = palette.syntaxColor,
-      strikethroughTextColor = palette.strikethroughTextColor,
-      blockQuote = BlockQuote(
-          leftBorderColor = palette.blockQuoteTextColor,
-          leftBorderWidth = displayUnits.scaledPixels(4).roundToInt(),
-          indentationMargin = displayUnits.scaledPixels(24).roundToInt(),
-          textColor = palette.blockQuoteTextColor
-      ),
-      code = Code(
-          backgroundColor = palette.codeBackgroundColor,
-          codeBlockMargin = displayUnits.scaledPixels(8).roundToInt()
-      ),
-      heading = Heading(
-          textColor = palette.headingTextColor
-      ),
-      link = Link(
-          textColor = palette.linkTextColor,
-          urlColor = palette.linkUrlColor
-      ),
-      list = WysiwygStyle.List(
-          indentationMargin = displayUnits.scaledPixels(8).roundToInt()
-      ),
-      thematicBreak = ThematicBreak(
-          color = palette.thematicBreakColor,
-          height = displayUnits.scaledPixels(4)
-      )
+    syntaxColor = palette.syntaxColor,
+    strikethroughTextColor = palette.strikethroughTextColor,
+    blockQuote = BlockQuote(
+      leftBorderColor = palette.blockQuoteTextColor,
+      leftBorderWidth = displayUnits.scaledPixels(4).roundToInt(),
+      indentationMargin = displayUnits.scaledPixels(24).roundToInt(),
+      textColor = palette.blockQuoteTextColor
+    ),
+    code = Code(
+      backgroundColor = palette.codeBackgroundColor,
+      codeBlockMargin = displayUnits.scaledPixels(8).roundToInt()
+    ),
+    heading = Heading(
+      textColor = palette.headingTextColor
+    ),
+    link = Link(
+      textColor = palette.linkTextColor,
+      urlColor = palette.linkUrlColor
+    ),
+    list = WysiwygStyle.List(
+      indentationMargin = displayUnits.scaledPixels(8).roundToInt()
+    ),
+    thematicBreak = ThematicBreak(
+      color = palette.thematicBreakColor,
+      height = displayUnits.scaledPixels(4)
+    )
   )
 
 @Deprecated("use separator", level = ERROR, replaceWith = ReplaceWith("separator"))
