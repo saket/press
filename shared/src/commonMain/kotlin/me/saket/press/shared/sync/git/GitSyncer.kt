@@ -456,10 +456,13 @@ class GitSyncer(
     val commits = git.commitsBetween(from = from, toInclusive = to)
     commits.forEach { log(" • $it") }
 
-    val diffSinceLastSync = git.changesBetween(from, to)
+    val diffSinceLastSync = git.changesBetween(from, to).filter { it !is Delete }
     val diffPathTimestamps = commits.pathTimestamps(git)
 
-    log("\nSyncing changes (${diffSinceLastSync.size}):")
+    if (diffSinceLastSync.isNotEmpty()) {
+      log("\nSyncing changes (${diffSinceLastSync.size})")
+    }
+
     for (diff in diffSinceLastSync) {
       log(" • $diff")
       if (!diff.isNoteChange()) {
@@ -527,7 +530,7 @@ class GitSyncer(
             }
           }
         }
-        is Delete -> DbOperation.empty()  // Handled later.
+        is Delete -> error("filtered out")
       }
     }
 
@@ -546,7 +549,7 @@ class GitSyncer(
       .filter { (_, diffs) -> diffs.isNotEmpty() }
 
     if (deletedDiffs.isNotEmpty()) {
-      log("\nChecking deleted notes")
+      log("\nSyncing deletions")
     }
 
     for ((commit, diffs) in deletedDiffs) {
@@ -554,7 +557,7 @@ class GitSyncer(
 
       for (diff in diffs) {
         val noteId = register.noteIdFor(diff.path)
-        log(" • '${diff.path}' deleted in ${commit.sha1.abbreviated}")
+        log(" • ${diff.path}")
 
         if (noteId != null) {
           log("   permanently deleting $noteId")
