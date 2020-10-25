@@ -96,7 +96,7 @@ class SharedSyncComponent {
 }
 
 internal fun createJson(): Json {
-  return Json(from = Json) {
+  return Json {
     prettyPrint = true
     ignoreUnknownKeys = true
     useArrayPolymorphism = true

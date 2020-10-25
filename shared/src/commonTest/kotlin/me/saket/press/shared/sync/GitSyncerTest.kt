@@ -14,7 +14,6 @@ import assertk.assertions.isNotInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
-import co.touchlab.stately.concurrency.AtomicBoolean
 import co.touchlab.stately.concurrency.value
 import com.badoo.reaktive.test.observable.test
 import com.soywiz.klock.DateTime
@@ -166,7 +165,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     }
   }
 
-  @Test fun `push notes to an empty repo`() {
+  @Test fun `push notes to an empty repo with non-empty branches`() {
     if (!canRunTests()) return
 
     // Given: Remote repository is empty.
@@ -174,22 +173,34 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     // Given: This device has some notes.
     noteQueries.testInsert(
-      fakeNote(
-        content = "# Nicolas Cage \nis a national treasure",
-        clock = clock
-      ),
-      fakeNote(
-        content = "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures",
-        clock = clock
-      )
+      fakeNote("# Nicolas Cage \nis a national treasure"),
+      fakeNote("# Witcher 3 \nKings Die, Realms Fall, But Magic Endures")
     )
-
     syncer.sync()
 
     // Check that the local note(s) were pushed to remote.
     assertThat(remote.fetchNoteFiles()).containsOnly(
       "nicolas_cage.md" to "# Nicolas Cage \nis a national treasure",
       "witcher_3.md" to "# Witcher 3 \nKings Die, Realms Fall, But Magic Endures"
+    )
+  }
+
+  @Test fun `push notes to an empty repo with empty branches`() {
+    if (!canRunTests()) return
+    if (BuildKonfig.GIT_TEST_PERSONAL_KEY.isBlank()) return
+
+    // Issue #57: git pull fails for repository that doesn't have any branch.
+    val gitHub = GitHubRobot(
+      personalKey = BuildKonfig.GIT_TEST_PERSONAL_KEY,
+      sshUrl = BuildKonfig.GIT_TEST_REPO_SSH_URL
+    )
+    gitHub.deleteAndRecreateRepo()
+
+    noteQueries.testInsert(fakeNote("# Nicolas Cage \nis a national treasure"))
+    syncer.sync()
+
+    assertThat(RemoteRepositoryRobot().fetchNoteFiles()).containsOnly(
+      "nicolas_cage.md" to "# Nicolas Cage \nis a national treasure"
     )
   }
 
@@ -1043,10 +1054,8 @@ class GitSyncerTest : BaseDatabaeTest() {
     clock.setTime(epochMillis = 1601612922000)
     syncer.sync()
 
-    assertThat {
-      remote.checkout("notes-backup-1601612922000")
-      remote.fetchNoteFiles()
-    }.isFailure()
+    remote.checkout("notes-backup-1601612922000")
+    remote.fetchNoteFiles().isEmpty()
   }
 
   @Test fun `delete notes after syncing them`() {

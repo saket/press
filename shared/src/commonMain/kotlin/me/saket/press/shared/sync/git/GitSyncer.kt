@@ -255,7 +255,7 @@ class GitSyncer(
     val localHead = git.headCommit()!!  // non-null because of resetState().
 
     git.pull(rebase = true).also {
-      check(it is GitPullResult.Success) { "Failed to rebase: $it" }
+      check(it !is GitPullResult.Failure) { "Failed to rebase: $it" }
     }
 
     val upstreamHead = git.headCommit()!!
