@@ -18,6 +18,7 @@ import org.eclipse.jgit.api.RebaseResult
 import org.eclipse.jgit.api.ResetCommand.ResetType.HARD
 import org.eclipse.jgit.api.TransportConfigCallback
 import org.eclipse.jgit.api.errors.JGitInternalException
+import org.eclipse.jgit.api.errors.RefNotAdvertisedException
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.ADD
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.COPY
 import org.eclipse.jgit.diff.DiffEntry.ChangeType.DELETE
@@ -168,7 +169,8 @@ internal actual class RealGitRepository actual constructor(
   }
 
   override fun pull(rebase: Boolean): GitPullResult {
-    val pullResult = jgit.pull()
+    try {
+      val pullResult = jgit.pull()
         .apply {
           if (rebase) setRebase(REBASE)
           else setFastForward(FF)
@@ -177,9 +179,12 @@ internal actual class RealGitRepository actual constructor(
         .setTransportConfigCallback(sshTransport())
         .call()
 
-    return when {
-      pullResult.isSuccessful -> GitPullResult.Success
-      else -> GitPullResult.Failure(reason = "$pullResult, ${pullResult.rebaseResult.toStringFix()}")
+      return when {
+        pullResult.isSuccessful -> GitPullResult.Success
+        else -> GitPullResult.Failure(reason = "$pullResult, ${pullResult.rebaseResult.toStringFix()}")
+      }
+    } catch (e: RefNotAdvertisedException) {
+      return GitPullResult.NonExistentBranch
     }
   }
 
