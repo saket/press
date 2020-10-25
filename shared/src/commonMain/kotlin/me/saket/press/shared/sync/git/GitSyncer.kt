@@ -213,7 +213,7 @@ class GitSyncer(
    */
   private fun SyncTransaction.backupIfFirstSync() {
     if (!backupBeforeFirstSync.value) return
-    if (readConfig()!!.lastPushedSha1 != null) return
+    if (readConfig()!!.backupDone) return
 
     val localNotes = noteQueries.allNotes().executeAsList()
     if (localNotes.isEmpty()) {
@@ -241,6 +241,7 @@ class GitSyncer(
       allowEmpty = true
     )
     git.push(force = true)
+    configQueries.setBackupDone(true)
 
     git.checkout(restoreToBranch.name)
   }

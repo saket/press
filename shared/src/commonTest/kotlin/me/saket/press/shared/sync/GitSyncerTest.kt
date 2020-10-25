@@ -7,6 +7,7 @@ import assertk.assertions.doesNotContain
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotInstanceOf
@@ -69,7 +70,6 @@ class GitSyncerTest : BaseDatabaeTest() {
     user = GitIdentity(name = "Test syncer author", email = "test@test.com")
   )
   private val mergeConflicts = SyncMergeConflicts()
-  private val backupBeforeFirstSync = AtomicBoolean(false)
   private val git = DelegatingGit(delegate = RealGit())
   private val syncer = GitSyncer(
     git = git,
@@ -77,8 +77,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     deviceInfo = deviceInfo,
     clock = clock,
     strings = ENGLISH_STRINGS,
-    mergeConflicts = mergeConflicts,
-    backupBeforeFirstSync = backupBeforeFirstSync
+    mergeConflicts = mergeConflicts
   )
 
   private val expectUnSyncedNotes = mutableListOf<NoteId>()
@@ -94,6 +93,7 @@ class GitSyncerTest : BaseDatabaeTest() {
       deleteEverything()
     }
     configQueries.save(remote = remoteAndAuth)
+    configQueries.setBackupDone(true) // Don't wanna run backups on every test.
 
     preventCommitsBeforePullsOrAfterPushes()
   }
@@ -1018,7 +1018,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     // Note to self: it is important to use a constant time or else
     // each test will create a new branch in the test repo lol.
     clock.setTime(epochMillis = 1601612911000)
-    backupBeforeFirstSync.value = true
+    configQueries.setBackupDone(false)
 
     for (note in listOf("I couldn't", "understand half of", "the muffled dialogues", "in Tenet")) {
       clock.advanceTimeBy(1.seconds)
@@ -1028,8 +1028,7 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     val remote = RemoteRepositoryRobot {
       pull()
-      clock.nowUtc().unixMillisLong
-      checkout("notes-backup-1601612911000")
+      checkout("notes-backup-${clock.nowUtc().unixMillisLong}")
     }
     assertThat(remote.fetchNoteFiles()).containsOnly(
       "untitled_note.md" to "I couldn't",
@@ -1037,6 +1036,17 @@ class GitSyncerTest : BaseDatabaeTest() {
       "untitled_note_3.md" to "the muffled dialogues",
       "untitled_note_4.md" to "in Tenet"
     )
+    assertThat(configQueries.select().executeAsOne().backupDone).isTrue()
+
+    // Check that the backup is only created once.
+    remote.deleteAllFiles()
+    clock.setTime(epochMillis = 1601612922000)
+    syncer.sync()
+
+    assertThat {
+      remote.checkout("notes-backup-1601612922000")
+      remote.fetchNoteFiles()
+    }.isFailure()
   }
 
   @Test fun `delete notes after syncing them`() {
@@ -1179,10 +1189,14 @@ class GitSyncerTest : BaseDatabaeTest() {
     }
 
     fun deleteEverything() {
-      directory.children().filter { it.name != ".git" }.forEach { it.delete(recursively = true) }
-      commitFiles(message = "Emptiness", add = emptyList())
+      deleteAllFiles()
       forcePush()
       directory.delete(recursively = true)
+    }
+
+    fun deleteAllFiles() {
+      directory.children().filter { it.name != ".git" }.forEach { it.delete(recursively = true) }
+      commitFiles(message = "Emptiness", add = emptyList())
     }
   }
 }
