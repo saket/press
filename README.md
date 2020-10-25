@@ -25,9 +25,6 @@ Press was created as a proof-of-concept for exploring Kotlin Multiplatform, as w
   - [Dependency injection in shared code](documentation/dependency_injection.md)
   - [Testing and debugging shared code](documentation/testing.md)
 
-### Contributing
-Press is a barebones app right now and there are many improvements to make. The first steps would be setting up the iOS app, followed by macOS. Take a look at the [open issues](https://github.com/saket/Press/issues) and feel free to pick something up.
-
 ### License
 ```
 Copyright 2019 Saket Narayan.
