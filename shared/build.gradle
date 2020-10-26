@@ -132,13 +132,6 @@ kotlin {
     macosTest {
       dependsOn(nativeTest)
     }
-    iosMain {
-      dependsOn(nativeMain)
-    }
-    iosTest {
-      dependsOn(nativeTest)
-    }
-
     all {
       languageSettings {
         enableLanguageFeature('InlineClasses')
