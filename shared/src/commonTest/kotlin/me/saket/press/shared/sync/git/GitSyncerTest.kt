@@ -1,4 +1,4 @@
-package me.saket.press.shared.sync
+package me.saket.press.shared.sync.git
 
 import assertk.assertThat
 import assertk.assertions.containsAll
@@ -7,7 +7,6 @@ import assertk.assertions.doesNotContain
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotInstanceOf
@@ -35,18 +34,11 @@ import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.fakedata.fakeRepository
 import me.saket.press.shared.localization.ENGLISH_STRINGS
+import me.saket.press.shared.sync.DelegatingPressDatabase
+import me.saket.press.shared.sync.SyncMergeConflicts
 import me.saket.press.shared.sync.SyncState.IN_FLIGHT
 import me.saket.press.shared.sync.SyncState.PENDING
 import me.saket.press.shared.sync.SyncState.SYNCED
-import me.saket.press.shared.sync.git.File
-import me.saket.press.shared.sync.git.FileName
-import me.saket.press.shared.sync.git.FileNameRegister
-import me.saket.press.shared.sync.git.GitRemoteAndAuth
-import me.saket.press.shared.sync.git.GitSyncer
-import me.saket.press.shared.sync.git.UtcTimestamp
-import me.saket.press.shared.sync.git.children
-import me.saket.press.shared.sync.git.delete
-import me.saket.press.shared.sync.git.relativePathIn
 import me.saket.press.shared.testDeviceInfo
 import me.saket.press.shared.time.FakeClock
 import kotlin.test.AfterTest

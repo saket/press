@@ -1,4 +1,4 @@
-package me.saket.press.shared.sync
+package me.saket.press.shared.sync.git
 
 import io.ktor.client.HttpClient
 import io.ktor.client.features.json.JsonFeature
@@ -7,16 +7,13 @@ import io.ktor.client.features.logging.LogLevel.INFO
 import io.ktor.client.features.logging.Logger
 import io.ktor.client.features.logging.Logging
 import io.ktor.client.features.logging.SIMPLE
-import io.ktor.client.request.accept
 import io.ktor.client.request.delete
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.http.ContentType.Application
 import io.ktor.http.contentType
-import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import me.saket.kgit.SshPrivateKey
 import me.saket.press.shared.runBlocking
 
 class GitHubRobot(

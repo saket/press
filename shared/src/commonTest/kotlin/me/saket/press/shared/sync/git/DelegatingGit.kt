@@ -1,4 +1,4 @@
-package me.saket.press.shared.sync
+package me.saket.press.shared.sync.git
 
 import me.saket.kgit.Git
 import me.saket.kgit.GitConfig
