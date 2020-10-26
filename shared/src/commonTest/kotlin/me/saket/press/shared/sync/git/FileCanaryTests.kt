@@ -1,0 +1,118 @@
+package me.saket.press.shared.sync.git
+
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
+import assertk.assertions.isTrue
+import me.saket.press.shared.containsOnly
+import me.saket.press.shared.testDeviceInfo
+import kotlin.test.Test
+
+class FileCanaryTests {
+  private val storage = testDeviceInfo().appStorage
+
+  companion object {
+    val content = """
+      |I can't do that as Bruce Wayne... as a man. I'm flesh and blood. 
+      |I can be ignored, destroyed. But as a symbol, I can be incorruptible, 
+      |I can be everlasting. Bats frighten me. It's time my enemies shared my dread.
+      """.trimMargin()
+  }
+
+  @Test fun `read and write`() {
+    val file = File(storage, "batman.md")
+    file.write(content)
+    assertThat(file.read()).isEqualTo(content)
+  }
+
+  @Test fun delete() {
+    val file = File(storage, "batman.md")
+
+    file.touch()
+    assertThat(file.exists).isTrue()
+
+    file.delete()
+    assertThat(file.exists).isFalse()
+  }
+
+  @Test fun rename() {
+    val file = File(storage, "batman.md")
+    file.write(content)
+
+    val archived = File(storage, "archived").apply { makeDirectory() }
+    val renamedFile = file.renameTo(File(archived, "batman.md"))
+
+    assertThat(file.exists).isFalse()
+    assertThat(renamedFile.exists).isTrue()
+    assertThat(renamedFile.read()).isEqualTo(content)
+  }
+
+  @Test fun parent() {
+    val file = File(storage, "archived/batman.md")
+    assertThat(file.relativePathIn(storage)).isEqualTo("archived/batman.md")
+    assertThat(file.parent!!.relativePathIn(storage)).isEqualTo("archived")
+  }
+
+  @Test fun `create directory`() {
+    val archived = File(storage, "archived")
+    archived.makeDirectory(recursively = false)
+
+    assertThat(archived.isDirectory).isTrue()
+
+    val deepFolder = File(storage, "blog/android/text")
+    deepFolder.makeDirectory(recursively = true)
+    assertThat(File(storage, "blog/android/text").exists).isTrue()
+  }
+
+  @Test fun `equals content`() {
+    val file1 = File(storage, "batman.md").apply { write(content) }
+    assertThat(file1.equalsContent(content)).isTrue()
+
+    val file2 = File(storage, "batman.md").apply { write("foo") }
+    assertThat(file2.equalsContent(content)).isFalse()
+  }
+
+  @Test fun `recursive children`() {
+    File(storage, "note_1.md").touch()
+    File(storage, "note_2.md").touch()
+    File(storage, "note_3.md").touch()
+
+    val archived = File(storage, "archived").apply { makeDirectory() }
+    File(archived, "note_3.md").touch()
+    File(archived, "note_4.md").touch()
+    File(archived, "note_5.md").touch()
+
+    assertThat(storage.children(recursively = false).map { it.relativePathIn(storage) })
+      .containsOnly(
+        "note_1.md",
+        "note_2.md",
+        "note_3.md",
+        "archived"
+      )
+    assertThat(storage.children(recursively = true, skipDirectories = true).map { it.relativePathIn(storage) })
+      .containsOnly(
+        "note_1.md",
+        "note_2.md",
+        "note_3.md",
+        "archived/note_3.md",
+        "archived/note_4.md",
+        "archived/note_5.md"
+      )
+    assertThat(storage.children(recursively = true, skipDirectories = false).map { it.relativePathIn(storage) })
+      .containsOnly(
+        "note_1.md",
+        "note_2.md",
+        "note_3.md",
+        "archived",
+        "archived/note_3.md",
+        "archived/note_4.md",
+        "archived/note_5.md"
+      )
+    assertThat(archived.children(recursively = true).map { it.relativePathIn(archived) })
+      .containsOnly(
+        "note_3.md",
+        "note_4.md",
+        "note_5.md"
+      )
+  }
+}

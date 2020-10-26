@@ -80,10 +80,6 @@ fun File.relativePathIn(ancestor: File): String {
   return path.drop(ancestor.path.length + 1)  // +1 for the trailing "/".
 }
 
-fun File.renameTo(newName: String): File {
-  return renameTo(newFile = File(parent!!, newName))
-}
-
 fun File.touch(): File {
   parent?.makeDirectory(recursively = true)
   write("")
