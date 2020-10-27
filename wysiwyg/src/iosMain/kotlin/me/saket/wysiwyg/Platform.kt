@@ -1,5 +1,3 @@
-@file:Suppress("MayBeConstant")
-
 package me.saket.wysiwyg
 
 actual class SingleThreadBackgroundExecutor {

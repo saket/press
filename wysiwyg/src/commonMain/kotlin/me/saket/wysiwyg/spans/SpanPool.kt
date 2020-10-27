@@ -1,6 +1,5 @@
 package me.saket.wysiwyg.spans
 
-import me.saket.wysiwyg.util.Stack
 import kotlin.DeprecationLevel.WARNING
 import kotlin.reflect.KClass
 
@@ -39,7 +38,24 @@ class SpanPool {
 
   fun recycle(span: WysiwygSpan) {
     val similarSpans = spans.getOrElse(span::class) { Stack() }
-    similarSpans.add(span)
+    similarSpans.push(span)
     spans[span::class] = similarSpans
+  }
+}
+
+interface Stack<T> {
+  fun pop(): T
+  fun push(t: T)
+  fun isEmpty(): Boolean
+
+  companion object {
+    operator fun <T> invoke(): Stack<T> {
+      return object : Stack<T> {
+        private val list = mutableListOf<T>()
+        override fun pop(): T = list.removeLast()
+        override fun push(t: T) = list.add(list.lastIndex + 1, t)
+        override fun isEmpty(): Boolean = list.isEmpty()
+      }
+    }
   }
 }
