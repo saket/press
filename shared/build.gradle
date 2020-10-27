@@ -40,24 +40,6 @@ kotlin {
         }
       }
     }
-
-    def buildForDevice = project.findProperty("device")?.toBoolean() ?: false
-    def iosTarget = (buildForDevice) ? presets.iosArm64 : presets.iosX64
-
-    fromPreset(iosTarget, "ios") {
-      binaries {
-        compilations.main.kotlinOptions.freeCompilerArgs += "-Xobjc-generics"
-        framework("shared") {
-          isStatic = false
-          linkerOpts.add("-lsqlite3")
-
-          // Disable bitcode embedding for the simulator build.
-          if (!buildForDevice) {
-            embedBitcode("disable")
-          }
-        }
-      }
-    }
   }
 
   sourceSets {
