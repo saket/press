@@ -63,6 +63,7 @@ kotlin {
         implementation deps.ktor.kotlinxSerialization
         implementation deps.kotlinx.serialization
         implementation (deps.kotlinx.coroutines) { force = true }
+        implementation deps.pwBinomFiles.common
       }
     }
     commonTest {
@@ -85,7 +86,7 @@ kotlin {
         implementation deps.reaktive.interop.rxJava2
         implementation deps.sqlDelight.driver.android
         implementation deps.ktor.client.okHttp
-        implementation deps.okio
+        implementation deps.pwBinomFiles.jvm
       }
     }
     androidTest {
@@ -103,12 +104,15 @@ kotlin {
         implementation (deps.kotlinx.coroutines) { force = true }
       }
     }
-    macosMain {
-      dependsOn(nativeMain)
-    }
     nativeTest {
       dependencies {
         implementation (deps.kotlinx.coroutines) { force = true }
+      }
+    }
+    macosMain {
+      dependsOn(nativeMain)
+      dependencies {
+        implementation deps.pwBinomFiles.macOS
       }
     }
     macosTest {

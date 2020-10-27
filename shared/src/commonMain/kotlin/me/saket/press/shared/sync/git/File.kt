@@ -1,48 +1,137 @@
 package me.saket.press.shared.sync.git
 
-expect class PlatformFile(parentPath: String, name: String) : File {
-  constructor(path: String)
-}
+import pw.binom.ByteBuffer
+import pw.binom.ByteBufferPool
+import pw.binom.asUTF8String
+import pw.binom.copyTo
+import pw.binom.io.ByteArrayOutput
+import pw.binom.io.file.isExist
+import pw.binom.io.file.mkdirs
+import pw.binom.io.file.name
+import pw.binom.io.file.parent
+import pw.binom.io.file.read
+import pw.binom.io.file.write
+import pw.binom.io.use
+import pw.binom.pool.ObjectPool
+import pw.binom.toByteBufferUTF8
+import pw.binom.io.file.File as BinomFile
 
-interface File {
+/**
+ * Really hoping that this can use Okio in the future because everything else is quite... bad.
+ * [https://publicobject.com/2020/10/06/files/]
+ */
+class File(val delegate: BinomFile) {
+  constructor(path: String) : this(BinomFile(path))
+
+  constructor(parent: File, name: String) : this(
+    BinomFile(
+      parent = BinomFile(parent.path),
+      name = name
+    )
+  )
+
+  val exists: Boolean get() = delegate.isExist
+  val path: String get() = delegate.path
+  val name: String get() = delegate.name
+  val parent: File? get() = delegate.parent?.let(::File)
+  val isDirectory: Boolean get() = delegate.isDirectory
+
   companion object {
-    // So that usages can use File() directly instead of PlatformFile().
-    operator fun invoke(path: String): File = PlatformFile(path)
-    operator fun invoke(parent: File, name: String): File = PlatformFile(parent.path, name)
+    val byteBufferPool = ByteBufferPool(10)
   }
 
-  val exists: Boolean
-  val path: String
-  val name: String
-  val parent: File?
-  val isDirectory: Boolean
+  fun write(input: String) {
+    parent?.let { check(it.exists) }
 
-  val extension: String
-    get() = name.substringAfterLast('.', "")
+    val data: ByteBuffer = input.toByteBufferUTF8()
+    delegate.write().use {
+      it.write(data)
+      it.flush()
+    }
+    data.clear()
+  }
 
-  val nameWithoutExtension: String
-    get() = name.substringBeforeLast('.')
+  fun read(): String {
+    check(exists) { "Can't read non-existent: $path" }
 
-  fun write(input: String)
+    val buffer = byteBufferPool.borrow()
+    try {
+      // Bug workaround: Input.copyTo doesn't recycle borrowed buffers from the pool.
+      val singleItemPool = object : ObjectPool<ByteBuffer> {
+        override fun borrow(init: ((ByteBuffer) -> Unit)?) = buffer
+        override fun recycle(value: ByteBuffer) = error("nope")
+      }
 
-  fun read(): String
+      ByteArrayOutput().use { out ->
+        delegate.read().use {
+          it.copyTo(out, singleItemPool)
+        }
+        out.trimToSize()
+        out.data.clear()
+        return out.data.asUTF8String()
+      }
+    } finally {
+      byteBufferPool.recycle(buffer)
+    }
+  }
 
-  fun copy(name: String): File
+  fun makeDirectory(recursively: Boolean = false) {
+    if (recursively) {
+      delegate.mkdirs()
+    } else {
+      delegate.mkdir()
+    }
+  }
 
-  fun makeDirectory(recursively: Boolean = false)
+  fun delete() {
+    check(exists) { "$name does not exist: $path" }
+    check(delegate.delete()) { "Failed to delete file: $this" }
+  }
 
-  fun delete()
+  fun sizeInBytes(): Long {
+    check(exists)
+    check(!isDirectory)
+    return delegate.size
+  }
 
-  fun sizeInBytes(): Long
+  fun children(): List<File> {
+    check(exists)
+    check(delegate.isDirectory)
 
-  fun children(): List<File>
+    val children = delegate.list()
+    return children.map(::File)
+  }
 
   /** @return the same [newFile] for convenience. */
-  fun renameTo(newFile: File): File
+  fun renameTo(newFile: File): File {
+    check(this.path != newFile.path) { "Same path: $path vs ${newFile.path}" }
+    check(this.exists) { "$path doesn't exist" }
+    check(!newFile.exists) { "${newFile.path} already exists!" }
 
-  /** Like `content == read()`, but avoids reading the whole file into memory when possible. */
-  fun equalsContent(content: String): Boolean
+    if (!newFile.parent!!.exists) {
+      newFile.parent!!.makeDirectory(recursively = true)
+    }
+
+    val renamed = delegate.renameTo(BinomFile(newFile.path))
+    check(renamed) { "Couldn't rename ($this) to $newFile" }
+    return newFile
+  }
+
+  /**
+   * Like `content == read()`, but the plan is to avoid reading the whole file
+   * into memory in the future when Okio supports native platforms.
+   */
+  fun equalsContent(content: String): Boolean {
+    return read() == content
+  }
+
+  override fun toString(): String {
+    return "${delegate.name} (${delegate.path})"
+  }
 }
+
+val File.extension: String
+  get() = name.substringAfterLast('.', "")
 
 @OptIn(ExperimentalStdlibApi::class)
 fun File.children(recursively: Boolean, skipDirectories: Boolean = true): List<File> {
