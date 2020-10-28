@@ -31,11 +31,11 @@ internal class BinomBasedFile(val delegate: BinomFile) : File {
   override val exists: Boolean get() = delegate.isExist
   override val path: String get() = delegate.path
   override val name: String get() = delegate.name
-  override val parent: File? get() = delegate.parent?.let(::BinomBasedFile)
+  override val parent: File get() = delegate.parent!!.let(::BinomBasedFile)
   override val isDirectory: Boolean get() = delegate.isDirectory
 
   override fun write(input: String) {
-    parent?.let { check(it.exists) }
+    check(parent.exists) { "parent doesn't exist: $parent" }
 
     val data: ByteBuffer = input.toByteBufferUTF8()
     delegate.write().use {
@@ -86,8 +86,8 @@ internal class BinomBasedFile(val delegate: BinomFile) : File {
     check(this.exists) { "$path doesn't exist" }
     check(!newFile.exists) { "${newFile.path} already exists!" }
 
-    if (!newFile.parent!!.exists) {
-      newFile.parent!!.makeDirectory(recursively = true)
+    if (!newFile.parent.exists) {
+      newFile.parent.makeDirectory(recursively = true)
     }
 
     val renamed = delegate.renameTo(BinomFile(newFile.path))

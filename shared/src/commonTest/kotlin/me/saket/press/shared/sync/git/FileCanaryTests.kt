@@ -6,6 +6,7 @@ import assertk.assertions.isFalse
 import assertk.assertions.isTrue
 import me.saket.press.shared.containsOnly
 import me.saket.press.shared.testDeviceInfo
+import kotlin.test.AfterTest
 import kotlin.test.Test
 
 class FileCanaryTests {
@@ -17,6 +18,11 @@ class FileCanaryTests {
       |I can be ignored, destroyed. But as a symbol, I can be incorruptible, 
       |I can be everlasting. Bats frighten me. It's time my enemies shared my dread.
       """.trimMargin().repeat(10)
+  }
+
+  @AfterTest
+  fun cleanup() {
+    storage.delete(recursively = true)
   }
 
   @Test fun `read and write`() {
@@ -50,7 +56,7 @@ class FileCanaryTests {
   @Test fun parent() {
     val file = File(storage, "archived/batman.md")
     assertThat(file.relativePathIn(storage)).isEqualTo("archived/batman.md")
-    assertThat(file.parent!!.relativePathIn(storage)).isEqualTo("archived")
+    assertThat(file.parent.relativePathIn(storage)).isEqualTo("archived")
   }
 
   @Test fun `create directory`() {

@@ -1164,7 +1164,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     ) {
       add.forEach { (name, body) ->
         File(directory, name).apply {
-          parent!!.makeDirectory(recursively = true)
+          parent.makeDirectory(recursively = true)
           write(body)
         }
       }

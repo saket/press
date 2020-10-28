@@ -414,7 +414,7 @@ class GitSyncer(
           // File's content is going to change in a conflicting way. Duplicate the note.
           val newName = register.generateNameFor(note, canUseExisting = false)
           log("   duplicating to '<same parent>/$newName' to resolve merge conflict")
-          File(noteFile.parent!!, newName).write(note.conflictedContent)
+          File(noteFile.parent, newName).write(note.conflictedContent)
           mergeConflicts.add(note.id)
         } else {
           log("   skipping (same content)")
