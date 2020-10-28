@@ -152,18 +152,3 @@ buildkonfig {
     buildConfigField "String", "GIT_TEST_PERSONAL_KEY", secrets["git_test_personal_key"] ?: ""
   }
 }
-
-task checkiOS {
-  def device = project.findProperty("iosDevice")?.toString() ?: "iPhone 8"
-  dependsOn 'linkDebugTestIos'
-  group = JavaBasePlugin.VERIFICATION_GROUP
-  description = "Runs tests for target 'ios' on an iOS simulator"
-
-  doLast {
-    def binary = kotlin.targets.ios.binaries.getTest('DEBUG').outputFile
-    exec {
-      commandLine 'xcrun', 'simctl', 'spawn', '--standalone', device, binary.absolutePath
-    }
-  }
-}
-tasks.check.dependsOn checkiOS
