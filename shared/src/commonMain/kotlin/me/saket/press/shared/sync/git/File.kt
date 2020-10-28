@@ -23,7 +23,7 @@ interface File {
 
   fun read(): String
 
-  fun makeDirectory(recursively: Boolean = false)
+  fun makeDirectory(recursively: Boolean = false): File
 
   fun delete()
 
