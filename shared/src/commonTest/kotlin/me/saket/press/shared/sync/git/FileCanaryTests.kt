@@ -16,7 +16,7 @@ class FileCanaryTests {
       |I can't do that as Bruce Wayne... as a man. I'm flesh and blood. 
       |I can be ignored, destroyed. But as a symbol, I can be incorruptible, 
       |I can be everlasting. Bats frighten me. It's time my enemies shared my dread.
-      """.trimMargin()
+      """.trimMargin().repeat(10)
   }
 
   @Test fun `read and write`() {
