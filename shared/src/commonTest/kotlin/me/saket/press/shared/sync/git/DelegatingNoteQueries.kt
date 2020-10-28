@@ -1,4 +1,4 @@
-package me.saket.press.shared.sync
+package me.saket.press.shared.sync.git
 
 import co.touchlab.stately.concurrency.AtomicInt
 import com.soywiz.klock.DateTime
