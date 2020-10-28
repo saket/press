@@ -3,8 +3,6 @@ package press.di
 import press.editor.EditorActivity
 import press.home.HomeActivity
 import dagger.Component
-import io.reactivex.Observable
-import me.saket.press.shared.theme.ThemePalette
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.sync.SyncCoordinator
 import me.saket.press.shared.theme.AppTheme

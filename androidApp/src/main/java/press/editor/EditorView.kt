@@ -67,8 +67,8 @@ class EditorView @AssistedInject constructor(
       setBackgroundColor(it.window.editorBackgroundColor)
     }
     applyLayout(
-        x = leftTo { parent.left() }.rightTo { parent.right() },
-        y = topTo { parent.top() }
+      x = leftTo { parent.left() }.rightTo { parent.right() },
+      y = topTo { parent.top() }
     )
   }
 
@@ -76,8 +76,8 @@ class EditorView @AssistedInject constructor(
     id = R.id.editor_scrollable_container
     isFillViewport = true
     applyLayout(
-        x = leftTo { parent.left() }.rightTo { parent.right() },
-        y = topTo { toolbar.bottom() }.bottomTo { parent.bottom() }
+      x = leftTo { parent.left() }.rightTo { parent.right() },
+      y = topTo { toolbar.bottom() }.bottomTo { parent.bottom() }
     )
   }
 
@@ -88,9 +88,9 @@ class EditorView @AssistedInject constructor(
     breakStrategy = BREAK_STRATEGY_HIGH_QUALITY
     gravity = TOP
     inputType = TYPE_CLASS_TEXT or  // Multiline doesn't work without this.
-        TYPE_TEXT_FLAG_CAP_SENTENCES or
-        TYPE_TEXT_FLAG_MULTI_LINE or
-        TYPE_TEXT_FLAG_NO_SUGGESTIONS
+      TYPE_TEXT_FLAG_CAP_SENTENCES or
+      TYPE_TEXT_FLAG_MULTI_LINE or
+      TYPE_TEXT_FLAG_NO_SUGGESTIONS
     if (autoCorrectEnabled.get()!!.enabled) {
       inputType = inputType or TYPE_TEXT_FLAG_AUTO_CORRECT
     }
@@ -113,17 +113,19 @@ class EditorView @AssistedInject constructor(
       textColor = it.textColorHint
     }
     applyLayout(
-        x = leftTo { scrollView.left() + editorEditText.paddingStart }
-            .rightTo { scrollView.right() - editorEditText.paddingStart },
-        y = topTo { scrollView.top() + editorEditText.paddingTop }
+      x = leftTo { scrollView.left() + editorEditText.paddingStart }
+        .rightTo { scrollView.right() - editorEditText.paddingStart },
+      y = topTo { scrollView.top() + editorEditText.paddingTop }
     )
   }
 
-  private val presenter = presenterFactory.create(Args(
+  private val presenter = presenterFactory.create(
+    Args(
       openMode = openMode,
       deleteBlankNewNoteOnExit = true,
       navigator = navigator()
-  ))
+    )
+  )
 
   init {
     scrollView.addView(editorEditText, MATCH_PARENT, WRAP_CONTENT)
@@ -135,13 +137,13 @@ class EditorView @AssistedInject constructor(
 
     // TODO: add support for changing WysiwygStyle.
     themePalette()
-        .take(1)
-        .takeUntil(detaches())
-        .subscribe { palette ->
-          val wysiwygStyle = WysiwygStyle.from(palette.markdown, DisplayUnits(context))
-          val wysiwyg = Wysiwyg(editorEditText, wysiwygStyle)
-          editorEditText.addTextChangedListener(wysiwyg.syntaxHighlighter())
-        }
+      .take(1)
+      .takeUntil(detaches())
+      .subscribe { palette ->
+        val wysiwygStyle = WysiwygStyle.from(palette.markdown, DisplayUnits(context))
+        val wysiwyg = Wysiwyg(editorEditText, wysiwygStyle)
+        editorEditText.addTextChangedListener(wysiwyg.syntaxHighlighter())
+      }
 
     toolbar.setNavigationOnClickListener {
       onDismiss()
@@ -156,9 +158,9 @@ class EditorView @AssistedInject constructor(
     }
 
     presenter.uiUpdates()
-        .takeUntil(detaches())
-        .observeOn(mainThread())
-        .subscribe(models = ::render, effects = ::render)
+      .takeUntil(detaches())
+      .observeOn(mainThread())
+      .subscribe(models = ::render, effects = ::render)
   }
 
   override fun onDetachedFromWindow() {

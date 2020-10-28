@@ -60,9 +60,9 @@ class ThemeAwareCursorDrawable(private val state: CursorState = CursorState()) :
   class CursorState : ConstantState() {
     var width: Int = 0
     val palette = PressApp.component
-        .theme()
-        .listenRx()
-        .replayingShare()
+      .theme()
+      .listenRx()
+      .replayingShare()
 
     override fun newDrawable() = ThemeAwareCursorDrawable(this)
     override fun getChangingConfigurations() = 0

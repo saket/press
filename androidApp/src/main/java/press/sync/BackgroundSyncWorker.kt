@@ -18,22 +18,22 @@ class BackgroundSyncWorker(
 
   override fun createWork(): Single<Result> {
     return PressApp.component.syncCoordinator()
-        .syncWithResultRx2()
-        .toSingleDefault(Result.success())
-        .onErrorReturnItem(Result.failure())
+      .syncWithResultRx2()
+      .toSingleDefault(Result.success())
+      .onErrorReturnItem(Result.failure())
   }
 
   companion object {
     fun schedule(workManager: WorkManager) {
       val request = PeriodicWorkRequest.Builder(
-          BackgroundSyncWorker::class.java,
-          Duration.ofMinutes(15)
+        BackgroundSyncWorker::class.java,
+        Duration.ofMinutes(15)
       ).build()
 
       workManager.enqueueUniquePeriodicWork(
-          "BackgroundSyncWorker",
-          ExistingPeriodicWorkPolicy.KEEP,
-          request
+        "BackgroundSyncWorker",
+        ExistingPeriodicWorkPolicy.KEEP,
+        request
       )
     }
   }

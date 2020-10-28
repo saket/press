@@ -6,9 +6,10 @@ import android.text.style.CharacterStyle
 import android.text.style.UpdateAppearance
 import androidx.annotation.ColorInt
 
-class ForegroundColorSpan(val recycler: Recycler) : CharacterStyle(),
-    UpdateAppearance,
-    WysiwygSpan {
+class ForegroundColorSpan(val recycler: Recycler) :
+  CharacterStyle(),
+  UpdateAppearance,
+  WysiwygSpan {
 
   @ColorInt var color: Int = Color.TRANSPARENT
 

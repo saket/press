@@ -13,13 +13,13 @@ object FencedCodeBlockSyntaxApplier : MarkdownSyntaxApplier {
     val paragraphUnderSelection = text.substring(paraBounds.start, paraBounds.endExclusive)
 
     return ApplyMarkdownSyntax(
-        newText = text.substring(0, paraBounds.start)
-            + leftSyntax + paragraphUnderSelection + rightSyntax
-            + text.substring(paraBounds.endExclusive, text.length),
-        newSelection = selection.copy(
-            start = selection.start + leftSyntax.length,
-            end = selection.end + leftSyntax.length
-        )
+      newText = text.substring(0, paraBounds.start)
+        + leftSyntax + paragraphUnderSelection + rightSyntax
+        + text.substring(paraBounds.endExclusive, text.length),
+      newSelection = selection.copy(
+        start = selection.start + leftSyntax.length,
+        end = selection.end + leftSyntax.length
+      )
     )
   }
 }

@@ -1,7 +1,6 @@
 package press.sync
 
 import android.content.Context
-import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.widget.ViewFlipper
 import androidx.browser.customtabs.CustomTabsIntent
@@ -36,8 +35,8 @@ class SyncPreferencesView @AssistedInject constructor(
     title = context.strings().sync.title
     setNavigationOnClickListener { onDismiss() }
     applyLayout(
-        x = matchParentX(),
-        y = topTo { parent.top() }
+      x = matchParentX(),
+      y = topTo { parent.top() }
     )
   }
 
@@ -51,8 +50,8 @@ class SyncPreferencesView @AssistedInject constructor(
     addView(syncDisabledView)
     addView(syncEnabledView)
     applyLayout(
-        x = matchParentX(),
-        y = topTo { toolbar.bottom() }.bottomTo { parent.bottom() }
+      x = matchParentX(),
+      y = topTo { toolbar.bottom() }.bottomTo { parent.bottom() }
     )
   }
 
@@ -70,9 +69,9 @@ class SyncPreferencesView @AssistedInject constructor(
     }
 
     presenter.uiUpdates()
-        .takeUntil(detaches())
-        .observeOn(mainThread())
-        .subscribe(models = ::render, effects = ::render)
+      .takeUntil(detaches())
+      .observeOn(mainThread())
+      .subscribe(models = ::render, effects = ::render)
   }
 
   private fun render(model: SyncPreferencesUiModel) {
@@ -93,10 +92,10 @@ class SyncPreferencesView @AssistedInject constructor(
   private fun render(effect: SyncPreferencesUiEffect) {
     return when (effect) {
       is OpenUrl -> CustomTabsIntent.Builder()
-          .setShowTitle(true)
-          .addDefaultShareMenuItem()
-          .build()
-          .launchUrl(context, Uri.parse(effect.url))
+        .setShowTitle(true)
+        .addDefaultShareMenuItem()
+        .build()
+        .launchUrl(context, Uri.parse(effect.url))
     }
   }
 

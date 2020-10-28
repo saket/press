@@ -18,8 +18,8 @@ class NoteRowView(context: Context) : ContourLayout(context) {
       textColor = it.textColorHeading
     }
     applyLayout(
-        x = leftTo { parent.left() + 16.dip }.rightTo { parent.right() - 16.dip },
-        y = topTo { parent.top() + 16.dip }
+      x = leftTo { parent.left() + 16.dip }.rightTo { parent.right() - 16.dip },
+      y = topTo { parent.top() + 16.dip }
     )
   }
 
@@ -28,8 +28,8 @@ class NoteRowView(context: Context) : ContourLayout(context) {
       textColor = it.textColorSecondary
     }
     applyLayout(
-        x = leftTo { titleView.left() }.rightTo { titleView.right() },
-        y = topTo { titleView.bottom() + 8.dip }
+      x = leftTo { titleView.left() }.rightTo { titleView.right() },
+      y = topTo { titleView.bottom() + 8.dip }
     )
   }
 

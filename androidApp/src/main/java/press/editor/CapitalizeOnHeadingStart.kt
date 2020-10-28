@@ -45,7 +45,7 @@ object CapitalizeOnHeadingStart {
       // - a character was deleted (count == 0)
       // - a digit/symbol was inserted.
       safeToChangeInputType = text.toString() == NEW_NOTE_PLACEHOLDER
-          || multipleCharactersRemoved.not()
+        || multipleCharactersRemoved.not()
           && (count == 0 || text[start].isLetter() || text[start].isWhitespace())
 
       // Wysiwyg inserts spans without changing the text. Add a
@@ -67,8 +67,8 @@ object CapitalizeOnHeadingStart {
       val forceCapitalize = if (safeToChangeInputType && text.length >= headingSyntax.length) {
         val cursorAt = editText.selectionEnd
         val headingsUnderSpan = text.getSpans<HeadingSpan>(
-            start = cursorAt - headingSyntax.length,
-            end = cursorAt
+          start = cursorAt - headingSyntax.length,
+          end = cursorAt
         )
         val atStartOfSyntax = cursorAt >= 2 && text[cursorAt - 2] == headingSyntax && isWhitespace(text[cursorAt - 1])
         headingsUnderSpan.isNotEmpty() && atStartOfSyntax
@@ -78,7 +78,8 @@ object CapitalizeOnHeadingStart {
       }
 
       val newInputType = when {
-        forceCapitalize -> originalInputType
+        forceCapitalize ->
+          originalInputType
             .xor(TYPE_TEXT_FLAG_CAP_SENTENCES)
             .or(TYPE_TEXT_FLAG_CAP_WORDS)
         else -> originalInputType

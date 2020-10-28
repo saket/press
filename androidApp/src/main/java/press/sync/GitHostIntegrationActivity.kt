@@ -12,11 +12,11 @@ class GitHostIntegrationActivity : ThemeAwareActivity() {
     PressApp.component.inject(this)
     super.onCreate(savedInstanceState)
     setContentView(
-        viewFactory.create(
-            context = this,
-            deepLink = intent.dataString!!,
-            onDismiss = ::finish
-        )
+      viewFactory.create(
+        context = this,
+        deepLink = intent.dataString!!,
+        onDismiss = ::finish
+      )
     )
   }
 }

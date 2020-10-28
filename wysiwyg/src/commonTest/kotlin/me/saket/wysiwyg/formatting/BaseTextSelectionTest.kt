@@ -13,10 +13,11 @@ abstract class BaseTextSelectionTest {
 
     val selection = when (markerCount) {
       1 -> TextSelection.cursor(
-          text.indexOfFirst { it == '▮' })
+        text.indexOfFirst { it == '▮' }
+      )
       else -> TextSelection(
-          start = text.indexOfFirst { it == '▮' },
-          end = text.indexOfLast { it == '▮' } - 1
+        start = text.indexOfFirst { it == '▮' },
+        end = text.indexOfLast { it == '▮' } - 1
       )
     }
     return text.replace("▮", "") to selection
@@ -27,8 +28,8 @@ abstract class BaseTextSelectionTest {
       text.substring(0, selection.cursorPosition) + "▮" + text.substring(selection.cursorPosition, text.length)
     } else {
       text.substring(0, selection.start) +
-          "▮" + text.substring(selection.start, selection.end) + "▮" +
-          text.substring(selection.end, text.length)
+        "▮" + text.substring(selection.start, selection.end) + "▮" +
+        text.substring(selection.end, text.length)
     }
   }
 }

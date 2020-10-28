@@ -16,9 +16,10 @@ abstract class ListItemVisitor<T : ListItem> : NodeVisitor<T> {
     node: T,
     renderer: MarkdownRenderer
   ) {
-    renderer.addForegroundColor(renderer.style.syntaxColor,
-        node.startOffset,
-        node.startOffset + node.openingMarker.length
+    renderer.addForegroundColor(
+      renderer.style.syntaxColor,
+      node.startOffset,
+      node.startOffset + node.openingMarker.length
     )
   }
 }

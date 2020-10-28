@@ -1,11 +1,8 @@
 package press.sync.stats
 
 import android.content.Context
-import android.text.Selection
-import android.text.Spannable
 import android.widget.HorizontalScrollView
 import android.widget.ScrollView
-import android.widget.TextView.BufferType.SPANNABLE
 import androidx.core.view.setPadding
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
@@ -61,29 +58,31 @@ class SyncStatsForNerdsView @AssistedInject constructor(
       setBackgroundColor(it.window.editorBackgroundColor)
     }
 
-    addView(HorizontalScrollView(context).also {
-      it.clipToPadding = false
-      it.setPadding(22.dip)
-      it.addView(logsView)
-    })
+    addView(
+      HorizontalScrollView(context).also {
+        it.clipToPadding = false
+        it.setPadding(22.dip)
+        it.addView(logsView)
+      }
+    )
   }
 
   init {
     toolbar.layoutBy(
-        x = matchParentX(),
-        y = topTo { parent.top() }
+      x = matchParentX(),
+      y = topTo { parent.top() }
     )
     directorySizeView.layoutBy(
-        x = matchParentX(marginLeft = 22.dip, marginRight = 22.dip),
-        y = topTo { toolbar.bottom() + 8.ydip }
+      x = matchParentX(marginLeft = 22.dip, marginRight = 22.dip),
+      y = topTo { toolbar.bottom() + 8.ydip }
     )
     logsLabelView.layoutBy(
-        x = matchXTo(directorySizeView),
-        y = topTo { directorySizeView.bottom() + 8.ydip }
+      x = matchXTo(directorySizeView),
+      y = topTo { directorySizeView.bottom() + 8.ydip }
     )
     logsScrollView.layoutBy(
-        x = matchParentX(),
-        y = topTo { logsLabelView.bottom() + 16.ydip }.bottomTo { parent.bottom() }
+      x = matchParentX(),
+      y = topTo { logsLabelView.bottom() + 16.ydip }.bottomTo { parent.bottom() }
     )
     contourHeightMatchParent()
 
@@ -96,9 +95,9 @@ class SyncStatsForNerdsView @AssistedInject constructor(
     super.onAttachedToWindow()
 
     presenter.uiUpdates()
-        .takeUntil(detaches())
-        .observeOn(mainThread())
-        .subscribe(::render)
+      .takeUntil(detaches())
+      .observeOn(mainThread())
+      .subscribe(::render)
   }
 
   private fun render(model: SyncStatsForNerdsUiModel) {

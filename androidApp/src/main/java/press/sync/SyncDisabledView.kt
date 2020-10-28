@@ -9,7 +9,6 @@ import com.squareup.contour.ContourLayout
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncDisabled
 import me.saket.press.shared.sync.git.GitHost
-import me.saket.press.shared.theme.TextStyles
 import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextView
 import press.extensions.textColor
@@ -23,16 +22,16 @@ class SyncDisabledView(context: Context) : ContourLayout(context) {
     text = context.strings().sync.sync_disabled_message
     themeAware { textColor = it.textColorPrimary }
     applyLayout(
-        x = matchParentX(marginLeft = 22.dip, marginRight = 22.dip),
-        y = topTo { parent.top() + 8.ydip }
+      x = matchParentX(marginLeft = 22.dip, marginRight = 22.dip),
+      y = topTo { parent.top() + 8.ydip }
     )
   }
 
   private val gitHostButtons = LinearLayout(context).apply {
     orientation = VERTICAL
     applyLayout(
-        x = matchXTo(messageView),
-        y = topTo { messageView.bottom() + 20.ydip }
+      x = matchXTo(messageView),
+      y = topTo { messageView.bottom() + 20.ydip }
     )
   }
 

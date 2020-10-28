@@ -58,11 +58,11 @@ class ThematicBreakSpan(
 
     val lineCenter = ((top + bottom) / 2 + paint.textSize * topOffsetFactor).toInt()
     canvas.drawLine(
-        left + offsetForSyntax,
-        lineCenter.toFloat(),
-        right.toFloat(),
-        lineCenter.toFloat(),
-        paint
+      left + offsetForSyntax,
+      lineCenter.toFloat(),
+      right.toFloat(),
+      lineCenter.toFloat(),
+      paint
     )
 
     paint.color = originalPaintColor

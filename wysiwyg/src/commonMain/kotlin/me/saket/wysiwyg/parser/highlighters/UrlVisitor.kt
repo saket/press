@@ -13,14 +13,14 @@ class UrlVisitor : NodeVisitor<Url> {
     renderer: MarkdownRenderer
   ) {
     renderer.addForegroundColor(
-        color = renderer.style.link.urlColor,
-        from = node.startOffset,
-        to = node.endOffset
+      color = renderer.style.link.urlColor,
+      from = node.startOffset,
+      to = node.endOffset
     )
     renderer.addClickableUrl(
-        url = node.url.toString(),
-        from = node.startOffset,
-        to = node.endOffset
+      url = node.url.toString(),
+      from = node.startOffset,
+      to = node.endOffset
     )
   }
 }

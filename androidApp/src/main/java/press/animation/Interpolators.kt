@@ -9,8 +9,8 @@ private var linearOutSlowIn: Interpolator? = null
 fun linearOutSlowInInterpolator(context: Context): Interpolator {
   if (linearOutSlowIn == null) {
     linearOutSlowIn = AnimationUtils.loadInterpolator(
-        context,
-        android.R.interpolator.linear_out_slow_in
+      context,
+      android.R.interpolator.linear_out_slow_in
     )!!
   }
   return linearOutSlowIn!!

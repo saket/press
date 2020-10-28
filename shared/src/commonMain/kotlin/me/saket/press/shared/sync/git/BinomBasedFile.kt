@@ -12,19 +12,20 @@ import pw.binom.io.readText
 import pw.binom.io.reader
 import pw.binom.io.use
 import pw.binom.toByteBufferUTF8
+import pw.binom.io.file.File as BinomFile
 
 /**
  * Really hoping that this can use Okio in the future because everything else is quite... bad.
  * [https://publicobject.com/2020/10/06/files/]
  */
-internal class BinomBasedFile(val delegate: pw.binom.io.file.File): File {
-  constructor(path: String) : this(pw.binom.io.file.File(path))
+internal class BinomBasedFile(val delegate: BinomFile) : File {
+  constructor(path: String) : this(BinomFile(path))
 
   constructor(parent: File, name: String) : this(
-      pw.binom.io.file.File(
-          parent = pw.binom.io.file.File(parent.path),
-          name = name
-      )
+    BinomFile(
+      parent = BinomFile(parent.path),
+      name = name
+    )
   )
 
   override val exists: Boolean get() = delegate.isExist
@@ -89,7 +90,7 @@ internal class BinomBasedFile(val delegate: pw.binom.io.file.File): File {
       newFile.parent!!.makeDirectory(recursively = true)
     }
 
-    val renamed = delegate.renameTo(pw.binom.io.file.File(newFile.path))
+    val renamed = delegate.renameTo(BinomFile(newFile.path))
     check(renamed) { "Couldn't rename ($this) to $newFile" }
     return newFile
   }

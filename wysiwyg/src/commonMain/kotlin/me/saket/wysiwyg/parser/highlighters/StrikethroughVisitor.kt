@@ -14,14 +14,14 @@ class StrikethroughVisitor : DelimitedNodeVisitor<Strikethrough>() {
     renderer: MarkdownRenderer
   ) {
     renderer.addStrikethrough(
-        from = node.startOffset,
-        to = node.endOffset
+      from = node.startOffset,
+      to = node.endOffset
     )
 
     renderer.addForegroundColor(
-        color = renderer.style.strikethroughTextColor,
-        from = node.startOffset + node.openingMarker.length,
-        to = node.endOffset - node.closingMarker.length
+      color = renderer.style.strikethroughTextColor,
+      from = node.startOffset + node.openingMarker.length,
+      to = node.endOffset - node.closingMarker.length
     )
     super.visit(node, renderer)
   }

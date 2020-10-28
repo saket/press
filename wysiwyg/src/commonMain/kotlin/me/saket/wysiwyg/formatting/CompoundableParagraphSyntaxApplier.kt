@@ -35,15 +35,15 @@ abstract class CompoundableParagraphSyntaxApplier(
     val followingNewLine = if (addSurroundingLineBreaks && needsFollowingNewLine()) "\n" else ""
 
     return ApplyMarkdownSyntax(
-        newText = text.substring(0, paraBounds.start)
-            + leadingNewLine
-            + compoundedLeftSyntax + paragraphUnderSelection
-            + followingNewLine
-            + text.substring(paraBounds.endExclusive, text.length),
-        newSelection = selection.copy(
-            start = selection.start + leadingNewLine.length + compoundedLeftSyntax.length,
-            end = selection.end + leadingNewLine.length + compoundedLeftSyntax.length
-        )
+      newText = text.substring(0, paraBounds.start)
+        + leadingNewLine
+        + compoundedLeftSyntax + paragraphUnderSelection
+        + followingNewLine
+        + text.substring(paraBounds.endExclusive, text.length),
+      newSelection = selection.copy(
+        start = selection.start + leadingNewLine.length + compoundedLeftSyntax.length,
+        end = selection.end + leadingNewLine.length + compoundedLeftSyntax.length
+      )
     )
   }
 }

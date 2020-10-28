@@ -17,9 +17,9 @@ abstract class ListBlockVisitor<T : ListBlock> : NodeVisitor<T> {
     renderer: MarkdownRenderer
   ) {
     renderer.addLeadingMargin(
-        margin = renderer.style.list.indentationMargin,
-        from = node.startOffset,
-        to = node.endOffset
+      margin = renderer.style.list.indentationMargin,
+      from = node.startOffset,
+      to = node.endOffset
     )
   }
 }

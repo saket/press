@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.res.ColorStateList
 import android.graphics.PorterDuff.Mode.SRC_IN
 import android.view.View
-import android.view.View.SCROLLBARS_INSIDE_OVERLAY
 import android.view.ViewGroup
 import android.view.Window.ID_ANDROID_CONTENT
 import android.widget.Button

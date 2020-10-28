@@ -8,6 +8,6 @@ import io.reactivex.rxkotlin.Observables
  */
 fun <T, O> Observable<T>.suspendWhile(predicateArgProvider: Observable<O>, predicate: (O) -> Boolean): Observable<T> {
   return Observables.combineLatest(this, predicateArgProvider)
-      .filter { (_, predicateValue) -> predicate(predicateValue).not() }
-      .map { (upstreamItem) -> upstreamItem }
+    .filter { (_, predicateValue) -> predicate(predicateValue).not() }
+    .map { (upstreamItem) -> upstreamItem }
 }

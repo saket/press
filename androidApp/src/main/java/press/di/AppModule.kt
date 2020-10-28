@@ -12,13 +12,15 @@ import press.sync.SyncModule
 import press.theme.ThemeModule
 
 @AssistedModule
-@Module(includes = [
-  AssistedInject_AppModule::class,
-  ThemeModule::class,
-  HomeModule::class,
-  EditorModule::class,
-  SyncModule::class
-])
+@Module(
+  includes = [
+    AssistedInject_AppModule::class,
+    ThemeModule::class,
+    HomeModule::class,
+    EditorModule::class,
+    SyncModule::class
+  ]
+)
 object AppModule {
   @Provides
   fun strings(): Strings = SharedAppComponent.strings()

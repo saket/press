@@ -13,10 +13,10 @@ actual class GitCommit(internal val commit: RevCommit) {
 
   actual val utcTimestamp: UtcTimestamp
     get() = UtcTimestamp(
-        Instant.ofEpochMilli(commit.authorIdent.`when`.time)
-            .atZone(ZoneId.of(commit.authorIdent.timeZone.id))
-            .toInstant()
-            .toEpochMilli()
+      Instant.ofEpochMilli(commit.authorIdent.`when`.time)
+        .atZone(ZoneId.of(commit.authorIdent.timeZone.id))
+        .toInstant()
+        .toEpochMilli()
     )
 
   override fun toString(): String {

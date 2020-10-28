@@ -31,15 +31,15 @@ object AutoFormatOnEnterPress {
     }
 
     return formatters
-        .mapNotNull {
-          it.onEnter(
-              textBeforeEnter,
-              paragraph,
-              paragraphBounds,
-              cursorBeforeEnter
-          )
-        }
-        .firstOrNull()
+      .mapNotNull {
+        it.onEnter(
+          textBeforeEnter,
+          paragraph,
+          paragraphBounds,
+          cursorBeforeEnter
+        )
+      }
+      .firstOrNull()
   }
 
   private interface OnEnterAutoFormatter {
@@ -78,7 +78,7 @@ object AutoFormatOnEnterPress {
 
         // Check if the cursor is placed after the closing syntax.
         val enterPressedOnClosingLine = paragraphBounds.start < block.range.last
-            && cursorPositionBeforeEnter <= paragraphBounds.endExclusive
+          && cursorPositionBeforeEnter <= paragraphBounds.endExclusive
 
         if (enterPressedOnClosingLine) {
           // Cursor is on the same line as the closing
@@ -88,8 +88,8 @@ object AutoFormatOnEnterPress {
       }
 
       return InsertLetters(
-          replacement = "\n\n```",
-          newSelection = cursorBeforeEnter.offsetBy(1)
+        replacement = "\n\n```",
+        newSelection = cursorBeforeEnter.offsetBy(1)
       )
     }
   }
@@ -143,8 +143,8 @@ object AutoFormatOnEnterPress {
     ): ReplaceNewLineWith {
       val syntaxWithLineBreak = "\n$paragraphMargin$syntax"
       return InsertLetters(
-          replacement = syntaxWithLineBreak,
-          newSelection = cursorBeforeEnter.offsetBy(syntaxWithLineBreak.length)
+        replacement = syntaxWithLineBreak,
+        newSelection = cursorBeforeEnter.offsetBy(syntaxWithLineBreak.length)
       )
     }
 

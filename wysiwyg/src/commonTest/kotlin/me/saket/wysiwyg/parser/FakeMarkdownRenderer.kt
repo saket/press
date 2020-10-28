@@ -19,9 +19,9 @@ class FakeMarkdownRenderer(style: WysiwygStyle) : MarkdownRenderer(style) {
     // difficult to create a stack based marker system. Instead, markers
     // are sorted by their priorities and positions.
     val markers = markers
-        .sortedByDescending { (pos, _) -> pos.priority }
-        .sortedByDescending { (pos, _) -> pos.position }
-        .map { (pos, marker) -> pos.position to marker }
+      .sortedByDescending { (pos, _) -> pos.priority }
+      .sortedByDescending { (pos, _) -> pos.position }
+      .map { (pos, marker) -> pos.position to marker }
 
     var html = markdown
     for ((position, marker) in markers) {

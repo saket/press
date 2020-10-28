@@ -66,9 +66,9 @@ internal actual class RealGitRepository actual constructor(
 
   init {
     jgit.remoteAdd()
-        .setName(remote.name)
-        .setUri(URIish(remote.sshUrl))
-        .call()
+      .setName(remote.name)
+      .setUri(URIish(remote.sshUrl))
+      .call()
 
     // Avoid reading any config from [~/.gitconfig] that will lead to non-deterministic
     // behavior on the host machine. For e.g., following of renames may be disabled for
@@ -110,16 +110,16 @@ internal actual class RealGitRepository actual constructor(
 
   override fun checkout(branch: String, createIfNeeded: Boolean) {
     jgit.checkout().setName(branch)
-        .apply {
-          if (createIfNeeded) {
-            val create = jgit.branchList().call()
-                .any { branch == JRepository.shortenRefName(it.name) }
-                .not()
-            setCreateBranch(create)
-          }
+      .apply {
+        if (createIfNeeded) {
+          val create = jgit.branchList().call()
+            .any { branch == JRepository.shortenRefName(it.name) }
+            .not()
+          setCreateBranch(create)
         }
-        .setUpstreamMode(SET_UPSTREAM)
-        .call()
+      }
+      .setUpstreamMode(SET_UPSTREAM)
+      .call()
   }
 
   override fun checkout(commit: GitCommit) {
@@ -148,24 +148,24 @@ internal actual class RealGitRepository actual constructor(
           |commit. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=563805.
           """.trimMargin()
       jgit.commit()
-          .setAllowEmpty(true)
-          .setMessage(message)
-          .setAuthor(author)
-          .setCommitter(committer)
-          .call()
+        .setAllowEmpty(true)
+        .setMessage(message)
+        .setAuthor(author)
+        .setCommitter(committer)
+        .call()
     }
 
     jgit.add().addFilepattern(".").call()
 
     jgit.commit()
-        // Calling 'add .' in JGit doesn't add deleted files, unlike
-        // native git. So it's important to use setAll(true) here.
-        .setAll(true)
-        .setAllowEmpty(allowEmpty)
-        .setMessage(message)
-        .setAuthor(author)
-        .setCommitter(committer)
-        .call()
+      // Calling 'add .' in JGit doesn't add deleted files, unlike
+      // native git. So it's important to use setAll(true) here.
+      .setAll(true)
+      .setAllowEmpty(allowEmpty)
+      .setMessage(message)
+      .setAuthor(author)
+      .setCommitter(committer)
+      .call()
   }
 
   override fun pull(rebase: Boolean): GitPullResult {
@@ -202,12 +202,12 @@ internal actual class RealGitRepository actual constructor(
 
   override fun push(force: Boolean): PushResult {
     val pushResult = jgit.push()
-        .setTransportConfigCallback(sshTransport())
-        .setForce(force)
-        .call()
-        .toList()
-        .also { check(it.size == 1) { "Did not expect multiple push results: $it" } }
-        .single()
+      .setTransportConfigCallback(sshTransport())
+      .setForce(force)
+      .call()
+      .toList()
+      .also { check(it.size == 1) { "Did not expect multiple push results: $it" } }
+      .single()
 
     return when (val status = pushResult.remoteUpdates.single().status) {
       RemoteRefUpdate.Status.OK -> PushResult.Success
@@ -235,10 +235,10 @@ internal actual class RealGitRepository actual constructor(
         override fun createDefaultJSch(fs: FS): JSch {
           return super.createDefaultJSch(fs).apply {
             addIdentity(
-                "deploy_key" /* name */,
-                sshKey.key.toByteArray(),
-                null        /* public key */,
-                null        /* passphrase */
+              "deploy_key" /* name */,
+              sshKey.key.toByteArray(),
+              null        /* public key */,
+              null        /* passphrase */
             )
           }
         }
@@ -275,8 +275,8 @@ internal actual class RealGitRepository actual constructor(
       if (from != null && from.sha1 != commits.last().sha1) {
         // [from] isn't an ancestor of [toInclusive].
         val log = jgit.log().call()
-            .map(::GitCommit)
-            .joinToString(separator = "\n")
+          .map(::GitCommit)
+          .joinToString(separator = "\n")
 
         error("Commits ($from and $toInclusive) aren't in the same branch. Git log: \n\n$log")
       }
@@ -308,20 +308,22 @@ internal actual class RealGitRepository actual constructor(
       val secondTreeParser = CanonicalTreeParser().apply { reset(reader, toTree.id) }
 
       val diffEntries = jgit.diff()
-          .setNewTree(secondTreeParser)
-          .setOldTree(firstTreeParser)
-          .setShowNameAndStatusOnly(true)
-          .call()
+        .setNewTree(secondTreeParser)
+        .setOldTree(firstTreeParser)
+        .setShowNameAndStatusOnly(true)
+        .call()
 
-      return GitTreeDiff(diffEntries.map {
-        when (it.changeType!!) {
-          ADD -> Add(path = it.newPath)
-          MODIFY -> Modify(path = it.oldPath)
-          COPY -> Copy(fromPath = it.oldPath, toPath = it.newPath)
-          DELETE -> Delete(path = it.oldPath)
-          RENAME -> Rename(fromPath = it.oldPath, toPath = it.newPath)
+      return GitTreeDiff(
+        diffEntries.map {
+          when (it.changeType!!) {
+            ADD -> Add(path = it.newPath)
+            MODIFY -> Modify(path = it.oldPath)
+            COPY -> Copy(fromPath = it.oldPath, toPath = it.newPath)
+            DELETE -> Delete(path = it.oldPath)
+            RENAME -> Rename(fromPath = it.oldPath, toPath = it.newPath)
+          }
         }
-      })
+      )
     }
   }
 
@@ -348,8 +350,8 @@ internal actual class RealGitRepository actual constructor(
     if (e is JGitInternalException && e.message?.contains("cannot lock", ignoreCase = true) == true) {
       // Should have been a LockFailedException :facepalm:
       Files.walk(jgit.repository.directory.toPath())
-          .filter { it.toString().endsWith(LOCK_SUFFIX) }
-          .forEach { it.toFile().delete() }
+        .filter { it.toString().endsWith(LOCK_SUFFIX) }
+        .forEach { it.toFile().delete() }
       return Recovered
     }
 
@@ -371,5 +373,5 @@ internal actual class RealGitRepository actual constructor(
 /** Because JGit forgot to implement [RebaseResult.toString]. */
 private fun RebaseResult.toStringFix(): String {
   return "Rebase status: $status, conflicts: $conflicts, failing: $failingPaths, " +
-      "uncommitted: $uncommittedChanges, currentCommit: ${GitCommit(currentCommit)}"
+    "uncommitted: $uncommittedChanges, currentCommit: ${GitCommit(currentCommit)}"
 }

@@ -20,10 +20,10 @@ abstract class BaseApplyMarkdownSyntaxTest : BaseTextSelectionTest() {
 
     if (outputFormat.newText != expectedText || outputFormat.newSelection != expectedSelection) {
       printDifference(
-          expectedText = expectedText,
-          expectedSelection = expectedSelection,
-          actualText = outputFormat.newText,
-          actualSelection = outputFormat.newSelection
+        expectedText = expectedText,
+        expectedSelection = expectedSelection,
+        actualText = outputFormat.newText,
+        actualSelection = outputFormat.newSelection
       )
     }
     assertThat(outputFormat.newText).isEqualTo(expectedText)
@@ -39,14 +39,14 @@ abstract class BaseApplyMarkdownSyntaxTest : BaseTextSelectionTest() {
 
     val outputTextAfterFormatting = when (enterReplacement) {
       is InsertLetters -> inputText.replaceRange(
-          startIndex = inputSelection.cursorPosition,
-          endIndex = inputSelection.cursorPosition,
-          replacement = enterReplacement.replacement
+        startIndex = inputSelection.cursorPosition,
+        endIndex = inputSelection.cursorPosition,
+        replacement = enterReplacement.replacement
       )
       is DeleteLetters -> inputText.replaceRange(
-          startIndex = inputSelection.cursorPosition - enterReplacement.deleteCount,
-          endIndex = inputSelection.cursorPosition,
-          replacement = ""
+        startIndex = inputSelection.cursorPosition - enterReplacement.deleteCount,
+        endIndex = inputSelection.cursorPosition,
+        replacement = ""
       )
       null -> null
     }
@@ -63,10 +63,10 @@ abstract class BaseApplyMarkdownSyntaxTest : BaseTextSelectionTest() {
 
     if (outputTextAfterFormatting != expectedText || outputSelectionAfterFormatting != expectedSelection) {
       printDifference(
-          expectedText = expectedText,
-          expectedSelection = expectedSelection,
-          actualText = outputTextAfterFormatting?.toString(),
-          actualSelection = outputSelectionAfterFormatting
+        expectedText = expectedText,
+        expectedSelection = expectedSelection,
+        actualText = outputTextAfterFormatting?.toString(),
+        actualSelection = outputSelectionAfterFormatting
       )
     }
     assertThat(outputTextAfterFormatting).isEqualTo(expectedText)

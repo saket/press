@@ -2,7 +2,6 @@ package press.widgets
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.graphics.Color
 import android.graphics.Color.BLACK
 import android.graphics.Color.TRANSPARENT
 import android.graphics.drawable.Drawable

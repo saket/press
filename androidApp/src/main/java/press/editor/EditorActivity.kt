@@ -52,10 +52,10 @@ class EditorActivity : ThemeAwareActivity() {
       // The cursor doesn't show up when a shared element transition is used :/
       val delayFocus = if (hasTransition) FabTransform.ANIM_DURATION_MILLIS else 0
       Observable.timer(delayFocus, MILLISECONDS, mainThread())
-          .takeUntil(editorView.detaches())
-          .subscribe {
-            editorView.editorEditText.showKeyboard()
-          }
+        .takeUntil(editorView.detaches())
+        .subscribe {
+          editorView.editorEditText.showKeyboard()
+        }
     }
   }
 
@@ -65,9 +65,9 @@ class EditorActivity : ThemeAwareActivity() {
 
   private fun createEditorView(): EditorView {
     return editorViewFactory.create(
-        context = this@EditorActivity,
-        openMode = openMode,
-        onDismiss = ::dismiss
+      context = this@EditorActivity,
+      openMode = openMode,
+      onDismiss = ::dismiss
     )
   }
 

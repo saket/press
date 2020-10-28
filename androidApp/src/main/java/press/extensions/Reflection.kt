@@ -20,28 +20,28 @@ inline fun <reified T : Any> reflect(): Reflection =
 class Reflection(private val clazz: Class<out Any>) {
   fun field(name: FieldName): Field? =
     fieldCache.getOrPut(
-        key = clazz to name,
-        defaultValue = {
-          try {
-            Some(clazz.getDeclaredField(name).apply { isAccessible = true })
-          } catch (e: NoSuchFieldException) {
-            e.printStackTrace()
-            None
-          }
+      key = clazz to name,
+      defaultValue = {
+        try {
+          Some(clazz.getDeclaredField(name).apply { isAccessible = true })
+        } catch (e: NoSuchFieldException) {
+          e.printStackTrace()
+          None
         }
+      }
     ).toNullable()
 
   fun method(name: MethodName, vararg paramTypes: Class<out Any>): Method? =
     methodCache.getOrPut(
-        key = Triple(clazz, name, paramTypes),
-        defaultValue = {
-          try {
-            Some(clazz.getDeclaredMethod(name, *paramTypes).apply { isAccessible = true })
-          } catch (e: NoSuchMethodException) {
-            e.printStackTrace()
-            None
-          }
+      key = Triple(clazz, name, paramTypes),
+      defaultValue = {
+        try {
+          Some(clazz.getDeclaredMethod(name, *paramTypes).apply { isAccessible = true })
+        } catch (e: NoSuchMethodException) {
+          e.printStackTrace()
+          None
         }
+      }
     ).toNullable()
 
   companion object {

@@ -17,8 +17,8 @@ class FormatMarkdownOnEnterPress(private val view: EditText) : EnterKeyDetector(
 
   override fun onEnterPress(textBeforeEnter: Spanned): CharSequence? {
     val replacement = AutoFormatOnEnterPress.onEnter(
-        textBeforeEnter = textBeforeEnter,
-        cursorBeforeEnter = TextSelection.cursor(Selection.getSelectionStart(textBeforeEnter))
+      textBeforeEnter = textBeforeEnter,
+      cursorBeforeEnter = TextSelection.cursor(Selection.getSelectionStart(textBeforeEnter))
     ) ?: return null
 
     return when (replacement) {

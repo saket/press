@@ -11,8 +11,8 @@ abstract class InlineSymmetricMarkdownSyntaxApplier(private val syntax: String) 
     val isTextSelected = selectedText.isNotEmpty()
 
     val newText = text.substring(0, selection.start) +
-        syntax + selectedText + syntax +
-        text.substring(selection.end, text.length)
+      syntax + selectedText + syntax +
+      text.substring(selection.end, text.length)
 
     val newSelection = if (isTextSelected) {
       // Preserve selection include the syntax.

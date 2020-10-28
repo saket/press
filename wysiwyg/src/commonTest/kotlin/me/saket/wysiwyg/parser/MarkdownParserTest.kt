@@ -6,6 +6,8 @@ import me.saket.wysiwyg.parser.highlighters.RootNodeHighlighter
 import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.style.parseColor
 
+// TODO: not very useful. Replace with snapshot test.
+// https://github.com/saket/press/issues/34
 class MarkdownParserTest {
 
   private val style = wysiwygStyle()
@@ -14,40 +16,40 @@ class MarkdownParserTest {
 
   /*@Test*/ fun bold() {
     parseAndCompare(
-        input = """
-                |It's not who you are underneath. 
-                |It's **what** you do that defines you.
-                """,
-        expect = """
-                |It's not who you are underneath. 
-                |It's <bold>**what**</bold> you do that defines you.
-                """
+      input = """
+              |It's not who you are underneath. 
+              |It's **what** you do that defines you.
+              """,
+      expect = """
+              |It's not who you are underneath. 
+              |It's <bold>**what**</bold> you do that defines you.
+              """
     )
   }
 
   /*@Test*/ fun italic() {
     parseAndCompare(
-        input = """
-                |Why do we fall? 
-                |So we can *learn* to pick ourselves back up.
-                """,
-        expect = """
-                |Why do we fall? 
-                |So we can <italic>*learn*</italic> to pick ourselves back up.
-                """
+      input = """
+              |Why do we fall? 
+              |So we can *learn* to pick ourselves back up.
+              """,
+      expect = """
+              |Why do we fall? 
+              |So we can <italic>*learn*</italic> to pick ourselves back up.
+              """
     )
   }
 
   /*@Test*/ fun strikethrough() {
     parseAndCompare(
-        input = """
-                |How can two people ~~love~~ hate so much 
-                |without knowing each other?
-                """,
-        expect = """
-                |How can two people <strike>~~love~~</strike> hate so much 
-                |without knowing each other?
-                """
+      input = """
+              |How can two people ~~love~~ hate so much 
+              |without knowing each other?
+              """,
+      expect = """
+              |How can two people <strike>~~love~~</strike> hate so much 
+              |without knowing each other?
+              """
     )
   }
 
@@ -72,19 +74,19 @@ class MarkdownParserTest {
   companion object {
     private fun wysiwygStyle(): WysiwygStyle {
       return WysiwygStyle(
-          syntaxColor = "#CCAEF9".parseColor(),
-          strikethroughTextColor = "#9E9E9E".parseColor(),
-          blockQuote = WysiwygStyle.BlockQuote(
-              leftBorderColor = "#353846".parseColor(),
-              leftBorderWidth = 4,
-              indentationMargin = 8,
-              textColor = "#CED2F8".parseColor()
-          ),
-          code = WysiwygStyle.Code(backgroundColor = "#242632".parseColor(), codeBlockMargin = 12),
-          heading = WysiwygStyle.Heading(textColor = "#85F589".parseColor()),
-          link = WysiwygStyle.Link(textColor = "#8DF0FF".parseColor(), urlColor = "#C6D1FF".parseColor()),
-          list = WysiwygStyle.List(indentationMargin = 16),
-          thematicBreak = WysiwygStyle.ThematicBreak(color = "#62677C".parseColor(), height = 20f)
+        syntaxColor = "#CCAEF9".parseColor(),
+        strikethroughTextColor = "#9E9E9E".parseColor(),
+        blockQuote = WysiwygStyle.BlockQuote(
+          leftBorderColor = "#353846".parseColor(),
+          leftBorderWidth = 4,
+          indentationMargin = 8,
+          textColor = "#CED2F8".parseColor()
+        ),
+        code = WysiwygStyle.Code(backgroundColor = "#242632".parseColor(), codeBlockMargin = 12),
+        heading = WysiwygStyle.Heading(textColor = "#85F589".parseColor()),
+        link = WysiwygStyle.Link(textColor = "#8DF0FF".parseColor(), urlColor = "#C6D1FF".parseColor()),
+        list = WysiwygStyle.List(indentationMargin = 16),
+        thematicBreak = WysiwygStyle.ThematicBreak(color = "#62677C".parseColor(), height = 20f)
       )
     }
   }

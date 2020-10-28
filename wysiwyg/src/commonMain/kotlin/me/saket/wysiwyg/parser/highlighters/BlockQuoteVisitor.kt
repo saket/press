@@ -25,22 +25,22 @@ class BlockQuoteVisitor : NodeVisitor<BlockQuote> {
 
     // Quote's left border.
     renderer.addQuote(
-        from = node.startOffset - nestedParents,
-        to = node.endOffset
+      from = node.startOffset - nestedParents,
+      to = node.endOffset
     )
 
     // Quote markers ('>').
     renderer.addForegroundColor(
-        color = renderer.style.syntaxColor,
-        from = node.startOffset - nestedParents,
-        to = node.startOffset + 1
+      color = renderer.style.syntaxColor,
+      from = node.startOffset - nestedParents,
+      to = node.startOffset + 1
     )
 
     // Text color.
     renderer.addForegroundColor(
-        color = renderer.style.blockQuote.textColor,
-        from = node.startOffset - nestedParents,
-        to = node.endOffset
+      color = renderer.style.blockQuote.textColor,
+      from = node.startOffset - nestedParents,
+      to = node.endOffset
     )
   }
 }

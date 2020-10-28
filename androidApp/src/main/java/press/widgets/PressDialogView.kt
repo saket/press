@@ -13,7 +13,6 @@ import androidx.core.view.updateLayoutParams
 import com.squareup.contour.ContourLayout
 import me.saket.press.shared.theme.TextStyles.mainTitle
 import me.saket.press.shared.theme.TextStyles.smallBody
-import me.saket.press.shared.theme.TextStyles.smallTitle
 import me.saket.press.shared.theme.TextView
 import press.extensions.padding
 import press.extensions.textColor
@@ -28,8 +27,8 @@ class PressDialogView private constructor(context: Context) : ContourLayout(cont
     gravity = CENTER_HORIZONTAL
     themeAware { textColor = it.textColorPrimary }
     layoutBy(
-        x = matchParentX(marginLeft = 20.dip, marginRight = 20.dip),
-        y = topTo { parent.top() + 20.ydip }
+      x = matchParentX(marginLeft = 20.dip, marginRight = 20.dip),
+      y = topTo { parent.top() + 20.ydip }
     )
   }
 
@@ -37,14 +36,14 @@ class PressDialogView private constructor(context: Context) : ContourLayout(cont
     gravity = CENTER_HORIZONTAL
     themeAware { textColor = it.textColorPrimary }
     applyLayout(
-        x = matchParentX(marginLeft = 20.dip, marginRight = 20.dip),
-        y = topTo {
-          if (titleView.isVisible) {
-            titleView.bottom() + 16.ydip
-          } else {
-            parent.top() + 20.ydip
-          }
+      x = matchParentX(marginLeft = 20.dip, marginRight = 20.dip),
+      y = topTo {
+        if (titleView.isVisible) {
+          titleView.bottom() + 16.ydip
+        } else {
+          parent.top() + 20.ydip
         }
+      }
     )
   }
 
@@ -52,8 +51,8 @@ class PressDialogView private constructor(context: Context) : ContourLayout(cont
     padding = dp(16)
     themeAware { textColor = it.textColorPrimary }
     layoutBy(
-        x = leftTo { parent.left() }.rightTo { parent.centerX() },
-        y = topTo { buttonsTopSeparator.bottom() }
+      x = leftTo { parent.left() }.rightTo { parent.centerX() },
+      y = topTo { buttonsTopSeparator.bottom() }
     )
   }
 
@@ -62,17 +61,17 @@ class PressDialogView private constructor(context: Context) : ContourLayout(cont
     isSingleLine = true
     themeAware { textColor = it.accentColor }
     applyLayout(
-        x = leftTo { if (negativeButtonView.isVisible) parent.centerX() else parent.left() }
-            .rightTo { parent.right() },
-        y = topTo { negativeButtonView.top() }
+      x = leftTo { if (negativeButtonView.isVisible) parent.centerX() else parent.left() }
+        .rightTo { parent.right() },
+      y = topTo { negativeButtonView.top() }
     )
   }
 
   private val buttonsTopSeparator = View(context).apply {
     themeAware { setBackgroundColor(it.separator) }
     applyLayout(
-        x = matchParentX(),
-        y = topTo { messageView.bottom() + 20.ydip }.heightOf { 1.ydip }
+      x = matchParentX(),
+      y = topTo { messageView.bottom() + 20.ydip }.heightOf { 1.ydip }
     )
   }
 
@@ -80,8 +79,8 @@ class PressDialogView private constructor(context: Context) : ContourLayout(cont
   private val buttonsMidSeparator = View(context).apply {
     themeAware { setBackgroundColor(it.separator) }
     applyLayout(
-        x = centerHorizontallyTo { parent.centerX() }.widthOf { 1.xdip },
-        y = topTo { buttonsTopSeparator.bottom() }.bottomTo { parent.bottom() }
+      x = centerHorizontallyTo { parent.centerX() }.widthOf { 1.xdip },
+      y = topTo { buttonsTopSeparator.bottom() }.bottomTo { parent.bottom() }
     )
   }
 
@@ -118,23 +117,25 @@ class PressDialogView private constructor(context: Context) : ContourLayout(cont
       }
 
       val dialog = AlertDialog.Builder(context)
-          .setView(FrameLayout(context).also {
+        .setView(
+          FrameLayout(context).also {
             it.elevation = dialogView.elevation
             it.addView(dialogView)
             dialogView.updateLayoutParams<MarginLayoutParams> {
               setMargins(context.dp(40))
             }
-          })
-          .show()
-          .apply {
-            if (!dismissOnOutsideTap) {
-              setCanceledOnTouchOutside(false)
-              setOnKeyListener { _, keyCode, _ ->
-                keyCode == KeyEvent.KEYCODE_BACK
-              }
-            }
-            window!!.setBackgroundDrawable(null)
           }
+        )
+        .show()
+        .apply {
+          if (!dismissOnOutsideTap) {
+            setCanceledOnTouchOutside(false)
+            setOnKeyListener { _, keyCode, _ ->
+              keyCode == KeyEvent.KEYCODE_BACK
+            }
+          }
+          window!!.setBackgroundDrawable(null)
+        }
 
       dialogView.apply {
         negativeButtonView.setOnClickListener {

@@ -18,8 +18,8 @@ class EditorLinkMovementMethod(scrollView: ScrollView) : BetterLinkMovementMetho
     // The text field can be longer than the screen size. Adjust for its scroll.
     setOnLinkClickListener { view, url ->
       val location = Point(
-          clickedUrlCoordinates.x + scrollView.scrollX,
-          clickedUrlCoordinates.y + scrollView.scrollY
+        clickedUrlCoordinates.x + scrollView.scrollX,
+        clickedUrlCoordinates.y + scrollView.scrollY
       )
       UrlPopupMenu(view.context, view, url).showAt(location)
       true
@@ -29,8 +29,8 @@ class EditorLinkMovementMethod(scrollView: ScrollView) : BetterLinkMovementMetho
   override fun onTouchEvent(view: TextView, text: Spannable, event: MotionEvent): Boolean {
     if (event.action == ACTION_UP) {
       clickedUrlCoordinates = Point(
-          event.rawX.toInt(),
-          event.rawY.toInt()
+        event.rawX.toInt(),
+        event.rawY.toInt()
       )
     }
     return super.onTouchEvent(view, text, event)

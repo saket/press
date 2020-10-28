@@ -1,7 +1,6 @@
 package press.sync
 
 import android.content.Context
-import android.graphics.drawable.ColorDrawable
 import android.widget.ProgressBar
 import androidx.core.view.isGone
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -41,17 +40,19 @@ class GitHostIntegrationView @AssistedInject constructor(
   presenterFactory: GitHostIntegrationPresenter.Factory
 ) : ContourLayout(context) {
 
-  private val presenter = presenterFactory.create(Args(
+  private val presenter = presenterFactory.create(
+    Args(
       deepLink = deepLink,
       navigator = navigator()
-  ))
+    )
+  )
 
   private val toolbar = PressToolbar(context).apply {
     title = GitHost.readHostFromDeepLink(deepLink).displayName()
     setNavigationOnClickListener { onDismiss() }
     applyLayout(
-        x = matchParentX(),
-        y = topTo { parent.top() }
+      x = matchParentX(),
+      y = topTo { parent.top() }
     )
   }
 
@@ -60,8 +61,8 @@ class GitHostIntegrationView @AssistedInject constructor(
     hint = context.strings().sync.search_git_repos
     isGone = true
     applyLayout(
-        x = matchParentX(marginLeft = 22.dip, marginRight = 22.dip),
-        y = topTo { toolbar.bottom() }
+      x = matchParentX(marginLeft = 22.dip, marginRight = 22.dip),
+      y = topTo { toolbar.bottom() }
     )
   }
 
@@ -71,8 +72,8 @@ class GitHostIntegrationView @AssistedInject constructor(
     adapter = repoAdapter
     itemAnimator = SlideDownItemAnimator().apply { supportsChangeAnimations = false }
     applyLayout(
-        x = matchParentX(),
-        y = topTo { searchView.bottom() }.bottomTo { parent.bottom() }
+      x = matchParentX(),
+      y = topTo { searchView.bottom() }.bottomTo { parent.bottom() }
     )
   }
 
@@ -80,16 +81,16 @@ class GitHostIntegrationView @AssistedInject constructor(
     isGone = true
     isIndeterminate = true
     applyLayout(
-        x = centerHorizontallyTo { parent.centerX() }.widthOf { 60.xdip },
-        y = centerVerticallyTo { parent.centerY() }.heightOf { 60.ydip }
+      x = centerHorizontallyTo { parent.centerX() }.widthOf { 60.xdip },
+      y = centerVerticallyTo { parent.centerY() }.heightOf { 60.ydip }
     )
   }
 
   private val errorView = ErrorView(context).also {
     it.isGone = true
     it.applyLayout(
-        x = matchParentX(),
-        y = centerVerticallyTo { parent.centerY() }
+      x = matchParentX(),
+      y = centerVerticallyTo { parent.centerY() }
     )
   }
 
@@ -109,19 +110,22 @@ class GitHostIntegrationView @AssistedInject constructor(
     super.onAttachedToWindow()
 
     repoAdapter.onClick = {
-      ConfirmRepoSelectionDialog.show(context, repo = it, onConfirm = {
-        hideKeyboard()
-        presenter.dispatch(GitRepositoryClicked(it))
-      })
+      ConfirmRepoSelectionDialog.show(
+        context, repo = it,
+        onConfirm = {
+          hideKeyboard()
+          presenter.dispatch(GitRepositoryClicked(it))
+        }
+      )
     }
     searchView.editText!!.doOnTextChange {
       presenter.dispatch(SearchTextChanged(it.toString()))
     }
 
     presenter.uiUpdates()
-        .takeUntil(detaches())
-        .observeOn(mainThread())
-        .subscribe(models = ::render)
+      .takeUntil(detaches())
+      .observeOn(mainThread())
+      .subscribe(models = ::render)
   }
 
   private fun render(model: GitHostIntegrationUiModel) {

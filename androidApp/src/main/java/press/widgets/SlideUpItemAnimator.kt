@@ -6,12 +6,11 @@ import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.mikepenz.itemanimators.DefaultAnimator
-import me.saket.press.R
 
 @Suppress("FunctionName")
 fun View.SlideDownItemAnimator() = SlideAlphaAnimator(
-    animationTranslationX = 0f,
-    animationTranslationY = dp(32f)
+  animationTranslationX = 0f,
+  animationTranslationY = dp(32f)
 )
 
 /**
@@ -40,11 +39,11 @@ class SlideAlphaAnimator(
 
   override fun addAnimation(holder: ViewHolder): ViewPropertyAnimatorCompat {
     return ViewCompat.animate(holder.itemView)
-        .translationX(0f)
-        .translationY(0f)
-        .alpha(1f)
-        .setDuration(moveDuration)
-        .setInterpolator(interpolator)
+      .translationX(0f)
+      .translationY(0f)
+      .alpha(1f)
+      .setDuration(moveDuration)
+      .setInterpolator(interpolator)
   }
 
   override fun addAnimationCleanup(holder: ViewHolder) {
@@ -82,11 +81,11 @@ class SlideAlphaAnimator(
   override fun removeAnimation(holder: ViewHolder): ViewPropertyAnimatorCompat {
     holder.itemView.translationZ = 0f
     return ViewCompat.animate(holder.itemView)
-        .setDuration(removeDuration)
-        .alpha(0f)
-        .translationX(-animationTranslationX)
-        .translationY(-animationTranslationY)
-        .setInterpolator(interpolator)
+      .setDuration(removeDuration)
+      .alpha(0f)
+      .translationX(-animationTranslationX)
+      .translationY(-animationTranslationY)
+      .setInterpolator(interpolator)
   }
 
   override fun removeAnimationCleanup(holder: ViewHolder) {

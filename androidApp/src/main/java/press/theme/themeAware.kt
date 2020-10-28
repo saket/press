@@ -19,15 +19,15 @@ fun themePalette(): Observable<ThemePalette> =
 fun View.themeAware(onThemeChange: (ThemePalette) -> Unit) {
   val stream = themePalette()
   attaches()
-      .switchMap { stream }
-      .takeUntil(detaches())
-      .mergeWith(stream.take(1))  // Don't wait till attach for the first emission.
-      .distinctUntilChanged()
-      .subscribe { onThemeChange(it) }
+    .switchMap { stream }
+    .takeUntil(detaches())
+    .mergeWith(stream.take(1))  // Don't wait till attach for the first emission.
+    .distinctUntilChanged()
+    .subscribe { onThemeChange(it) }
 }
 
 fun AppCompatActivity.themeAware(onThemeChange: (ThemePalette) -> Unit) {
   themePalette()
-      .takeUntil(onDestroys())
-      .subscribe { onThemeChange(it) }
+    .takeUntil(onDestroys())
+    .subscribe { onThemeChange(it) }
 }

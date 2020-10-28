@@ -6,7 +6,6 @@ import android.widget.TextView
 import com.squareup.contour.ContourLayout
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.theme.TextStyles.smallBody
-import me.saket.press.shared.theme.TextStyles.smallTitle
 import me.saket.press.shared.theme.TextView
 import press.extensions.textColor
 import press.theme.themeAware
@@ -21,16 +20,16 @@ class ErrorView(context: Context) : ContourLayout(context) {
       textColor = it.textColorPrimary
     }
     applyLayout(
-        x = matchParentX(),
-        y = topTo { parent.top() }
+      x = matchParentX(),
+      y = topTo { parent.top() }
     )
   }
 
   val retryButton = PressButton(context, smallBody).apply {
     text = context.strings().common.retry
     applyLayout(
-        x = centerHorizontallyTo { parent.centerX() },
-        y = topTo { messageView.bottom() + 16.ydip }
+      x = centerHorizontallyTo { parent.centerX() },
+      y = topTo { messageView.bottom() + 16.ydip }
     )
   }
 

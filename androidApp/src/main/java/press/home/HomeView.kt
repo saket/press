@@ -74,8 +74,8 @@ class HomeView @AssistedInject constructor(
   private val toolbar = Toolbar(context).apply {
     setTitle(R.string.app_name)
     applyLayout(
-        x = leftTo { parent.left() }.rightTo { parent.right() },
-        y = topTo { parent.top() }.heightOf(attr(android.R.attr.actionBarSize))
+      x = leftTo { parent.left() }.rightTo { parent.right() },
+      y = topTo { parent.top() }.heightOf(attr(android.R.attr.actionBarSize))
     )
   }
 
@@ -92,16 +92,16 @@ class HomeView @AssistedInject constructor(
     itemAnimator = SlideDownItemAnimator()
     addItemDecoration(DividerItemDecoration())
     applyLayout(
-        x = leftTo { parent.left() }.rightTo { parent.right() },
-        y = topTo { parent.top() }.bottomTo { parent.bottom() }
+      x = leftTo { parent.left() }.rightTo { parent.right() },
+      y = topTo { parent.top() }.bottomTo { parent.bottom() }
     )
   }
 
   private val newNoteFab = FloatingActionButton(context).apply {
     setImageResource(R.drawable.ic_note_add_24dp)
     applyLayout(
-        x = rightTo { parent.right() - 24.dip },
-        y = bottomTo { parent.bottom() - 24.dip }
+      x = rightTo { parent.right() - 24.dip },
+      y = bottomTo { parent.bottom() - 24.dip }
     )
   }
 
@@ -116,8 +116,8 @@ class HomeView @AssistedInject constructor(
       setBackgroundColor(it.window.backgroundColor)
     }
     applyLayout(
-        x = leftTo { parent.left() }.rightTo { parent.right() },
-        y = topTo { parent.top() }.bottomTo { parent.bottom() }
+      x = leftTo { parent.left() }.rightTo { parent.right() },
+      y = topTo { parent.top() }.bottomTo { parent.bottom() }
     )
   }
 
@@ -128,9 +128,9 @@ class HomeView @AssistedInject constructor(
         notesList.collapse()
       } else {
         val editorView = editorViewFactory.create(
-            context = context,
-            openMode = ExistingNote(note.noteId),
-            onDismiss = notesList::collapse
+          context = context,
+          openMode = ExistingNote(note.noteId),
+          onDismiss = notesList::collapse
         )
         noteEditorPage.addView(editorView)
         noteEditorPage.doOnNextCollapse { it.removeView(editorView) }
@@ -145,9 +145,9 @@ class HomeView @AssistedInject constructor(
     themeAware { palette ->
       toolbar.menu.clear()
       toolbar.menu.add(
-          icon = context.getDrawable(R.drawable.ic_preferences_24dp, palette.accentColor),
-          title = context.strings().home.preferences,
-          onClick = { context.startActivity(PreferencesActivity.intent(context)) }
+        icon = context.getDrawable(R.drawable.ic_preferences_24dp, palette.accentColor),
+        title = context.strings().home.preferences,
+        onClick = { context.startActivity(PreferencesActivity.intent(context)) }
       )
     }
   }
@@ -155,20 +155,22 @@ class HomeView @AssistedInject constructor(
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
 
-    val presenter = presenter.create(Args(
+    val presenter = presenter.create(
+      Args(
         includeBlankNotes = false,
         navigator = navigator().handle<ComposeNewNote> {
           openNewNoteScreen(it.newNoteId)
         }
-    ))
+      )
+    )
     presenter.uiUpdates()
-        // These two suspend calls skip updates while an
-        // existing note or the new-note screen is open.
-        .suspendWhileExpanded(noteEditorPage)
-        .suspendWhile(windowFocusChanges) { it.hasFocus.not() }
-        .takeUntil(detaches())
-        .observeOn(mainThread())
-        .subscribe(::render)
+      // These two suspend calls skip updates while an
+      // existing note or the new-note screen is open.
+      .suspendWhileExpanded(noteEditorPage)
+      .suspendWhile(windowFocusChanges) { it.hasFocus.not() }
+      .takeUntil(detaches())
+      .observeOn(mainThread())
+      .subscribe(::render)
 
     newNoteFab.setOnClickListener {
       presenter.dispatch(NewNoteClicked)
@@ -193,8 +195,8 @@ class HomeView @AssistedInject constructor(
 
   override fun onSaveInstanceState(): Parcelable? {
     return HomeViewSavedState(
-        superState = super.onSaveInstanceState(),
-        activeNote = activeNote
+      superState = super.onSaveInstanceState(),
+      activeNote = activeNote
     )
   }
 
@@ -210,14 +212,14 @@ class HomeView @AssistedInject constructor(
 
   private fun setupNoteEditorPage() {
     noteAdapter.noteClicks
-        .throttleFirst(1.second, mainThread())
-        .takeUntil(detaches())
-        .subscribe { note ->
-          activeNote = note.toActiveNote()
-          noteEditorPage.post {
-            notesList.expandItem(itemId = note.adapterId)
-          }
+      .throttleFirst(1.second, mainThread())
+      .takeUntil(detaches())
+      .subscribe { note ->
+        activeNote = note.toActiveNote()
+        noteEditorPage.post {
+          notesList.expandItem(itemId = note.adapterId)
         }
+      }
 
     noteEditorPage.doOnNextCollapse {
       activeNote = null
@@ -230,8 +232,8 @@ class HomeView @AssistedInject constructor(
     }
 
     noteEditorPage.addStateChangeCallbacks(
-        ToggleFabOnPageStateChange(newNoteFab),
-        ToggleSoftInputModeOnPageStateChange(findActivity().window)
+      ToggleFabOnPageStateChange(newNoteFab),
+      ToggleSoftInputModeOnPageStateChange(findActivity().window)
     )
   }
 
@@ -241,10 +243,10 @@ class HomeView @AssistedInject constructor(
 
   private fun openNewNoteScreen(noteId: NoteId) {
     val (intent, options) = EditorActivity.intentWithFabTransform(
-        activity = findActivity(),
-        openMode = ExistingNote(noteId),
-        fab = newNoteFab,
-        fabIconRes = R.drawable.ic_note_add_24dp
+      activity = findActivity(),
+      openMode = ExistingNote(noteId),
+      fab = newNoteFab,
+      fabIconRes = R.drawable.ic_note_add_24dp
     )
     ContextCompat.startActivity(context, intent, options.toBundle())
   }

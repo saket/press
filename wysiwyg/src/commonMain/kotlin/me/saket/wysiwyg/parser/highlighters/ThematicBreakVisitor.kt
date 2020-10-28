@@ -13,9 +13,9 @@ class ThematicBreakVisitor : NodeVisitor<ThematicBreak> {
     renderer: MarkdownRenderer
   ) {
     renderer.addForegroundColor(
-        color = renderer.style.syntaxColor,
-        from = node.startOffset,
-        to = node.endOffset
+      color = renderer.style.syntaxColor,
+      from = node.startOffset,
+      to = node.endOffset
     )
 
     val thematicBreakSyntax = node.chars
@@ -31,9 +31,9 @@ class ThematicBreakVisitor : NodeVisitor<ThematicBreak> {
     // Flexmark (Android) maintains a mutable String, which isn't a good idea to cache.
     val immutableSyntax = thematicBreakSyntax.toString()
     renderer.addThematicBreak(
-        syntax = immutableSyntax,
-        from = node.startOffset,
-        to = node.endOffset
+      syntax = immutableSyntax,
+      from = node.startOffset,
+      to = node.endOffset
     )
   }
 

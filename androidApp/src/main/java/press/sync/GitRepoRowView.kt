@@ -8,15 +8,12 @@ import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import io.reactivex.rxkotlin.Observables.combineLatest
 import io.reactivex.subjects.BehaviorSubject
-import me.saket.press.R
 import me.saket.press.shared.sync.git.HighlightedText
 import me.saket.press.shared.sync.git.RepoUiModel
 import me.saket.press.shared.theme.TextStyles.mainTitle
 import me.saket.press.shared.theme.TextStyles.smallBody
-import me.saket.press.shared.theme.TextStyles.smallTitle
 import me.saket.press.shared.theme.TextView
 import me.saket.press.shared.theme.ThemePalette
-import press.extensions.attr
 import press.extensions.createRippleDrawable
 import press.extensions.textColor
 import press.theme.themeAware
@@ -26,24 +23,24 @@ class GitRepoRowView(context: Context) : ContourLayout(context) {
   private val ownerView = TextView(context, smallBody).apply {
     themeAware { textColor = it.textColorSecondary }
     applyLayout(
-        x = matchParentX(marginLeft = 22.dip, marginRight = 22.dip),
-        y = topTo { parent.top() + 16.ydip }
+      x = matchParentX(marginLeft = 22.dip, marginRight = 22.dip),
+      y = topTo { parent.top() + 16.ydip }
     )
   }
 
   private val nameView = TextView(context, mainTitle).apply {
     themeAware { textColor = it.textColorPrimary }
     applyLayout(
-        x = matchParentX(marginLeft = 22.dip, marginRight = 22.dip),
-        y = topTo { ownerView.bottom() }
+      x = matchParentX(marginLeft = 22.dip, marginRight = 22.dip),
+      y = topTo { ownerView.bottom() }
     )
   }
 
   private val dividerView = View(context).apply {
     themeAware { setBackgroundColor(it.separator) }
     applyLayout(
-        x = matchParentX(),
-        y = topTo { nameView.bottom() + 16.ydip }.heightOf { 1.ydip }
+      x = matchParentX(),
+      y = topTo { nameView.bottom() + 16.ydip }.heightOf { 1.ydip }
     )
   }
 
@@ -60,8 +57,8 @@ class GitRepoRowView(context: Context) : ContourLayout(context) {
     super.onAttachedToWindow()
 
     combineLatest(models, themePalette())
-        .takeUntil(detaches())
-        .subscribe { (model, palette) -> render(model, palette) }
+      .takeUntil(detaches())
+      .subscribe { (model, palette) -> render(model, palette) }
   }
 
   private val models = BehaviorSubject.create<RepoUiModel>()

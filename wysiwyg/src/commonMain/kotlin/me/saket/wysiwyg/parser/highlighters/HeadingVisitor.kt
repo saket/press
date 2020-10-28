@@ -37,17 +37,17 @@ class HeadingVisitor : SyntaxHighlighter<Heading> {
           level = node.headingLevel,
           from = node.startOffset,
           to = node.endOffset
-      )
-      renderer.addForegroundColor(
-            color = renderer.style.syntaxColor,
-            from = node.startOffset,
+        )
+        renderer.addForegroundColor(
+          color = renderer.style.syntaxColor,
+          from = node.startOffset,
           to = node.startOffset + node.openingMarker.length
-      )
-      renderer.addForegroundColor(
-            color = renderer.style.heading.textColor,
-            from = node.startOffset + node.openingMarker.length,
+        )
+        renderer.addForegroundColor(
+          color = renderer.style.heading.textColor,
+          from = node.startOffset + node.openingMarker.length,
           to = node.endOffset
-      )
+        )
+      }
     }
-  }
 }

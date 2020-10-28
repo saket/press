@@ -17,16 +17,18 @@ import press.widgets.dp
 
 class SearchView(context: Context) : TextInputLayout(context) {
   init {
-    addView(EditText(context).apply {
-      id = R.id.search_view_field
-      background = null
-      imeOptions = imeOptions or EditorInfo.IME_FLAG_NO_FULLSCREEN
-      applyStyle(smallBody)
-      themeAware {
-        textColor = it.textColorPrimary
+    addView(
+      EditText(context).apply {
+        id = R.id.search_view_field
+        background = null
+        imeOptions = imeOptions or EditorInfo.IME_FLAG_NO_FULLSCREEN
+        applyStyle(smallBody)
+        themeAware {
+          textColor = it.textColorPrimary
+        }
+        updatePadding(top = dp(24), bottom = dp(8), left = dp(16), right = dp(16))
       }
-      updatePadding(top = dp(24), bottom = dp(8), left = dp(16), right = dp(16))
-    })
+    )
 
     endIconMode = END_ICON_CLEAR_TEXT
     importantForAutofill = IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS

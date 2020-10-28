@@ -64,18 +64,14 @@ class SyntaxHighlighters {
     return NodeVisitor.EMPTY
   }
 
-  fun <T : Node> add(
-    nodeType: KClass<T>,
-    visitor: NodeVisitor<T>
-  ) =
-    add(nodeType, object : SyntaxHighlighter<T> {
+  fun <T : Node> add(nodeType: KClass<T>, visitor: NodeVisitor<T>) {
+    val highlighter = object : SyntaxHighlighter<T> {
       override fun visitor(node: T) = visitor
-    })
+    }
+    add(nodeType, highlighter)
+  }
 
-  fun <T : Node> add(
-    nodeType: KClass<T>,
-    highlighter: SyntaxHighlighter<T>
-  ) {
+  fun <T : Node> add(nodeType: KClass<T>, highlighter: SyntaxHighlighter<T>) {
     if (nodeType in highlighters) {
       highlighters[nodeType]!!.add(highlighter)
     } else {

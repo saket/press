@@ -33,12 +33,12 @@ actual class MarkdownParser {
     }
 
     return Parser.builder(options)
-        .extensions(
-            listOf(
-                StrikethroughExtension.create(),
-                AutolinkExtension.create()
-            )
+      .extensions(
+        listOf(
+          StrikethroughExtension.create(),
+          AutolinkExtension.create()
         )
-        .build()
+      )
+      .build()
   }
 }

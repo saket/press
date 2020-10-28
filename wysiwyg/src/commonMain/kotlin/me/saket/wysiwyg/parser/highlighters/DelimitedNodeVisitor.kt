@@ -26,9 +26,9 @@ abstract class DelimitedNodeVisitor<T> : NodeVisitor<T> where T : Node, T : Deli
     ) {
       if (openingMarker.isNotEmpty()) {
         renderer.addForegroundColor(
-            color = renderer.style.syntaxColor,
-            from = startOffset,
-            to = startOffset + openingMarker.length
+          color = renderer.style.syntaxColor,
+          from = startOffset,
+          to = startOffset + openingMarker.length
         )
       }
     }
@@ -40,9 +40,9 @@ abstract class DelimitedNodeVisitor<T> : NodeVisitor<T> where T : Node, T : Deli
     ) {
       if (closingMarker.isNotEmpty()) {
         renderer.addForegroundColor(
-            color = renderer.style.syntaxColor,
-            from = endOffset - closingMarker.length,
-            to = endOffset
+          color = renderer.style.syntaxColor,
+          from = endOffset - closingMarker.length,
+          to = endOffset
         )
       }
     }
