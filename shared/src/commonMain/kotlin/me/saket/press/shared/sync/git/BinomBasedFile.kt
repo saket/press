@@ -53,12 +53,13 @@ internal class BinomBasedFile(val delegate: BinomFile) : File {
     }
   }
 
-  override fun makeDirectory(recursively: Boolean) {
+  override fun makeDirectory(recursively: Boolean): File {
     if (recursively) {
       delegate.mkdirs()
     } else {
       delegate.mkdir()
     }
+    return this
   }
 
   override fun delete() {
