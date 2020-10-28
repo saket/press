@@ -26,7 +26,7 @@ class FileNameRegisterTest {
   }
 
   @Test fun canary() {
-    val archivedDir = File(directory, "archived").apply { makeDirectory() }
+    val archivedDir = File(directory, "archived").apply { makeDirectories() }
     val noteFile = File(archivedDir, "uncharted.md").apply { write("A Thief's End") }
     val noteId = NoteId.generate()
 

@@ -49,12 +49,8 @@ internal class BinomBasedFile(val delegate: BinomFile) : File {
     }
   }
 
-  override fun makeDirectory(recursively: Boolean): File {
-    if (recursively) {
-      delegate.mkdirs()
-    } else {
-      delegate.mkdir()
-    }
+  override fun makeDirectories(): File {
+    delegate.mkdirs()
     return this
   }
 
@@ -84,7 +80,7 @@ internal class BinomBasedFile(val delegate: BinomFile) : File {
     check(!newFile.exists) { "${newFile.path} already exists!" }
 
     if (!newFile.parent.exists) {
-      newFile.parent.makeDirectory(recursively = true)
+      newFile.parent.makeDirectories()
     }
 
     val renamed = delegate.renameTo(BinomFile(newFile.path))

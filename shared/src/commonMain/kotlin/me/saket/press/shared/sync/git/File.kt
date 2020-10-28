@@ -21,7 +21,7 @@ interface File {
 
   fun read(): String
 
-  fun makeDirectory(recursively: Boolean = false): File
+  fun makeDirectories(): File
 
   fun delete()
 
@@ -76,7 +76,7 @@ fun File.relativePathIn(ancestor: File): String {
 }
 
 fun File.touch(): File {
-  parent.makeDirectory(recursively = true)
+  parent.makeDirectories()
   write("")
   return this
 }

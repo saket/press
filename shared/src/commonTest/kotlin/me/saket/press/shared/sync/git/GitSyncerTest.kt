@@ -1121,7 +1121,7 @@ class GitSyncerTest : BaseDatabaeTest() {
   }
 
   private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit = {}) {
-    private val directory = File(deviceInfo.appStorage, "temp").apply { makeDirectory() }
+    private val directory = File(deviceInfo.appStorage, "temp").apply { makeDirectories() }
     private val register = FileNameRegister(directory)
     private val gitRepo = RealGit().repository(
       path = directory.path,
@@ -1164,7 +1164,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     ) {
       add.forEach { (name, body) ->
         File(directory, name).apply {
-          parent.makeDirectory(recursively = true)
+          parent.makeDirectories()
           write(body)
         }
       }

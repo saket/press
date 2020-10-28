@@ -101,7 +101,7 @@ class GitSyncer(
 
     lastOp.onNext(InFlight)
     loggers.onSyncStart(fromDevice = deviceInfo.deviceName())
-    directory.makeDirectory(recursively = true)
+    directory.makeDirectories()
 
     with(SyncTransaction(git())) {
       try {
@@ -168,7 +168,7 @@ class GitSyncer(
     // Commit an announcement that syncing has been setup.
     if (git.headCommit() == null) {
       with(File(directory, ".press/")) {
-        makeDirectory(recursively = true)
+        makeDirectories()
         File(this, "README.md").write(
           "Press uses files in this directory for storing meta-data of your synced notes. " +
             "They are auto-generated and shouldn't be modified. If you run into any " +

@@ -23,7 +23,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
   }
 
   private val registerDirectory = File(notesDirectory, ".press/registers").also {
-    it.makeDirectory(recursively = true)
+    it.makeDirectories()
   }
 
   /**
@@ -90,7 +90,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
       FileSuggestion(
         notesDirectory,
         File(notesDirectory, newNoteName).also {
-          it.parent?.makeDirectory(recursively = true)
+          it.parent?.makeDirectories()
           createNewRecordFor(it, note.id)
         }
       )
@@ -115,7 +115,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
     require(noteFile.extension == "md")
 
     if (!registerDirectory.exists) {
-      registerDirectory.makeDirectory(recursively = true)
+      registerDirectory.makeDirectories()
     }
 
     val recordFile = Record.writeToFile(registerDirectory, notesDirectory, noteFile, id)
@@ -216,7 +216,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
         check(relativePath.endsWith(".md"))
 
         return File(registerDirectory, relativePath.dropLast(".md".length)).also {
-          if (!it.parent.exists) it.parent.makeDirectory(recursively = true)
+          if (!it.parent.exists) it.parent.makeDirectories()
           it.write(id.value.toString())
         }
       }
