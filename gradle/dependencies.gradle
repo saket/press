@@ -199,7 +199,7 @@ buildscript {
     'pwBinomFiles': [
       'common': "pw.binom.io:file:$versions.pwBinomFiles",
       'jvm': "pw.binom.io:file-jvm:$versions.pwBinomFiles",
-      'macOS': "pw.binom.io:file-macosX64:0.1.21"
+      'macOS': "pw.binom.io:file-macosx64:0.1.22"
     ]
   ]
 }
