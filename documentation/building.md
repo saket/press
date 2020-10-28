@@ -28,4 +28,5 @@ For ensuring sync is working as expected, Press runs its [tests](https://github.
 ```groovy
 git_test_repo_ssh_url=git@github.com:user/ExampleRepository.git
 git_test_repo_branch=main
+git_test_ssh_private_key=...
 ```
