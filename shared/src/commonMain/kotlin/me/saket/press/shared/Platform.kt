@@ -1,5 +1,7 @@
 package me.saket.press.shared
 
+import kotlinx.coroutines.CoroutineScope
+
 expect object Platform {
   val host: PlatformHost
 }
@@ -10,3 +12,5 @@ enum class PlatformHost {
   iOS,
   Android
 }
+
+expect fun <T> runBlocking(block: suspend CoroutineScope.() -> T): T
