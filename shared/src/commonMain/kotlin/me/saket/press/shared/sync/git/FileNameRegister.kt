@@ -216,7 +216,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
         check(relativePath.endsWith(".md"))
 
         return File(registerDirectory, relativePath.dropLast(".md".length)).also {
-          if (!it.parent!!.exists) it.parent!!.makeDirectory(recursively = true)
+          if (!it.parent.exists) it.parent.makeDirectory(recursively = true)
           it.write(id.value.toString())
         }
       }
@@ -248,7 +248,7 @@ private inline fun <T> File?.hideAndRun(crossinline run: () -> T): T {
   return if (this == null) run()
   else {
     val origPath = this.path
-    val renamedFile = renameTo(File(parent!!, "__temp"))
+    val renamedFile = renameTo(File(parent, "__temp"))
     val value = run()
     renamedFile.renameTo(File(origPath))
     value

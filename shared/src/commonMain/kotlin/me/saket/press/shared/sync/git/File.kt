@@ -10,7 +10,7 @@ interface File {
   val exists: Boolean
   val path: String
   val name: String
-  val parent: File?
+  val parent: File
   val isDirectory: Boolean
 
   val extension: String
@@ -78,7 +78,7 @@ fun File.relativePathIn(ancestor: File): String {
 }
 
 fun File.touch(): File {
-  parent?.makeDirectory(recursively = true)
+  parent.makeDirectory(recursively = true)
   write("")
   return this
 }
