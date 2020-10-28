@@ -14,10 +14,6 @@ import pw.binom.io.use
 import pw.binom.toByteBufferUTF8
 import pw.binom.io.file.File as BinomFile
 
-/**
- * Really hoping that this can use Okio in the future because everything else is quite... bad.
- * [https://publicobject.com/2020/10/06/files/]
- */
 internal class BinomBasedFile(val delegate: BinomFile) : File {
   constructor(path: String) : this(BinomFile(path))
 

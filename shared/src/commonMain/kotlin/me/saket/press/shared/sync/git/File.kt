@@ -1,5 +1,9 @@
 package me.saket.press.shared.sync.git
 
+/**
+ * Really hoping that file IO can be backed by Okio in the future because
+ * everything else is quite... bad. [https://publicobject.com/2020/10/06/files/]
+ */
 interface File {
   companion object {
     // So that usages can use File() directly instead of PlatformFile().
@@ -12,12 +16,6 @@ interface File {
   val name: String
   val parent: File
   val isDirectory: Boolean
-
-  val extension: String
-    get() = name.substringAfterLast('.', "")
-
-  val nameWithoutExtension: String
-    get() = name.substringBeforeLast('.')
 
   fun write(input: String)
 
