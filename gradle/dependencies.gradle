@@ -27,7 +27,7 @@ buildscript {
     multiplatformSettings: '0.6.1',
     koin: '3.0.1-alpha-2',
     klock: '1.12.0',
-    assertK: '0.22',
+    assertK: '0.23',
     ktor: '1.4.0',
     kotlinxSerialization: '1.0.0-RC',
     kotlinxCoroutinesNativeMt: '1.3.9-native-mt',
