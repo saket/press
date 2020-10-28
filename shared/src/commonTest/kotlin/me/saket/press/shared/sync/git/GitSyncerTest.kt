@@ -34,7 +34,6 @@ import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.fakedata.fakeRepository
 import me.saket.press.shared.localization.ENGLISH_STRINGS
-import me.saket.press.shared.sync.DelegatingPressDatabase
 import me.saket.press.shared.sync.SyncMergeConflicts
 import me.saket.press.shared.sync.SyncState.IN_FLIGHT
 import me.saket.press.shared.sync.SyncState.PENDING
