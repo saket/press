@@ -72,7 +72,6 @@ class FileCanaryTests {
   }
 
   @Test fun `make directories`() {
-    println("make directories()")
     val archived = File(storage, "archived")
     archived.makeDirectories()
 
@@ -81,7 +80,6 @@ class FileCanaryTests {
 
     val deepFolder = File(storage, "blog/android/text")
     deepFolder.makeDirectories()
-    println("deepFolder: ${deepFolder}")
     assertThat(File(storage, "blog/android/text").exists).isTrue()
   }
 

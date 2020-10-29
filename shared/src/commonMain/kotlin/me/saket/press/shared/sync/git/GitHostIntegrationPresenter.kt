@@ -27,7 +27,6 @@ import com.badoo.reaktive.subject.behavior.BehaviorSubject
 import com.russhwolf.settings.ExperimentalListener
 import io.ktor.client.HttpClient
 import me.saket.kgit.GitIdentity
-import me.saket.kgit.RealSshKeygen
 import me.saket.kgit.SshKeygen
 import me.saket.press.PressDatabase
 import me.saket.press.shared.rx.combineLatestWith
