@@ -35,7 +35,6 @@ buildscript {
     reaktive: '1.1.17',
     okio: '2.8.0',
     jgit: '5.8.1.202007141445-r',
-    pwBinomFiles: '0.1.22',
   ]
 
   ext.deps = [
@@ -196,10 +195,5 @@ buildscript {
       'coroutines': "org.jetbrains.kotlinx:kotlinx-coroutines-core:$versions.kotlinxCoroutinesNativeMt"
     ],
     'cascade': "me.saket.cascade:cascade:$versions.cascade",
-    'pwBinomFiles': [
-      'common': "pw.binom.io:file:$versions.pwBinomFiles",
-      'jvm': "pw.binom.io:file-jvm:$versions.pwBinomFiles",
-      'macOS': "pw.binom.io:file-macosx64:0.1.22"
-    ]
   ]
 }

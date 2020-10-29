@@ -63,7 +63,6 @@ kotlin {
         implementation deps.ktor.kotlinxSerialization
         implementation deps.kotlinx.serialization
         implementation (deps.kotlinx.coroutines) { force = true }
-        implementation deps.pwBinomFiles.common
         implementation "com.soywiz.korlibs.korio:korio:2.0.0-alpha"
       }
     }
@@ -87,7 +86,6 @@ kotlin {
         implementation deps.reaktive.interop.rxJava2
         implementation deps.sqlDelight.driver.android
         implementation deps.ktor.client.okHttp
-        implementation deps.pwBinomFiles.jvm
       }
     }
     androidTest {
@@ -112,9 +110,6 @@ kotlin {
     }
     macosMain {
       dependsOn(nativeMain)
-      dependencies {
-        implementation deps.pwBinomFiles.macOS
-      }
     }
     macosTest {
       dependsOn(nativeTest)
