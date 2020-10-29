@@ -63,7 +63,7 @@ kotlin {
         implementation deps.ktor.kotlinxSerialization
         implementation deps.kotlinx.serialization
         implementation (deps.kotlinx.coroutines) { force = true }
-        implementation "com.soywiz.korlibs.korio:korio:2.0.0-alpha"
+        implementation deps.korio
       }
     }
     commonTest {
