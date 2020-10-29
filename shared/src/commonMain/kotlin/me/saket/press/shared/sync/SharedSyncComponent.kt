@@ -10,7 +10,6 @@ import io.ktor.client.features.logging.SIMPLE
 import kotlinx.serialization.json.Json
 import me.saket.kgit.RealGit
 import me.saket.kgit.RealSshKeygen
-import me.saket.kgit.SshKeygen
 import me.saket.press.shared.di.koin
 import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.sync.git.GitHost

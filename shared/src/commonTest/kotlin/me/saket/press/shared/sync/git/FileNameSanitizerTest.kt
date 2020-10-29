@@ -2,7 +2,6 @@ package me.saket.press.shared.sync.git
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import me.saket.press.shared.sync.git.FileNameSanitizer
 import kotlin.test.Test
 
 class FileNameSanitizerTest {
