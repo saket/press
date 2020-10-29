@@ -2,7 +2,7 @@ package me.saket.press.shared.sync.git
 
 /**
  * Really hoping that file IO can be backed by Okio in the future because
- * everything else is quite... bad. [https://publicobject.com/2020/10/06/files/]
+ * everything else is quite... okay-ish. [https://publicobject.com/2020/10/06/files/]
  */
 interface File {
   companion object {

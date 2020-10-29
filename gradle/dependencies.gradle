@@ -35,6 +35,7 @@ buildscript {
     reaktive: '1.1.17',
     okio: '2.8.0',
     jgit: '5.8.1.202007141445-r',
+    korio: '2.0.0-alpha'
   ]
 
   ext.deps = [
@@ -195,5 +196,6 @@ buildscript {
       'coroutines': "org.jetbrains.kotlinx:kotlinx-coroutines-core:$versions.kotlinxCoroutinesNativeMt"
     ],
     'cascade': "me.saket.cascade:cascade:$versions.cascade",
+    'korio': "com.soywiz.korlibs.korio:korio:$versions.korio",
   ]
 }
