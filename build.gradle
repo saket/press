@@ -28,6 +28,7 @@ allprojects {
     maven { url 'https://dl.bintray.com/badoo/maven' }
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
     maven { url "https://repo.binom.pw/releases" }
+    maven { url "https://dl.bintray.com/korlibs/korlibs/" }
     maven {
       url 'https://dl.bintray.com/touchlabpublic/kotlin'
       content {
