@@ -27,8 +27,8 @@ import com.badoo.reaktive.subject.behavior.BehaviorSubject
 import com.russhwolf.settings.ExperimentalListener
 import io.ktor.client.HttpClient
 import me.saket.kgit.GitIdentity
+import me.saket.kgit.RealSshKeygen
 import me.saket.kgit.SshKeygen
-import me.saket.kgit.generateRsa
 import me.saket.press.PressDatabase
 import me.saket.press.shared.rx.combineLatestWith
 import me.saket.press.shared.rx.consumeOnNext
@@ -62,7 +62,8 @@ class GitHostIntegrationPresenter(
   private val deviceInfo: DeviceInfo,
   private val database: PressDatabase,
   private val cachedRepos: GitRepositoryCache,
-  private val syncCoordinator: SyncCoordinator
+  private val syncCoordinator: SyncCoordinator,
+  private val sshKeygen: SshKeygen
 ) : Presenter<GitHostIntegrationEvent, GitHostIntegrationUiModel, Nothing>() {
 
   private val gitHost = GitHost.readHostFromDeepLink(args.deepLink)
@@ -150,7 +151,7 @@ class GitHostIntegrationPresenter(
         val token = authToken.get()!!
         val deployKey = GitHostService.DeployKey(
           title = "Press (${deviceInfo.deviceName()})",
-          key = SshKeygen.generateRsa(comment = "(Created by Press)")
+          key = sshKeygen.generateRsa(comment = "(Created by Press)")
         )
         zip(
           gitHostService.addDeployKey(token, repo, deployKey).asSingle(Unit),

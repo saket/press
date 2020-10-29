@@ -58,6 +58,7 @@ private class Recorder<T> : RecordingObserver<T> {
   }
 
   override fun onError(error: Throwable) {
+    error.printStackTrace()
     events.add(OnError(error))
   }
 

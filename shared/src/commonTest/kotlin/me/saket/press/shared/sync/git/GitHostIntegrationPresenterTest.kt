@@ -4,9 +4,12 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import co.touchlab.stately.concurrency.value
 import com.badoo.reaktive.observable.distinctUntilChanged
 import io.ktor.client.HttpClient
 import me.saket.kgit.GitIdentity
+import me.saket.kgit.SshKeyPair
+import me.saket.kgit.SshPrivateKey
 import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.fakedata.fakeRepository
 import me.saket.press.shared.rx.RxRule
@@ -23,6 +26,7 @@ import me.saket.press.shared.sync.git.GitHostIntegrationPresenter.Args
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.SelectRepo
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowFailure
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowProgress
+import me.saket.press.shared.sync.git.service.GitHostService.DeployKey
 import me.saket.press.shared.testDeviceInfo
 import me.saket.press.shared.ui.FakeNavigator
 import me.saket.press.shared.ui.ScreenKey.Close
@@ -35,6 +39,7 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
   private val authToken = FakeSetting<GitHostAuthToken>(null)
   private val navigator = FakeNavigator()
   private val syncCoordinator = FakeSyncCoordinator()
+  private val sshKeygen = FakeSshKeygen()
   private val rxRule = RxRule()
 
   private val presenter = GitHostIntegrationPresenter(
@@ -45,7 +50,8 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
     cachedRepos = cachedRepos,
     syncCoordinator = syncCoordinator,
     database = database,
-    deviceInfo = testDeviceInfo()
+    deviceInfo = testDeviceInfo(),
+    sshKeygen = sshKeygen
   )
 
   @AfterTest
@@ -93,9 +99,10 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
   @Test fun `retry selection of repo`() {
     cachedRepos.set(emptyList())
     authToken.set(GitHostAuthToken("nicolas.cage"))
+    sshKeygen.key.value = sshKeyPair
 
     gitService.user.value = { error("user boom!") }
-    gitService.deployKey.value = { error("key boom!") }
+    gitService.deployKeyResult.value = { error("key boom!") }
     presenter.dispatch(GitRepositoryClicked(repo))
 
     val models = presenter.uiModels()
@@ -109,9 +116,16 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
       .assertValue(ShowProgress)
       .assertValue(ShowFailure(kind = AddingDeployKey))
 
-    gitService.deployKey.value = { Unit }
+    gitService.deployKeyResult.value = { Unit }
     presenter.dispatch(RetryClicked(failure = AddingDeployKey))
     models.popAllValues()
+
+    assertThat(gitService.deployedKey.value).isEqualTo(
+      DeployKey(
+        title = "Press (${testDeviceInfo().deviceName()})",
+        key = sshKeyPair
+      )
+    )
 
     assertThat(authToken.get()).isNull()
     assertThat(syncCoordinator.triggered.value).isTrue()
@@ -158,5 +172,6 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
   companion object {
     val repo = fakeRepository(name = "NicCage")
     val user = GitIdentity("nicolas", "nicolas@cage.com")
+    val sshKeyPair = SshKeyPair(publicKey = "nicolas cage", privateKey = SshPrivateKey("is a national treasure"))
   }
 }
