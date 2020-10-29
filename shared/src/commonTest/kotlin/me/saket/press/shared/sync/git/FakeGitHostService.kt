@@ -20,7 +20,11 @@ class FakeGitHostService : GitHostService {
   val user = AtomicReference<(() -> GitIdentity)?>(null)
   override fun fetchUser(token: GitHostAuthToken) = singleFromFunction { user.value!!.invoke() }
 
-  val deployKey = AtomicReference<(() -> Unit)?>(null)
+  val deployedKey = AtomicReference<DeployKey?>(null)
+  val deployKeyResult = AtomicReference<(() -> Unit)?>(null)
   override fun addDeployKey(token: GitHostAuthToken, repository: GitRepositoryInfo, key: DeployKey) =
-    completableFromFunction { deployKey.value!!.invoke() }
+    completableFromFunction {
+      deployedKey.value = key
+      deployKeyResult.value!!.invoke()
+    }
 }

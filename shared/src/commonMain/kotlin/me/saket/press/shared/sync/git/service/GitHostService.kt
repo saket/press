@@ -44,5 +44,5 @@ interface GitHostService {
   /**
    * @param title the label that's displayed for this key.
    */
-  class DeployKey(val title: String, val key: SshKeyPair)
+  data class DeployKey(val title: String, val key: SshKeyPair)
 }
