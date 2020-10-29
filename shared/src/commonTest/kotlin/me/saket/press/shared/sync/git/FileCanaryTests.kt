@@ -31,6 +31,17 @@ class FileCanaryTests {
     assertThat(file.read()).isEqualTo(content)
   }
 
+  @Test fun name() {
+    val file = File("batman.md")
+    assertThat(file.name).isEqualTo("batman.md")
+  }
+
+  @Test fun paths() {
+    val file = File(storage, "archived/batman.md").makeDirectories()
+    assertThat(file.path).isEqualTo(storage.path + "/archived/batman.md")
+    assertThat(file.relativePathIn(storage)).isEqualTo("archived/batman.md")
+  }
+
   @Test fun delete() {
     val file = File(storage, "batman.md")
 
@@ -45,12 +56,13 @@ class FileCanaryTests {
     val file = File(storage, "batman.md")
     file.write(content)
 
-    val archived = File(storage, "archived").apply { makeDirectory() }
+    val archived = File(storage, "archived").makeDirectories()
     val renamedFile = file.renameTo(File(archived, "batman.md"))
 
     assertThat(file.exists).isFalse()
     assertThat(renamedFile.exists).isTrue()
     assertThat(renamedFile.read()).isEqualTo(content)
+    assertThat(renamedFile.relativePathIn(storage)).isEqualTo("archived/batman.md")
   }
 
   @Test fun parent() {
@@ -59,14 +71,17 @@ class FileCanaryTests {
     assertThat(file.parent.relativePathIn(storage)).isEqualTo("archived")
   }
 
-  @Test fun `create directory`() {
+  @Test fun `make directories`() {
+    println("make directories()")
     val archived = File(storage, "archived")
-    archived.makeDirectory(recursively = false)
+    archived.makeDirectories()
 
+    assertThat(archived.exists).isTrue()
     assertThat(archived.isDirectory).isTrue()
 
     val deepFolder = File(storage, "blog/android/text")
-    deepFolder.makeDirectory(recursively = true)
+    deepFolder.makeDirectories()
+    println("deepFolder: ${deepFolder}")
     assertThat(File(storage, "blog/android/text").exists).isTrue()
   }
 
@@ -83,7 +98,7 @@ class FileCanaryTests {
     File(storage, "note_2.md").touch()
     File(storage, "note_3.md").touch()
 
-    val archived = File(storage, "archived").apply { makeDirectory() }
+    val archived = File(storage, "archived").apply { makeDirectories() }
     File(archived, "note_3.md").touch()
     File(archived, "note_4.md").touch()
     File(archived, "note_5.md").touch()

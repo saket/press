@@ -7,8 +7,8 @@ package me.saket.press.shared.sync.git
 interface File {
   companion object {
     // So that usages can use File() directly instead of PlatformFile().
-    operator fun invoke(path: String): File = BinomBasedFile(path)
-    operator fun invoke(parent: File, name: String): File = BinomBasedFile(parent, name)
+    operator fun invoke(path: String): File = KorioBasedFile(path)
+    operator fun invoke(parent: File, name: String): File = KorioBasedFile(parent, name)
   }
 
   val exists: Boolean

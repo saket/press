@@ -16,7 +16,6 @@ import kotlin.test.AfterTest
 import kotlin.test.Test
 
 class FileNameRegisterTest {
-
   private val directory = testDeviceInfo().appStorage
   private val register = FileNameRegister(notesDirectory = directory)
 

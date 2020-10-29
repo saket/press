@@ -14,6 +14,7 @@ import pw.binom.io.use
 import pw.binom.toByteBufferUTF8
 import pw.binom.io.file.File as BinomFile
 
+// https://github.com/caffeine-mgn/pw.binom.io
 internal class BinomBasedFile(val delegate: BinomFile) : File {
   constructor(path: String) : this(BinomFile(path))
 
