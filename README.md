@@ -1,9 +1,9 @@
-<img width="100" height="100" src="https://github.com/saket/press/raw/master/resources/circular_icon_with_shadows.png?raw=true"> 
+<img width="100" height="100" src="https://github.com/saket/press/raw/trunk/resources/circular_icon_with_shadows.png?raw=true"> 
 
 <p align="center">
-  <img width="32%" src="https://github.com/saket/press/raw/master/resources/play_store/screenshots/home.png?raw=true">
-  <img width="32%" src="https://github.com/saket/press/raw/master/resources/play_store/screenshots/editor_new_note.png?raw=true">
-  <img width="32%" src="https://github.com/saket/press/raw/master/resources/play_store/screenshots/editor_existing_note.png?raw=true">
+  <img width="32%" src="https://github.com/saket/press/raw/trunk/resources/play_store/screenshots/home.png?raw=true">
+  <img width="32%" src="https://github.com/saket/press/raw/trunk/resources/play_store/screenshots/editor_new_note.png?raw=true">
+  <img width="32%" src="https://github.com/saket/press/raw/trunk/resources/play_store/screenshots/editor_existing_note.png?raw=true">
 </p>
 
 Press is a *wysiwyg* writer for crafting notes inspired by [Bear](https://bear.app). It uses markdown for styling and formatting text with a beautiful inline preview. 

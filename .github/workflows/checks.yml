@@ -7,7 +7,7 @@ on:
   # For every PR.
   pull_request:
     branches:
-      - master
+      - trunk
 
 jobs:
   build:

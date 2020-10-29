@@ -76,7 +76,7 @@ kotlin {
 
 kotlin.cocoapods {
   summary = "A cross-platform markdown parser"
-  homepage = "https://github.com/saket/press/tree/master/wysiwyg"
+  homepage = "https://github.com/saket/press/tree/trunk/wysiwyg"
 }
 version = 1.0 // also used by cocoapods plugin.
 
