@@ -1,7 +1,7 @@
 Pod::Spec.new do |spec|
     spec.name                     = 'wysiwyg'
     spec.version                  = '1.0'
-    spec.homepage                 = 'https://github.com/saket/press/tree/master/wysiwyg'
+    spec.homepage                 = 'https://github.com/saket/press/tree/trunk/wysiwyg'
     spec.source                   = { :git => "Not Published", :tag => "Cocoapods/#{spec.name}/#{spec.version}" }
     spec.authors                  = ''
     spec.license                  = ''
