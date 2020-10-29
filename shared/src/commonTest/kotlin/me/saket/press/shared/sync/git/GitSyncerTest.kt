@@ -79,6 +79,8 @@ class GitSyncerTest : BaseDatabaeTest() {
 
   @BeforeTest
   fun setUp() {
+    if (!canRunTests()) return
+
     RemoteRepositoryRobot {
       deleteEverything()
     }
@@ -90,6 +92,8 @@ class GitSyncerTest : BaseDatabaeTest() {
 
   @AfterTest
   fun cleanUp() {
+    if (!canRunTests()) return
+
     deviceInfo.appStorage.delete(recursively = true)
 
     val unsyncedNotes = noteQueries.allNotes().executeAsList()
@@ -934,6 +938,8 @@ class GitSyncerTest : BaseDatabaeTest() {
   }
 
   @Test fun `pickup all unsynced notes on start`() {
+    if (!canRunTests()) return
+
     noteQueries.testInsert(
       fakeNote("# The Dark Knight", syncState = PENDING),
       fakeNote("# The Dark Knight Rises", syncState = IN_FLIGHT)
