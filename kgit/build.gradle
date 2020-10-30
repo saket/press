@@ -9,12 +9,25 @@ repositories {
 kotlin {
   targets {
     fromPreset(presets.jvm, "jvm")
+
     fromPreset(presets.macosX64, "macos") {
+      binaries {
+        getTest("DEBUG").linkerOpts("-F$projectDir/Carthage/Build/Mac/")
+        getTest("DEBUG").linkerOpts("-L$projectDir/Carthage/Build/Mac/")
+        getTest("DEBUG").linkerOpts("-L$projectDir/kgit/Carthage/Build/Mac/")
+        getTest("DEBUG").linkerOpts("-ObjC")
+      }
+
       compilations.main {
         cinterops {
           objectivegit {
-            defFile "src/nativeInterop/cinterop/objectivegit.def"
+            packageName "libgit2.ObjectiveGit"
+            defFile = file("$projectDir/src/nativeInterop/cinterop/objectivegit.def")
             includeDirs "$projectDir/Carthage/Build/Mac/ObjectiveGit.framework/Headers"
+            compilerOpts "-F$projectDir/Carthage/Build/Mac/"
+            compilerOpts "-L$projectDir/Carthage/Build/Mac/"
+            compilerOpts "-F$projectDir/kgit/Carthage/Build/Mac/"
+            compilerOpts "-L$projectDir/kgit/Carthage/Build/Mac/"
           }
         }
       }
