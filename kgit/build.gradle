@@ -9,7 +9,16 @@ repositories {
 kotlin {
   targets {
     fromPreset(presets.jvm, "jvm")
-    fromPreset(presets.macosX64, "macos")
+    fromPreset(presets.macosX64, "macos") {
+      compilations.main {
+        cinterops {
+          objectivegit {
+            defFile "src/nativeInterop/cinterop/objectivegit.def"
+            includeDirs "$projectDir/Carthage/Build/Mac/ObjectiveGit.framework/Headers"
+          }
+        }
+      }
+    }
 
     def buildForDevice = project.findProperty("device")?.toBoolean() ?: false
     def iosTarget = (buildForDevice) ? presets.iosArm64 : presets.iosX64
@@ -60,3 +69,15 @@ kotlin {
     }
   }
 }
+
+task carthageBuild(type: Exec) {
+  executable "sh"
+  args "-c", "/usr/local/bin/carthage build --cache-builds --project-directory ${projectDir}"
+}
+
+task carthageUpdate(type: Exec) {
+  executable "sh"
+  args "-c", "/usr/local/bin/carthage update --cache-builds --project-directory ${projectDir}"
+}
+
+cinteropObjectivegitMacos.dependsOn tasks.carthageBuild

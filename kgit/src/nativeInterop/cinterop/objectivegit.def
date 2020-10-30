@@ -1,0 +1,8 @@
+depends = Foundation
+package = libgit2.ObjectiveGit
+language = Objective-C
+headers = ObjectiveGit.h
+headersFilters = **
+
+compilerOpts = -framework ObjectiveGit
+linkerOpts = -framework ObjectiveGit
