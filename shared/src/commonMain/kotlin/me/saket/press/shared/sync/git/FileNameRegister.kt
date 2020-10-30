@@ -90,7 +90,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
       FileSuggestion(
         notesDirectory,
         File(notesDirectory, newNoteName).also {
-          it.parent?.makeDirectories()
+          it.parent.makeDirectories()
           createNewRecordFor(it, note.id)
         }
       )
