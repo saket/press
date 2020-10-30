@@ -19,10 +19,6 @@ kotlin {
         }
       }
     }
-
-    def buildForDevice = project.findProperty("device")?.toBoolean() ?: false
-    def iosTarget = (buildForDevice) ? presets.iosArm64 : presets.iosX64
-    fromPreset(iosTarget, "ios")
   }
 
   sourceSets {
@@ -50,17 +46,8 @@ kotlin {
         implementation kotlin('test-junit')
       }
     }
-    nativeMain {
-      dependsOn(commonMain)
-      dependencies {}
-    }
-    nativeTest { dependsOn(commonTest) }
-
-    macosMain { dependsOn(nativeMain) }
-    macosTest { dependsOn(nativeTest) }
-
-    iosMain { dependsOn(nativeMain) }
-    iosTest { dependsOn(nativeTest) }
+    macosMain {}
+    macosTest {}
 
     all {
       languageSettings {

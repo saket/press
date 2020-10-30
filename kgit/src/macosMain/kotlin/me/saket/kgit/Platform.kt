@@ -1,5 +1,5 @@
 package me.saket.kgit
 
 actual object Platform {
-  actual val name: String = "Native"
+  actual val name: String = "macOS"
 }
