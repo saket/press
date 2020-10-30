@@ -9,25 +9,12 @@ repositories {
 kotlin {
   targets {
     fromPreset(presets.jvm, "jvm")
-
     fromPreset(presets.macosX64, "macos") {
-      binaries {
-        getTest("DEBUG").linkerOpts("-F$projectDir/Carthage/Build/Mac/")
-        getTest("DEBUG").linkerOpts("-L$projectDir/Carthage/Build/Mac/")
-        getTest("DEBUG").linkerOpts("-L$projectDir/kgit/Carthage/Build/Mac/")
-        getTest("DEBUG").linkerOpts("-ObjC")
-      }
-
       compilations.main {
         cinterops {
           objectivegit {
-            packageName "libgit2.ObjectiveGit"
-            defFile = file("$projectDir/src/nativeInterop/cinterop/objectivegit.def")
-            includeDirs "$projectDir/Carthage/Build/Mac/ObjectiveGit.framework/Headers"
+            defFile "src/nativeInterop/cinterop/objectivegit.def"
             compilerOpts "-F$projectDir/Carthage/Build/Mac/"
-            compilerOpts "-L$projectDir/Carthage/Build/Mac/"
-            compilerOpts "-F$projectDir/kgit/Carthage/Build/Mac/"
-            compilerOpts "-L$projectDir/kgit/Carthage/Build/Mac/"
           }
         }
       }
@@ -70,24 +57,19 @@ kotlin {
   }
 }
 
-// https://youtrack.jetbrains.com/issue/KT-43073
-task kt43073(type: Exec) {
-  executable "sh"
-  def file1 = "$projectDir/Carthage/Build/Mac/ObjectiveGit.framework/Headers/ObjectiveGit.h"
-  def file2 = "$projectDir/Carthage/Build/Mac/ObjectiveGit.framework/Headers/GTStatusDelta.h"
-  args "-c", """sed -i "" "s|#import <ObjectiveGit/|#import <|g" $file1 $file2"""
-}
-
 task carthageBuild(type: Exec) {
   executable "sh"
-  args "-c", "/usr/local/bin/carthage build --cache-builds --project-directory ${projectDir}"
+  args "-c", "/usr/local/bin/carthage build --cache-builds --project-directory $projectDir"
 }
 
 task carthageUpdate(type: Exec) {
   executable "sh"
-  args "-c", "/usr/local/bin/carthage update --cache-builds --project-directory ${projectDir}"
+  args "-c", "/usr/local/bin/carthage update --cache-builds --project-directory $projectDir"
 }
 
-carthageBuild.dependsOn tasks.kt43073
-carthageUpdate.dependsOn tasks.kt43073
+clean.doFirst {
+  delete "$projectDir/Carthage/"
+  delete "$projectDir/Cartfile.resolved/"
+}
+
 cinteropObjectivegitMacos.dependsOn tasks.carthageBuild
