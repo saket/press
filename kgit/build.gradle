@@ -70,6 +70,14 @@ kotlin {
   }
 }
 
+// https://youtrack.jetbrains.com/issue/KT-43073
+task kt43073(type: Exec) {
+  executable "sh"
+  def file1 = "$projectDir/Carthage/Build/Mac/ObjectiveGit.framework/Headers/ObjectiveGit.h"
+  def file2 = "$projectDir/Carthage/Build/Mac/ObjectiveGit.framework/Headers/GTStatusDelta.h"
+  args "-c", """sed -i "" "s|#import <ObjectiveGit/|#import <|g" $file1 $file2"""
+}
+
 task carthageBuild(type: Exec) {
   executable "sh"
   args "-c", "/usr/local/bin/carthage build --cache-builds --project-directory ${projectDir}"
@@ -80,4 +88,6 @@ task carthageUpdate(type: Exec) {
   args "-c", "/usr/local/bin/carthage update --cache-builds --project-directory ${projectDir}"
 }
 
+carthageBuild.dependsOn tasks.kt43073
+carthageUpdate.dependsOn tasks.kt43073
 cinteropObjectivegitMacos.dependsOn tasks.carthageBuild
