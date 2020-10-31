@@ -4,7 +4,7 @@ buildscript {
     compileSdk: 29,
     dagger: '2.27',
     butterKnife: '8.8.1',
-    kotlin: '1.4.0',
+    kotlin: '1.4.10',
     moshi: '1.9.2',
     okhttp: '4.0.1',
     squareInject: '0.5.2',
