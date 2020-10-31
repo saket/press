@@ -7,12 +7,15 @@ data class HeadingAndBody(
 ) {
 
   companion object {
-    private val regex = Regex("^(?:(\\s*#{1,6}[ \\t]+)(.*))?\\n?([\\s\\S]*)") // https://regexr.com/5btiv
+    private val regex = Regex("^(?:(\\s*#{1,6}[ \\t]+)(.*))?\\n?") // https://regexr.com/5btiv
     private val empty = HeadingAndBody("", "", "")
 
     fun parse(content: String, trimSpacings: Boolean = true): HeadingAndBody {
       val matchResult = regex.find(content) ?: return empty
-      val (headingSyntax, heading, body) = matchResult.destructured
+      val (headingSyntax, heading) = matchResult.destructured
+      val body =
+        if (heading.isNotBlank()) content.substring(startIndex = matchResult.range.last + 1)
+        else content
 
       return if (trimSpacings) {
         HeadingAndBody(heading.trimEnd(), body.trimStart(), headingSyntax.trim())
