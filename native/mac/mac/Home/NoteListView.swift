@@ -42,10 +42,3 @@ struct NoteListView: View {
     }
   }
 }
-
-extension Publisher {
-  func composeNewNote() -> AnyPublisher<HomeUiEffect.ComposeNewNote, Never> {
-    return ofType(HomeUiEffect.ComposeNewNote.self)
-  }
-}
-

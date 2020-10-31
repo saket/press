@@ -11,7 +11,7 @@ class EditorComponent: Assembly {
   func assemble(container: Container) {
     container.register(EditorPresenterFactory.self) { r in
       class Factory : EditorPresenterFactory {
-        func create(args_ args: EditorPresenter.Args) -> EditorPresenter {
+        func create(args__ args: EditorPresenter.Args) -> EditorPresenter {
           SharedEditorComponent.Companion().presenter(args: args)
         }
       }

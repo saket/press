@@ -39,7 +39,7 @@ struct Subscribe<Content, EV, M, EF>: View
   ) {
     self.content = content
     self.streams = streams
-    self._currentModel = State(initialValue: streams.presenter.defaultUiModel()!)
+    self._currentModel = State(initialValue: streams.presenter.defaultUiModel())
   }
 
   var body: some View {

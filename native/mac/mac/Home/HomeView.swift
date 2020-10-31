@@ -35,9 +35,9 @@ struct HomeView: View {
         }
           .frame(minWidth: 224, idealWidth: notesWidth, maxWidth: 508, maxHeight: .infinity)
           .padding(.top, 1) // A non-zero padding automatically pushes it down the titlebar ¯\_(ツ)_/¯
-          .onReceive(effects.composeNewNote()) { event in
-            self.selectedNote = event.newNoteId
-          }
+//          .onReceive(effects.composeNewNote()) { event in
+//            self.selectedNote = event.newNoteId
+//          }
       }
 
       ZStack {
@@ -55,8 +55,20 @@ struct HomeView: View {
   }
 
   init() {
+    class Nav : Navigator {
+      func lfg(screen: ScreenKey) {
+        // TODO
+      }
+    }
+
     let presenterFactory = PressApp.component.resolve(HomePresenterFactory.self)!
-    let args = HomePresenter.Args(includeEmptyNotes: true)
-    self._presenter = .init(presenterFactory.create(args: args))
+    let args = HomePresenter.Args(includeBlankNotes: true, navigator: Nav())
+    self._presenter = .init(presenterFactory.create(args_: args))
   }
 }
+
+//extension Publisher {
+//  func composeNewNote() -> AnyPublisher<HomeUiEffect.ComposeNewNote, Never> {
+//    return ofType(HomeUiEffect.ComposeNewNote.self)
+//  }
+//}

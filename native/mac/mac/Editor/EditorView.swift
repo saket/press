@@ -10,11 +10,9 @@ import SwiftUI
 
 struct EditorView: View {
   @EnvironmentObject var theme: AppTheme
-  private let style = EditorUiStyles().editor
-
-  private let openMode: EditorOpenMode
   @Subscribable var presenter: EditorPresenter
   @ObservedObject var editorText: Listenable<String>
+  private let openMode: EditorOpenMode
 
   var body: some View {
     return Subscribe($presenter) { (model: EditorUiModel, effects) in
@@ -22,7 +20,7 @@ struct EditorView: View {
         // Hint text for the heading.
         if (model.hintText != nil) {
           Text(model.hintText!)
-            .style(self.style)
+            .style(TextStyles().mainBody)
             .offset(x: 25, y: 35)
             .foregroundColor(self.theme.palette.textColorHint)
         }
@@ -30,7 +28,7 @@ struct EditorView: View {
         MultiLineTextField(text: self.$editorText.value, onSetup: { view in
           view.textColor = NSColor(self.theme.palette.textColorPrimary)
           view.isRichText = false
-          view.applyStyle(self.style)
+          view.applyStyle(TextStyles().mainBody)
           view.setPaddings(horizontal: 25, vertical: 35)
         })
       }
@@ -56,9 +54,15 @@ struct EditorView: View {
   init(openMode: EditorOpenMode) {
     self.openMode = openMode
 
+    class Nav : Navigator {
+      func lfg(screen: ScreenKey) {
+        // TODO
+      }
+    }
+
     let factory = PressApp.component.resolve(EditorPresenterFactory.self)!
-    let args = EditorPresenter.Args(openMode: openMode, archiveEmptyNoteOnExit: false)
-    let presenter = factory.create(args_: args)
+    let args = EditorPresenter.Args(openMode: openMode, deleteBlankNewNoteOnExit: false, navigator: Nav())
+    let presenter = factory.create(args__: args)
 
     self._presenter = .init(presenter)
     self.editorText = Listenable(initial: "") {

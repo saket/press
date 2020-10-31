@@ -11,8 +11,8 @@ class HomeComponent: Assembly {
   func assemble(container: Container) {
     container.register(HomePresenterFactory.self) { _ in
       class Factory: HomePresenterFactory {
-        func create(args: HomePresenter.Args) -> HomePresenter {
-          SharedHomeComponent.Companion().presenter(args: args)
+        func create(args_: HomePresenter.Args) -> HomePresenter {
+          SharedHomeComponent.Companion().presenter(args: args_)
         }
       }
       return Factory()

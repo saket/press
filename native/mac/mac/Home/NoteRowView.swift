@@ -9,19 +9,17 @@ import shared
 
 struct NoteRowView: View {
   @EnvironmentObject var theme: AppTheme
-  private let style = HomeUiStyles.NoteRow()
-
   let note: HomeUiModel.Note
 
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
       Text(note.title)
-        .style(style.title)
+        .style(HomeUiStyles().noteTitle)
         .foregroundColor(theme.palette.textColorHeading)
         .frame(maxWidth: .infinity, alignment: .leading)
 
       Text(note.body)
-        .style(style.body)
+        .style(HomeUiStyles().noteBody)
         .foregroundColor(theme.palette.textColorSecondary)
         .frame(maxWidth: .infinity, alignment: .leading)
     }.padding(16)
