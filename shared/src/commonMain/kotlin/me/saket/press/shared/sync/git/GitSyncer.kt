@@ -58,7 +58,6 @@ class GitSyncer(
   override val directory = File(deviceInfo.appStorage, "git")
   private val noteQueries get() = database.noteQueries
   private val configQueries get() = database.folderSyncConfigQueries
-  private val register = FileNameRegister(directory)
   private val loggers = SyncLoggers(PrintLnSyncLogger, FileBasedSyncLogger(directory))
   private val git = {
     val remote = readConfig()!!.remote
@@ -140,10 +139,11 @@ class GitSyncer(
     }
   }
 
-  private class SyncTransaction(val git: GitRepository) {
+  private inner class SyncTransaction(val git: GitRepository) {
     // DB operations are executed in one go to
     // avoid locking the DB in a transaction for long.
     val dbOperations = mutableListOf<DbOperation>()
+    val register = FileNameRegister(directory)
   }
 
   class DbOperation(
@@ -311,7 +311,7 @@ class GitSyncer(
     val isFirstSync = readConfig()!!.lastPushedSha1 == null
     val conflictResolver = when {
       isFirstSync -> TimeBasedConflictResolver(git, pullResult)
-      else -> DuplicateOnConflictResolver(git, pullResult)
+      else -> DuplicateOnConflictResolver(git, pullResult, register)
     }
 
     log("\nCommitting unsynced notes (${pendingSyncNotes.size}):")
@@ -394,7 +394,8 @@ class GitSyncer(
 
   private inner class DuplicateOnConflictResolver(
     git: GitRepository,
-    pullResult: PullResult
+    pullResult: PullResult,
+    private val register: FileNameRegister
   ) : MergeConflictsResolver(git, pullResult) {
     override fun resolveAndSave(note: Note, suggestion: FileSuggestion, commitRename: () -> Unit?) {
       val noteFile = suggestion.suggestedFile
