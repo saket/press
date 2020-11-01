@@ -10,7 +10,7 @@ interface HomeEvent {
 
 data class HomeUiModel(val notes: List<Note>) {
   data class Note(
-    val noteId: NoteId,
+    val noteId: NoteId, // todo: rename to id
     val adapterId: Long,
     val title: String,
     val body: String

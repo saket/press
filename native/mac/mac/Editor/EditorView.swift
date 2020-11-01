@@ -15,7 +15,7 @@ struct EditorView: View {
   private let openMode: EditorOpenMode
 
   var body: some View {
-    return Subscribe($presenter) { (model: EditorUiModel, effects) in
+    Subscribe($presenter) { (model: EditorUiModel, effects) in
       ZStack(alignment: .topLeading) {
         // Hint text for the heading.
         if (model.hintText != nil) {
@@ -39,7 +39,7 @@ struct EditorView: View {
         // TODO: consume BlockedDueToSyncConflict
         .onDisappear {
           /// TODO: this is dangerous. Saving the editor content before it's
-          /// populated from the DB will cause it to get overridden.
+          ///  populated from the DB will cause it to get overridden.
           self.presenter.saveEditorContentOnClose(content: self.editorText.value)
         }
     }
@@ -54,15 +54,12 @@ struct EditorView: View {
   init(openMode: EditorOpenMode) {
     self.openMode = openMode
 
-    class Nav : Navigator {
-      func lfg(screen: ScreenKey) {
-        // TODO
-      }
-    }
-
     let factory = PressApp.component.resolve(EditorPresenterFactory.self)!
-    let args = EditorPresenter.Args(openMode: openMode, deleteBlankNewNoteOnExit: false, navigator: Nav())
-    let presenter = factory.create(args__: args)
+    let presenter = factory.create(args__: EditorPresenter.Args(
+      openMode: openMode,
+      deleteBlankNewNoteOnExit: false,
+      navigator: ObservableNavigator()
+    ))
 
     self._presenter = .init(presenter)
     self.editorText = Listenable(initial: "") {

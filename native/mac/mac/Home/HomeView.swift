@@ -10,6 +10,7 @@ import shared
 struct HomeView: View {
   @EnvironmentObject var theme: AppTheme
   @State var selectedNote: NoteId? = nil
+  private let navigator = ObservableNavigator()
 
   /// The home presenter must be kept here instead of NoteListView to
   /// avoid creating a new presenter instance everytime the body is
@@ -35,9 +36,9 @@ struct HomeView: View {
         }
           .frame(minWidth: 224, idealWidth: notesWidth, maxWidth: 508, maxHeight: .infinity)
           .padding(.top, 1) // A non-zero padding automatically pushes it down the titlebar ¯\_(ツ)_/¯
-//          .onReceive(effects.composeNewNote()) { event in
-//            self.selectedNote = event.newNoteId
-//          }
+          .onReceive(navigator.listen(ComposeNewNote.self)) { key in
+            selectedNote = key.newNoteId
+          }
       }
 
       ZStack {
@@ -51,24 +52,15 @@ struct HomeView: View {
     }
       .padding(.top, -Dimensions.windowTitleBarHeight)  // Would be nice to not hardcode this.
       .navigationViewStyle(DoubleColumnNavigationViewStyle())
-      .frame(maxWidth: .infinity, maxHeight: .infinity)
+      .frame(maxWidth: .infinity, minHeight: 300, maxHeight: .infinity)
   }
 
   init() {
-    class Nav : Navigator {
-      func lfg(screen: ScreenKey) {
-        // TODO
-      }
-    }
-
     let presenterFactory = PressApp.component.resolve(HomePresenterFactory.self)!
-    let args = HomePresenter.Args(includeBlankNotes: true, navigator: Nav())
-    self._presenter = .init(presenterFactory.create(args_: args))
+    let presenter = presenterFactory.create(args_: HomePresenter.Args(
+      includeBlankNotes: true,
+      navigator: navigator
+    ))
+    self._presenter = .init(presenter)
   }
 }
-
-//extension Publisher {
-//  func composeNewNote() -> AnyPublisher<HomeUiEffect.ComposeNewNote, Never> {
-//    return ofType(HomeUiEffect.ComposeNewNote.self)
-//  }
-//}

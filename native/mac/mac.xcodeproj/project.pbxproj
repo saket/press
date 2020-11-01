@@ -36,6 +36,7 @@
 		68245D291151EC32EFFB6E16 /* .editorconfig in Resources */ = {isa = PBXBuildFile; fileRef = 68245B4009EAC6F3DC881BB3 /* .editorconfig */; };
 		68245DC0CBA1DA9735DA7BC8 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68245FC40D1F420ACE44EE95 /* AppTheme.swift */; };
 		68245DE64B25E36210AEF363 /* ReaktiveInterop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 682456748007595F009374DA /* ReaktiveInterop.swift */; };
+		68245E37311D5E00E10B89FA /* ObservableNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6824551AE7385B0497B0E113 /* ObservableNavigator.swift */; };
 		68245EC0CC6EF6FAFD980BBD /* Listenable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68245B116846A414C8DF7894 /* Listenable.swift */; };
 		68245F3AFBBD17967374C605 /* Dimensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 682451887E2788E182C27481 /* Dimensions.swift */; };
 		A884001315EADC64072CAA70 /* Pods_Press.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE92011059ACFAD8BCBE38E5 /* Pods_Press.framework */; };
@@ -61,6 +62,7 @@
 		68245319591AA0F53AE05BA1 /* ReaktiveSubscription.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReaktiveSubscription.swift; sourceTree = "<group>"; };
 		6824537B63E1B6DD3CC05D27 /* MultiLineTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultiLineTextField.swift; sourceTree = "<group>"; };
 		68245417D1B40EBF064BC738 /* EditorComponent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditorComponent.swift; sourceTree = "<group>"; };
+		6824551AE7385B0497B0E113 /* ObservableNavigator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObservableNavigator.swift; sourceTree = "<group>"; };
 		682456263684BB431EA5157E /* Views.ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Views.ext.swift; sourceTree = "<group>"; };
 		6824566F76EAEC9137F80CC3 /* KeyboardShortcutEvent.ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardShortcutEvent.ext.swift; sourceTree = "<group>"; };
 		682456748007595F009374DA /* ReaktiveInterop.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReaktiveInterop.swift; sourceTree = "<group>"; };
@@ -230,6 +232,7 @@
 			isa = PBXGroup;
 			children = (
 				6824537B63E1B6DD3CC05D27 /* MultiLineTextField.swift */,
+				6824551AE7385B0497B0E113 /* ObservableNavigator.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -388,6 +391,7 @@
 				68245EC0CC6EF6FAFD980BBD /* Listenable.swift in Sources */,
 				6824561D511DB78A375BC515 /* KeyboardShortcutsComponent.swift in Sources */,
 				682452FAD881AFF2028E60B2 /* KeyboardShortcutEvent.ext.swift in Sources */,
+				68245E37311D5E00E10B89FA /* ObservableNavigator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
