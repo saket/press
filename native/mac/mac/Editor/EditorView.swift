@@ -34,13 +34,13 @@ struct EditorView: View {
       }
         .onReceive(effects.updateNoteText()) {
           // TODO: consume effect.newSelection.
-          self.editorText.value = $0.newText
+          editorText.value = $0.newText
         }
         // TODO: consume BlockedDueToSyncConflict
         .onDisappear {
           /// TODO: this is dangerous. Saving the editor content before it's
           ///  populated from the DB will cause it to get overridden.
-          self.presenter.saveEditorContentOnClose(content: self.editorText.value)
+          presenter.saveEditorContentOnClose(content: self.editorText.value)
         }
     }
       .frame(maxWidth: 750)

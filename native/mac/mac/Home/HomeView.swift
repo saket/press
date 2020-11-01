@@ -42,9 +42,9 @@ struct HomeView: View {
       }
 
       ZStack {
-        Color(self.theme.palette.window.editorBackgroundColor)
-        if (self.selectedNote != nil) {
-          EditorView(openMode: EditorOpenMode.ExistingNote(noteId: self.selectedNote!))
+        Color(theme.palette.window.editorBackgroundColor)
+        if (selectedNote != nil) {
+          EditorView(openMode: EditorOpenMode.ExistingNote(noteId: selectedNote!))
         }
       }
         .frame(minWidth: 350, idealWidth: editorWidth, maxWidth: .infinity, maxHeight: .infinity)
