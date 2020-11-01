@@ -14,7 +14,7 @@ data class HeadingAndBody(
       val matchResult = regex.find(content) ?: return empty
       val (headingSyntax, heading) = matchResult.destructured
       val body =
-        if (heading.isNotBlank()) content.substring(startIndex = matchResult.range.last + 1)
+        if (headingSyntax.isNotBlank()) content.substring(startIndex = matchResult.range.last + 1)
         else content
 
       return if (trimSpacings) {

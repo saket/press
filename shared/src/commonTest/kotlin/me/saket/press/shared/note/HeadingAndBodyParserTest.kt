@@ -75,7 +75,7 @@ class HeadingAndBodyParserTest {
     assertEquals("Body", body)
   }
 
-  @Test fun `text with empty heading`() {
+  @Test fun `text with invalid empty heading`() {
     val (heading, body) = HeadingAndBody.parse(
       """
         |#
@@ -85,6 +85,16 @@ class HeadingAndBodyParserTest {
     )
     assertEquals("", heading)
     assertEquals("#\n#\n ", body)
+  }
+
+  @Test fun `text with new note placeholder`() {
+    val (heading, body) = HeadingAndBody.parse(
+      """
+        |# 
+        """.trimMargin()
+    )
+    assertEquals("", heading)
+    assertEquals("", body)
   }
 
   @Test fun `text with heading without any space after #`() {

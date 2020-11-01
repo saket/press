@@ -17,7 +17,6 @@ import me.saket.press.shared.ui.FakeNavigator
 import kotlin.test.Test
 
 class HomePresenterTest {
-
   private val noteRepository = FakeNoteRepository()
   private val keyboardShortcuts = RealKeyboardShortcuts()
   private val navigator = FakeNavigator()
