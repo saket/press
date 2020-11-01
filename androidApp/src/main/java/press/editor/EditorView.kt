@@ -12,11 +12,10 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN
 import android.widget.EditText
-import android.widget.ScrollView
-import android.widget.TextView
 import androidx.core.text.buildSpannedString
 import androidx.core.text.inSpans
 import androidx.core.view.updatePaddingRelative
+import androidx.core.widget.NestedScrollView
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
@@ -72,7 +71,7 @@ class EditorView @AssistedInject constructor(
     )
   }
 
-  internal val scrollView = ScrollView(context).apply {
+  internal val scrollView = NestedScrollView(context).apply {
     id = R.id.editor_scrollable_container
     isFillViewport = true
     applyLayout(
