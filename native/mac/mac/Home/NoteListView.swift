@@ -19,7 +19,7 @@ struct NoteListView: View {
     List(selection: self.$selection) {
       ForEach(model.notes, id: \.adapterId) { (note: HomeUiModel.Note) in
         NoteRowView(note: note)
-          .tag(note.noteId)
+          .tag(note.id)
           .background(self.listSelectionColor(note))
       }
         .removeListMargins()
@@ -35,7 +35,7 @@ struct NoteListView: View {
   }
 
   func listSelectionColor(_ note: HomeUiModel.Note) -> Color {
-    if (selection == note.noteId) {
+    if (selection == note.id) {
       return Color(theme.palette.window.editorBackgroundColor)
     } else {
       return Color.clear

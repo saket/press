@@ -47,7 +47,7 @@ class HomePresenterTest {
 
     assertThat(noteModel).containsOnly(
       Note(
-        noteId = noteId,
+        id = noteId,
         adapterId = -1L,
         title = "Nicolas Cage",
         body = "Our national treasure"

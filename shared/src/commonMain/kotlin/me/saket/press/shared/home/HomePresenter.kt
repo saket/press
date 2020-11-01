@@ -57,7 +57,7 @@ class HomePresenter(
           it.map { note ->
             val (heading, body) = HeadingAndBody.parse(note.content)
             HomeUiModel.Note(
-              noteId = note.id,
+              id = note.id,
               adapterId = note.localId,
               title = heading,
               body = body

@@ -9,7 +9,6 @@ import me.saket.press.shared.home.HomeUiModel
 import javax.inject.Inject
 
 class NoteAdapter @Inject constructor() : ListAdapter<HomeUiModel.Note, NoteVH>(NoteDiffer()) {
-
   private val _noteClicks = PublishSubject.create<HomeUiModel.Note>()
   val noteClicks = _noteClicks.hide()!!
 
@@ -34,7 +33,8 @@ class NoteAdapter @Inject constructor() : ListAdapter<HomeUiModel.Note, NoteVH>(
 
 class NoteDiffer : DiffUtil.ItemCallback<HomeUiModel.Note>() {
   override fun areItemsTheSame(oldItem: HomeUiModel.Note, newItem: HomeUiModel.Note) =
-    oldItem.noteId == newItem.noteId
+    oldItem.id == newItem.id
+
   override fun areContentsTheSame(oldItem: HomeUiModel.Note, newItem: HomeUiModel.Note) =
     oldItem == newItem
 }

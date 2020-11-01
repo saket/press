@@ -16,4 +16,4 @@ data class HomeViewSavedState(
 @Parcelize
 data class ActiveNote(val noteId: @WriteWith<NoteIdParceler> NoteId) : Parcelable
 
-fun HomeUiModel.Note.toActiveNote() = ActiveNote(noteId)
+fun HomeUiModel.Note.toActiveNote() = ActiveNote(id)
