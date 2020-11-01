@@ -37,7 +37,7 @@ struct HomeView: View {
           .frame(minWidth: 224, idealWidth: notesWidth, maxWidth: 508, maxHeight: .infinity)
           .padding(.top, 1) // A non-zero padding automatically pushes it down the titlebar ¯\_(ツ)_/¯
           .onReceive(navigator.listen(ComposeNewNote.self)) { key in
-            selectedNote = key.newNoteId
+            selectedNote = key.noteId
           }
       }
 

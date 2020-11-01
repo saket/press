@@ -16,8 +16,8 @@ import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLD
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.keyboard.KeyboardShortcuts
 import me.saket.press.shared.keyboard.KeyboardShortcuts.Companion.newNote
-import me.saket.press.shared.note.NoteRepository
 import me.saket.press.shared.note.HeadingAndBody
+import me.saket.press.shared.note.NoteRepository
 import me.saket.press.shared.rx.mergeWith
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
@@ -38,9 +38,14 @@ class HomePresenter(
     return viewEvents().ofType<NewNoteClicked>()
       .mergeWith(keyboardShortcuts.listen(newNote))
       .flatMapCompletable {
-        completableFromFunction {
-          args.navigator.lfg(ComposeNewNote(newNoteId = NoteId.generate()))
-        }
+        // Inserting a new note before-hand makes it possible for
+        // two-pane layouts to immediately show the new note in the list.
+        val newNoteId = NoteId.generate()
+        repository
+          .create(newNoteId, NEW_NOTE_PLACEHOLDER)
+          .andThen(completableFromFunction {
+            args.navigator.lfg(ComposeNewNote(newNoteId))
+          })
       }
       .andThen(observableOfEmpty())
   }

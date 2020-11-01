@@ -111,10 +111,10 @@ class EditorActivity : ThemeAwareActivity() {
 
     fun intent(
       context: Context,
-      openMode: EditorOpenMode
+      openMode: EditorOpenMode = NewNote(NoteId.generate(), preFilledNote = null)
     ): Intent {
-      with(Intent(context, EditorActivity::class.java)) {
-        return when (openMode) {
+      return Intent(context, EditorActivity::class.java).apply {
+        val exhaustive = when (openMode) {
           is NewNote -> {
             putExtra(EXTRA_NOTE_ID, openMode.placeholderId.value.toString())
             putExtra(EXTRA_TEXT, openMode.preFilledNote)

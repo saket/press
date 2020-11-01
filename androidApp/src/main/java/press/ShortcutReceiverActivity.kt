@@ -9,6 +9,7 @@ import me.saket.press.shared.editor.EditorOpenMode
 import press.editor.EditorActivity
 
 class ShortcutReceiverActivity : AppCompatActivity() {
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 

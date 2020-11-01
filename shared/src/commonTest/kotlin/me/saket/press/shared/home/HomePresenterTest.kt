@@ -2,7 +2,9 @@ package me.saket.press.shared.home
 
 import assertk.assertThat
 import assertk.assertions.containsOnly
-import assertk.assertions.hasClass
+import assertk.assertions.isEmpty
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEmpty
 import com.badoo.reaktive.test.observable.test
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
@@ -94,10 +96,13 @@ class HomePresenterTest {
   @Test fun `open new note screen when new note is clicked`() {
     val presenter = presenter()
     presenter.uiModels().test()
+    assertThat(noteRepository.savedNotes).isEmpty()
 
     presenter.dispatch(NewNoteClicked)
 
-    assertThat(navigator.pop()).hasClass(ComposeNewNote::class)
+    assertThat(noteRepository.savedNotes).isNotEmpty()
+    val savedNoteId = noteRepository.savedNotes.single().id
+    assertThat(navigator.pop()).isEqualTo(ComposeNewNote(savedNoteId))
   }
 
   @Test fun `open new note screen on new-note keyboard shortcut`() {
@@ -105,6 +110,7 @@ class HomePresenterTest {
 
     keyboardShortcuts.broadcast(KeyboardShortcuts.newNote)
 
-    assertThat(navigator.pop()).hasClass(ComposeNewNote::class)
+    val savedNoteId = noteRepository.savedNotes.single().id
+    assertThat(navigator.pop()).isEqualTo(ComposeNewNote(savedNoteId))
   }
 }

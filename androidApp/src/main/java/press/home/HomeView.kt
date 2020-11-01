@@ -159,7 +159,7 @@ class HomeView @AssistedInject constructor(
       Args(
         includeBlankNotes = false,
         navigator = navigator().handle<ComposeNewNote> {
-          openNewNoteScreen(it.newNoteId)
+          openNewNoteScreen(it.noteId)
         }
       )
     )
