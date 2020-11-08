@@ -1,6 +1,7 @@
 package press
 
 import android.app.Activity
+import android.content.ContextWrapper
 import android.view.View
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.ScreenKey
@@ -26,9 +27,12 @@ inline fun <reified T : ScreenKey> Navigator.handle(crossinline handler: (T) -> 
 }
 
 fun View.findActivity(): Activity {
-  if (context is Activity) {
-    return context as Activity
-  } else {
-    error("Can't find activity, context: $context")
+  var context = context
+  while (context is ContextWrapper) {
+    if (context is Activity) {
+      return context
+    }
+    context = context.baseContext
   }
+  error("Can't find activity, context: $context")
 }

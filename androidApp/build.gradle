@@ -71,15 +71,18 @@ dependencies {
   implementation deps.rx2.replayingShare
   implementation deps.rx2.replayingShareKotlin
   implementation deps.dagger.runtime
-  implementation deps.assistedInject.annotations
+  implementation deps.dagger.assistedInject.annotations
+  implementation deps.dagger.inflationInject.core
   kapt deps.dagger.compiler
-  kapt deps.assistedInject.processor
+  kapt deps.dagger.assistedInject.processor
+  kapt deps.dagger.inflationInject.processor
   implementation deps.multiplatformUuid
   implementation deps.inboxRecyclerView
   implementation deps.klock.android
   implementation deps.itemAnimators
   implementation deps.betterLinkMovementMethod
   implementation deps.cascade
+  implementation deps.flow
 
   debugImplementation deps.flipper.debug.core
   debugImplementation deps.flipper.debug.soLoader

@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color.BLACK
 import android.graphics.drawable.Drawable
 import android.os.Parcelable
+import android.util.AttributeSet
 import android.view.Menu
 import android.view.MenuItem.SHOW_AS_ACTION_IF_ROOM
 import android.view.MotionEvent
@@ -19,6 +20,8 @@ import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import com.squareup.inject.inflation.InflationInject
+import com.squareup.inject.inflation.ViewFactory
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import io.reactivex.subjects.BehaviorSubject
 import me.saket.inboxrecyclerview.InboxRecyclerView
@@ -62,8 +65,9 @@ import press.widgets.doOnNextCollapse
 import press.widgets.interceptPullToCollapseOnView
 import press.widgets.suspendWhileExpanded
 
-class HomeView @AssistedInject constructor(
+class HomeView @InflationInject constructor(
   @Assisted context: Context,
+  @Assisted attrs: AttributeSet? = null,
   private val noteAdapter: NoteAdapter,
   private val presenter: HomePresenter.Factory,
   private val editorViewFactory: EditorView.Factory

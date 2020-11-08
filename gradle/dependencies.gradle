@@ -3,11 +3,11 @@ buildscript {
     minSdk: 26,
     compileSdk: 29,
     dagger: '2.27',
+    assistedInject: '0.6.0',
     butterKnife: '8.8.1',
     kotlin: '1.4.10',
     moshi: '1.9.2',
     okhttp: '4.0.1',
-    squareInject: '0.5.2',
     contour: '1.0.0-SNAPSHOT',
     flexmark: '0.50.26',
     flipper: '0.43.0',
@@ -72,10 +72,6 @@ buildscript {
       'core': "com.squareup.okhttp3:okhttp:${versions.okhttp}",
       'loggingInterceptor': "com.squareup.okhttp3:logging-interceptor:${versions.okhttp}",
     ],
-    'assistedInject': [
-      'annotations': "com.squareup.inject:assisted-inject-annotations-dagger2:${versions.squareInject}",
-      'processor': "com.squareup.inject:assisted-inject-processor-dagger2:${versions.squareInject}",
-    ],
     'inflationInject': [
       'runtime': "com.squareup.inject:inflation-inject:${versions.squareInject}",
       'processor': "com.squareup.inject:inflation-inject-processor:${versions.squareInject}",
@@ -95,7 +91,15 @@ buildscript {
     ],
     'dagger': [
       'runtime': "com.google.dagger:dagger:${versions.dagger}",
-      'compiler': "com.google.dagger:dagger-compiler:${versions.dagger}"
+      'compiler': "com.google.dagger:dagger-compiler:${versions.dagger}",
+      'assistedInject': [
+        'annotations': "com.squareup.inject:assisted-inject-annotations-dagger2:${versions.assistedInject}",
+        'processor': "com.squareup.inject:assisted-inject-processor-dagger2:${versions.assistedInject}",
+      ],
+      'inflationInject': [
+        'core': "com.squareup.inject:inflation-inject:${versions.assistedInject}",
+        'processor': "com.squareup.inject:inflation-inject-processor:${versions.assistedInject}"
+      ]
     ],
     'rx2': [
       'core': 'io.reactivex.rxjava2:rxjava:2.2.5',
@@ -197,5 +201,6 @@ buildscript {
     ],
     'cascade': "me.saket.cascade:cascade:$versions.cascade",
     'korio': "com.soywiz.korlibs.korio:korio:$versions.korio",
+    'flow': "com.squareup.flow:flow:1.0.0-alpha3"
   ]
 }
