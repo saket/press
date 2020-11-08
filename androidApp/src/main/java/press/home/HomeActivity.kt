@@ -1,25 +1,36 @@
 package press.home
 
-import android.os.Bundle
+import android.content.Context
+import android.view.Window
 import press.PressApp
-import press.widgets.BackPressInterceptResult.BACK_PRESS_IGNORED
+import press.navigation.BackPressInterceptor.InterceptResult.Ignored
+import press.navigation.RealNavigator2
+import press.navigation.ScreenKeyChanger
+import press.navigation.ViewFactories
 import press.widgets.ThemeAwareActivity
 import javax.inject.Inject
 import kotlin.LazyThreadSafetyMode.NONE
 
 class HomeActivity : ThemeAwareActivity() {
+  @Inject lateinit var viewFactories: ViewFactories
 
-  @Inject lateinit var homeViewFactory: HomeView.Factory
-  private val homeView by lazy(NONE) { homeViewFactory.create(this) }
+  private val screenChanger by lazy(NONE) {
+    ScreenKeyChanger(
+      container = { findViewById(Window.ID_ANDROID_CONTENT) },
+      viewFactories = viewFactories
+    )
+  }
+  private val navigator2 by lazy(NONE) {
+    RealNavigator2(this, screenChanger)
+  }
 
-  override fun onCreate(savedInstanceState: Bundle?) {
+  override fun attachBaseContext(newBase: Context) {
     PressApp.component.inject(this)
-    super.onCreate(savedInstanceState)
-    setContentView(homeView)
+    super.attachBaseContext(navigator2.installInContext(newBase, HomeScreenKey()))
   }
 
   override fun onBackPressed() {
-    if (homeView.offerBackPress() == BACK_PRESS_IGNORED) {
+    if (screenChanger.onInterceptBackPress() == Ignored) {
       super.onBackPressed()
     }
   }

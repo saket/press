@@ -24,6 +24,7 @@ import com.squareup.inject.inflation.InflationInject
 import com.squareup.inject.inflation.ViewFactory
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import io.reactivex.subjects.BehaviorSubject
+import kotlinx.android.parcel.Parcelize
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.animation.ItemExpandAnimator
 import me.saket.inboxrecyclerview.dimming.DimPainter
@@ -51,12 +52,13 @@ import press.extensions.suspendWhile
 import press.extensions.throttleFirst
 import press.findActivity
 import press.handle
+import press.navigation.BackPressInterceptor
+import press.navigation.BackPressInterceptor.InterceptResult
+import press.navigation.ScreenKey
+import press.navigation.key
 import press.navigator
 import press.sync.PreferencesActivity
 import press.theme.themeAware
-import press.widgets.BackPressInterceptResult
-import press.widgets.BackPressInterceptResult.BACK_PRESS_IGNORED
-import press.widgets.BackPressInterceptResult.BACK_PRESS_INTERCEPTED
 import press.widgets.DividerItemDecoration
 import press.widgets.SlideDownItemAnimator
 import press.widgets.addStateChangeCallbacks
@@ -65,13 +67,16 @@ import press.widgets.doOnNextCollapse
 import press.widgets.interceptPullToCollapseOnView
 import press.widgets.suspendWhileExpanded
 
+@Parcelize
+class HomeScreenKey : ScreenKey(HomeView::class)
+
 class HomeView @InflationInject constructor(
   @Assisted context: Context,
   @Assisted attrs: AttributeSet? = null,
   private val noteAdapter: NoteAdapter,
   private val presenter: HomePresenter.Factory,
   private val editorViewFactory: EditorView.Factory
-) : ContourLayout(context) {
+) : ContourLayout(context), BackPressInterceptor {
 
   private val windowFocusChanges = BehaviorSubject.createDefault(WindowFocusChanged(hasFocus = true))
 
@@ -255,18 +260,13 @@ class HomeView @InflationInject constructor(
     ContextCompat.startActivity(context, intent, options.toBundle())
   }
 
-  fun offerBackPress(): BackPressInterceptResult {
+  override fun onInterceptBackPress(): InterceptResult {
     return if (noteEditorPage.isExpandedOrExpanding) {
       activeNote = null
-      BACK_PRESS_INTERCEPTED
+      InterceptResult.Intercepted
     } else {
-      BACK_PRESS_IGNORED
+      InterceptResult.Ignored
     }
-  }
-
-  @AssistedInject.Factory
-  interface Factory {
-    fun create(context: Context): HomeView
   }
 }
 
