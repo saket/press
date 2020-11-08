@@ -138,8 +138,7 @@ class HomeView @InflationInject constructor(
       } else {
         val editorView = editorViewFactory.create(
           context = context,
-          openMode = ExistingNote(note.noteId),
-          onDismiss = notesList::collapse
+          openMode = ExistingNote(note.noteId)
         )
         noteEditorPage.addView(editorView)
         noteEditorPage.doOnNextCollapse { it.removeView(editorView) }

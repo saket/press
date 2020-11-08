@@ -29,7 +29,6 @@ import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowProgress
 import me.saket.press.shared.sync.git.service.GitHostService.DeployKey
 import me.saket.press.shared.testDeviceInfo
 import me.saket.press.shared.ui.FakeNavigator
-import me.saket.press.shared.ui.ScreenKey.Close
 import kotlin.test.AfterTest
 import kotlin.test.Test
 
@@ -129,7 +128,7 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
 
     assertThat(authToken.get()).isNull()
     assertThat(syncCoordinator.triggered.value).isTrue()
-    assertThat(navigator.pop()).isEqualTo(Close)
+    assertThat(navigator.pop()).isNull()
 
     val syncConfig = database.folderSyncConfigQueries.select().executeAsOne()
     assertThat(syncConfig.remote.remote).isEqualTo(repo)

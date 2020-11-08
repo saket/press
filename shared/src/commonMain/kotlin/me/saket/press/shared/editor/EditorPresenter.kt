@@ -39,7 +39,6 @@ import me.saket.press.shared.rx.observableInterval
 import me.saket.press.shared.sync.SyncMergeConflicts
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
-import me.saket.press.shared.ui.ScreenKey.Close
 import me.saket.press.shared.util.Optional
 import me.saket.press.shared.util.filterNone
 import me.saket.wysiwyg.formatting.TextSelection
@@ -136,7 +135,7 @@ class EditorPresenter(
       .filter { it.isPendingDeletion }
       .take(1)
       .consumeOnNext {
-        args.navigator.lfg(Close)
+        args.navigator.goBack()
       }
   }
 

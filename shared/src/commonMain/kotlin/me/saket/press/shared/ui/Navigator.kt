@@ -1,10 +1,9 @@
 package me.saket.press.shared.ui
 
-fun interface Navigator {
+interface Navigator {
   // https://www.urbandictionary.com/define.php?term=lfg
   fun lfg(screen: ScreenKey)
+  fun goBack()
 }
 
-interface ScreenKey {
-  object Close : ScreenKey
-}
+interface ScreenKey

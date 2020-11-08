@@ -1,14 +1,15 @@
 package me.saket.press.shared.ui
 
-import co.touchlab.stately.concurrency.AtomicReference
-import co.touchlab.stately.concurrency.value
-
 class FakeNavigator : Navigator {
-  private val backstack = AtomicReference<ScreenKey?>(null)
+  private val backstack = ArrayDeque<ScreenKey>()
 
   override fun lfg(screen: ScreenKey) {
-    backstack.set(screen)
+    backstack.addFirst(screen)
   }
 
-  fun pop() = backstack.value
+  override fun goBack() {
+    backstack.removeFirst()
+  }
+
+  fun pop() = backstack.removeFirstOrNull()
 }

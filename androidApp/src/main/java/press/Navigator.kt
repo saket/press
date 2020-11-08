@@ -5,23 +5,27 @@ import android.content.ContextWrapper
 import android.view.View
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.ScreenKey
-import me.saket.press.shared.ui.ScreenKey.Close
 
 fun View.navigator(): Navigator {
-  return Navigator { screen ->
-    when (screen) {
-      is Close -> findActivity().finish()
-      else -> error("Can't navigate to $screen")
+  return object : Navigator {
+    override fun lfg(screen: ScreenKey) {
+      error("Can't navigate to $screen")
+    }
+
+    override fun goBack() {
+      findActivity().finish()
     }
   }
 }
 
 inline fun <reified T : ScreenKey> Navigator.handle(crossinline handler: (T) -> Unit): Navigator {
   val delegate = this
-  return Navigator { screen ->
-    when (screen) {
-      is T -> handler(screen)
-      else -> delegate.lfg(screen)
+  return object : Navigator by delegate {
+    override fun lfg(screen: ScreenKey) {
+      when (screen) {
+        is T -> handler(screen)
+        else -> delegate.lfg(screen)
+      }
     }
   }
 }

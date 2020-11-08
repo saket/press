@@ -50,7 +50,6 @@ import me.saket.press.shared.sync.git.service.GitHostService
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
-import me.saket.press.shared.ui.ScreenKey.Close
 
 @OptIn(ExperimentalListener::class)
 class GitHostIntegrationPresenter(
@@ -176,7 +175,7 @@ class GitHostIntegrationPresenter(
         remote = GitRemoteAndAuth(repo, deployKey.key.privateKey, user)
       )
       syncCoordinator.trigger()
-      args.navigator.lfg(Close)
+      args.navigator.goBack()
     }
   }
 

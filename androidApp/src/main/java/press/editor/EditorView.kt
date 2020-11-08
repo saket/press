@@ -37,6 +37,7 @@ import me.saket.press.shared.theme.TextStyles.mainBody
 import me.saket.press.shared.theme.TextView
 import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.theme.from
+import me.saket.press.shared.ui.ScreenKey
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import me.saket.wysiwyg.Wysiwyg
@@ -56,7 +57,6 @@ import press.widgets.PressToolbar
 class EditorView @AssistedInject constructor(
   @Assisted context: Context,
   @Assisted openMode: EditorOpenMode,
-  @Assisted private val onDismiss: () -> Unit,
   presenterFactory: EditorPresenter.Factory,
   autoCorrectEnabled: Setting<AutoCorrectEnabled>
 ) : ContourLayout(context) {
@@ -145,7 +145,7 @@ class EditorView @AssistedInject constructor(
       }
 
     toolbar.setNavigationOnClickListener {
-      onDismiss()
+      navigator().goBack()
     }
   }
 
@@ -183,7 +183,7 @@ class EditorView @AssistedInject constructor(
   private fun render(uiUpdate: EditorUiEffect) {
     return when (uiUpdate) {
       is UpdateNoteText -> editorEditText.setText(uiUpdate.newText, uiUpdate.newSelection)
-      is BlockedDueToSyncConflict -> EditingBlockedDueToConflictDialog.show(context, onDismiss)
+      is BlockedDueToSyncConflict -> EditingBlockedDueToConflictDialog.show(context, onDismiss = navigator()::goBack)
     }
   }
 
@@ -198,8 +198,7 @@ class EditorView @AssistedInject constructor(
   interface Factory {
     fun create(
       context: Context,
-      openMode: EditorOpenMode,
-      onDismiss: () -> Unit
+      openMode: EditorOpenMode
     ): EditorView
   }
 }
