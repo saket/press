@@ -5,12 +5,12 @@ import android.content.Context
 import android.os.Parcelable
 import android.view.View
 import flow.Flow
-import flow.KeyChanger
 import flow.KeyDispatcher
 import flow.KeyParceler
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.ScreenKey
 import press.extensions.unsafeLazy
+import press.navigation.BackPressInterceptor.InterceptResult.Ignored
 
 /**
  * Maintains a backstack of screens using Square's Flow. Flow may be deprecated, but it's battle-tested
@@ -21,8 +21,8 @@ import press.extensions.unsafeLazy
  */
 class RealNavigator constructor(
   private val activity: Activity,
-  private val keyChanger: KeyChanger
-): Navigator {
+  private val keyChanger: ScreenKeyChanger
+) : Navigator {
   private val flow by unsafeLazy { Flow.get(activity) }
 
   fun installInContext(baseContext: Context, initialScreen: ScreenKey): Context {
@@ -45,7 +45,10 @@ class RealNavigator constructor(
   }
 
   override fun goBack(): Boolean {
-    return flow.goBack()
+    return when (keyChanger.onInterceptBackPress()) {
+      Ignored -> flow.goBack()
+      else -> false
+    }
   }
 }
 
