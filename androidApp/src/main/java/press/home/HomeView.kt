@@ -7,11 +7,9 @@ import android.util.AttributeSet
 import android.view.Menu
 import android.view.MenuItem.SHOW_AS_ACTION_IF_ROOM
 import android.view.MotionEvent
-import android.view.animation.PathInterpolator
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.view.doOnLayout
-import androidx.core.view.postDelayed
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -24,7 +22,6 @@ import io.reactivex.subjects.BehaviorSubject
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.animation.ItemExpandAnimator
 import me.saket.inboxrecyclerview.dimming.DimPainter
-import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.R
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
@@ -41,7 +38,6 @@ import press.editor.EditorActivity
 import press.extensions.attr
 import press.extensions.getDrawable
 import press.extensions.heightOf
-import press.extensions.hideKeyboard
 import press.extensions.second
 import press.extensions.suspendWhile
 import press.extensions.throttleFirst
@@ -53,9 +49,6 @@ import press.sync.PreferencesActivity
 import press.theme.themeAware
 import press.widgets.DividerItemDecoration
 import press.widgets.SlideDownItemAnimator
-import press.widgets.addStateChangeCallbacks
-import press.widgets.doOnNextAboutToCollapse
-import press.widgets.suspendWhileExpanded
 
 class HomeView @InflationInject constructor(
   @Assisted context: Context,
@@ -100,22 +93,6 @@ class HomeView @InflationInject constructor(
     )
   }
 
-  private val noteEditorPage = ExpandablePageLayout(context).apply {
-    id = R.id.home_editor
-    notesList.expandablePage = this
-    elevation = 20f.dip
-    animationInterpolator = PathInterpolator(0.5f, 0f, 0f, 1f)
-    animationDurationMillis = 350
-    pushParentToolbarOnExpand(toolbar)
-    themeAware {
-      setBackgroundColor(it.window.backgroundColor)
-    }
-    applyLayout(
-      x = leftTo { parent.left() }.rightTo { parent.right() },
-      y = topTo { parent.top() }.bottomTo { parent.bottom() }
-    )
-  }
-
   init {
     id = R.id.home_view
     setupNoteEditorPage()
@@ -142,9 +119,10 @@ class HomeView @InflationInject constructor(
       )
     )
     presenter.uiUpdates()
+      // todo: figure this out.
       // These two suspend calls skip updates while an
       // existing note or the new-note screen is open.
-      .suspendWhileExpanded(noteEditorPage)
+      //.suspendWhileExpanded(noteEditorPage)
       .suspendWhile(windowFocusChanges) { it.hasFocus.not() }
       .takeUntil(detaches())
       .observeOn(mainThread())
@@ -178,22 +156,17 @@ class HomeView @InflationInject constructor(
       .subscribe { note ->
         navigator().lfg(
           ExpandableScreenKey(
-            screen = EditorScreenKey(ExistingNote(note.id)),
+            EditorScreenKey(ExistingNote(note.id)),
             expandingFromItemId = note.adapterId
           )
         )
       }
 
-    noteEditorPage.doOnNextAboutToCollapse { collapseAnimDuration ->
-      postDelayed(collapseAnimDuration / 2) {
-        hideKeyboard()
-      }
-    }
-
-    noteEditorPage.addStateChangeCallbacks(
-      ToggleFabOnPageStateChange(newNoteFab),
-      ToggleSoftInputModeOnPageStateChange(findActivity().window)
-    )
+    // todo: still needed?
+    //noteEditorPage.addStateChangeCallbacks(
+    //  ToggleFabOnPageStateChange(newNoteFab),
+    //  ToggleSoftInputModeOnPageStateChange(findActivity().window)
+    //)
   }
 
   private fun render(model: HomeUiModel) {

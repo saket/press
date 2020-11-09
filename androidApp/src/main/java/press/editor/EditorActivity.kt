@@ -8,6 +8,8 @@ import android.content.Intent.EXTRA_TEXT
 import android.graphics.Color.BLACK
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.View
+import android.widget.EditText
 import androidx.annotation.DrawableRes
 import com.benasher44.uuid.uuidFrom
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -39,8 +41,8 @@ import javax.inject.Inject
 // TODO(saket): Merge with HomeActivity.
 class EditorActivity : ThemeAwareActivity(), HasNavigator {
   @Inject lateinit var viewFactories: ViewFactories
-  private val editorView: EditorView by unsafeLazy { viewFactories.createView(this, EditorScreenKey(openMode)) }
   private val openMode: EditorOpenMode by unsafeLazy { readOpenMode(intent) }
+  private val editorView by unsafeLazy { viewFactories.createView(this, EditorScreenKey(openMode)) }
 
   override val navigator = object : Navigator {
     override fun lfg(screen: ScreenKey): Unit = error("Unsupported")
@@ -63,7 +65,7 @@ class EditorActivity : ThemeAwareActivity(), HasNavigator {
       Observable.timer(delayFocus, MILLISECONDS, mainThread())
         .takeUntil(editorView.detaches())
         .subscribe {
-          editorView.editorEditText.showKeyboard()
+          (editorView.findFocus() as EditText).showKeyboard()
         }
     }
   }
@@ -72,7 +74,7 @@ class EditorActivity : ThemeAwareActivity(), HasNavigator {
     dismiss()
   }
 
-  private fun wrapInExpandableLayout(view: EditorView): ExpandablePageLayout {
+  private fun wrapInExpandableLayout(view: View): ExpandablePageLayout {
     window.setBackgroundDrawable(ColorDrawable(BLACK.withOpacity(0.1f)))
 
     return StandaloneExpandablePageLayout(this).apply {

@@ -23,7 +23,7 @@ class HomeActivity : ThemeAwareActivity(), HasNavigator {
 
   override fun attachBaseContext(newBase: Context) {
     val screenChanger = ScreenKeyChanger(
-      container = { navHostView },
+      hostView = { navHostView },
       viewFactories = PressApp.component.viewFactories(),
       transitions = listOf(ExpandableScreenTransition())
     )

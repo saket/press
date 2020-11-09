@@ -12,14 +12,6 @@ import me.saket.inboxrecyclerview.page.PageStateChangeCallbacks
 import me.saket.inboxrecyclerview.page.SimplePageStateChangeCallbacks
 import press.extensions.suspendWhile
 
-fun ExpandablePageLayout.addStateChangeCallbacks(
-  first: PageStateChangeCallbacks,
-  vararg next: PageStateChangeCallbacks
-) {
-  addStateChangeCallbacks(first)
-  next.forEach { addStateChangeCallbacks(it) }
-}
-
 fun <T> Observable<T>.suspendWhileExpanded(page: ExpandablePageLayout): Observable<T> {
   return suspendWhile(page.stateChanges()) { page.isCollapsed.not() }
 }
@@ -55,25 +47,3 @@ internal fun ExpandablePageLayout.stateChanges(): Observable<PageState> {
   }
 }
 
-internal inline fun ExpandablePageLayout.doOnNextCollapse(
-  crossinline block: (ExpandablePageLayout) -> Unit
-) {
-  val page = this
-  addStateChangeCallbacks(object : SimplePageStateChangeCallbacks() {
-    override fun onPageCollapsed() {
-      block(page)
-      removeStateChangeCallbacks(this)
-    }
-  })
-}
-
-internal inline fun ExpandablePageLayout.doOnNextAboutToCollapse(
-  crossinline block: (collapseAnimDuration: Long) -> Unit
-) {
-  addStateChangeCallbacks(object : SimplePageStateChangeCallbacks() {
-    override fun onPageAboutToCollapse(collapseAnimDuration: Long) {
-      block(collapseAnimDuration)
-      removeStateChangeCallbacks(this)
-    }
-  })
-}

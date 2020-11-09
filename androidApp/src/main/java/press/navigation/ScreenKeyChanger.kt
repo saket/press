@@ -9,12 +9,13 @@ import flow.State
 import flow.TraversalCallback
 import me.saket.press.shared.ui.ScreenKey
 import press.navigation.BackPressInterceptor.InterceptResult.Ignored
+import press.navigation.ScreenTransition.TransitionResult.Handled
 import press.theme.themeAware
 import java.util.Stack
 
-/** Like a ViewFlipper for navigating between [ScreenKey]s. */
+/** Inflates screen Views in response to backstack changes. */
 class ScreenKeyChanger(
-  private val container: () -> ViewGroup,
+  private val hostView: () -> ViewGroup,
   private val viewFactories: ViewFactories,
   private val transitions: List<ScreenTransition>
 ) : KeyChanger {
@@ -42,6 +43,11 @@ class ScreenKeyChanger(
     callback.onTraversalCompleted()
   }
 
+  /**
+   * Keeps multiple screen Views stacked on top of each other so that they can interact
+   * together. For screens of type [ExpandableScreenKey], pulling a foreground screen will
+   * reveal its background screen.
+   */
   private inner class LruViewStack(val maxSize: Int) {
     private val stack = Stack<ViewEntry>()
 
@@ -54,25 +60,30 @@ class ScreenKeyChanger(
       // When navigating to a screen that's already
       // on the stack, treat this as going back.
       if (stack.any { it.key == screenKey }) {
-        while (stack.peek().key != screenKey) {
-          val popped = stack.pop()
-          saveAndRemoveView(popped, transitionTo = stack.peek().view)
-        }
+        popUntil(screenKey)
         return
       }
 
-      val view = viewFactories.createView<View>(context, screenKey).also {
+      val view = viewFactories.createView(context, screenKey).also {
         warnIfIdIsMissing(it)
         maybeSetThemeBackground(it)
       }
 
       state.restore(view)
-      container().addView(view)
+      hostView().addView(view)
       stack.push(ViewEntry(state, view, screenKey))
 
       if (stack.size >= 2) {
-        val backgroundView = stack[stack.size - 2].view
-        transitions.forEach { it.transition(from = backgroundView, to = view) }
+        val background = stack[stack.size - 2]
+        transitions.first {
+          it.transition(
+            fromView = background.view,
+            fromKey = background.key,
+            toView = view,
+            toKey = screenKey,
+            goingForward = true
+          ) == Handled
+        }
       }
 
       if (stack.size > maxSize) {
@@ -80,13 +91,30 @@ class ScreenKeyChanger(
       }
     }
 
-    private fun saveAndRemoveView(entry: ViewEntry, transitionTo: View? = null) {
-      entry.state?.save(entry.view)
-      container().removeView(entry.view)
-
-      if (transitionTo != null) {
-        transitions.forEach { it.transition(from = entry.view, to = transitionTo) }
+    private fun popUntil(key: ScreenKey) {
+      if (stack.peek().key == key) {
+        return
       }
+      val popped = stack.pop()
+
+      transitions.first {
+        it.transition(
+          fromView = popped.view,
+          fromKey = popped.key,
+          toView = stack.peek().view,
+          toKey = stack.peek().key,
+          goingForward = false,
+          onComplete = {
+            saveAndRemoveView(popped)
+            popUntil(key)
+          }
+        ) == Handled
+      }
+    }
+
+    private fun saveAndRemoveView(entry: ViewEntry) {
+      entry.state?.save(entry.view)
+      hostView().removeView(entry.view)
     }
 
     private fun warnIfIdIsMissing(incomingView: View) {
@@ -112,7 +140,7 @@ class ScreenKeyChanger(
   )
 
   fun onInterceptBackPress(): BackPressInterceptor.InterceptResult {
-    val foreground = container().children.last() as? BackPressInterceptor ?: return Ignored
+    val foreground = hostView().children.last() as? BackPressInterceptor ?: return Ignored
     return foreground.onInterceptBackPress()
   }
 }
