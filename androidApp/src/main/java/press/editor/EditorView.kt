@@ -131,12 +131,12 @@ class EditorView @InflationInject constructor(
 
   private val presenter by unsafeLazy {
     presenterFactory.create(
-    Args(
+      Args(
         openMode = screenKey<EditorScreenKey>().openMode,
-      deleteBlankNewNoteOnExit = true,
-      navigator = navigator()
+        deleteBlankNewNoteOnExit = true,
+        navigator = navigator()
+      )
     )
-  )
   }
 
   init {
@@ -165,8 +165,8 @@ class EditorView @InflationInject constructor(
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
-    val page = findParentOfType<ExpandablePageLayout>()
-    page.pullToCollapseInterceptor = interceptPullToCollapseOnView(scrollView)
+    //val page = findParentOfType<ExpandablePageLayout>()
+    //page.pullToCollapseInterceptor = interceptPullToCollapseOnView(scrollView)
 
     editorEditText.doOnTextChange {
       presenter.dispatch(NoteTextChanged(it.toString()))
