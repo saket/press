@@ -7,7 +7,7 @@ import press.PressApp
 import press.extensions.unsafeLazy
 import press.navigation.BackPressInterceptor.InterceptResult.Ignored
 import press.navigation.HasNavigator
-import press.navigation.RealNavigator2
+import press.navigation.RealNavigator
 import press.navigation.ScreenKeyChanger
 import press.navigation.ViewFactories
 import press.widgets.ThemeAwareActivity
@@ -23,7 +23,7 @@ class HomeActivity : ThemeAwareActivity(), HasNavigator {
     )
   }
   override val navigator by unsafeLazy {
-    RealNavigator2(this, screenChanger)
+    RealNavigator(this, screenChanger)
   }
 
   override fun attachBaseContext(newBase: Context) {

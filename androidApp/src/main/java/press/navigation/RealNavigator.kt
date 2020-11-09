@@ -19,7 +19,7 @@ import press.extensions.unsafeLazy
  * a) Expects apps to hand-write their navigation graph before-hand.
  * b) Relies on XML and View IDs, and can't entirely be used from Kotlin.
  */
-class RealNavigator2 constructor(
+class RealNavigator constructor(
   private val activity: Activity,
   private val keyChanger: KeyChanger
 ): Navigator {
