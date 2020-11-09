@@ -9,6 +9,7 @@ import flow.KeyChanger
 import flow.KeyDispatcher
 import flow.KeyParceler
 import me.saket.press.shared.ui.Navigator
+import me.saket.press.shared.ui.ScreenKey
 import press.extensions.unsafeLazy
 
 /**
@@ -39,20 +40,16 @@ class RealNavigator2 constructor(
   }
 
   // https://www.urbandictionary.com/define.php?term=lfg
-  fun lfg(screenKey: ScreenKey) {
-    flow.set(screenKey)
+  override fun lfg(screen: ScreenKey) {
+    flow.set(screen)
   }
 
-  override fun lfg(screen: me.saket.press.shared.ui.ScreenKey) {
-    TODO("Migrate to new lfg()")
-  }
-
-  override fun goBack() {
-    flow.goBack()
+  override fun goBack(): Boolean {
+    return flow.goBack()
   }
 }
 
 /** Get the [ScreenKey] that was used for navigating to a screen. */
-fun <T : ScreenKey> View.key(): T {
+fun <T : ScreenKey> View.screenKey(): T {
   return Flow.getKey<T>(this) ?: error("No key found for ${this::class.java.simpleName}")
 }

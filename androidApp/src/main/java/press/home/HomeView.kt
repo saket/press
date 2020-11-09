@@ -3,7 +3,6 @@ package press.home
 import android.content.Context
 import android.graphics.Color.BLACK
 import android.graphics.drawable.Drawable
-import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.Menu
 import android.view.MenuItem.SHOW_AS_ACTION_IF_ROOM
@@ -22,7 +21,6 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.inflation.InflationInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import io.reactivex.subjects.BehaviorSubject
-import kotlinx.android.parcel.Parcelize
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.animation.ItemExpandAnimator
 import me.saket.inboxrecyclerview.dimming.DimPainter
@@ -30,7 +28,7 @@ import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.R
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
-import me.saket.press.shared.home.ComposeNewNote
+import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomeEvent.WindowFocusChanged
 import me.saket.press.shared.home.HomePresenter
@@ -40,7 +38,6 @@ import me.saket.press.shared.localization.strings
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import press.editor.EditorActivity
-import press.editor.EditorView
 import press.extensions.attr
 import press.extensions.getDrawable
 import press.extensions.heightOf
@@ -50,9 +47,6 @@ import press.extensions.suspendWhile
 import press.extensions.throttleFirst
 import press.navigation.findActivity
 import press.navigation.handle
-import press.navigation.BackPressInterceptor
-import press.navigation.BackPressInterceptor.InterceptResult
-import press.navigation.ScreenKey
 import press.navigation.navigator
 import press.sync.PreferencesActivity
 import press.theme.themeAware
@@ -60,19 +54,14 @@ import press.widgets.DividerItemDecoration
 import press.widgets.SlideDownItemAnimator
 import press.widgets.addStateChangeCallbacks
 import press.widgets.doOnNextAboutToCollapse
-import press.widgets.doOnNextCollapse
 import press.widgets.suspendWhileExpanded
-
-@Parcelize
-object HomeScreenKey : ScreenKey(HomeView::class)
 
 class HomeView @InflationInject constructor(
   @Assisted context: Context,
   @Assisted attrs: AttributeSet? = null,
   private val noteAdapter: NoteAdapter,
-  private val presenter: HomePresenter.Factory,
-  private val editorViewFactory: EditorView.Factory
-) : ContourLayout(context), BackPressInterceptor {
+  private val presenter: HomePresenter.Factory
+) : ContourLayout(context) {
 
   private val windowFocusChanges = BehaviorSubject.createDefault(WindowFocusChanged(hasFocus = true))
 
@@ -126,21 +115,6 @@ class HomeView @InflationInject constructor(
     )
   }
 
-  private var activeNote: ActiveNote? = null
-    set(note) {
-      field = note
-      if (note == null) {
-        notesList.collapse()
-      } else {
-        val editorView = editorViewFactory.create(
-          context = context,
-          openMode = ExistingNote(note.noteId)
-        )
-        noteEditorPage.addView(editorView)
-        noteEditorPage.doOnNextCollapse { it.removeView(editorView) }
-      }
-    }
-
   init {
     id = R.id.home_view
     setupNoteEditorPage()
@@ -161,8 +135,8 @@ class HomeView @InflationInject constructor(
     val presenter = presenter.create(
       Args(
         includeBlankNotes = false,
-        navigator = navigator().handle<ComposeNewNote> {
-          openNewNoteScreen(it.noteId)
+        navigator = navigator().handle<EditorScreenKey> {
+          openNewNoteScreen((it.openMode as ExistingNote).noteId)
         }
       )
     )
@@ -196,37 +170,15 @@ class HomeView @InflationInject constructor(
     }
   }
 
-  override fun onSaveInstanceState(): Parcelable? {
-    return HomeViewSavedState(
-      superState = super.onSaveInstanceState(),
-      activeNote = activeNote
-    )
-  }
-
-  override fun onRestoreInstanceState(state: Parcelable?) {
-    require(state is HomeViewSavedState)
-
-    // InboxRecyclerView is capable of restoring its own state. We
-    // only need to ensure that the EditorView is ready to be shown.
-    activeNote = state.activeNote
-
-    super.onRestoreInstanceState(state.superState)
-  }
-
   private fun setupNoteEditorPage() {
     noteAdapter.noteClicks
       .throttleFirst(1.second, mainThread())
       .takeUntil(detaches())
       .subscribe { note ->
-        activeNote = note.toActiveNote()
-        noteEditorPage.post {
-          notesList.expandItem(itemId = note.adapterId)
-        }
+        navigator().lfg(
+          EditorScreenKey(ExistingNote(note.id))
+        )
       }
-
-    noteEditorPage.doOnNextCollapse {
-      activeNote = null
-    }
 
     noteEditorPage.doOnNextAboutToCollapse { collapseAnimDuration ->
       postDelayed(collapseAnimDuration / 2) {
@@ -252,15 +204,6 @@ class HomeView @InflationInject constructor(
       fabIconRes = R.drawable.ic_note_add_24dp
     )
     ContextCompat.startActivity(context, intent, options.toBundle())
-  }
-
-  override fun onInterceptBackPress(): InterceptResult {
-    return if (noteEditorPage.isExpandedOrExpanding) {
-      activeNote = null
-      InterceptResult.Intercepted
-    } else {
-      InterceptResult.Ignored
-    }
   }
 }
 

@@ -11,3 +11,5 @@ actual fun <T> runBlocking(block: suspend CoroutineScope.() -> T): T {
     block(this)
   }
 }
+
+actual interface AndroidParcel

@@ -11,9 +11,14 @@ import kotlinx.serialization.descriptors.PrimitiveKind.STRING
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import me.saket.press.shared.AndroidParcel
+import me.saket.press.shared.AndroidParcelize
 
-// Inline class would have been nice if Kotlin multiplatform supported it.
-data class NoteId(val value: Uuid) {
+// Inline class would have been nice if it was supported by,
+// - kotlin multiplatform
+// - kotlinx.serialization
+@AndroidParcelize
+data class NoteId(val value: Uuid): AndroidParcel {
   override fun toString() = "NoteId($value)"
 
   object SqlAdapter : ColumnAdapter<NoteId, String> {

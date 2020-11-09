@@ -2,6 +2,7 @@ package press.home
 
 import android.content.Context
 import android.view.Window
+import me.saket.press.shared.home.HomeScreenKey
 import press.PressApp
 import press.extensions.unsafeLazy
 import press.navigation.BackPressInterceptor.InterceptResult.Ignored
@@ -32,7 +33,9 @@ class HomeActivity : ThemeAwareActivity(), HasNavigator {
 
   override fun onBackPressed() {
     if (screenChanger.onInterceptBackPress() == Ignored) {
-      super.onBackPressed()
+      if (!navigator.goBack()) {
+        super.onBackPressed()
+      }
     }
   }
 }

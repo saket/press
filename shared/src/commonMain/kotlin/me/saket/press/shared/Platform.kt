@@ -14,3 +14,11 @@ enum class PlatformHost {
 }
 
 expect fun <T> runBlocking(block: suspend CoroutineScope.() -> T): T
+
+@OptIn(ExperimentalMultiplatform::class)
+@OptionalExpectation
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.BINARY)
+expect annotation class AndroidParcelize()
+
+expect interface AndroidParcel

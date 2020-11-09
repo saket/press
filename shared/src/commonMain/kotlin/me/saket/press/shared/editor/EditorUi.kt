@@ -1,6 +1,11 @@
 package me.saket.press.shared.editor
 
+import me.saket.press.shared.AndroidParcelize
+import me.saket.press.shared.ui.ScreenKey
 import me.saket.wysiwyg.formatting.TextSelection
+
+@AndroidParcelize
+data class EditorScreenKey(val openMode: EditorOpenMode) : ScreenKey
 
 // Specs for client apps to implement:
 //

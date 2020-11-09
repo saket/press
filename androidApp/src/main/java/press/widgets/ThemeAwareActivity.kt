@@ -19,6 +19,7 @@ abstract class ThemeAwareActivity : AppCompatActivity() {
     AutoThemer.theme(this)
   }
 
+  // TODO: apply to all activities through activity lifecycle callbacks instead of maintaining a "base" activity.
   @Suppress("DEPRECATION")
   private fun applyPaletteTheme() {
     themeAware { palette ->

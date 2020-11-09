@@ -20,6 +20,7 @@ import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
+import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.ScreenKey
 import press.PressApp
@@ -29,19 +30,21 @@ import press.extensions.showKeyboard
 import press.extensions.unsafeLazy
 import press.extensions.withOpacity
 import press.navigation.HasNavigator
+import press.navigation.ViewFactories
 import press.widgets.ThemeAwareActivity
 import press.widgets.dp
 import java.util.concurrent.TimeUnit.MILLISECONDS
 import javax.inject.Inject
 
+// TODO(saket): Merge with HomeActivity.
 class EditorActivity : ThemeAwareActivity(), HasNavigator {
-  @Inject lateinit var editorViewFactory: EditorView.Factory
-  private val editorView: EditorView by unsafeLazy { createEditorView() }
+  @Inject lateinit var viewFactories: ViewFactories
+  private val editorView: EditorView by unsafeLazy { viewFactories.createView(this, EditorScreenKey(openMode)) }
   private val openMode: EditorOpenMode by unsafeLazy { readOpenMode(intent) }
 
   override val navigator = object : Navigator {
     override fun lfg(screen: ScreenKey): Unit = error("Unsupported")
-    override fun goBack() = finish()
+    override fun goBack() = true.also { finish() }
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,13 +72,6 @@ class EditorActivity : ThemeAwareActivity(), HasNavigator {
     dismiss()
   }
 
-  private fun createEditorView(): EditorView {
-    return editorViewFactory.create(
-      context = this@EditorActivity,
-      openMode = openMode
-    )
-  }
-
   private fun wrapInExpandableLayout(view: EditorView): ExpandablePageLayout {
     window.setBackgroundDrawable(ColorDrawable(BLACK.withOpacity(0.1f)))
 
@@ -101,6 +97,7 @@ class EditorActivity : ThemeAwareActivity(), HasNavigator {
   }
 
   companion object {
+    // TODO: get rid of these now that EditorOpenMode is parcelable.
     private const val EXTRA_IS_NEW_NOTE = "press:is_new_note"
     private const val EXTRA_NOTE_ID = "press:new_note_id"
 
@@ -115,7 +112,7 @@ class EditorActivity : ThemeAwareActivity(), HasNavigator {
 
     fun intent(
       context: Context,
-      openMode: EditorOpenMode = NewNote(NoteId.generate(), preFilledNote = null)
+      openMode: EditorOpenMode
     ): Intent {
       return Intent(context, EditorActivity::class.java).apply {
         val exhaustive = when (openMode) {

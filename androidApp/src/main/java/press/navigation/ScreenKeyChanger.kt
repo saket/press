@@ -8,6 +8,7 @@ import flow.Flow
 import flow.KeyChanger
 import flow.State
 import flow.TraversalCallback
+import me.saket.press.shared.ui.ScreenKey
 import press.navigation.BackPressInterceptor.InterceptResult.Ignored
 
 /**
@@ -54,7 +55,7 @@ class ScreenKeyChanger(
   }
 
   private fun createIncomingView(incomingContext: Context, incomingKey: ScreenKey): View {
-    return viewFactories.factoryFor(incomingKey.viewClass).create(incomingContext, null)
+    return viewFactories.createView(incomingContext, incomingKey)
   }
 
   private fun warnIfIdIsMissing(incomingView: View) {

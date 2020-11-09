@@ -24,7 +24,6 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import com.squareup.inject.inflation.InflationInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
-import kotlinx.android.parcel.Parcelize
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.InterceptResult.IGNORED
 import me.saket.inboxrecyclerview.page.InterceptResult.INTERCEPTED
@@ -35,6 +34,7 @@ import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode
 import me.saket.press.shared.editor.EditorPresenter
 import me.saket.press.shared.editor.EditorPresenter.Args
+import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.editor.EditorUiEffect
 import me.saket.press.shared.editor.EditorUiEffect.BlockedDueToSyncConflict
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
@@ -58,20 +58,16 @@ import press.extensions.fromOreo
 import press.extensions.locationOnScreen
 import press.extensions.textColor
 import press.extensions.textSizePx
-import press.navigation.ScreenKey
+import press.extensions.unsafeLazy
+import press.navigation.screenKey
 import press.navigation.navigator
 import press.theme.themeAware
 import press.theme.themePalette
 import press.widgets.PressToolbar
-import press.widgets.interceptPullToCollapseOnView
-
-@Parcelize
-object EditorScreenKey : ScreenKey(EditorView::class)
 
 class EditorView @InflationInject constructor(
   @Assisted context: Context,
   @Assisted attrs: AttributeSet? = null,
-  @Assisted openMode: EditorOpenMode,
   presenterFactory: EditorPresenter.Factory,
   autoCorrectEnabled: Setting<AutoCorrectEnabled>
 ) : ContourLayout(context) {
@@ -86,7 +82,7 @@ class EditorView @InflationInject constructor(
     )
   }
 
-  internal val scrollView = NestedScrollView(context).apply {
+  private val scrollView = NestedScrollView(context).apply {
     id = R.id.editor_scrollable_container
     isFillViewport = true
     applyLayout(
@@ -133,15 +129,18 @@ class EditorView @InflationInject constructor(
     )
   }
 
-  private val presenter = presenterFactory.create(
+  private val presenter by unsafeLazy {
+    presenterFactory.create(
     Args(
-      openMode = openMode,
+        openMode = screenKey<EditorScreenKey>().openMode,
       deleteBlankNewNoteOnExit = true,
       navigator = navigator()
     )
   )
+  }
 
   init {
+    id = R.id.editor_view
     scrollView.addView(editorEditText, MATCH_PARENT, WRAP_CONTENT)
     bringChildToFront(scrollView)
 
@@ -209,14 +208,6 @@ class EditorView @InflationInject constructor(
     newSelection?.let {
       setSelection(it.start, it.end)
     }
-  }
-
-  @AssistedInject.Factory
-  interface Factory {
-    fun create(
-      context: Context,
-      openMode: EditorOpenMode
-    ): EditorView
   }
 }
 

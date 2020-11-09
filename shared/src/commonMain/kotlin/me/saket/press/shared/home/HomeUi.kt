@@ -1,8 +1,12 @@
 package me.saket.press.shared.home
 
+import me.saket.press.shared.AndroidParcelize
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorPresenter
 import me.saket.press.shared.ui.ScreenKey
+
+@AndroidParcelize
+object HomeScreenKey : ScreenKey
 
 interface HomeEvent {
   object NewNoteClicked : HomeEvent
@@ -17,10 +21,3 @@ data class HomeUiModel(val notes: List<Note>) {
     val body: String
   )
 }
-
-/**
- * @param noteId ID of empty note that should be shown in a
- * new screen. Although [EditorPresenter] is capable of starting
- * without any ID, this is easier to consume from SwiftUI.
- */
-data class ComposeNewNote(val noteId: NoteId) : ScreenKey

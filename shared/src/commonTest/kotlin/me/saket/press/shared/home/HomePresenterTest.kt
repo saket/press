@@ -7,7 +7,9 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import com.badoo.reaktive.test.observable.test
 import me.saket.press.shared.db.NoteId
+import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
+import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomePresenter.Args
@@ -102,7 +104,7 @@ class HomePresenterTest {
 
     assertThat(noteRepository.savedNotes).isNotEmpty()
     val savedNoteId = noteRepository.savedNotes.single().id
-    assertThat(navigator.pop()).isEqualTo(ComposeNewNote(savedNoteId))
+    assertThat(navigator.pop()).isEqualTo(EditorScreenKey(ExistingNote(savedNoteId)))
   }
 
   @Test fun `open new note screen on new-note keyboard shortcut`() {
@@ -111,6 +113,6 @@ class HomePresenterTest {
     keyboardShortcuts.broadcast(KeyboardShortcuts.newNote)
 
     val savedNoteId = noteRepository.savedNotes.single().id
-    assertThat(navigator.pop()).isEqualTo(ComposeNewNote(savedNoteId))
+    assertThat(navigator.pop()).isEqualTo(EditorScreenKey(ExistingNote(savedNoteId)))
   }
 }
