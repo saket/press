@@ -15,7 +15,8 @@ import java.util.Stack
 /** Like a ViewFlipper for navigating between [ScreenKey]s. */
 class ScreenKeyChanger(
   private val container: () -> ViewGroup,
-  private val viewFactories: ViewFactories
+  private val viewFactories: ViewFactories,
+  private val transitions: List<ScreenTransition>
 ) : KeyChanger {
   private val lruViewStack = LruViewStack(maxSize = 2)
 
@@ -51,10 +52,11 @@ class ScreenKeyChanger(
 
     fun push(screenKey: ScreenKey, context: Context, state: State) {
       // When navigating to a screen that's already
-      // on the stack, reset the stack to the screen.
+      // on the stack, treat this as going back.
       if (stack.any { it.key == screenKey }) {
         while (stack.peek().key != screenKey) {
-          saveAndRemoveView(stack.pop())
+          val popped = stack.pop()
+          saveAndRemoveView(popped, transitionTo = stack.peek().view)
         }
         return
       }
@@ -68,14 +70,23 @@ class ScreenKeyChanger(
       container().addView(view)
       stack.push(ViewEntry(state, view, screenKey))
 
+      if (stack.size >= 2) {
+        val backgroundView = stack[stack.size - 2].view
+        transitions.forEach { it.transition(from = backgroundView, to = view) }
+      }
+
       if (stack.size > maxSize) {
         saveAndRemoveView(stack.removeAt(0))
       }
     }
 
-    private fun saveAndRemoveView(entry: ViewEntry) {
+    private fun saveAndRemoveView(entry: ViewEntry, transitionTo: View? = null) {
       entry.state?.save(entry.view)
       container().removeView(entry.view)
+
+      if (transitionTo != null) {
+        transitions.forEach { it.transition(from = entry.view, to = transitionTo) }
+      }
     }
 
     private fun warnIfIdIsMissing(incomingView: View) {

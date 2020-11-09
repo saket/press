@@ -6,7 +6,7 @@ import me.saket.press.shared.editor.EditorPresenter
 import me.saket.press.shared.ui.ScreenKey
 
 @AndroidParcelize
-object HomeScreenKey : ScreenKey
+class HomeScreenKey : ScreenKey
 
 interface HomeEvent {
   object NewNoteClicked : HomeEvent

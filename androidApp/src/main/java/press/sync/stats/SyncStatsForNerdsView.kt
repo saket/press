@@ -18,7 +18,6 @@ import me.saket.press.shared.theme.TextView
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import press.extensions.textColor
-import press.navigation.findActivity
 import press.navigation.navigator
 import press.theme.themeAware
 import press.widgets.PressToolbar

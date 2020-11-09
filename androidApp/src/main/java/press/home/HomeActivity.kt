@@ -6,6 +6,7 @@ import android.widget.FrameLayout
 import me.saket.press.shared.home.HomeScreenKey
 import press.PressApp
 import press.extensions.unsafeLazy
+import press.navigation.ExpandableScreenTransition
 import press.navigation.HasNavigator
 import press.navigation.RealNavigator
 import press.navigation.ScreenKeyChanger
@@ -23,10 +24,11 @@ class HomeActivity : ThemeAwareActivity(), HasNavigator {
   override fun attachBaseContext(newBase: Context) {
     val screenChanger = ScreenKeyChanger(
       container = { navHostView },
-      viewFactories = PressApp.component.viewFactories()
+      viewFactories = PressApp.component.viewFactories(),
+      transitions = listOf(ExpandableScreenTransition())
     )
     navigator = RealNavigator(this, screenChanger)
-    super.attachBaseContext(navigator.installInContext(newBase, HomeScreenKey))
+    super.attachBaseContext(navigator.installInContext(newBase, HomeScreenKey()))
   }
 
   override fun onBackPressed() {
