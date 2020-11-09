@@ -99,34 +99,14 @@ class EditorActivity : ThemeAwareActivity(), HasNavigator {
   }
 
   companion object {
-    // TODO: get rid of these now that EditorOpenMode is parcelable.
-    private const val EXTRA_IS_NEW_NOTE = "press:is_new_note"
-    private const val EXTRA_NOTE_ID = "press:new_note_id"
+    private const val EXTRA_OPEN_MODE = "press:open_mode"
 
     private fun readOpenMode(intent: Intent): EditorOpenMode {
-      val noteId = NoteId(uuidFrom(intent.getStringExtra(EXTRA_NOTE_ID)!!))
-      return if (intent.getBooleanExtra(EXTRA_IS_NEW_NOTE, true)) {
-        NewNote(noteId, preFilledNote = intent.getStringExtra(EXTRA_TEXT))
-      } else {
-        ExistingNote(noteId)
-      }
+      return intent.getParcelableExtra(EXTRA_OPEN_MODE)!!
     }
 
-    fun intent(
-      context: Context,
-      openMode: EditorOpenMode
-    ): Intent {
-      return Intent(context, EditorActivity::class.java).apply {
-        val exhaustive = when (openMode) {
-          is NewNote -> {
-            putExtra(EXTRA_NOTE_ID, openMode.placeholderId.value.toString())
-            putExtra(EXTRA_TEXT, openMode.preFilledNote)
-          }
-          is ExistingNote -> {
-            putExtra(EXTRA_NOTE_ID, openMode.noteId.value.toString())
-          }
-        }
-      }
+    fun intent(context: Context, openMode: EditorOpenMode): Intent {
+      return Intent(context, EditorActivity::class.java).putExtra(EXTRA_OPEN_MODE, openMode)
     }
 
     @JvmStatic
