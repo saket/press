@@ -17,9 +17,10 @@ import java.util.Stack
 class ScreenKeyChanger(
   private val hostView: () -> ViewGroup,
   private val viewFactories: ViewFactories,
-  private val transitions: List<ScreenTransition>
+  transitions: List<ScreenTransition>
 ) : KeyChanger {
   private val lruViewStack = LruViewStack(maxSize = 2)
+  private val transitions = transitions + NoOpTransition()
 
   override fun changeKey(
     outgoingState: State?,
@@ -64,14 +65,16 @@ class ScreenKeyChanger(
         return
       }
 
-      val view = viewFactories.createView(context, screenKey).also {
+      val foreground = viewFactories.createView(context, screenKey).also {
         warnIfIdIsMissing(it)
         maybeSetThemeBackground(it)
       }
 
-      state.restore(view)
-      hostView().addView(view)
-      stack.push(ViewEntry(state, view, screenKey))
+      state.restore(foreground)
+      hostView().addView(foreground)
+      dispatchFocusChangeCallback()
+
+      stack.push(ViewEntry(state, foreground, screenKey))
 
       if (stack.size >= 2) {
         val background = stack[stack.size - 2]
@@ -79,7 +82,7 @@ class ScreenKeyChanger(
           it.transition(
             fromView = background.view,
             fromKey = background.key,
-            toView = view,
+            toView = foreground,
             toKey = screenKey,
             goingForward = true
           ) == Handled
@@ -87,7 +90,8 @@ class ScreenKeyChanger(
       }
 
       if (stack.size > maxSize) {
-        saveAndRemoveView(stack.removeAt(0))
+        val stale = stack.removeAt(0)
+        saveAndRemoveView(stale)
       }
     }
 
@@ -96,6 +100,7 @@ class ScreenKeyChanger(
         return
       }
       val popped = stack.pop()
+      val foreground = stack.peek().view
 
       transitions.first {
         it.transition(
@@ -115,6 +120,7 @@ class ScreenKeyChanger(
     private fun saveAndRemoveView(entry: ViewEntry) {
       entry.state?.save(entry.view)
       hostView().removeView(entry.view)
+      dispatchFocusChangeCallback()
     }
 
     private fun warnIfIdIsMissing(incomingView: View) {
@@ -131,6 +137,17 @@ class ScreenKeyChanger(
         }
       }
     }
+
+    private fun dispatchFocusChangeCallback() {
+      val children = hostView().children.toList()
+      children.forEachIndexed { index, view ->
+        view.onScreenFocusChanged(hasFocus = index == children.lastIndex)
+      }
+    }
+
+    private fun View.onScreenFocusChanged(hasFocus: Boolean) {
+      (this as? ScreenFocusChangeListener)?.onScreenFocusChanged(hasFocus)
+    }
   }
 
   class ViewEntry(
@@ -143,4 +160,15 @@ class ScreenKeyChanger(
     val foreground = hostView().children.last() as? BackPressInterceptor ?: return Ignored
     return foreground.onInterceptBackPress()
   }
+}
+
+private class NoOpTransition : ScreenTransition {
+  override fun transition(
+    fromView: View,
+    fromKey: ScreenKey,
+    toView: View,
+    toKey: ScreenKey,
+    goingForward: Boolean,
+    onComplete: () -> Unit
+  ) = Handled
 }

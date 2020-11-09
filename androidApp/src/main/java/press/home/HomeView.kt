@@ -10,6 +10,7 @@ import android.view.MotionEvent
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.view.doOnLayout
+import androidx.core.view.postDelayed
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -42,6 +43,7 @@ import press.extensions.second
 import press.extensions.suspendWhile
 import press.extensions.throttleFirst
 import press.navigation.ExpandableScreenKey
+import press.navigation.ScreenFocusChangeListener
 import press.navigation.findActivity
 import press.navigation.handle
 import press.navigation.navigator
@@ -55,7 +57,7 @@ class HomeView @InflationInject constructor(
   @Assisted attrs: AttributeSet? = null,
   private val noteAdapter: NoteAdapter,
   private val presenter: HomePresenter.Factory
-) : ContourLayout(context) {
+) : ContourLayout(context), ScreenFocusChangeListener {
 
   private val windowFocusChanges = BehaviorSubject.createDefault(WindowFocusChanged(hasFocus = true))
 
@@ -136,6 +138,14 @@ class HomeView @InflationInject constructor(
   override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
     super.onWindowFocusChanged(hasWindowFocus)
     windowFocusChanges.onNext(WindowFocusChanged(hasWindowFocus))
+  }
+
+  override fun onScreenFocusChanged(hasFocus: Boolean) {
+    if (hasFocus) {
+    newNoteFab.show()
+    } else {
+    newNoteFab.hide()
+  }
   }
 
   override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
