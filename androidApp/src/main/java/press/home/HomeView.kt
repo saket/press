@@ -10,7 +10,6 @@ import android.view.MotionEvent
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.view.doOnLayout
-import androidx.core.view.postDelayed
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -27,8 +26,8 @@ import me.saket.press.R
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorScreenKey
+import me.saket.press.shared.home.HomeEvent
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
-import me.saket.press.shared.home.HomeEvent.WindowFocusChanged
 import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.home.HomePresenter.Args
 import me.saket.press.shared.home.HomeUiModel
@@ -59,7 +58,8 @@ class HomeView @InflationInject constructor(
   private val presenter: HomePresenter.Factory
 ) : ContourLayout(context), ScreenFocusChangeListener {
 
-  private val windowFocusChanges = BehaviorSubject.createDefault(WindowFocusChanged(hasFocus = true))
+  private val windowFocusChanges = BehaviorSubject.createDefault(FocusChanged(hasFocus = true))
+  private val screenFocusChanges = BehaviorSubject.createDefault(FocusChanged(hasFocus = true))
 
   private val toolbar = Toolbar(context).apply {
     setTitle(R.string.app_name)
@@ -97,7 +97,6 @@ class HomeView @InflationInject constructor(
 
   init {
     id = R.id.home_view
-    setupNoteEditorPage()
 
     themeAware { palette ->
       toolbar.menu.clear()
@@ -120,11 +119,10 @@ class HomeView @InflationInject constructor(
         }
       )
     )
+
     presenter.uiUpdates()
-      // todo: figure this out.
-      // These two suspend calls skip updates while an
-      // existing note or the new-note screen is open.
-      //.suspendWhileExpanded(noteEditorPage)
+      // Skip updates while an existing note or the new-note screen is open.
+      .suspendWhile(screenFocusChanges) { it.hasFocus.not() }
       .suspendWhile(windowFocusChanges) { it.hasFocus.not() }
       .takeUntil(detaches())
       .observeOn(mainThread())
@@ -133,33 +131,7 @@ class HomeView @InflationInject constructor(
     newNoteFab.setOnClickListener {
       presenter.dispatch(NewNoteClicked)
     }
-  }
 
-  override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
-    super.onWindowFocusChanged(hasWindowFocus)
-    windowFocusChanges.onNext(WindowFocusChanged(hasWindowFocus))
-  }
-
-  override fun onScreenFocusChanged(hasFocus: Boolean) {
-    if (hasFocus) {
-    newNoteFab.show()
-    } else {
-    newNoteFab.hide()
-  }
-  }
-
-  override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-    // The note list is positioned in front of the toolbar so that its items can go
-    // over it, but RV steals all touch events even if there isn't a child under to
-    // receive the event.
-    return if (ev.y > toolbar.y && ev.y < (toolbar.y + toolbar.height)) {
-      toolbar.dispatchTouchEvent(ev)
-    } else {
-      super.dispatchTouchEvent(ev)
-    }
-  }
-
-  private fun setupNoteEditorPage() {
     noteAdapter.noteClicks
       .throttleFirst(1.second, mainThread())
       .takeUntil(detaches())
@@ -171,12 +143,30 @@ class HomeView @InflationInject constructor(
           )
         )
       }
+  }
 
-    // todo: still needed?
-    //noteEditorPage.addStateChangeCallbacks(
-    //  ToggleFabOnPageStateChange(newNoteFab),
-    //  ToggleSoftInputModeOnPageStateChange(findActivity().window)
-    //)
+  override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
+    super.onWindowFocusChanged(hasWindowFocus)
+    windowFocusChanges.onNext(FocusChanged(hasWindowFocus))
+  }
+
+  override fun onScreenFocusChanged(hasFocus: Boolean) {
+    if (hasFocus) {
+      newNoteFab.show()
+    } else {
+      newNoteFab.hide()
+    }
+  }
+
+  override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+    // The note list is positioned in front of the toolbar so that its items can go
+    // over it, but RV steals all touch events even if there isn't a child under to
+    // receive the event.
+    return if (ev.y > toolbar.y && ev.y < (toolbar.y + toolbar.height)) {
+      toolbar.dispatchTouchEvent(ev)
+    } else {
+      super.dispatchTouchEvent(ev)
+    }
   }
 
   private fun render(model: HomeUiModel) {
@@ -201,3 +191,6 @@ private fun Menu.add(icon: Drawable, title: String, onClick: () -> Unit) {
     it.setOnMenuItemClickListener { onClick(); true }
   }
 }
+
+private data class FocusChanged(val hasFocus: Boolean) : HomeEvent
+

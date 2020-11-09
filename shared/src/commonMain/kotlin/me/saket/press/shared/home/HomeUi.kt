@@ -9,7 +9,6 @@ class HomeScreenKey : ScreenKey
 
 interface HomeEvent {
   object NewNoteClicked : HomeEvent
-  data class WindowFocusChanged(val hasFocus: Boolean) : HomeEvent
 }
 
 data class HomeUiModel(val notes: List<Note>) {
