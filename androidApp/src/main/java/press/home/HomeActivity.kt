@@ -1,7 +1,8 @@
 package press.home
 
 import android.content.Context
-import android.view.Window
+import android.os.Bundle
+import android.widget.FrameLayout
 import me.saket.press.shared.home.HomeScreenKey
 import press.PressApp
 import press.extensions.unsafeLazy
@@ -9,25 +10,24 @@ import press.navigation.BackPressInterceptor.InterceptResult.Ignored
 import press.navigation.HasNavigator
 import press.navigation.RealNavigator
 import press.navigation.ScreenKeyChanger
-import press.navigation.ViewFactories
 import press.widgets.ThemeAwareActivity
-import javax.inject.Inject
 
 class HomeActivity : ThemeAwareActivity(), HasNavigator {
-  @Inject lateinit var viewFactories: ViewFactories
+  private lateinit var screenChanger: ScreenKeyChanger
+  override lateinit var navigator: RealNavigator
+  private val navHostView by unsafeLazy { FrameLayout(this) }
 
-  private val screenChanger by unsafeLazy {
-    ScreenKeyChanger(
-      container = { findViewById(Window.ID_ANDROID_CONTENT) },
-      viewFactories = viewFactories
-    )
-  }
-  override val navigator by unsafeLazy {
-    RealNavigator(this, screenChanger)
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    setContentView(navHostView)
   }
 
   override fun attachBaseContext(newBase: Context) {
-    PressApp.component.inject(this)
+    screenChanger = ScreenKeyChanger(
+      container = { navHostView },
+      viewFactories = PressApp.component.viewFactories()
+    )
+    navigator = RealNavigator(this, screenChanger)
     super.attachBaseContext(navigator.installInContext(newBase, HomeScreenKey))
   }
 
