@@ -15,8 +15,10 @@ class ViewFactories @Inject constructor(
   private val factories: Map<String, @JvmSuppressWildcards ViewFactory>
 ) {
 
-  @Suppress("UNCHECKED_CAST")
+  @Suppress("UNCHECKED_CAST", "NAME_SHADOWING")
   fun <T : View> createView(context: Context, screen: ScreenKey): T {
+    val screen = if (screen is ExpandableScreenKey<*>) screen.screen else screen
+
     val name = when (screen) {
       is HomeScreenKey -> HomeView::class
       is EditorScreenKey -> EditorView::class

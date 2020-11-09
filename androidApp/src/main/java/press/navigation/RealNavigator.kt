@@ -53,6 +53,7 @@ class RealNavigator constructor(
 }
 
 /** Get the [ScreenKey] that was used for navigating to a screen. */
-fun <T : ScreenKey> View.screenKey(): T {
-  return Flow.getKey<T>(this) ?: error("No key found for ${this::class.java.simpleName}")
+inline fun <reified T : ScreenKey> View.screenKey(): T {
+  val key = Flow.getKey<T>(this) ?: error("No key found for ${this::class.simpleName}")
+  return if (key is ExpandableScreenKey<*>) key.screen as T else key
 }

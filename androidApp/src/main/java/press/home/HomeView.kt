@@ -45,6 +45,7 @@ import press.extensions.hideKeyboard
 import press.extensions.second
 import press.extensions.suspendWhile
 import press.extensions.throttleFirst
+import press.navigation.ExpandableScreenKey
 import press.navigation.findActivity
 import press.navigation.handle
 import press.navigation.navigator
@@ -176,7 +177,10 @@ class HomeView @InflationInject constructor(
       .takeUntil(detaches())
       .subscribe { note ->
         navigator().lfg(
-          EditorScreenKey(ExistingNote(note.id))
+          ExpandableScreenKey(
+            screen = EditorScreenKey(ExistingNote(note.id)),
+            expandingFromItemId = note.adapterId
+          )
         )
       }
 
