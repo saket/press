@@ -14,6 +14,7 @@ class NoteAdapter @Inject constructor() : ListAdapter<HomeUiModel.Note, NoteVH>(
 
   init {
     setHasStableIds(true)
+    stateRestorationPolicy = StateRestorationPolicy.PREVENT_WHEN_EMPTY
   }
 
   override fun getItemId(position: Int) =
@@ -32,11 +33,8 @@ class NoteAdapter @Inject constructor() : ListAdapter<HomeUiModel.Note, NoteVH>(
 }
 
 class NoteDiffer : DiffUtil.ItemCallback<HomeUiModel.Note>() {
-  override fun areItemsTheSame(oldItem: HomeUiModel.Note, newItem: HomeUiModel.Note) =
-    oldItem.id == newItem.id
-
-  override fun areContentsTheSame(oldItem: HomeUiModel.Note, newItem: HomeUiModel.Note) =
-    oldItem == newItem
+  override fun areItemsTheSame(oldItem: HomeUiModel.Note, newItem: HomeUiModel.Note) = oldItem.id == newItem.id
+  override fun areContentsTheSame(oldItem: HomeUiModel.Note, newItem: HomeUiModel.Note) = oldItem == newItem
 }
 
 class NoteVH(val view: NoteRowView) : ViewHolder(view)
