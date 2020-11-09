@@ -18,7 +18,8 @@ import me.saket.press.shared.theme.TextView
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import press.extensions.textColor
-import press.findActivity
+import press.navigation.findActivity
+import press.navigation.navigator
 import press.theme.themeAware
 import press.widgets.PressToolbar
 
@@ -29,7 +30,7 @@ class SyncStatsForNerdsView @AssistedInject constructor(
 
   private val toolbar = PressToolbar(context).apply {
     title = context.strings().sync.nerd_stats_title
-    setNavigationOnClickListener { findActivity().finish() }
+    setNavigationOnClickListener { navigator().goBack() }
   }
 
   private val directorySizeView = TextView(context, mainBody).apply {

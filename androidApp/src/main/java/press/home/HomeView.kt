@@ -19,9 +19,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
 import com.squareup.inject.inflation.InflationInject
-import com.squareup.inject.inflation.ViewFactory
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import io.reactivex.subjects.BehaviorSubject
 import kotlinx.android.parcel.Parcelize
@@ -50,13 +48,12 @@ import press.extensions.hideKeyboard
 import press.extensions.second
 import press.extensions.suspendWhile
 import press.extensions.throttleFirst
-import press.findActivity
-import press.handle
+import press.navigation.findActivity
+import press.navigation.handle
 import press.navigation.BackPressInterceptor
 import press.navigation.BackPressInterceptor.InterceptResult
 import press.navigation.ScreenKey
-import press.navigation.key
-import press.navigator
+import press.navigation.navigator
 import press.sync.PreferencesActivity
 import press.theme.themeAware
 import press.widgets.DividerItemDecoration
@@ -68,7 +65,7 @@ import press.widgets.interceptPullToCollapseOnView
 import press.widgets.suspendWhileExpanded
 
 @Parcelize
-class HomeScreenKey : ScreenKey(HomeView::class)
+object HomeScreenKey : ScreenKey(HomeView::class)
 
 class HomeView @InflationInject constructor(
   @Assisted context: Context,

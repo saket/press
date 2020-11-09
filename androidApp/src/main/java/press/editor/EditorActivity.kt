@@ -20,23 +20,30 @@ import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
+import me.saket.press.shared.ui.Navigator
+import me.saket.press.shared.ui.ScreenKey
 import press.PressApp
 import press.animation.FabTransform
+import press.extensions.hideKeyboard
+import press.extensions.showKeyboard
+import press.extensions.unsafeLazy
 import press.extensions.withOpacity
+import press.navigation.HasNavigator
 import press.widgets.ThemeAwareActivity
 import press.widgets.dp
-import press.extensions.hideKeyboard
 import press.widgets.interceptPullToCollapseOnView
-import press.extensions.showKeyboard
 import java.util.concurrent.TimeUnit.MILLISECONDS
 import javax.inject.Inject
-import kotlin.LazyThreadSafetyMode.NONE
 
-class EditorActivity : ThemeAwareActivity() {
-
+class EditorActivity : ThemeAwareActivity(), HasNavigator {
   @Inject lateinit var editorViewFactory: EditorView.Factory
   private val editorView: EditorView by unsafeLazy { createEditorView() }
   private val openMode: EditorOpenMode by unsafeLazy { readOpenMode(intent) }
+
+  override val navigator = object : Navigator {
+    override fun lfg(screen: ScreenKey): Unit = error("Unsupported")
+    override fun goBack() = finish()
+  }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     PressApp.component.inject(this)
@@ -66,8 +73,7 @@ class EditorActivity : ThemeAwareActivity() {
   private fun createEditorView(): EditorView {
     return editorViewFactory.create(
       context = this@EditorActivity,
-      openMode = openMode,
-      onDismiss = ::dismiss
+      openMode = openMode
     )
   }
 

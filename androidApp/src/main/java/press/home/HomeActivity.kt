@@ -3,15 +3,16 @@ package press.home
 import android.content.Context
 import android.view.Window
 import press.PressApp
+import press.extensions.unsafeLazy
 import press.navigation.BackPressInterceptor.InterceptResult.Ignored
+import press.navigation.HasNavigator
 import press.navigation.RealNavigator2
 import press.navigation.ScreenKeyChanger
 import press.navigation.ViewFactories
 import press.widgets.ThemeAwareActivity
 import javax.inject.Inject
-import kotlin.LazyThreadSafetyMode.NONE
 
-class HomeActivity : ThemeAwareActivity() {
+class HomeActivity : ThemeAwareActivity(), HasNavigator {
   @Inject lateinit var viewFactories: ViewFactories
 
   private val screenChanger by unsafeLazy {
@@ -26,7 +27,7 @@ class HomeActivity : ThemeAwareActivity() {
 
   override fun attachBaseContext(newBase: Context) {
     PressApp.component.inject(this)
-    super.attachBaseContext(navigator2.installInContext(newBase, HomeScreenKey()))
+    super.attachBaseContext(navigator.installInContext(newBase, HomeScreenKey))
   }
 
   override fun onBackPressed() {

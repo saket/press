@@ -27,7 +27,7 @@ import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import press.extensions.doOnTextChange
 import press.extensions.hideKeyboard
-import press.navigator
+import press.navigation.navigator
 import press.theme.themeAware
 import press.widgets.PressToolbar
 import press.widgets.SlideDownItemAnimator

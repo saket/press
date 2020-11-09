@@ -1,4 +1,4 @@
-package press
+package press.navigation
 
 import android.app.Activity
 import android.content.ContextWrapper
@@ -6,16 +6,19 @@ import android.view.View
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.ScreenKey
 
-fun View.navigator(): Navigator {
-  return object : Navigator {
-    override fun lfg(screen: ScreenKey) {
-      error("Can't navigate to $screen")
-    }
+interface HasNavigator {
+  val navigator: Navigator
+}
 
-    override fun goBack() {
-      findActivity().finish()
+fun View.navigator(): Navigator {
+  var context = context
+  while (context is ContextWrapper) {
+    if (context is HasNavigator) {
+      return context.navigator
     }
+    context = context.baseContext
   }
+  error("Can't find navigator in context: $context")
 }
 
 inline fun <reified T : ScreenKey> Navigator.handle(crossinline handler: (T) -> Unit): Navigator {

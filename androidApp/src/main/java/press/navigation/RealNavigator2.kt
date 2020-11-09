@@ -8,7 +8,8 @@ import flow.Flow
 import flow.KeyChanger
 import flow.KeyDispatcher
 import flow.KeyParceler
-import kotlin.LazyThreadSafetyMode.NONE
+import me.saket.press.shared.ui.Navigator
+import press.extensions.unsafeLazy
 
 /**
  * Maintains a backstack of screens using Square's Flow. Flow may be deprecated, but it's battle-tested
@@ -20,7 +21,7 @@ import kotlin.LazyThreadSafetyMode.NONE
 class RealNavigator2 constructor(
   private val activity: Activity,
   private val keyChanger: KeyChanger
-) {
+): Navigator {
   private val flow by unsafeLazy { Flow.get(activity) }
 
   fun installInContext(baseContext: Context, initialScreen: ScreenKey): Context {
@@ -42,7 +43,11 @@ class RealNavigator2 constructor(
     flow.set(screenKey)
   }
 
-  fun goBack() {
+  override fun lfg(screen: me.saket.press.shared.ui.ScreenKey) {
+    TODO("Migrate to new lfg()")
+  }
+
+  override fun goBack() {
     flow.goBack()
   }
 }

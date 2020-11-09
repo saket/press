@@ -7,6 +7,7 @@ import android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
 import android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
 import android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
 import android.text.Layout.BREAK_STRATEGY_HIGH_QUALITY
+import android.util.AttributeSet
 import android.view.Gravity.TOP
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
@@ -20,7 +21,9 @@ import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import com.squareup.inject.inflation.InflationInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import kotlinx.android.parcel.Parcelize
 import me.saket.press.R
 import me.saket.press.shared.editor.AutoCorrectEnabled
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
@@ -37,7 +40,6 @@ import me.saket.press.shared.theme.TextStyles.mainBody
 import me.saket.press.shared.theme.TextView
 import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.theme.from
-import me.saket.press.shared.ui.ScreenKey
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import me.saket.wysiwyg.Wysiwyg
@@ -49,13 +51,18 @@ import press.extensions.doOnTextChange
 import press.extensions.fromOreo
 import press.extensions.textColor
 import press.extensions.textSizePx
-import press.navigator
+import press.navigation.ScreenKey
+import press.navigation.navigator
 import press.theme.themeAware
 import press.theme.themePalette
 import press.widgets.PressToolbar
 
-class EditorView @AssistedInject constructor(
+@Parcelize
+object EditorScreenKey : ScreenKey(EditorView::class)
+
+class EditorView @InflationInject constructor(
   @Assisted context: Context,
+  @Assisted attrs: AttributeSet? = null,
   @Assisted openMode: EditorOpenMode,
   presenterFactory: EditorPresenter.Factory,
   autoCorrectEnabled: Setting<AutoCorrectEnabled>
