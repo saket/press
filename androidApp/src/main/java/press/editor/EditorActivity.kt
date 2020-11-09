@@ -31,7 +31,6 @@ import press.extensions.withOpacity
 import press.navigation.HasNavigator
 import press.widgets.ThemeAwareActivity
 import press.widgets.dp
-import press.widgets.interceptPullToCollapseOnView
 import java.util.concurrent.TimeUnit.MILLISECONDS
 import javax.inject.Inject
 
@@ -87,7 +86,6 @@ class EditorActivity : ThemeAwareActivity(), HasNavigator {
           dismiss()
         }
       }
-      pullToCollapseInterceptor = interceptPullToCollapseOnView(view.scrollView)
       expandImmediately()
       addView(view)
     }

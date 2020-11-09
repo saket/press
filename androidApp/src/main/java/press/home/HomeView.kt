@@ -61,7 +61,6 @@ import press.widgets.SlideDownItemAnimator
 import press.widgets.addStateChangeCallbacks
 import press.widgets.doOnNextAboutToCollapse
 import press.widgets.doOnNextCollapse
-import press.widgets.interceptPullToCollapseOnView
 import press.widgets.suspendWhileExpanded
 
 @Parcelize
@@ -139,7 +138,6 @@ class HomeView @InflationInject constructor(
         )
         noteEditorPage.addView(editorView)
         noteEditorPage.doOnNextCollapse { it.removeView(editorView) }
-        noteEditorPage.pullToCollapseInterceptor = interceptPullToCollapseOnView(editorView.scrollView)
       }
     }
 

@@ -9,6 +9,7 @@ import android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
 import android.text.Layout.BREAK_STRATEGY_HIGH_QUALITY
 import android.util.AttributeSet
 import android.view.Gravity.TOP
+import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN
@@ -24,6 +25,10 @@ import com.squareup.inject.assisted.AssistedInject
 import com.squareup.inject.inflation.InflationInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import kotlinx.android.parcel.Parcelize
+import me.saket.inboxrecyclerview.page.ExpandablePageLayout
+import me.saket.inboxrecyclerview.page.InterceptResult.IGNORED
+import me.saket.inboxrecyclerview.page.InterceptResult.INTERCEPTED
+import me.saket.inboxrecyclerview.page.OnPullToCollapseInterceptor
 import me.saket.press.R
 import me.saket.press.shared.editor.AutoCorrectEnabled
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
@@ -48,7 +53,9 @@ import me.saket.wysiwyg.parser.node.HeadingLevel.H1
 import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.widgets.addTextChangedListener
 import press.extensions.doOnTextChange
+import press.extensions.findParentOfType
 import press.extensions.fromOreo
+import press.extensions.locationOnScreen
 import press.extensions.textColor
 import press.extensions.textSizePx
 import press.navigation.ScreenKey
@@ -56,6 +63,7 @@ import press.navigation.navigator
 import press.theme.themeAware
 import press.theme.themePalette
 import press.widgets.PressToolbar
+import press.widgets.interceptPullToCollapseOnView
 
 @Parcelize
 object EditorScreenKey : ScreenKey(EditorView::class)
@@ -158,6 +166,8 @@ class EditorView @InflationInject constructor(
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
+    val page = findParentOfType<ExpandablePageLayout>()
+    page.pullToCollapseInterceptor = interceptPullToCollapseOnView(scrollView)
 
     editorEditText.doOnTextChange {
       presenter.dispatch(NoteTextChanged(it.toString()))
@@ -207,5 +217,19 @@ class EditorView @InflationInject constructor(
       context: Context,
       openMode: EditorOpenMode
     ): EditorView
+  }
+}
+
+private fun interceptPullToCollapseOnView(view: View): OnPullToCollapseInterceptor {
+  return { downX, downY, upwardPull ->
+    val touchLiesOnView = view.locationOnScreen().contains(downX.toInt(), downY.toInt())
+
+    if (touchLiesOnView) {
+      val directionInt = if (upwardPull) +1 else -1
+      val canScrollFurther = view.canScrollVertically(directionInt)
+      if (canScrollFurther) INTERCEPTED else IGNORED
+    } else {
+      IGNORED
+    }
   }
 }
