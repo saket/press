@@ -35,8 +35,8 @@ import kotlin.LazyThreadSafetyMode.NONE
 class EditorActivity : ThemeAwareActivity() {
 
   @Inject lateinit var editorViewFactory: EditorView.Factory
-  private val editorView: EditorView by lazy(NONE) { createEditorView() }
-  private val openMode: EditorOpenMode by lazy(NONE) { readOpenMode(intent) }
+  private val editorView: EditorView by unsafeLazy { createEditorView() }
+  private val openMode: EditorOpenMode by unsafeLazy { readOpenMode(intent) }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     PressApp.component.inject(this)

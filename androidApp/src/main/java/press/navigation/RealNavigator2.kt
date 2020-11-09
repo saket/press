@@ -21,7 +21,7 @@ class RealNavigator2 constructor(
   private val activity: Activity,
   private val keyChanger: KeyChanger
 ) {
-  private val flow by lazy(NONE) { Flow.get(activity) }
+  private val flow by unsafeLazy { Flow.get(activity) }
 
   fun installInContext(baseContext: Context, initialScreen: ScreenKey): Context {
     val keyDispatcher = KeyDispatcher.configure(activity, keyChanger).build()

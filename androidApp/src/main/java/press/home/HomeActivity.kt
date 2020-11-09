@@ -14,13 +14,13 @@ import kotlin.LazyThreadSafetyMode.NONE
 class HomeActivity : ThemeAwareActivity() {
   @Inject lateinit var viewFactories: ViewFactories
 
-  private val screenChanger by lazy(NONE) {
+  private val screenChanger by unsafeLazy {
     ScreenKeyChanger(
       container = { findViewById(Window.ID_ANDROID_CONTENT) },
       viewFactories = viewFactories
     )
   }
-  private val navigator2 by lazy(NONE) {
+  override val navigator by unsafeLazy {
     RealNavigator2(this, screenChanger)
   }
 
