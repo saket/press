@@ -20,7 +20,7 @@ class ViewFactories @Inject constructor(
 
   @Suppress("UNCHECKED_CAST")
   fun createView(context: Context, screen: ScreenKey): View {
-    val actualScreen = if (screen is ExpandableScreenKey<*>) screen.screen else screen
+    val actualScreen = if (screen is DelegatingScreenKey) screen.delegate else screen
 
     val name = when (actualScreen) {
       is HomeScreenKey -> HomeView::class
@@ -31,8 +31,8 @@ class ViewFactories @Inject constructor(
     val factory = factories[name] ?: error("No ViewFactory found for $name. Have factories for: ${factories.keys}")
     val view = factory.create(context, null)
 
-    return if (screen is ExpandableScreenKey<*>) {
-      screen.wrapInExpandablePage(view)
+    return if (screen is DelegatingScreenKey) {
+      screen.transformDelegateView(view)
     } else {
       view
     }

@@ -15,12 +15,12 @@ import press.widgets.dp
  * through [ExpandableScreenTransition].
  */
 @Parcelize
-data class ExpandableScreenKey<T : ScreenKey>(
-  val screen: T,
+data class ExpandableScreenKey(
+  val screen: ScreenKey,
   val expandingFromItemId: Long
-) : ScreenKey {
+) : DelegatingScreenKey(screen) {
 
-  fun wrapInExpandablePage(view: View): ExpandablePageLayout {
+  override fun transformDelegateView(view: View): View {
     return ExpandablePageLayout(view.context).apply {
       addView(view)
       id = view.id

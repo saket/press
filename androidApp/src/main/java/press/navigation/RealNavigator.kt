@@ -55,5 +55,9 @@ class RealNavigator constructor(
 /** Get the [ScreenKey] that was used for navigating to a screen. */
 inline fun <reified T : ScreenKey> View.screenKey(): T {
   val key = Flow.getKey<T>(this) ?: error("No key found for ${this::class.simpleName}")
-  return if (key is ExpandableScreenKey<*>) key.screen as T else key
+  return if (key is DelegatingScreenKey) key.delegate as T else key
+}
+
+abstract class DelegatingScreenKey(val delegate: ScreenKey) : ScreenKey {
+  open fun transformDelegateView(view: View) = view
 }
