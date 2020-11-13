@@ -32,6 +32,7 @@ import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.home.HomePresenter.Args
 import me.saket.press.shared.home.HomeUiModel
 import me.saket.press.shared.localization.strings
+import me.saket.press.shared.ui.ScreenKey
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import press.editor.EditorActivity
@@ -42,6 +43,7 @@ import press.extensions.second
 import press.extensions.suspendWhile
 import press.extensions.throttleFirst
 import press.navigation.ExpandableScreenKey
+import press.navigation.MorphFromFabScreenKey
 import press.navigation.ScreenFocusChangeListener
 import press.navigation.findActivity
 import press.navigation.handle
@@ -115,7 +117,7 @@ class HomeView @InflationInject constructor(
       Args(
         includeBlankNotes = false,
         navigator = navigator().handle<EditorScreenKey> {
-          openNewNoteScreen((it.openMode as ExistingNote).noteId)
+          navigator().lfg(MorphFromFabScreenKey(it))
         }
       )
     )
@@ -150,10 +152,12 @@ class HomeView @InflationInject constructor(
     windowFocusChanges.onNext(FocusChanged(hasWindowFocus))
   }
 
-  override fun onScreenFocusChanged(hasFocus: Boolean) {
+  override fun onScreenFocusChanged(hasFocus: Boolean, focusedScreen: ScreenKey?) {
+    screenFocusChanges.onNext(FocusChanged(hasFocus))
+
     if (hasFocus) {
       newNoteFab.show()
-    } else {
+    } else if (notesList.expandablePage != null) {
       newNoteFab.hide()
     }
   }

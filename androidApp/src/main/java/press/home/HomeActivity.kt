@@ -4,16 +4,18 @@ import android.content.Context
 import android.os.Bundle
 import android.widget.FrameLayout
 import me.saket.press.shared.home.HomeScreenKey
+import me.saket.press.shared.ui.Navigator
 import press.PressApp
 import press.extensions.unsafeLazy
 import press.navigation.ExpandableScreenTransition
+import press.navigation.MorphFromFabScreenTransition
 import press.navigation.HasNavigator
 import press.navigation.RealNavigator
 import press.navigation.ScreenKeyChanger
 import press.widgets.ThemeAwareActivity
 
 class HomeActivity : ThemeAwareActivity(), HasNavigator {
-  override lateinit var navigator: RealNavigator
+  override lateinit var navigator: Navigator
   private val navHostView by unsafeLazy { FrameLayout(this) }
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,10 +27,14 @@ class HomeActivity : ThemeAwareActivity(), HasNavigator {
     val screenChanger = ScreenKeyChanger(
       hostView = { navHostView },
       viewFactories = PressApp.component.viewFactories(),
-      transitions = listOf(ExpandableScreenTransition())
+      transitions = listOf(
+        ExpandableScreenTransition(),
+        MorphFromFabScreenTransition()
+      )
     )
-    navigator = RealNavigator(this, screenChanger)
-    super.attachBaseContext(navigator.installInContext(newBase, HomeScreenKey()))
+    navigator = RealNavigator(this, screenChanger).also {
+      super.attachBaseContext(it.installInContext(newBase, HomeScreenKey()))
+    }
   }
 
   override fun onBackPressed() {

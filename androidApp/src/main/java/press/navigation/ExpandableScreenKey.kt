@@ -6,6 +6,7 @@ import kotlinx.android.parcel.Parcelize
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.SimpleOnPullListener
+import me.saket.inboxrecyclerview.page.SimplePageStateChangeCallbacks
 import me.saket.press.shared.ui.ScreenKey
 import press.widgets.dp
 
@@ -29,14 +30,14 @@ data class ExpandableScreenKey(
       elevation = view.dp(40f)
       animationInterpolator = PathInterpolator(0.5f, 0f, 0f, 1f)
       animationDurationMillis = 350
-      onPullToCollapse {
+      onNextPullToCollapse {
         navigator().goBack()
       }
     }
   }
 }
 
-private inline fun ExpandablePageLayout.onPullToCollapse(
+private inline fun ExpandablePageLayout.onNextPullToCollapse(
   crossinline block: (ExpandablePageLayout) -> Unit
 ) {
   val page = this

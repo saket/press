@@ -22,11 +22,13 @@ import androidx.annotation.AttrRes
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
+import androidx.core.view.forEach
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import me.saket.press.shared.theme.ThemePalette
 import me.saket.wysiwyg.widgets.SimpleTextWatcher
 import press.widgets.Attr
+import java.util.ArrayDeque
 import kotlin.DeprecationLevel.ERROR
 
 inline fun View.string(@StringRes stringRes: Int) = resources.getString(stringRes)
@@ -141,4 +143,17 @@ inline fun <reified T> View.findParentOfType(): T {
     check (parent is ViewGroup) { "Couldn't find any ancestor of type ${T::class}" }
   }
   return parent
+}
+
+inline fun <reified T> View.findChild(): T? {
+  val queue = ArrayDeque<View>()
+  queue.addFirst(this)
+
+  while (true) {
+    when (val current = queue.poll()) {
+      null -> error("Couldn't find ${T::class.qualifiedName} in ${this::class.qualifiedName}'s hierarchy.")
+      is T -> return current
+      is ViewGroup -> current.forEach { queue.addLast(it) }
+    }
+  }
 }

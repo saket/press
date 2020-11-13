@@ -9,6 +9,7 @@ import flow.State
 import flow.TraversalCallback
 import me.saket.press.shared.ui.ScreenKey
 import press.navigation.BackPressInterceptor.InterceptResult.Ignored
+import press.navigation.ScreenTransition.TransitionResult
 import press.navigation.ScreenTransition.TransitionResult.Handled
 import press.theme.themeAware
 import java.util.Stack
@@ -100,8 +101,6 @@ class ScreenKeyChanger(
         return
       }
       val popped = stack.pop()
-      val foreground = stack.peek().view
-
       transitions.first {
         it.transition(
           fromView = popped.view,
@@ -140,13 +139,14 @@ class ScreenKeyChanger(
 
     private fun dispatchFocusChangeCallback() {
       val children = hostView().children.toList()
-      children.forEachIndexed { index, view ->
-        view.onScreenFocusChanged(hasFocus = index == children.lastIndex)
-      }
-    }
+      val foregroundView = children.lastOrNull()
 
-    private fun View.onScreenFocusChanged(hasFocus: Boolean) {
-      (this as? ScreenFocusChangeListener)?.onScreenFocusChanged(hasFocus)
+      children.forEach { view ->
+        (view as? ScreenFocusChangeListener)?.onScreenFocusChanged(
+          hasFocus = view === foregroundView,
+          focusedScreen = foregroundView?.screenKey()
+        )
+      }
     }
   }
 
@@ -170,5 +170,8 @@ private class NoOpTransition : ScreenTransition {
     toKey: ScreenKey,
     goingForward: Boolean,
     onComplete: () -> Unit
-  ) = Handled
+  ): TransitionResult {
+    onComplete()
+    return Handled
+  }
 }
