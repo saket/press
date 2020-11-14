@@ -7,6 +7,11 @@ class FakeNavigator : Navigator {
     backstack.addFirst(screen)
   }
 
+  override fun clearTopAndLfg(screen: ScreenKey) {
+    backstack.clear()
+    lfg(screen)
+  }
+
   override fun goBack(): Boolean {
     return if (backstack.isEmpty()) {
       false

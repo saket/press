@@ -1,12 +1,17 @@
 package press.navigation
 
 import android.app.Activity
+import android.app.Application.ActivityLifecycleCallbacks
 import android.content.Context
+import android.os.Bundle
 import android.os.Parcelable
 import android.view.View
+import flow.Direction.REPLACE
 import flow.Flow
+import flow.History
 import flow.KeyDispatcher
 import flow.KeyParceler
+import kotlinx.android.parcel.Parcelize
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.ScreenKey
 import press.extensions.unsafeLazy
@@ -44,6 +49,10 @@ class RealNavigator constructor(
     flow.set(screen)
   }
 
+  override fun clearTopAndLfg(screen: ScreenKey) {
+    flow.setHistory(History.single(screen), REPLACE)
+  }
+
   override fun goBack(): Boolean {
     return when (keyChanger.onInterceptBackPress()) {
       Ignored -> flow.goBack()
@@ -61,3 +70,12 @@ inline fun <reified T : ScreenKey> View.screenKey(): T {
 abstract class DelegatingScreenKey(val delegate: ScreenKey) : ScreenKey {
   open fun transformDelegateView(view: View) = view
 }
+
+/**
+ * Square Flow has an annoying requirement of setting it up before onCreate gets called,
+ * making it difficult to, say, read intent extras to determine the initial screen.
+ * Press provides it with a dummy screen key to begin with and resets the backstack
+ * later with an actual screen.
+ */
+@Parcelize
+class PlaceholderScreenKey : ScreenKey

@@ -21,7 +21,6 @@ class TheActivity : ThemeAwareActivity(), HasNavigator {
   }
 
   override fun attachBaseContext(newBase: Context) {
-    println("Intent: $intent")
     val screenChanger = ScreenKeyChanger(
       hostView = { navHostView },
       viewFactories = PressApp.component.viewFactories(),
@@ -31,7 +30,15 @@ class TheActivity : ThemeAwareActivity(), HasNavigator {
       )
     )
     navigator = RealNavigator(this, screenChanger).also {
-      super.attachBaseContext(it.installInContext(newBase, HomeScreenKey()))
+      super.attachBaseContext(it.installInContext(newBase, PlaceholderScreenKey()))
+    }
+  }
+
+  override fun onPostCreate(savedInstanceState: Bundle?) {
+    super.onPostCreate(savedInstanceState)
+
+    (readInitialScreen(intent) ?: HomeScreenKey()).let {
+      navigator.clearTopAndLfg(it)
     }
   }
 

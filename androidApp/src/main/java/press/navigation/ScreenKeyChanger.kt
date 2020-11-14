@@ -41,7 +41,9 @@ class ScreenKeyChanger(
       }
     }
 
-    lruViewStack.push(incomingKey, context = incomingContexts[incomingKey]!!, incomingState)
+    if (incomingKey !is PlaceholderScreenKey) {
+      lruViewStack.push(incomingKey, context = incomingContexts[incomingKey]!!, incomingState)
+    }
     callback.onTraversalCompleted()
   }
 
