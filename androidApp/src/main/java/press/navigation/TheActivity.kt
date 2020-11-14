@@ -40,4 +40,16 @@ class TheActivity : ThemeAwareActivity(), HasNavigator {
       super.onBackPressed()
     }
   }
+
+  companion object {
+    private const val EXTRA_SCREEN_KEY = "press:screenKey"
+
+    fun readInitialScreen(intent: Intent): ScreenKey? {
+      return intent.getParcelableExtra(EXTRA_SCREEN_KEY)
+    }
+
+    fun intent(context: Context, initialScreen: ScreenKey): Intent {
+      return Intent(context, TheActivity::class.java).putExtra(EXTRA_SCREEN_KEY, initialScreen)
+    }
+  }
 }
