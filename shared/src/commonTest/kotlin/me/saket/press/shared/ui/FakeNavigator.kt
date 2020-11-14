@@ -7,8 +7,13 @@ class FakeNavigator : Navigator {
     backstack.addFirst(screen)
   }
 
-  override fun goBack() {
-    backstack.removeFirst()
+  override fun goBack(): Boolean {
+    return if (backstack.isEmpty()) {
+      false
+    } else {
+      backstack.removeFirst()
+      true
+    }
   }
 
   fun pop() = backstack.removeFirstOrNull()
