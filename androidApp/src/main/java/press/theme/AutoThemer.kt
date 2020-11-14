@@ -2,7 +2,6 @@ package press.theme
 
 import android.app.Activity
 import android.content.res.ColorStateList
-import android.graphics.PorterDuff.Mode
 import android.graphics.PorterDuff.Mode.SRC_ATOP
 import android.graphics.PorterDuff.Mode.SRC_IN
 import android.graphics.PorterDuffColorFilter

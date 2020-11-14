@@ -140,7 +140,7 @@ inline fun <reified T> View.findParentOfType(): T {
   var parent = this.parent
   while (parent !is T) {
     parent = parent.parent
-    check (parent is ViewGroup) { "Couldn't find any ancestor of type ${T::class}" }
+    check(parent is ViewGroup) { "Couldn't find any ancestor of type ${T::class}" }
   }
   return parent
 }

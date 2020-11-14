@@ -6,7 +6,6 @@ import kotlinx.android.parcel.Parcelize
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.SimpleOnPullListener
-import me.saket.inboxrecyclerview.page.SimplePageStateChangeCallbacks
 import me.saket.press.shared.ui.ScreenKey
 import press.widgets.dp
 

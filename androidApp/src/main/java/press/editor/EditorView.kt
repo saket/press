@@ -21,17 +21,14 @@ import androidx.core.widget.NestedScrollView
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
 import com.squareup.inject.inflation.InflationInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
-import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.InterceptResult.IGNORED
 import me.saket.inboxrecyclerview.page.InterceptResult.INTERCEPTED
 import me.saket.inboxrecyclerview.page.OnPullToCollapseInterceptor
 import me.saket.press.R
 import me.saket.press.shared.editor.AutoCorrectEnabled
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
-import me.saket.press.shared.editor.EditorOpenMode
 import me.saket.press.shared.editor.EditorPresenter
 import me.saket.press.shared.editor.EditorPresenter.Args
 import me.saket.press.shared.editor.EditorScreenKey
@@ -53,14 +50,13 @@ import me.saket.wysiwyg.parser.node.HeadingLevel.H1
 import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.widgets.addTextChangedListener
 import press.extensions.doOnTextChange
-import press.extensions.findParentOfType
 import press.extensions.fromOreo
 import press.extensions.locationOnScreen
 import press.extensions.textColor
 import press.extensions.textSizePx
 import press.extensions.unsafeLazy
-import press.navigation.screenKey
 import press.navigation.navigator
+import press.navigation.screenKey
 import press.theme.themeAware
 import press.theme.themePalette
 import press.widgets.PressToolbar
@@ -165,8 +161,8 @@ class EditorView @InflationInject constructor(
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
-    //val page = findParentOfType<ExpandablePageLayout>()
-    //page.pullToCollapseInterceptor = interceptPullToCollapseOnView(scrollView)
+    // val page = findParentOfType<ExpandablePageLayout>()
+    // page.pullToCollapseInterceptor = interceptPullToCollapseOnView(scrollView)
 
     editorEditText.doOnTextChange {
       presenter.dispatch(NoteTextChanged(it.toString()))

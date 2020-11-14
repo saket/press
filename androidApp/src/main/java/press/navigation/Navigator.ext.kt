@@ -1,6 +1,5 @@
 package press.navigation
 
-import android.app.Activity
 import android.content.ContextWrapper
 import android.view.View
 import me.saket.press.shared.ui.Navigator

@@ -8,7 +8,6 @@ import android.view.Menu
 import android.view.MenuItem.SHOW_AS_ACTION_IF_ROOM
 import android.view.MotionEvent
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContextCompat
 import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,7 +22,6 @@ import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.animation.ItemExpandAnimator
 import me.saket.inboxrecyclerview.dimming.DimPainter
 import me.saket.press.R
-import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.home.HomeEvent
@@ -185,4 +183,3 @@ private fun Menu.add(icon: Drawable, title: String, onClick: () -> Unit) {
 }
 
 private data class FocusChanged(val hasFocus: Boolean) : HomeEvent
-

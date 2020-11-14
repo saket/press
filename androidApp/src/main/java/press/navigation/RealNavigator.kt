@@ -1,9 +1,7 @@
 package press.navigation
 
 import android.app.Activity
-import android.app.Application.ActivityLifecycleCallbacks
 import android.content.Context
-import android.os.Bundle
 import android.os.Parcelable
 import android.view.View
 import flow.Direction.REPLACE

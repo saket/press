@@ -9,7 +9,6 @@ import me.saket.inboxrecyclerview.page.ExpandablePageLayout.PageState.COLLAPSING
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout.PageState.EXPANDED
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout.PageState.EXPANDING
 import me.saket.inboxrecyclerview.page.PageStateChangeCallbacks
-import me.saket.inboxrecyclerview.page.SimplePageStateChangeCallbacks
 import press.extensions.suspendWhile
 
 fun <T> Observable<T>.suspendWhileExpanded(page: ExpandablePageLayout): Observable<T> {
@@ -46,4 +45,3 @@ internal fun ExpandablePageLayout.stateChanges(): Observable<PageState> {
     emitter.setCancellable { removeStateChangeCallbacks(listener) }
   }
 }
-
