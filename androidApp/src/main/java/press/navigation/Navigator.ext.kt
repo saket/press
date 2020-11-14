@@ -32,14 +32,3 @@ inline fun <reified T : ScreenKey> Navigator.handle(crossinline handler: (T) -> 
     }
   }
 }
-
-fun View.findActivity(): Activity {
-  var context = context
-  while (context is ContextWrapper) {
-    if (context is Activity) {
-      return context
-    }
-    context = context.baseContext
-  }
-  error("Can't find activity, context: $context")
-}

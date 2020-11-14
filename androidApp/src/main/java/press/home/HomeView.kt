@@ -44,7 +44,6 @@ import press.extensions.throttleFirst
 import press.navigation.ExpandableScreenKey
 import press.navigation.MorphFromFabScreenKey
 import press.navigation.ScreenFocusChangeListener
-import press.navigation.findActivity
 import press.navigation.handle
 import press.navigation.navigator
 import press.sync.PreferencesActivity
