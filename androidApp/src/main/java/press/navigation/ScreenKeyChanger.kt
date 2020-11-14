@@ -152,7 +152,7 @@ class ScreenKeyChanger(
     }
   }
 
-  class ViewEntry(
+  private class ViewEntry(
     val state: State?,
     val view: View,
     val key: ScreenKey
