@@ -27,11 +27,6 @@
     </activity>
 
     <activity
-      android:name="press.editor.EditorActivity"
-      android:theme="@style/AppTheme.TransparentWindow"
-      android:windowSoftInputMode="adjustResize" />
-
-    <activity
       android:name="press.sync.PreferencesActivity"
       android:launchMode="singleTask"
       android:windowSoftInputMode="adjustResize" />

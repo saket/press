@@ -2,7 +2,10 @@ package press.theme
 
 import android.app.Activity
 import android.content.res.ColorStateList
+import android.graphics.PorterDuff.Mode
+import android.graphics.PorterDuff.Mode.SRC_ATOP
 import android.graphics.PorterDuff.Mode.SRC_IN
+import android.graphics.PorterDuffColorFilter
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window.ID_ANDROID_CONTENT
@@ -26,7 +29,6 @@ import press.extensions.createRippleDrawable
 import press.extensions.findTitleView
 import press.extensions.onViewAdds
 import press.extensions.textColor
-import press.widgets.PorterDuffColorFilterWrapper
 import press.widgets.PressButton
 import press.widgets.ScrollViewCompat
 import press.widgets.dp
@@ -155,7 +157,7 @@ private fun ViewGroup.viewChanges(action: (View) -> Unit) {
 private fun themed(view: FloatingActionButton) = view.apply {
   themeAware {
     backgroundTintList = ColorStateList.valueOf(it.fabColor)
-    colorFilter = PorterDuffColorFilterWrapper(it.fabIcon)
+    colorFilter = PorterDuffColorFilter(it.fabIcon, SRC_ATOP)
   }
 }
 

@@ -1,7 +1,5 @@
 package press.di
 
-import press.editor.EditorActivity
-import press.home.HomeActivity
 import dagger.Component
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.sync.SyncCoordinator
@@ -22,7 +20,6 @@ interface AppComponent {
   fun viewFactories(): ViewFactories
 
   fun inject(target: PressApp)
-  fun inject(target: EditorActivity)
   fun inject(target: PreferencesActivity)
   fun inject(target: GitHostIntegrationActivity)
   fun inject(target: SyncStatsForNerdsActivity)

@@ -6,7 +6,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode
-import press.editor.EditorActivity
 
 class ShortcutReceiverActivity : AppCompatActivity() {
 
@@ -18,7 +17,9 @@ class ShortcutReceiverActivity : AppCompatActivity() {
       else -> null
     }
     val openMode = EditorOpenMode.NewNote(NoteId.generate(), preFilledNote)
-    startActivity(EditorActivity.intent(this, openMode))
+
+    // TODO(saket): restore this.
+    //startActivity(EditorActivity.intent(this, openMode))
     finish()
   }
 }

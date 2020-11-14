@@ -35,7 +35,6 @@ import me.saket.press.shared.localization.strings
 import me.saket.press.shared.ui.ScreenKey
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
-import press.editor.EditorActivity
 import press.extensions.attr
 import press.extensions.getDrawable
 import press.extensions.heightOf
@@ -175,16 +174,6 @@ class HomeView @InflationInject constructor(
 
   private fun render(model: HomeUiModel) {
     noteAdapter.submitList(model.notes)
-  }
-
-  private fun openNewNoteScreen(noteId: NoteId) {
-    val (intent, options) = EditorActivity.intentWithFabTransform(
-      activity = findActivity(),
-      openMode = ExistingNote(noteId),
-      fab = newNoteFab,
-      fabIconRes = R.drawable.ic_note_add_24dp
-    )
-    ContextCompat.startActivity(context, intent, options.toBundle())
   }
 }
 
