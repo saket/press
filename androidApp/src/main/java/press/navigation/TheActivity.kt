@@ -1,20 +1,17 @@
-package press.home
+package press.navigation
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.widget.FrameLayout
 import me.saket.press.shared.home.HomeScreenKey
 import me.saket.press.shared.ui.Navigator
+import me.saket.press.shared.ui.ScreenKey
 import press.PressApp
 import press.extensions.unsafeLazy
-import press.navigation.ExpandableScreenTransition
-import press.navigation.MorphFromFabScreenTransition
-import press.navigation.HasNavigator
-import press.navigation.RealNavigator
-import press.navigation.ScreenKeyChanger
 import press.widgets.ThemeAwareActivity
 
-class HomeActivity : ThemeAwareActivity(), HasNavigator {
+class TheActivity : ThemeAwareActivity(), HasNavigator {
   override lateinit var navigator: Navigator
   private val navHostView by unsafeLazy { FrameLayout(this) }
 
@@ -24,6 +21,7 @@ class HomeActivity : ThemeAwareActivity(), HasNavigator {
   }
 
   override fun attachBaseContext(newBase: Context) {
+    println("Intent: $intent")
     val screenChanger = ScreenKeyChanger(
       hostView = { navHostView },
       viewFactories = PressApp.component.viewFactories(),
