@@ -22,6 +22,7 @@ class ScreenKeyChanger(
 ) : KeyChanger {
   private val lruViewStack = LruViewStack(maxSize = 2)
   private val transitions = transitions + NoOpTransition()
+  val focusChangeListeners = mutableListOf<ScreenFocusChangeListener>()
 
   override fun changeKey(
     outgoingState: State?,
@@ -126,28 +127,7 @@ class ScreenKeyChanger(
 
     private fun warnIfIdIsMissing(incomingView: View) {
       check(incomingView.id != View.NO_ID) {
-        "Screen's layout (${incomingView::class.simpleName}) doesn't have an ID set on its root ViewGroup. " +
-          "An ID is required for persisting View state."
-      }
-    }
-
-    private fun maybeSetThemeBackground(view: View) {
-      if (view.background == null) {
-        view.themeAware {
-          view.setBackgroundColor(it.window.backgroundColor)
-        }
-      }
-    }
-
-    private fun dispatchFocusChangeCallback() {
-      val children = hostView().children.toList()
-      val foregroundView = children.lastOrNull()
-
-      children.forEach { view ->
-        (view as? ScreenFocusChangeListener)?.onScreenFocusChanged(
-          hasFocus = view === foregroundView,
-          focusedScreen = foregroundView?.screenKey()
-        )
+        "${incomingView::class.simpleName} needs an ID for persisting View state."
       }
     }
   }
@@ -157,6 +137,28 @@ class ScreenKeyChanger(
     val view: View,
     val key: ScreenKey
   )
+
+  private fun maybeSetThemeBackground(view: View) {
+    if (view.background == null) {
+      view.themeAware {
+        view.setBackgroundColor(it.window.backgroundColor)
+      }
+    }
+  }
+
+  private fun dispatchFocusChangeCallback() {
+    val children = hostView().children.toList()
+    val foregroundView = children.lastOrNull()
+
+    children
+      .filterIsInstance<ScreenFocusChangeListener>()
+      .forEach {
+        it.onScreenFocusChanged(focusedScreen = foregroundView)
+      }
+    focusChangeListeners.forEach {
+      it.onScreenFocusChanged(foregroundView)
+    }
+  }
 
   fun onInterceptBackPress(): BackPressInterceptor.InterceptResult {
     val foreground = hostView().children.last() as? BackPressInterceptor ?: return Ignored

@@ -7,6 +7,7 @@ import android.util.AttributeSet
 import android.view.Menu
 import android.view.MenuItem.SHOW_AS_ACTION_IF_ROOM
 import android.view.MotionEvent
+import android.view.View
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
@@ -30,7 +31,6 @@ import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.home.HomePresenter.Args
 import me.saket.press.shared.home.HomeUiModel
 import me.saket.press.shared.localization.strings
-import me.saket.press.shared.ui.ScreenKey
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import press.extensions.attr
@@ -136,7 +136,7 @@ class HomeView @InflationInject constructor(
       .subscribe { note ->
         navigator().lfg(
           ExpandableScreenKey(
-            EditorScreenKey(ExistingNote(note.id)),
+            EditorScreenKey(ExistingNote(note.id), showKeyboard = false),
             expandingFromItemId = note.adapterId
           )
         )
@@ -148,7 +148,8 @@ class HomeView @InflationInject constructor(
     windowFocusChanges.onNext(FocusChanged(hasWindowFocus))
   }
 
-  override fun onScreenFocusChanged(hasFocus: Boolean, focusedScreen: ScreenKey?) {
+  override fun onScreenFocusChanged(focusedScreen: View?) {
+    val hasFocus = this === focusedScreen
     screenFocusChanges.onNext(FocusChanged(hasFocus))
 
     if (hasFocus) {

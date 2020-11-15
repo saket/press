@@ -5,7 +5,10 @@ import me.saket.press.shared.ui.ScreenKey
 import me.saket.wysiwyg.formatting.TextSelection
 
 @AndroidParcelize
-data class EditorScreenKey(val openMode: EditorOpenMode) : ScreenKey
+data class EditorScreenKey(
+  val openMode: EditorOpenMode,
+  val showKeyboard: Boolean
+) : ScreenKey
 
 // Specs for client apps to implement:
 //

@@ -52,6 +52,7 @@ import me.saket.wysiwyg.widgets.addTextChangedListener
 import press.extensions.doOnTextChange
 import press.extensions.fromOreo
 import press.extensions.locationOnScreen
+import press.extensions.showKeyboard
 import press.extensions.textColor
 import press.extensions.textSizePx
 import press.extensions.unsafeLazy
@@ -156,6 +157,12 @@ class EditorView @InflationInject constructor(
 
     toolbar.setNavigationOnClickListener {
       navigator().goBack()
+    }
+
+    if (screenKey<EditorScreenKey>().showKeyboard) {
+      editorEditText.post {
+        editorEditText.showKeyboard()
+      }
     }
   }
 

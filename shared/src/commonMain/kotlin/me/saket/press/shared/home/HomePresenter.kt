@@ -46,7 +46,7 @@ class HomePresenter(
         repository
           .create(newNoteId, NEW_NOTE_PLACEHOLDER)
           .andThen(completableFromFunction {
-            args.navigator.lfg(EditorScreenKey(ExistingNote(newNoteId)))
+            args.navigator.lfg(EditorScreenKey(ExistingNote(newNoteId), showKeyboard = true))
           })
       }
       .andThen(observableOfEmpty())
