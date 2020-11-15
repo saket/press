@@ -6,9 +6,11 @@ import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import android.widget.FrameLayout
+import me.saket.press.shared.db.NoteId
+import me.saket.press.shared.editor.EditorOpenMode.NewNote
+import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.home.HomeScreenKey
 import me.saket.press.shared.ui.Navigator
-import me.saket.press.shared.ui.ScreenKey
 import press.PressApp
 import press.extensions.hideKeyboard
 import press.extensions.unsafeLazy
@@ -41,26 +43,24 @@ class TheActivity : ThemeAwareActivity(), HasNavigator {
   override fun onPostCreate(savedInstanceState: Bundle?) {
     super.onPostCreate(savedInstanceState)
 
-    (readInitialScreen(intent) ?: HomeScreenKey()).let {
-      navigator.clearTopAndLfg(it)
+    val initialScreen = if (intent.action == Intent.ACTION_SEND) {
+      EditorScreenKey(
+        openMode = NewNote(
+          placeholderId = NoteId.generate(),
+          preFilledNote = intent.getStringExtra(Intent.EXTRA_TEXT)
+        ),
+        showKeyboard = true
+      )
+    } else {
+      HomeScreenKey()
     }
+
+    navigator.clearTopAndLfg(initialScreen)
   }
 
   override fun onBackPressed() {
     if (!navigator.goBack()) {
       super.onBackPressed()
-    }
-  }
-
-  companion object {
-    private const val EXTRA_SCREEN_KEY = "press:screenKey"
-
-    fun readInitialScreen(intent: Intent): ScreenKey? {
-      return intent.getParcelableExtra(EXTRA_SCREEN_KEY)
-    }
-
-    fun screenIntent(context: Context, initialScreen: ScreenKey): Intent {
-      return Intent(context, TheActivity::class.java).putExtra(EXTRA_SCREEN_KEY, initialScreen)
     }
   }
 }

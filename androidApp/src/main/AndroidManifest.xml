@@ -21,6 +21,13 @@
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
 
+      <!-- Share receiver. -->
+      <intent-filter>
+        <action android:name="android.intent.action.SEND" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <data android:mimeType="text/plain" />
+      </intent-filter>
+
       <meta-data
         android:name="android.app.shortcuts"
         android:resource="@xml/shortcuts" />
@@ -47,13 +54,5 @@
       android:name="press.sync.stats.SyncStatsForNerdsActivity"
       android:launchMode="singleTask"
       android:windowSoftInputMode="adjustResize" />
-
-    <activity android:name="press.ShortcutReceiverActivity">
-      <intent-filter>
-        <action android:name="android.intent.action.SEND" />
-        <category android:name="android.intent.category.DEFAULT" />
-        <data android:mimeType="text/plain" />
-      </intent-filter>
-    </activity>
   </application>
 </manifest>
