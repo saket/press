@@ -15,7 +15,9 @@
     android:theme="@style/AppTheme"
     tools:ignore="AllowBackup,GoogleAppIndexingWarning">
 
-    <activity android:name="press.navigation.TheActivity">
+    <activity
+      android:name="press.navigation.TheActivity"
+      android:launchMode="singleTask">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
