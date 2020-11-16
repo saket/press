@@ -21,26 +21,30 @@ class ExpandableScreenTransition : ScreenTransition {
     goingForward: Boolean,
     onComplete: () -> Unit
   ): TransitionResult {
+    println("Transitioning from $fromKey -> $toKey")
+
     if (goingForward && toKey is ExpandableScreenKey) {
       check(toView is ExpandablePageLayout)
-      toView.pushParentToolbarOnExpand(fromView.findChild<Toolbar>())
-      toView.onNextExpand {
+      val fromList = fromView.findChild<InboxRecyclerView>()!!
+      setup(list = fromList, page = toView, toolbar = fromView.findChild<Toolbar>())
+
+      fromList.expandItem(toKey.expandingFromItemId, immediate = !fromView.isLaidOut)
+      toView.doOnExpand {
         onComplete()
       }
-      val fromList = fromView.findChild<InboxRecyclerView>()!!
-      fromList.expandablePage = toView
-      fromList.expandItem(toKey.expandingFromItemId)
       return Handled
 
     } else if (!goingForward && fromKey is ExpandableScreenKey) {
       check(fromView is ExpandablePageLayout)
       val toList = toView.findChild<InboxRecyclerView>()!!
-      fromView.onNextCollapse {
+      setup(list = toList, page = fromView, toolbar = toView.findChild<Toolbar>())
+
+      toList.collapse()
+      fromView.doOnCollapse {
         toList.expandablePage = null
         fromView.pushParentToolbarOnExpand(null)
         onComplete()
       }
-      toList.collapse()
       return Handled
     }
 
@@ -48,26 +52,33 @@ class ExpandableScreenTransition : ScreenTransition {
   }
 }
 
-private inline fun ExpandablePageLayout.onNextExpand(
-  crossinline block: (ExpandablePageLayout) -> Unit
-) {
-  val page = this
-  addStateChangeCallbacks(object : SimplePageStateChangeCallbacks() {
-    override fun onPageExpanded() {
-      block(page)
-      removeStateChangeCallbacks(this)
-    }
-  })
+private fun setup(list: InboxRecyclerView, page: ExpandablePageLayout, toolbar: Toolbar?) {
+  page.pushParentToolbarOnExpand(toolbar)
+  list.expandablePage = page
 }
 
-private inline fun ExpandablePageLayout.onNextCollapse(
-  crossinline block: (ExpandablePageLayout) -> Unit
-) {
-  val page = this
-  addStateChangeCallbacks(object : SimplePageStateChangeCallbacks() {
-    override fun onPageCollapsed() {
-      block(page)
-      removeStateChangeCallbacks(this)
-    }
-  })
+private inline fun ExpandablePageLayout.doOnExpand(crossinline action: () -> Unit) {
+  if (isExpanded) {
+    action()
+  } else {
+    addStateChangeCallbacks(object : SimplePageStateChangeCallbacks() {
+      override fun onPageExpanded() {
+        action()
+        removeStateChangeCallbacks(this)
+      }
+    })
+  }
+}
+
+private inline fun ExpandablePageLayout.doOnCollapse(crossinline block: () -> Unit) {
+  if (isCollapsed) {
+    block()
+  } else {
+    addStateChangeCallbacks(object : SimplePageStateChangeCallbacks() {
+      override fun onPageCollapsed() {
+        block()
+        removeStateChangeCallbacks(this)
+      }
+    })
+  }
 }

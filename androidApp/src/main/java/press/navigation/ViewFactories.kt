@@ -20,7 +20,7 @@ class ViewFactories @Inject constructor(
 
   @Suppress("UNCHECKED_CAST")
   fun createView(context: Context, screen: ScreenKey): View {
-    val actualScreen = if (screen is DelegatingScreenKey) screen.delegate else screen
+    val actualScreen = screen.unwrapDelegate()
 
     val name = when (actualScreen) {
       is HomeScreenKey -> HomeView::class

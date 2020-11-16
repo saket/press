@@ -1,7 +1,6 @@
 package press.navigation
 
 import android.content.Context
-import android.content.Intent
 import android.content.Intent.ACTION_SEND
 import android.content.Intent.EXTRA_SUBJECT
 import android.content.Intent.EXTRA_TEXT
@@ -46,20 +45,21 @@ class TheActivity : ThemeAwareActivity(), HasNavigator {
   override fun onPostCreate(savedInstanceState: Bundle?) {
     super.onPostCreate(savedInstanceState)
 
-    val initialScreen = if (intent.action == ACTION_SEND) {
-      val sharedText = buildString {
-        intent.getStringExtra(EXTRA_SUBJECT)?.let { append("# $it\n") }
-        intent.getStringExtra(EXTRA_TEXT)?.let(::append)
+    if (savedInstanceState == null) {
+      val initialScreen = if (intent.action == ACTION_SEND) {
+        val sharedText = buildString {
+          intent.getStringExtra(EXTRA_SUBJECT)?.let { append("# $it\n") }
+          intent.getStringExtra(EXTRA_TEXT)?.let(::append)
+        }
+        EditorScreenKey(
+          openMode = NewNote(placeholderId = NoteId.generate(), preFilledNote = sharedText),
+          showKeyboard = true
+        )
+      } else {
+        HomeScreenKey
       }
-      EditorScreenKey(
-        openMode = NewNote(placeholderId = NoteId.generate(), preFilledNote = sharedText),
-        showKeyboard = true
-      )
-    } else {
-      HomeScreenKey()
+      navigator.clearTopAndLfg(initialScreen)
     }
-
-    navigator.clearTopAndLfg(initialScreen)
   }
 
   override fun onBackPressed() {

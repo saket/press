@@ -5,7 +5,9 @@ import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.ui.ScreenKey
 
 @AndroidParcelize
-class HomeScreenKey : ScreenKey
+object HomeScreenKey : ScreenKey {
+  override fun toString() = "HomeScreenKey"
+}
 
 interface HomeEvent {
   object NewNoteClicked : HomeEvent

@@ -44,11 +44,16 @@ class RealNavigator constructor(
 
   // https://www.urbandictionary.com/define.php?term=lfg
   override fun lfg(screen: ScreenKey) {
-    flow.set(screen)
+    flow.set(
+      CompositeScreenKey(
+        background = flow.history.top<CompositeScreenKey>().foreground,
+        foreground = screen
+      )
+    )
   }
 
   override fun clearTopAndLfg(screen: ScreenKey) {
-    flow.setHistory(History.single(screen), REPLACE)
+    flow.setHistory(History.single(CompositeScreenKey(screen)), REPLACE)
   }
 
   override fun goBack(): Boolean {
@@ -61,8 +66,15 @@ class RealNavigator constructor(
 
 /** Get the [ScreenKey] that was used for navigating to a screen. */
 inline fun <reified T : ScreenKey> View.screenKey(): T {
-  val key = Flow.getKey<T>(this) ?: error("No key found for ${this::class.simpleName}")
-  return if (key is DelegatingScreenKey) key.delegate as T else key
+  val key = Flow.getKey<ScreenKey>(this) ?: error("No key found for ${this::class.simpleName}")
+  return key.unwrapDelegate() as T
+}
+
+fun ScreenKey.unwrapDelegate(): ScreenKey {
+  return when (this) {
+    is DelegatingScreenKey -> delegate.unwrapDelegate()
+    else -> this
+  }
 }
 
 abstract class DelegatingScreenKey(val delegate: ScreenKey) : ScreenKey {
