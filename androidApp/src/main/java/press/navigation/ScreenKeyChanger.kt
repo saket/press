@@ -111,6 +111,7 @@ class ScreenKeyChanger(
       }
     } else {
       check(removeViewsAfterTransition.isEmpty())
+      dispatchFocusChangeCallback()
     }
 
     println("------------------------")
@@ -148,12 +149,10 @@ class ScreenKeyChanger(
 
     children
       .filterIsInstance<ScreenFocusChangeListener>()
+      .plus(focusChangeListeners)
       .forEach {
         it.onScreenFocusChanged(focusedScreen = foregroundView)
       }
-    focusChangeListeners.forEach {
-      it.onScreenFocusChanged(foregroundView)
-    }
   }
 
   fun onInterceptBackPress(): BackPressInterceptor.InterceptResult {
