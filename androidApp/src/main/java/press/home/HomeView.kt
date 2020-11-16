@@ -18,14 +18,12 @@ import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.inflation.InflationInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
-import io.reactivex.subjects.BehaviorSubject
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.animation.ItemExpandAnimator
 import me.saket.inboxrecyclerview.dimming.DimPainter
 import me.saket.press.R
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorScreenKey
-import me.saket.press.shared.home.HomeEvent
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.home.HomePresenter.Args
@@ -37,7 +35,6 @@ import press.extensions.attr
 import press.extensions.getDrawable
 import press.extensions.heightOf
 import press.extensions.second
-import press.extensions.suspendWhile
 import press.extensions.throttleFirst
 import press.navigation.ExpandableScreenKey
 import press.navigation.MorphFromFabScreenKey
@@ -55,9 +52,6 @@ class HomeView @InflationInject constructor(
   private val noteAdapter: NoteAdapter,
   private val presenter: HomePresenter.Factory
 ) : ContourLayout(context), ScreenFocusChangeListener {
-
-  private val windowFocusChanges = BehaviorSubject.createDefault(FocusChanged(hasFocus = true))
-  private val screenFocusChanges = BehaviorSubject.createDefault(FocusChanged(hasFocus = true))
 
   private val toolbar = Toolbar(context).apply {
     setTitle(R.string.app_name)
@@ -119,9 +113,6 @@ class HomeView @InflationInject constructor(
     )
 
     presenter.uiUpdates()
-      // Skip updates while an existing note or the new-note screen is open.
-      .suspendWhile(screenFocusChanges) { it.hasFocus.not() }
-      .suspendWhile(windowFocusChanges) { it.hasFocus.not() }
       .takeUntil(detaches())
       .observeOn(mainThread())
       .subscribe(::render)
@@ -143,16 +134,8 @@ class HomeView @InflationInject constructor(
       }
   }
 
-  override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
-    super.onWindowFocusChanged(hasWindowFocus)
-    windowFocusChanges.onNext(FocusChanged(hasWindowFocus))
-  }
-
   override fun onScreenFocusChanged(focusedScreen: View?) {
-    val hasFocus = this === focusedScreen
-    screenFocusChanges.onNext(FocusChanged(hasFocus))
-
-    if (hasFocus) {
+    if (this === focusedScreen) {
       newNoteFab.show()
     } else if (notesList.expandablePage != null) {
       newNoteFab.hide()
@@ -182,5 +165,3 @@ private fun Menu.add(icon: Drawable, title: String, onClick: () -> Unit) {
     it.setOnMenuItemClickListener { onClick(); true }
   }
 }
-
-private data class FocusChanged(val hasFocus: Boolean) : HomeEvent
