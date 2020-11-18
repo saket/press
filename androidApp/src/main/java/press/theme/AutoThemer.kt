@@ -20,6 +20,7 @@ import androidx.appcompat.widget.ActionMenuView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
+import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -68,6 +69,7 @@ object AutoThemer {
       is Button -> themed(view)
       is TextView -> themed(view)
       is ScrollView -> themed(view)
+      is NestedScrollView -> themed(view)
       is HorizontalScrollView -> themed(view)
       is RecyclerView -> themed(view)
       is Toolbar -> themed(view)
@@ -100,6 +102,12 @@ private fun <T : EditText> themed(view: T): T = view.apply {
 }
 
 private fun themed(view: ScrollView) = view.apply {
+  themeAware {
+    ScrollViewCompat.setEdgeEffectColor(view, it.accentColor)
+  }
+}
+
+private fun themed(view: NestedScrollView) = view.apply {
   themeAware {
     ScrollViewCompat.setEdgeEffectColor(view, it.accentColor)
   }
