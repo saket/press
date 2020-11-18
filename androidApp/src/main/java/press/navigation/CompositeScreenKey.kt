@@ -1,5 +1,6 @@
 package press.navigation
 
+import flow.MultiKey
 import kotlinx.android.parcel.Parcelize
 import me.saket.press.shared.ui.ScreenKey
 
@@ -11,4 +12,9 @@ import me.saket.press.shared.ui.ScreenKey
 data class CompositeScreenKey(
   val foreground: ScreenKey,
   val background: ScreenKey? = null
-) : DelegatingScreenKey(delegate = foreground)
+) : DelegatingScreenKey(delegate = foreground), MultiKey {
+
+  override fun getKeys(): MutableList<Any> {
+    return listOfNotNull(background, foreground).toMutableList()
+  }
+}

@@ -5,7 +5,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
 import flow.Direction.REPLACE
-import flow.Flow
 import flow.KeyChanger
 import flow.State
 import flow.TraversalCallback
@@ -38,7 +37,6 @@ class ScreenKeyChanger(
     callback: TraversalCallback
   ) {
     val incomingKey = incomingState.getKey<ScreenKey>()
-    val incomingContext = incomingContexts[incomingKey]!!
 
     if (outgoingState == null && direction == REPLACE) {
       // Short circuit if we would just be showing the same view again. Flow
@@ -60,40 +58,37 @@ class ScreenKeyChanger(
       val existing = hostView().children.firstOrNull { it.screenKey<ScreenKey>() == key }
       if (existing != null) return existing
 
-      return viewFactories.createView(incomingContext, key).also {
+      val context = incomingContexts[key]!!
+      return viewFactories.createView(context, key).also {
         warnIfIdIsMissing(it)
         maybeSetThemeBackground(it)
         incomingState.restore(it) // todo: check if Flow can save multiple Views here.
         hostView().addView(it)
-        println("Adding ${it::class.simpleName} for $key")
       }
     }
-
-    println("Showing ${incomingKey.background} + ${incomingKey.foreground}")
 
     val oldForegroundView = hostView().children.lastOrNull()
     val newBackgroundView = incomingKey.background?.let(::findOrCreateView)
     val foregroundView = incomingKey.foreground.let(::findOrCreateView)
-
     foregroundView.bringToFront()
-    dispatchFocusChangeCallback()
 
-    val removeViewsAfterTransition = hostView().children.toList()
+    val leftOverViews = hostView().children
       .filter { it !== newBackgroundView && it !== foregroundView }
-      .map { view ->
-        {
-          println("Removing ${view::class.simpleName} for ${view.screenKey<ScreenKey>()}")
-          outgoingState?.save(view)
-          hostView().removeView(view)
-        }
+
+    val onTransitionEnd = {
+      leftOverViews.forEach {
+        outgoingState?.save(it)
+        hostView().removeView(it)
       }
+      dispatchFocusChangeCallback()
+    }
 
     val outgoingKey = outgoingState?.getKey<ScreenKey>() as? CompositeScreenKey
-    val stateRestored = outgoingKey == null && incomingKey.background != null && direction == REPLACE
+    val wasStateRestored = outgoingKey == null && incomingKey.background != null && direction == REPLACE
 
-    val forwardTransition = stateRestored || oldForegroundView === newBackgroundView
-    val fromView: View? = if (stateRestored) newBackgroundView else oldForegroundView
-    val fromKey: ScreenKey? = if (stateRestored) incomingKey.background else outgoingKey?.foreground
+    val forwardTransition = wasStateRestored || oldForegroundView === newBackgroundView
+    val fromView: View? = if (wasStateRestored) newBackgroundView else oldForegroundView
+    val fromKey: ScreenKey? = if (wasStateRestored) incomingKey.background else outgoingKey?.foreground
 
     if (fromView != null) {
       transitions.first {
@@ -103,18 +98,13 @@ class ScreenKeyChanger(
           toView = foregroundView,
           toKey = incomingKey.foreground,
           goingForward = forwardTransition,
-          onComplete = {
-            removeViewsAfterTransition.forEach { it.invoke() }
-            dispatchFocusChangeCallback()
-          }
+          onComplete = onTransitionEnd
         ) == Handled
       }
     } else {
-      check(removeViewsAfterTransition.isEmpty())
-      dispatchFocusChangeCallback()
+      onTransitionEnd()
     }
 
-    println("------------------------")
     callback.onTraversalCompleted()
   }
 
