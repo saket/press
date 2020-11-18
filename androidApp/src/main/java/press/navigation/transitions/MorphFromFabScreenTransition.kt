@@ -3,6 +3,7 @@ package press.navigation.transitions
 import android.graphics.Color
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.Toolbar
 import androidx.transition.Transition
 import androidx.transition.TransitionListenerAdapter
 import androidx.transition.TransitionManager
@@ -11,6 +12,8 @@ import com.google.android.material.transition.MaterialArcMotion
 import com.google.android.material.transition.MaterialContainerTransform
 import com.google.android.material.transition.MaterialContainerTransform.FADE_MODE_OUT
 import com.google.android.material.transition.MaterialContainerTransform.ProgressThresholds
+import me.saket.inboxrecyclerview.InboxRecyclerView
+import me.saket.inboxrecyclerview.page.StandaloneExpandablePageLayout
 import me.saket.press.shared.ui.ScreenKey
 import press.extensions.findChild
 import press.extensions.withOpacity
@@ -43,25 +46,25 @@ class MorphFromFabScreenTransition : ScreenTransition {
 
     return Ignored
   }
+}
 
-  private fun fabMorphTransition(from: View, to: View, onComplete: () -> Unit): Transition {
-    return MaterialContainerTransform().apply {
-      startView = from
-      endView = to
-      duration = 400
-      fadeMode = FADE_MODE_OUT
-      scrimColor = Color.BLACK.withOpacity(0.25f) // Same as InboxRecyclerView.
+private fun fabMorphTransition(from: View, to: View, onComplete: () -> Unit): Transition {
+  return MaterialContainerTransform().apply {
+    startView = from
+    endView = to
+    duration = 400
+    fadeMode = FADE_MODE_OUT
+    scrimColor = Color.BLACK.withOpacity(0.25f) // Same as InboxRecyclerView.
 
-      addTarget(to)
-      setPathMotion(MaterialArcMotion())
+    addTarget(to)
+    setPathMotion(MaterialArcMotion())
 
-      shapeMaskProgressThresholds = ProgressThresholds(0.3f, 0.9f)
-      scaleProgressThresholds = ProgressThresholds(0.2f, 0.9f)
-      scaleMaskProgressThresholds = ProgressThresholds(0.2f, 0.9f)
+    shapeMaskProgressThresholds = ProgressThresholds(0.3f, 0.9f)
+    scaleProgressThresholds = ProgressThresholds(0.2f, 0.9f)
+    scaleMaskProgressThresholds = ProgressThresholds(0.2f, 0.9f)
 
-      addListener(object : TransitionListenerAdapter() {
-        override fun onTransitionEnd(transition: Transition) = onComplete()
-      })
-    }
+    addListener(object : TransitionListenerAdapter() {
+      override fun onTransitionEnd(transition: Transition) = onComplete()
+    })
   }
 }

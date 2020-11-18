@@ -36,11 +36,11 @@ import press.extensions.getDrawable
 import press.extensions.heightOf
 import press.extensions.second
 import press.extensions.throttleFirst
-import press.navigation.transitions.ExpandableScreenKey
-import press.navigation.transitions.MorphFromFabScreenKey
 import press.navigation.ScreenFocusChangeListener
 import press.navigation.handle
 import press.navigation.navigator
+import press.navigation.transitions.ExpandableScreenKey
+import press.navigation.transitions.MorphFromFabScreenKey
 import press.sync.PreferencesActivity
 import press.theme.themeAware
 import press.widgets.DividerItemDecoration
@@ -106,8 +106,8 @@ class HomeView @InflationInject constructor(
     val presenter = presenter.create(
       Args(
         includeBlankNotes = false,
-        navigator = navigator().handle<EditorScreenKey> {
-          navigator().lfg(MorphFromFabScreenKey(it))
+        navigator = navigator().handle { screen: EditorScreenKey ->
+          navigator().lfg(MorphFromFabScreenKey(screen))
         }
       )
     )

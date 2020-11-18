@@ -12,7 +12,10 @@ import press.navigation.ScreenTransition.TransitionResult
 import press.navigation.ScreenTransition.TransitionResult.Handled
 import press.navigation.ScreenTransition.TransitionResult.Ignored
 
-/** Wires an [InboxRecyclerView] with its expandable page across screens. */
+/**
+ * Wires an [InboxRecyclerView] with its expandable
+ * page across screens for expand/collapse transition.
+ */
 class ExpandableScreenTransition : ScreenTransition {
   override fun transition(
     fromView: View,
@@ -25,7 +28,7 @@ class ExpandableScreenTransition : ScreenTransition {
     if (goingForward && toKey is ExpandableScreenKey) {
       check(toView is ExpandablePageLayout)
       val fromList = fromView.findChild<InboxRecyclerView>()!!
-      setup(list = fromList, page = toView, toolbar = fromView.findChild<Toolbar>())
+      setupInboxList(list = fromList, page = toView, toolbar = fromView.findChild<Toolbar>())
 
       fromList.expandItem(toKey.expandingFromItemId, immediate = !fromView.isLaidOut)
       toView.doOnExpand {
@@ -36,7 +39,7 @@ class ExpandableScreenTransition : ScreenTransition {
     } else if (!goingForward && fromKey is ExpandableScreenKey) {
       check(fromView is ExpandablePageLayout)
       val toList = toView.findChild<InboxRecyclerView>()!!
-      setup(list = toList, page = fromView, toolbar = toView.findChild<Toolbar>())
+      setupInboxList(list = toList, page = fromView, toolbar = toView.findChild<Toolbar>())
 
       toList.collapse()
       fromView.doOnCollapse {
@@ -51,7 +54,7 @@ class ExpandableScreenTransition : ScreenTransition {
   }
 }
 
-private fun setup(list: InboxRecyclerView, page: ExpandablePageLayout, toolbar: Toolbar?) {
+private fun setupInboxList(list: InboxRecyclerView, page: ExpandablePageLayout, toolbar: Toolbar?) {
   page.pushParentToolbarOnExpand(toolbar)
   list.expandablePage = page
 }
