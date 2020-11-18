@@ -16,6 +16,8 @@ import me.saket.press.shared.ui.Navigator
 import press.PressApp
 import press.extensions.hideKeyboard
 import press.extensions.unsafeLazy
+import press.navigation.transitions.ExpandableScreenTransition
+import press.navigation.transitions.MorphFromFabScreenTransition
 import press.widgets.ThemeAwareActivity
 
 class TheActivity : ThemeAwareActivity(), HasNavigator {

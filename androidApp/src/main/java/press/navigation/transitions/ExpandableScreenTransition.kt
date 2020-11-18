@@ -1,4 +1,4 @@
-package press.navigation
+package press.navigation.transitions
 
 import android.view.View
 import androidx.appcompat.widget.Toolbar
@@ -7,6 +7,7 @@ import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.SimplePageStateChangeCallbacks
 import me.saket.press.shared.ui.ScreenKey
 import press.extensions.findChild
+import press.navigation.ScreenTransition
 import press.navigation.ScreenTransition.TransitionResult
 import press.navigation.ScreenTransition.TransitionResult.Handled
 import press.navigation.ScreenTransition.TransitionResult.Ignored
@@ -21,8 +22,6 @@ class ExpandableScreenTransition : ScreenTransition {
     goingForward: Boolean,
     onComplete: () -> Unit
   ): TransitionResult {
-    println("Transitioning from $fromKey -> $toKey")
-
     if (goingForward && toKey is ExpandableScreenKey) {
       check(toView is ExpandablePageLayout)
       val fromList = fromView.findChild<InboxRecyclerView>()!!

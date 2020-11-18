@@ -1,4 +1,4 @@
-package press.navigation
+package press.navigation.transitions
 
 import android.graphics.Color
 import android.view.View
@@ -14,6 +14,7 @@ import com.google.android.material.transition.MaterialContainerTransform.Progres
 import me.saket.press.shared.ui.ScreenKey
 import press.extensions.findChild
 import press.extensions.withOpacity
+import press.navigation.ScreenTransition
 import press.navigation.ScreenTransition.TransitionResult
 import press.navigation.ScreenTransition.TransitionResult.Handled
 import press.navigation.ScreenTransition.TransitionResult.Ignored

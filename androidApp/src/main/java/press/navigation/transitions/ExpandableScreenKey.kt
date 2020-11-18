@@ -1,4 +1,4 @@
-package press.navigation
+package press.navigation.transitions
 
 import android.view.View
 import android.view.animation.PathInterpolator
@@ -7,12 +7,13 @@ import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.SimpleOnPullListener
 import me.saket.press.shared.ui.ScreenKey
+import press.navigation.DelegatingScreenKey
+import press.navigation.navigator
 import press.widgets.dp
 
 /**
- * Makes [screen] expandable by wrapping it inside an [ExpandablePageLayout]. When [screen]
- * is incoming to foreground, the page will be wired to the outgoing screen's [InboxRecyclerView]
- * through [ExpandableScreenTransition].
+ * Makes [screen] expandable by wrapping it inside an [ExpandablePageLayout] and expands/collapses
+ * from/to a [InboxRecyclerView] list item through [ExpandableScreenTransition].
  */
 @Parcelize
 data class ExpandableScreenKey(

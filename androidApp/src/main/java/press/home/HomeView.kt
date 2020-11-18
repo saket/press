@@ -36,8 +36,8 @@ import press.extensions.getDrawable
 import press.extensions.heightOf
 import press.extensions.second
 import press.extensions.throttleFirst
-import press.navigation.ExpandableScreenKey
-import press.navigation.MorphFromFabScreenKey
+import press.navigation.transitions.ExpandableScreenKey
+import press.navigation.transitions.MorphFromFabScreenKey
 import press.navigation.ScreenFocusChangeListener
 import press.navigation.handle
 import press.navigation.navigator
