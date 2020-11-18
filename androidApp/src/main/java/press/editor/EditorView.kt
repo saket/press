@@ -23,6 +23,7 @@ import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.inflation.InflationInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.InterceptResult.IGNORED
 import me.saket.inboxrecyclerview.page.InterceptResult.INTERCEPTED
 import me.saket.inboxrecyclerview.page.OnPullToCollapseInterceptor
@@ -50,6 +51,7 @@ import me.saket.wysiwyg.parser.node.HeadingLevel.H1
 import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.widgets.addTextChangedListener
 import press.extensions.doOnTextChange
+import press.extensions.findParentOfType
 import press.extensions.fromOreo
 import press.extensions.locationOnScreen
 import press.extensions.showKeyboard
@@ -88,7 +90,7 @@ class EditorView @InflationInject constructor(
     )
   }
 
-  internal val editorEditText = PlainTextPasteEditText(context).apply {
+  private val editorEditText = PlainTextPasteEditText(context).apply {
     applyStyle(mainBody)
     id = R.id.editor_textfield
     background = null
@@ -168,8 +170,9 @@ class EditorView @InflationInject constructor(
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
-    // val page = findParentOfType<ExpandablePageLayout>()
-    // page.pullToCollapseInterceptor = interceptPullToCollapseOnView(scrollView)
+
+    val page = findParentOfType<ExpandablePageLayout>()
+    page.pullToCollapseInterceptor = interceptPullToCollapseOnView(scrollView)
 
     editorEditText.doOnTextChange {
       presenter.dispatch(NoteTextChanged(it.toString()))
