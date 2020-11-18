@@ -13,9 +13,12 @@ import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.home.HomeScreenKey
 import me.saket.press.shared.ui.Navigator
+import me.saket.press.shared.ui.ScreenKey
 import press.PressApp
 import press.extensions.hideKeyboard
 import press.extensions.unsafeLazy
+import press.navigation.ScreenTransition.TransitionResult
+import press.navigation.ScreenTransition.TransitionResult.Ignored
 import press.navigation.transitions.ExpandableScreenTransition
 import press.navigation.transitions.MorphFromFabScreenTransition
 import press.widgets.ThemeAwareActivity
@@ -29,11 +32,11 @@ class TheActivity : ThemeAwareActivity(), HasNavigator {
       hostView = { navHostView },
       viewFactories = PressApp.component.viewFactories(),
       transitions = listOf(
+        HideKeyboardOnScreenChange(),
         ExpandableScreenTransition(),
         MorphFromFabScreenTransition()
       )
     )
-    screenChanger.focusChangeListeners += HideKeyboardOnScreenChange()
     navigator = RealNavigator(this, screenChanger).also {
       super.attachBaseContext(it.installInContext(newBase, PlaceholderScreenKey()))
     }
@@ -71,14 +74,18 @@ class TheActivity : ThemeAwareActivity(), HasNavigator {
   }
 }
 
-private class HideKeyboardOnScreenChange : ScreenFocusChangeListener {
-  private var lastFocusedScreen: View? = null
-
-  override fun onScreenFocusChanged(focusedScreen: View?) {
-    val isScreenChanging = focusedScreen != null && lastFocusedScreen != focusedScreen
-    if (isScreenChanging && focusedScreen!!.findFocus() !is EditText) {
-      focusedScreen!!.hideKeyboard()
+private class HideKeyboardOnScreenChange : ScreenTransition {
+  override fun transition(
+    fromView: View,
+    fromKey: ScreenKey,
+    toView: View,
+    toKey: ScreenKey,
+    goingForward: Boolean,
+    onComplete: () -> Unit
+  ): TransitionResult {
+    if (toView.findFocus() !is EditText) {
+      toView.hideKeyboard()
     }
-    lastFocusedScreen = focusedScreen
+    return Ignored
   }
 }

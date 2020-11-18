@@ -27,7 +27,6 @@ class ScreenKeyChanger(
   transitions: List<ScreenTransition>
 ) : KeyChanger {
   private val transitions = transitions + NoOpTransition()
-  val focusChangeListeners = mutableListOf<ScreenFocusChangeListener>()
 
   override fun changeKey(
     outgoingState: State?,
@@ -139,7 +138,6 @@ class ScreenKeyChanger(
 
     children
       .filterIsInstance<ScreenFocusChangeListener>()
-      .plus(focusChangeListeners)
       .forEach {
         it.onScreenFocusChanged(focusedScreen = foregroundView)
       }
