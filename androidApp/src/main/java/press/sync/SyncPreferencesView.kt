@@ -36,7 +36,6 @@ class SyncPreferencesView @InflationInject constructor(
 
   private val toolbar = PressToolbar(context).apply {
     title = context.strings().sync.title
-    setNavigationOnClickListener { navigator().goBack() }
     applyLayout(
       x = matchParentX(),
       y = topTo { parent.top() }

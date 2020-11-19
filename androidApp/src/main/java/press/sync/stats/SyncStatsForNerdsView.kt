@@ -29,7 +29,6 @@ class SyncStatsForNerdsView @AssistedInject constructor(
 
   private val toolbar = PressToolbar(context).apply {
     title = context.strings().sync.nerd_stats_title
-    setNavigationOnClickListener { navigator().goBack() }
   }
 
   private val directorySizeView = TextView(context, mainBody).apply {

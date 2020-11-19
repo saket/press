@@ -161,10 +161,6 @@ class EditorView @InflationInject constructor(
         editorEditText.addTextChangedListener(wysiwyg.syntaxHighlighter())
       }
 
-    toolbar.setNavigationOnClickListener {
-      navigator().goBack()
-    }
-
     if (screenKey<EditorScreenKey>().openMode is NewNote) {
       editorEditText.post {
         editorEditText.showKeyboard()
