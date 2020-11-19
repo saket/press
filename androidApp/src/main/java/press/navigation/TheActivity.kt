@@ -55,12 +55,8 @@ class TheActivity : ThemeAwareActivity(), HasNavigator {
     super.onPostCreate(savedInstanceState)
 
     if (savedInstanceState == null) {
-      navigator.clearTopAndLfg(
-        when (val deepLink = readDeepLinkedScreen(intent)) {
-          null -> HomeScreenKey
-          else -> CompositeScreenKey(HomeScreenKey, deepLink)
-        }
-      )
+      navigator.clearTopAndLfg(HomeScreenKey)
+      readDeepLinkedScreen(intent)?.let(navigator::lfg)
     }
   }
 

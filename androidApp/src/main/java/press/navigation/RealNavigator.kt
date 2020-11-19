@@ -56,9 +56,9 @@ class RealNavigator constructor(
 
   @Suppress("NAME_SHADOWING")
   override fun clearTopAndLfg(screen: ScreenKey) {
+    check(screen !is CompositeScreenKey)
     activity.runOnUiThread {
-      val screen = if (screen is CompositeScreenKey) screen else CompositeScreenKey(screen)
-      flow.setHistory(History.single(screen), REPLACE)
+      flow.setHistory(History.single(CompositeScreenKey(screen)), REPLACE)
     }
   }
 
