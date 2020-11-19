@@ -28,6 +28,7 @@ class ScreenKeyChanger(
   transitions: List<ScreenTransition>
 ) : KeyChanger {
   private val transitions = transitions + NoOpTransition()
+  private var previousKey: ScreenKey? = null
 
   override fun changeKey(
     outgoingState: State?,
@@ -42,11 +43,12 @@ class ScreenKeyChanger(
       // Short circuit if we would just be showing the same view again. Flow
       // intentionally calls changeKey() again on onResume() with the same values.
       // See: https://github.com/square/flow/issues/173.
-      if (peek() == incomingKey) {
+      if (previousKey == incomingKey) {
         callback.onTraversalCompleted()
         return
       }
     }
+    previousKey = incomingKey
 
     if (incomingKey !is CompositeScreenKey) {
       // FYI PlaceholderScreenKey gets discarded here.
@@ -107,17 +109,6 @@ class ScreenKeyChanger(
     }
 
     callback.onTraversalCompleted()
-  }
-
-  private fun peek(): CompositeScreenKey? {
-    val children = hostView().children.toList()
-      .asReversed()
-      .ifEmpty { null } ?: return null
-
-    return CompositeScreenKey(
-      background = children.getOrNull(1)?.screenKey(),
-      foreground = children[0].screenKey()
-    )
   }
 
   private fun warnIfIdIsMissing(incomingView: View) {
