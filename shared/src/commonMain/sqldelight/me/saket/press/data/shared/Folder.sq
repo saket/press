@@ -1,0 +1,12 @@
+import me.saket.press.shared.db.FolderId;
+
+CREATE TABLE folder (
+  localId INTEGER PRIMARY KEY AUTOINCREMENT,
+  id TEXT AS FolderId NOT NULL,
+  name TEXT NOT NULL,
+  parent TEXT AS FolderId
+);
+
+foldersUnder:
+SELECT * FROM folder
+WHERE parent = ?;

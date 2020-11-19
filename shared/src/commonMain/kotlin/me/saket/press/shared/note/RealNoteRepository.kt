@@ -37,6 +37,7 @@ internal class RealNoteRepository(
         for (note in insertNotes) {
           noteQueries.insert(
             id = note.id,
+            folderId = null,
             content = note.content,
             createdAt = note.createdAt ?: clock.nowUtc(),
             updatedAt = note.createdAt ?: clock.nowUtc()

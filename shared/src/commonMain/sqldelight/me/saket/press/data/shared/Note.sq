@@ -1,4 +1,5 @@
 import com.soywiz.klock.DateTime;
+import me.saket.press.shared.db.FolderId;
 import me.saket.press.shared.db.NoteId;
 import me.saket.press.shared.sync.SyncState;
 
@@ -10,7 +11,8 @@ CREATE TABLE note (
   updatedAt TEXT AS DateTime NOT NULL,
   isArchived INTEGER AS Boolean NOT NULL DEFAULT 0,
   isPendingDeletion INTEGER AS Boolean NOT NULL DEFAULT 0,
-  syncState TEXT AS SyncState NOT NULL DEFAULT 'PENDING'
+  syncState TEXT AS SyncState NOT NULL DEFAULT 'PENDING',
+  folderId TEXT AS FolderId
 );
 
 CREATE INDEX note_content ON note(content);
@@ -68,8 +70,8 @@ FROM note
 WHERE id = ?;
 
 insert:
-INSERT INTO note(id, content, createdAt, updatedAt)
-VALUES (?, ?, ?, ?);
+INSERT INTO note(id, folderId, content, createdAt, updatedAt)
+VALUES (?, ?, ?, ?, ?);
 
 updateContent:
 UPDATE note

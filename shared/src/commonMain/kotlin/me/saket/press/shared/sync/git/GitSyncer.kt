@@ -493,6 +493,7 @@ class GitSyncer(
             DbOperation.includeId(noteId) {
               noteQueries.insert(
                 id = noteId,
+                folderId = null,
                 content = content,
                 createdAt = commitTime,
                 updatedAt = commitTime
