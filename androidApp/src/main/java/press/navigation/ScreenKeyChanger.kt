@@ -4,10 +4,12 @@ import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
+import androidx.transition.TransitionManager
 import flow.Direction.REPLACE
 import flow.KeyChanger
 import flow.State
 import flow.TraversalCallback
+import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.shared.ui.ScreenKey
 import press.extensions.findChild
 import press.navigation.BackPressInterceptor.InterceptResult.Ignored
@@ -26,7 +28,7 @@ class ScreenKeyChanger(
   private val formFactor: FormFactor,
   transitions: List<ScreenTransition>
 ) : KeyChanger {
-  private val transitions = transitions + NoOpTransition()
+  private val transitions = transitions + BasicTransition()
   private var previousKey: ScreenKey? = null
 
   override fun changeKey(
@@ -131,7 +133,7 @@ class ScreenKeyChanger(
   }
 }
 
-private class NoOpTransition : ScreenTransition {
+private class BasicTransition : ScreenTransition {
   override fun transition(
     fromView: View,
     fromKey: ScreenKey,
@@ -139,6 +141,12 @@ private class NoOpTransition : ScreenTransition {
     toKey: ScreenKey,
     onComplete: () -> Unit
   ): TransitionResult {
+    if (toView is ExpandablePageLayout) {
+      toView.expandImmediately()
+    } else if (fromView is ExpandablePageLayout) {
+      // Can't collapse without a parent InboxRecyclerView.
+      TransitionManager.beginDelayedTransition(fromView.parent as ViewGroup)
+    }
     onComplete()
     return Handled
   }
