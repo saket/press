@@ -24,8 +24,7 @@ sealed class EditorOpenMode : AndroidParcel {
     override val noteId: NoteIdKind,
     val listAdapterId: Long
   ) : EditorOpenMode() {
-    constructor(noteId: NoteId, listAdapterId: Long)
-      : this(PreSavedNoteId(noteId), listAdapterId)
+    constructor(noteId: NoteId, listAdapterId: Long) : this(PreSavedNoteId(noteId), listAdapterId)
   }
 }
 

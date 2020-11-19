@@ -8,7 +8,6 @@ import androidx.browser.customtabs.CustomTabsIntent
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
 import com.squareup.inject.inflation.InflationInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.press.R
@@ -24,7 +23,6 @@ import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncEnabled
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import press.extensions.setDisplayedChild
-import press.navigation.navigator
 import press.theme.themeAware
 import press.widgets.PressToolbar
 

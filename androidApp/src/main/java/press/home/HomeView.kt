@@ -19,7 +19,6 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.inflation.InflationInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.inboxrecyclerview.InboxRecyclerView
-import me.saket.inboxrecyclerview.animation.ItemExpandAnimator
 import me.saket.inboxrecyclerview.dimming.DimPainter
 import me.saket.press.R
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote

@@ -3,7 +3,6 @@ package press.navigation
 import android.content.ContextWrapper
 import android.view.View
 import me.saket.press.shared.ui.Navigator
-import me.saket.press.shared.ui.ScreenKey
 
 interface HasNavigator {
   val navigator: Navigator
