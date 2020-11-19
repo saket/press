@@ -11,6 +11,7 @@ import android.widget.FrameLayout
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorScreenKey
+import me.saket.press.shared.editor.PlaceholderNoteId
 import me.saket.press.shared.home.HomeScreenKey
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.ScreenKey
@@ -57,8 +58,10 @@ class TheActivity : ThemeAwareActivity(), HasNavigator {
           intent.getStringExtra(EXTRA_TEXT)?.let(::append)
         }
         EditorScreenKey(
-          openMode = NewNote(placeholderId = NoteId.generate(), preFilledNote = sharedText),
-          showKeyboard = true
+          NewNote(
+            noteId = PlaceholderNoteId(NoteId.generate()),
+            preFilledNote = sharedText
+          ),
         )
       } else {
         HomeScreenKey

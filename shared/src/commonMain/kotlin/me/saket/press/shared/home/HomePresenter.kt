@@ -11,10 +11,11 @@ import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.wrap
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.NoteId
-import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
+import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorPresenter
 import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
 import me.saket.press.shared.editor.EditorScreenKey
+import me.saket.press.shared.editor.PreSavedNoteId
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.keyboard.KeyboardShortcuts
 import me.saket.press.shared.keyboard.KeyboardShortcuts.Companion.newNote
@@ -46,7 +47,9 @@ class HomePresenter(
         repository
           .create(newNoteId, NEW_NOTE_PLACEHOLDER)
           .andThen(completableFromFunction {
-            args.navigator.lfg(EditorScreenKey(ExistingNote(newNoteId), showKeyboard = true))
+            args.navigator.lfg(
+              EditorScreenKey(NewNote(PreSavedNoteId(newNoteId)))
+            )
           })
       }
       .andThen(observableOfEmpty())

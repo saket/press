@@ -23,12 +23,15 @@ import me.saket.inboxrecyclerview.animation.ItemExpandAnimator
 import me.saket.inboxrecyclerview.dimming.DimPainter
 import me.saket.press.R
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
+import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorScreenKey
+import me.saket.press.shared.editor.PreSavedNoteId
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.home.HomePresenter.Args
 import me.saket.press.shared.home.HomeUiModel
 import me.saket.press.shared.localization.strings
+import me.saket.press.shared.ui.ScreenKey
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import press.extensions.attr
@@ -39,6 +42,7 @@ import press.extensions.throttleFirst
 import press.navigation.ScreenFocusChangeListener
 import press.navigation.handle
 import press.navigation.navigator
+import press.navigation.screenKey
 import press.navigation.transitions.ExpandableScreenKey
 import press.navigation.transitions.MorphFromFabScreenKey
 import press.sync.PreferencesActivity
@@ -127,7 +131,7 @@ class HomeView @InflationInject constructor(
       .subscribe { note ->
         navigator().lfg(
           ExpandableScreenKey(
-            EditorScreenKey(ExistingNote(note.id), showKeyboard = false),
+            EditorScreenKey(ExistingNote(PreSavedNoteId(note.id))),
             expandingFromItemId = note.adapterId
           )
         )
@@ -137,8 +141,11 @@ class HomeView @InflationInject constructor(
   override fun onScreenFocusChanged(focusedScreen: View?) {
     if (this === focusedScreen) {
       newNoteFab.show()
-    } else if (notesList.expandablePage != null) {
-      newNoteFab.hide()
+    } else {
+      val focusedKey = focusedScreen?.screenKey<ScreenKey>()
+      if ((focusedKey as? EditorScreenKey)?.openMode is ExistingNote) {
+        newNoteFab.hide()
+      }
     }
   }
 

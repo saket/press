@@ -30,6 +30,7 @@ import me.saket.inboxrecyclerview.page.OnPullToCollapseInterceptor
 import me.saket.press.R
 import me.saket.press.shared.editor.AutoCorrectEnabled
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
+import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorPresenter
 import me.saket.press.shared.editor.EditorPresenter.Args
 import me.saket.press.shared.editor.EditorScreenKey
@@ -161,7 +162,7 @@ class EditorView @InflationInject constructor(
       navigator().goBack()
     }
 
-    if (screenKey<EditorScreenKey>().showKeyboard) {
+    if (screenKey<EditorScreenKey>().openMode is NewNote) {
       editorEditText.post {
         editorEditText.showKeyboard()
       }

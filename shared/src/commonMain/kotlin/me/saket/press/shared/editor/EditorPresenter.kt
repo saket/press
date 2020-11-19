@@ -23,7 +23,6 @@ import com.badoo.reaktive.observable.withLatestFrom
 import com.badoo.reaktive.observable.wrap
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
-import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorUiEffect.BlockedDueToSyncConflict
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
@@ -76,9 +75,9 @@ class EditorPresenter(
   }
 
   private fun createOrFetchNote(): Observable<Note> {
-    val newOrExistingId = when (openMode) {
-      is NewNote -> openMode.placeholderId
-      is ExistingNote -> openMode.noteId
+    val newOrExistingId = when (val it = openMode.noteId) {
+      is PlaceholderNoteId -> it.id
+      is PreSavedNoteId -> it.id
     }
 
     val createIfNeeded = if (openMode is NewNote) {
@@ -178,9 +177,9 @@ class EditorPresenter(
       && args.deleteBlankNewNoteOnExit
       && content.trim().let { it.isBlank() || it == NEW_NOTE_PLACEHOLDER.trim() }
 
-    val noteId = when (openMode) {
-      is NewNote -> openMode.placeholderId
-      is ExistingNote -> openMode.noteId
+    val noteId = when (val it = openMode.noteId) {
+      is PlaceholderNoteId -> it.id
+      is PreSavedNoteId -> it.id
     }
 
     // For reasons I don't understand, noteStream doesn't get re-subscribed
