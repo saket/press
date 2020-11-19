@@ -16,6 +16,7 @@ import com.google.android.material.transition.MaterialContainerTransform.FADE_MO
 import com.google.android.material.transition.MaterialContainerTransform.ProgressThresholds
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
+import me.saket.inboxrecyclerview.page.StandaloneExpandablePageLayout
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.home.HomeScreenKey
@@ -69,7 +70,7 @@ class MorphFromFabScreenTransition : ScreenTransition {
   @OptIn(ExperimentalContracts::class)
   private fun isNewNoteScreen(view: View, key: ScreenKey): Boolean {
     contract {
-      returns() implies (view is ExpandablePageLayout)
+      returns() implies (view is StandaloneExpandablePageLayout)
     }
     return (key as? EditorScreenKey)?.openMode is NewNote
   }

@@ -10,6 +10,7 @@ import flow.KeyChanger
 import flow.State
 import flow.TraversalCallback
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
+import me.saket.inboxrecyclerview.page.StandaloneExpandablePageLayout
 import me.saket.press.shared.ui.ScreenKey
 import press.extensions.findChild
 import press.navigation.BackPressInterceptor.InterceptResult.Ignored
@@ -141,7 +142,7 @@ private class BasicTransition : ScreenTransition {
     toKey: ScreenKey,
     onComplete: () -> Unit
   ): TransitionResult {
-    if (toView is ExpandablePageLayout) {
+    if (toView is StandaloneExpandablePageLayout) {
       toView.expandImmediately()
     } else if (fromView is ExpandablePageLayout) {
       // Can't collapse without a parent InboxRecyclerView.
