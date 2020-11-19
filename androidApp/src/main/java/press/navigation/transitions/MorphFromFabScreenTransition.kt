@@ -22,7 +22,6 @@ import me.saket.press.shared.ui.ScreenKey
 import press.extensions.findChild
 import press.extensions.hideKeyboard
 import press.extensions.withOpacity
-import press.home.HomeView
 import press.navigation.ScreenTransition
 import press.navigation.ScreenTransition.TransitionResult
 import press.navigation.ScreenTransition.TransitionResult.Handled
@@ -36,7 +35,6 @@ class MorphFromFabScreenTransition : ScreenTransition {
     fromKey: ScreenKey,
     toView: View,
     toKey: ScreenKey,
-    goingForward: Boolean,
     onComplete: () -> Unit
   ): TransitionResult {
     if (fromKey is HomeScreenKey && isNewNoteScreen(toView, toKey)) {

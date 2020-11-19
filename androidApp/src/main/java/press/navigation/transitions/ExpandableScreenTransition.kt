@@ -27,7 +27,6 @@ class ExpandableScreenTransition : ScreenTransition {
     fromKey: ScreenKey,
     toView: View,
     toKey: ScreenKey,
-    goingForward: Boolean,
     onComplete: () -> Unit
   ): TransitionResult {
     if (fromKey is HomeScreenKey && toView is ExpandablePageLayout) {

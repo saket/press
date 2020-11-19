@@ -101,7 +101,6 @@ private class HideKeyboardOnScreenChange : ScreenTransition {
     fromKey: ScreenKey,
     toView: View,
     toKey: ScreenKey,
-    goingForward: Boolean,
     onComplete: () -> Unit
   ): TransitionResult {
     if (toView.findFocus() !is EditText) {

@@ -13,7 +13,6 @@ import press.extensions.findChild
 import press.navigation.BackPressInterceptor.InterceptResult.Ignored
 import press.navigation.ScreenTransition.TransitionResult
 import press.navigation.ScreenTransition.TransitionResult.Handled
-import press.theme.themeAware
 
 /**
  * Inflates screen Views in response to backstack changes.
@@ -88,7 +87,6 @@ class ScreenKeyChanger(
     val outgoingKey = outgoingState?.getKey<ScreenKey>() as? CompositeScreenKey
     val wasStateRestored = outgoingKey == null && incomingKey.background != null && direction == REPLACE
 
-    val forwardTransition = wasStateRestored || oldForegroundView?.screenKey<ScreenKey>() === newBackgroundView?.screenKey<ScreenKey>()
     val fromView: View? = if (wasStateRestored) newBackgroundView else oldForegroundView
     val fromKey: ScreenKey? = if (wasStateRestored) incomingKey.background else outgoingKey?.foreground
 
@@ -99,7 +97,6 @@ class ScreenKeyChanger(
           fromKey = fromKey!!,
           toView = foregroundView,
           toKey = incomingKey.foreground,
-          goingForward = forwardTransition,
           onComplete = onTransitionEnd
         ) == Handled
       }
@@ -140,7 +137,6 @@ private class NoOpTransition : ScreenTransition {
     fromKey: ScreenKey,
     toView: View,
     toKey: ScreenKey,
-    goingForward: Boolean,
     onComplete: () -> Unit
   ): TransitionResult {
     onComplete()
