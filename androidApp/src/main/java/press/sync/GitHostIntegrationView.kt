@@ -10,9 +10,9 @@ import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
 import com.squareup.inject.inflation.InflationInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.sync.git.GitHost
@@ -29,7 +29,9 @@ import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowProgress
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import press.extensions.doOnTextChange
+import press.extensions.findParentOfType
 import press.extensions.hideKeyboard
+import press.extensions.interceptPullToCollapseOnView
 import press.navigation.navigator
 import press.navigation.screenKey
 import press.theme.themeAware
@@ -130,6 +132,9 @@ class GitHostIntegrationView @InflationInject constructor(
       .takeUntil(detaches())
       .observeOn(mainThread())
       .subscribe(models = ::render)
+
+    val page = findParentOfType<ExpandablePageLayout>()
+    page?.pullToCollapseInterceptor = interceptPullToCollapseOnView(recyclerView)
   }
 
   private fun render(model: GitHostIntegrationUiModel) {

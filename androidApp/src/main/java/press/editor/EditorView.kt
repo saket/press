@@ -9,7 +9,6 @@ import android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
 import android.text.Layout.BREAK_STRATEGY_HIGH_QUALITY
 import android.util.AttributeSet
 import android.view.Gravity.TOP
-import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN
@@ -24,9 +23,6 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.inflation.InflationInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
-import me.saket.inboxrecyclerview.page.InterceptResult.IGNORED
-import me.saket.inboxrecyclerview.page.InterceptResult.INTERCEPTED
-import me.saket.inboxrecyclerview.page.OnPullToCollapseInterceptor
 import me.saket.press.R
 import me.saket.press.shared.editor.AutoCorrectEnabled
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
@@ -54,7 +50,7 @@ import me.saket.wysiwyg.widgets.addTextChangedListener
 import press.extensions.doOnTextChange
 import press.extensions.findParentOfType
 import press.extensions.fromOreo
-import press.extensions.locationOnScreen
+import press.extensions.interceptPullToCollapseOnView
 import press.extensions.showKeyboard
 import press.extensions.textColor
 import press.extensions.textSizePx
@@ -217,20 +213,6 @@ class EditorView @InflationInject constructor(
     setText(newText)
     newSelection?.let {
       setSelection(it.start, it.end)
-    }
-  }
-}
-
-private fun interceptPullToCollapseOnView(view: View): OnPullToCollapseInterceptor {
-  return { downX, downY, upwardPull ->
-    val touchLiesOnView = view.locationOnScreen().contains(downX.toInt(), downY.toInt())
-
-    if (touchLiesOnView) {
-      val directionInt = if (upwardPull) +1 else -1
-      val canScrollFurther = view.canScrollVertically(directionInt)
-      if (canScrollFurther) INTERCEPTED else IGNORED
-    } else {
-      IGNORED
     }
   }
 }
