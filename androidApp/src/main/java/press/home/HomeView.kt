@@ -30,6 +30,7 @@ import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.home.HomePresenter.Args
 import me.saket.press.shared.home.HomeUiModel
 import me.saket.press.shared.localization.strings
+import me.saket.press.shared.sync.SyncPreferencesScreenKey
 import me.saket.press.shared.ui.ScreenKey
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
@@ -44,7 +45,6 @@ import press.navigation.navigator
 import press.navigation.screenKey
 import press.navigation.transitions.ExpandableScreenKey
 import press.navigation.transitions.MorphFromFabScreenKey
-import press.sync.PreferencesActivity
 import press.theme.themeAware
 import press.widgets.DividerItemDecoration
 import press.widgets.SlideDownItemAnimator
@@ -98,7 +98,7 @@ class HomeView @InflationInject constructor(
       toolbar.menu.add(
         icon = context.getDrawable(R.drawable.ic_preferences_24dp, palette.accentColor),
         title = context.strings().home.preferences,
-        onClick = { context.startActivity(PreferencesActivity.intent(context)) }
+        onClick = { navigator().lfg(ExpandableScreenKey(SyncPreferencesScreenKey)) }
       )
     }
   }

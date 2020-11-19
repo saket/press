@@ -9,6 +9,7 @@
 
   <item name="theming_done" type="id" />
 
+  <item name="syncpreferences_view" type="id" />
   <item name="git_repos_search" type="id" />
   <item name="search_view_field" type="id" />
 </resources>

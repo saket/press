@@ -77,7 +77,7 @@ class HomePresenter(
       }
   }
 
-  interface Factory {
+  fun interface Factory {
     fun create(args: Args): HomePresenter
   }
 

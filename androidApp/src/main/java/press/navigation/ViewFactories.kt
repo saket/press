@@ -5,9 +5,11 @@ import android.view.View
 import com.squareup.inject.inflation.ViewFactory
 import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.home.HomeScreenKey
+import me.saket.press.shared.sync.SyncPreferencesScreenKey
 import me.saket.press.shared.ui.ScreenKey
 import press.editor.EditorView
 import press.home.HomeView
+import press.sync.SyncPreferencesView
 import javax.inject.Inject
 
 /**
@@ -25,6 +27,7 @@ class ViewFactories @Inject constructor(
     val name = when (actualScreen) {
       is HomeScreenKey -> HomeView::class
       is EditorScreenKey -> EditorView::class
+      is SyncPreferencesScreenKey -> SyncPreferencesView::class
       else -> error("Missing mapping for $actualScreen")
     }.qualifiedName
 

@@ -16,11 +16,12 @@ import press.navigation.navigator
 @Parcelize
 data class ExpandableScreenKey(
   val screen: ScreenKey,
-  val expandingFromItemId: Long
+  val expandingFromItemId: Long? = null // When null, the screen will expand from the top.
 ) : DelegatingScreenKey(screen) {
 
   override fun transformDelegateView(view: View): View {
     return ExpandablePageLayout(view.context).apply {
+      check(view.id != View.NO_ID)
       addView(view)
       id = view.id
       view.id = View.NO_ID

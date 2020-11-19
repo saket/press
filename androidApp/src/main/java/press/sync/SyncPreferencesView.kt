@@ -2,12 +2,14 @@ package press.sync
 
 import android.content.Context
 import android.net.Uri
+import android.util.AttributeSet
 import android.widget.ViewFlipper
 import androidx.browser.customtabs.CustomTabsIntent
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import com.squareup.inject.inflation.InflationInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.press.R
 import me.saket.press.shared.localization.strings
@@ -22,18 +24,19 @@ import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncEnabled
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import press.extensions.setDisplayedChild
+import press.navigation.navigator
 import press.theme.themeAware
 import press.widgets.PressToolbar
 
-class SyncPreferencesView @AssistedInject constructor(
+class SyncPreferencesView @InflationInject constructor(
   @Assisted context: Context,
-  @Assisted private val onDismiss: () -> Unit,
+  @Assisted attrs: AttributeSet? = null,
   private val presenter: SyncPreferencesPresenter
 ) : ContourLayout(context) {
 
   private val toolbar = PressToolbar(context).apply {
     title = context.strings().sync.title
-    setNavigationOnClickListener { onDismiss() }
+    setNavigationOnClickListener { navigator().goBack() }
     applyLayout(
       x = matchParentX(),
       y = topTo { parent.top() }
@@ -56,6 +59,7 @@ class SyncPreferencesView @AssistedInject constructor(
   }
 
   init {
+    id = R.id.syncpreferences_view
     themeAware {
       setBackgroundColor(it.window.backgroundColor)
     }
@@ -97,10 +101,5 @@ class SyncPreferencesView @AssistedInject constructor(
         .build()
         .launchUrl(context, Uri.parse(effect.url))
     }
-  }
-
-  @AssistedInject.Factory
-  interface Factory {
-    fun create(context: Context, onDismiss: () -> Unit): SyncPreferencesView
   }
 }

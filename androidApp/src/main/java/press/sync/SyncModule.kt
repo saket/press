@@ -7,7 +7,6 @@ import me.saket.press.shared.sync.git.GitHostIntegrationPresenter
 
 @Module
 object SyncModule {
-
   @Provides
   fun preferencesPresenter() =
     SharedSyncComponent.preferencesPresenter()

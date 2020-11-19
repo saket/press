@@ -30,7 +30,11 @@ class ExpandableScreenTransition : ScreenTransition {
       val fromList = fromView.findChild<InboxRecyclerView>()!!
       setupInboxList(list = fromList, page = toView, toolbar = fromView.findChild<Toolbar>())
 
-      fromList.expandItem(toKey.expandingFromItemId, immediate = !fromView.isLaidOut)
+      if (toKey.expandingFromItemId != null) {
+        fromList.expandItem(toKey.expandingFromItemId, immediate = !fromView.isLaidOut)
+      } else {
+        fromList.expandFromTop(immediate = !fromView.isLaidOut)
+      }
       toView.doOnExpand {
         onComplete()
       }

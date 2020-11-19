@@ -36,11 +36,6 @@
     </activity>
 
     <activity
-      android:name="press.sync.PreferencesActivity"
-      android:launchMode="singleTask"
-      android:windowSoftInputMode="adjustResize" />
-
-    <activity
       android:name="press.sync.GitHostIntegrationActivity"
       android:launchMode="singleTask"
       android:windowSoftInputMode="adjustResize">
