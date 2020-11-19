@@ -59,6 +59,9 @@ import press.extensions.showKeyboard
 import press.extensions.textColor
 import press.extensions.textSizePx
 import press.extensions.unsafeLazy
+import press.navigation.BackPressInterceptor
+import press.navigation.BackPressInterceptor.InterceptResult
+import press.navigation.BackPressInterceptor.InterceptResult.Ignored
 import press.navigation.navigator
 import press.navigation.screenKey
 import press.theme.themeAware
@@ -70,7 +73,7 @@ class EditorView @InflationInject constructor(
   @Assisted attrs: AttributeSet? = null,
   presenterFactory: EditorPresenter.Factory,
   autoCorrectEnabled: Setting<AutoCorrectEnabled>
-) : ContourLayout(context) {
+) : ContourLayout(context), BackPressInterceptor {
 
   private val toolbar = PressToolbar(context).apply {
     themeAware {
@@ -185,9 +188,13 @@ class EditorView @InflationInject constructor(
       .subscribe(models = ::render, effects = ::render)
   }
 
-  override fun onDetachedFromWindow() {
-    super.onDetachedFromWindow()
+  override fun onInterceptBackPress(): InterceptResult {
+    // The content must only be saved when this screen is closed by the user.
+    // Press previously saved content in onDetachedFromWindow(), but that caused
+    // the note to get deleted if the note was empty even if the Activity was
+    // being recreated, say, due to a theme change.
     presenter.saveEditorContentOnClose(editorEditText.text.toString())
+    return Ignored
   }
 
   private fun render(model: EditorUiModel) {
