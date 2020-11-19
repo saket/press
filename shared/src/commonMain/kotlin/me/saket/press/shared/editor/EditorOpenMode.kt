@@ -21,9 +21,11 @@ sealed class EditorOpenMode : AndroidParcel {
    */
   @AndroidParcelize
   data class ExistingNote(
-    override val noteId: NoteIdKind
+    override val noteId: NoteIdKind,
+    val listAdapterId: Long
   ) : EditorOpenMode() {
-    constructor(noteId: NoteId) : this(PreSavedNoteId(noteId))
+    constructor(noteId: NoteId, listAdapterId: Long)
+      : this(PreSavedNoteId(noteId), listAdapterId)
   }
 }
 
@@ -35,6 +37,6 @@ sealed class NoteIdKind : AndroidParcel
 @AndroidParcelize
 data class PlaceholderNoteId(val id: NoteId) : NoteIdKind()
 
-/** Used when an empty note has already been saved in the DB. */
+// TODO: rename to ExistingNoteId
 @AndroidParcelize
 data class PreSavedNoteId(val id: NoteId) : NoteIdKind()

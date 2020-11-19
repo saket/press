@@ -12,7 +12,7 @@ import me.saket.press.shared.ui.ScreenKey
 data class CompositeScreenKey(
   val foreground: ScreenKey,
   val background: ScreenKey? = null
-) : DelegatingScreenKey(delegate = foreground), MultiKey {
+) : ScreenKey, MultiKey {
 
   override fun getKeys(): MutableList<Any> {
     return listOfNotNull(background, foreground).toMutableList()

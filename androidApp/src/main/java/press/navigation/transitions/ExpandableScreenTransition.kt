@@ -5,12 +5,17 @@ import androidx.appcompat.widget.Toolbar
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.SimplePageStateChangeCallbacks
+import me.saket.press.shared.home.HomeScreenKey
 import me.saket.press.shared.ui.ScreenKey
 import press.extensions.findChild
 import press.navigation.ScreenTransition
 import press.navigation.ScreenTransition.TransitionResult
 import press.navigation.ScreenTransition.TransitionResult.Handled
 import press.navigation.ScreenTransition.TransitionResult.Ignored
+
+interface ExpandableScreenHost {
+  fun itemIdForExpandingScreen(screen: ScreenKey): Long?
+}
 
 /**
  * Wires an [InboxRecyclerView] with its expandable
@@ -25,25 +30,21 @@ class ExpandableScreenTransition : ScreenTransition {
     goingForward: Boolean,
     onComplete: () -> Unit
   ): TransitionResult {
-    if (goingForward && toKey is ExpandableScreenKey) {
-      check(toView is ExpandablePageLayout)
+    if (fromKey is HomeScreenKey && toView is ExpandablePageLayout) {
       val fromList = fromView.findChild<InboxRecyclerView>()!!
-      setupInboxList(list = fromList, page = toView, toolbar = fromView.findChild<Toolbar>())
+      setupInboxList(list = fromList, listParent = fromView, page = toView)
 
-      if (toKey.expandingFromItemId != null) {
-        fromList.expandItem(toKey.expandingFromItemId, immediate = !fromView.isLaidOut)
-      } else {
-        fromList.expandFromTop(immediate = !fromView.isLaidOut)
-      }
+      val expandingItemId = fromView.findChild<ExpandableScreenHost>()?.itemIdForExpandingScreen(toKey)
+      if (expandingItemId != null) fromList.expandItem(expandingItemId, immediate = !fromView.isLaidOut)
+      else fromList.expandFromTop(immediate = !fromView.isLaidOut)
       toView.doOnExpand {
         onComplete()
       }
       return Handled
 
-    } else if (!goingForward && fromKey is ExpandableScreenKey) {
-      check(fromView is ExpandablePageLayout)
+    } else if (fromView is ExpandablePageLayout && toKey is HomeScreenKey) {
       val toList = toView.findChild<InboxRecyclerView>()!!
-      setupInboxList(list = toList, page = fromView, toolbar = toView.findChild<Toolbar>())
+      setupInboxList(list = toList, listParent = toView, page = fromView)
 
       toList.collapse()
       fromView.doOnCollapse {
@@ -58,8 +59,8 @@ class ExpandableScreenTransition : ScreenTransition {
   }
 }
 
-private fun setupInboxList(list: InboxRecyclerView, page: ExpandablePageLayout, toolbar: Toolbar?) {
-  page.pushParentToolbarOnExpand(toolbar)
+private fun setupInboxList(list: InboxRecyclerView, listParent: View, page: ExpandablePageLayout) {
+  page.pushParentToolbarOnExpand(toolbar = listParent.findChild<Toolbar>())
   list.expandablePage = page
 }
 

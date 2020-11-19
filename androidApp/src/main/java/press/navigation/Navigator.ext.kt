@@ -19,15 +19,3 @@ fun View.navigator(): Navigator {
   }
   error("Can't find navigator in context: $context")
 }
-
-inline fun <reified T : ScreenKey> Navigator.handle(crossinline handler: (T) -> Unit): Navigator {
-  val delegate = this
-  return object : Navigator by delegate {
-    override fun lfg(screen: ScreenKey) {
-      when (screen) {
-        is T -> handler(screen)
-        else -> delegate.lfg(screen)
-      }
-    }
-  }
-}

@@ -24,7 +24,7 @@ import press.theme.themeAware
  */
 class ScreenKeyChanger(
   private val hostView: () -> ViewGroup,
-  private val viewFactories: ViewFactories,
+  private val formFactor: FormFactor,
   transitions: List<ScreenTransition>
 ) : KeyChanger {
   private val transitions = transitions + NoOpTransition()
@@ -61,9 +61,8 @@ class ScreenKeyChanger(
       if (existing != null) return existing
 
       val context = incomingContexts[key]!!
-      return viewFactories.createView(context, key).also {
+      return formFactor.createView(context, key).also {
         warnIfIdIsMissing(it)
-        maybeSetThemeBackground(it)
         incomingState.restore(it)
         hostView().addView(it)
       }
@@ -89,7 +88,7 @@ class ScreenKeyChanger(
     val outgoingKey = outgoingState?.getKey<ScreenKey>() as? CompositeScreenKey
     val wasStateRestored = outgoingKey == null && incomingKey.background != null && direction == REPLACE
 
-    val forwardTransition = wasStateRestored || oldForegroundView?.id === newBackgroundView?.id
+    val forwardTransition = wasStateRestored || oldForegroundView?.screenKey<ScreenKey>() === newBackgroundView?.screenKey<ScreenKey>()
     val fromView: View? = if (wasStateRestored) newBackgroundView else oldForegroundView
     val fromKey: ScreenKey? = if (wasStateRestored) incomingKey.background else outgoingKey?.foreground
 
@@ -114,14 +113,6 @@ class ScreenKeyChanger(
   private fun warnIfIdIsMissing(incomingView: View) {
     check(incomingView.id != View.NO_ID) {
       "${incomingView::class.simpleName} needs an ID for persisting View state."
-    }
-  }
-
-  private fun maybeSetThemeBackground(view: View) {
-    if (view.background == null) {
-      view.themeAware {
-        view.setBackgroundColor(it.window.backgroundColor)
-      }
     }
   }
 

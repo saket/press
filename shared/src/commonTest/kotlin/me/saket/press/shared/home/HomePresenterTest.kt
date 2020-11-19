@@ -103,8 +103,16 @@ class HomePresenterTest {
     presenter.dispatch(NewNoteClicked)
 
     assertThat(noteRepository.savedNotes).isNotEmpty()
-    val savedNoteId = noteRepository.savedNotes.single().id
-    assertThat(navigator.pop()).isEqualTo(EditorScreenKey(ExistingNote(savedNoteId)))
+    val savedNote = noteRepository.savedNotes.single()
+
+    assertThat(navigator.pop()).isEqualTo(
+      EditorScreenKey(
+        ExistingNote(
+          noteId = savedNote.id,
+          listAdapterId = savedNote.localId
+        )
+      )
+    )
   }
 
   @Test fun `open new note screen on new-note keyboard shortcut`() {
@@ -112,7 +120,14 @@ class HomePresenterTest {
 
     keyboardShortcuts.broadcast(KeyboardShortcuts.newNote)
 
-    val savedNoteId = noteRepository.savedNotes.single().id
-    assertThat(navigator.pop()).isEqualTo(EditorScreenKey(ExistingNote(savedNoteId)))
+    val savedNote = noteRepository.savedNotes.single()
+    assertThat(navigator.pop()).isEqualTo(
+      EditorScreenKey(
+        ExistingNote(
+          noteId = savedNote.id,
+          listAdapterId = savedNote.localId
+        )
+      )
+    )
   }
 }

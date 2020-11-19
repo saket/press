@@ -24,6 +24,7 @@ import me.saket.inboxrecyclerview.dimming.DimPainter
 import me.saket.press.R
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorScreenKey
+import me.saket.press.shared.editor.PlaceholderNoteId
 import me.saket.press.shared.editor.PreSavedNoteId
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomePresenter
@@ -40,11 +41,9 @@ import press.extensions.heightOf
 import press.extensions.second
 import press.extensions.throttleFirst
 import press.navigation.ScreenFocusChangeListener
-import press.navigation.handle
 import press.navigation.navigator
 import press.navigation.screenKey
-import press.navigation.transitions.ExpandableScreenKey
-import press.navigation.transitions.MorphFromFabScreenKey
+import press.navigation.transitions.ExpandableScreenHost
 import press.theme.themeAware
 import press.widgets.DividerItemDecoration
 import press.widgets.SlideDownItemAnimator
@@ -54,7 +53,7 @@ class HomeView @InflationInject constructor(
   @Assisted attrs: AttributeSet? = null,
   private val noteAdapter: NoteAdapter,
   private val presenter: HomePresenter.Factory
-) : ContourLayout(context), ScreenFocusChangeListener {
+) : ContourLayout(context), ScreenFocusChangeListener, ExpandableScreenHost {
 
   private val toolbar = Toolbar(context).apply {
     setTitle(R.string.app_name)
@@ -98,7 +97,7 @@ class HomeView @InflationInject constructor(
       toolbar.menu.add(
         icon = context.getDrawable(R.drawable.ic_preferences_24dp, palette.accentColor),
         title = context.strings().home.preferences,
-        onClick = { navigator().lfg(ExpandableScreenKey(SyncPreferencesScreenKey)) }
+        onClick = { navigator().lfg(SyncPreferencesScreenKey) }
       )
     }
   }
@@ -109,9 +108,7 @@ class HomeView @InflationInject constructor(
     val presenter = presenter.create(
       Args(
         includeBlankNotes = false,
-        navigator = navigator().handle { screen: EditorScreenKey ->
-          navigator().lfg(MorphFromFabScreenKey(screen))
-        }
+        navigator = navigator()
       )
     )
 
@@ -129,12 +126,22 @@ class HomeView @InflationInject constructor(
       .takeUntil(detaches())
       .subscribe { note ->
         navigator().lfg(
-          ExpandableScreenKey(
-            EditorScreenKey(ExistingNote(PreSavedNoteId(note.id))),
-            expandingFromItemId = note.adapterId
+          EditorScreenKey(
+            ExistingNote(
+              noteId = PreSavedNoteId(note.id),
+              listAdapterId = note.adapterId
+            )
           )
         )
       }
+  }
+
+  override fun itemIdForExpandingScreen(screen: ScreenKey): Long? {
+    return if (screen is EditorScreenKey && screen.openMode is ExistingNote) {
+      (screen.openMode as ExistingNote).listAdapterId
+    } else {
+      null
+    }
   }
 
   override fun onScreenFocusChanged(focusedScreen: View?) {

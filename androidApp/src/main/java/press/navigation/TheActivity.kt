@@ -34,11 +34,11 @@ class TheActivity : ThemeAwareActivity(), HasNavigator {
   override fun attachBaseContext(newBase: Context) {
     val screenChanger = ScreenKeyChanger(
       hostView = { navHostView },
-      viewFactories = PressApp.component.viewFactories(),
+      formFactor = PhoneFormFactor(PressApp.component.viewFactories()),
       transitions = listOf(
         HideKeyboardOnScreenChange(),
+        MorphFromFabScreenTransition(),
         ExpandableScreenTransition(),
-        MorphFromFabScreenTransition()
       )
     )
     navigator = RealNavigator(this, screenChanger).also {

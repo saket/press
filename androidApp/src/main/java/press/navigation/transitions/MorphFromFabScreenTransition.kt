@@ -14,14 +14,21 @@ import com.google.android.material.transition.MaterialArcMotion
 import com.google.android.material.transition.MaterialContainerTransform
 import com.google.android.material.transition.MaterialContainerTransform.FADE_MODE_OUT
 import com.google.android.material.transition.MaterialContainerTransform.ProgressThresholds
+import me.saket.inboxrecyclerview.page.ExpandablePageLayout
+import me.saket.press.shared.editor.EditorOpenMode.NewNote
+import me.saket.press.shared.editor.EditorScreenKey
+import me.saket.press.shared.home.HomeScreenKey
 import me.saket.press.shared.ui.ScreenKey
 import press.extensions.findChild
 import press.extensions.hideKeyboard
 import press.extensions.withOpacity
+import press.home.HomeView
 import press.navigation.ScreenTransition
 import press.navigation.ScreenTransition.TransitionResult
 import press.navigation.ScreenTransition.TransitionResult.Handled
 import press.navigation.ScreenTransition.TransitionResult.Ignored
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
 class MorphFromFabScreenTransition : ScreenTransition {
   override fun transition(
@@ -32,13 +39,14 @@ class MorphFromFabScreenTransition : ScreenTransition {
     goingForward: Boolean,
     onComplete: () -> Unit
   ): TransitionResult {
-    if (goingForward && toKey is MorphFromFabScreenKey) {
+    if (fromKey is HomeScreenKey && isNewNoteScreen(toView, toKey)) {
+      toView.expandImmediately()
       val fab = fromView.findChild<FloatingActionButton>()!!
       val transform = fabMorphTransition(from = fab, to = toView, onComplete = onComplete)
       TransitionManager.beginDelayedTransition(fromView.parent as ViewGroup, transform)
       return Handled
 
-    } else if (!goingForward && fromKey is MorphFromFabScreenKey) {
+    } else if (isNewNoteScreen(fromView, fromKey) && toKey is HomeScreenKey) {
       val fab = toView.findChild<FloatingActionButton>()!!
       val transform = fabMorphTransition(from = fromView, to = fab, onComplete = onComplete)
       fromView.hideKeyboardAndRun {
@@ -53,6 +61,14 @@ class MorphFromFabScreenTransition : ScreenTransition {
       return Ignored
     }
   }
+}
+
+@OptIn(ExperimentalContracts::class)
+private fun isNewNoteScreen(view: View, key: ScreenKey): Boolean {
+  contract {
+    returns() implies (view is ExpandablePageLayout)
+  }
+  return (key as? EditorScreenKey)?.openMode is NewNote
 }
 
 private inline fun View.hideKeyboardAndRun(crossinline action: () -> Unit) {

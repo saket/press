@@ -24,23 +24,15 @@ class ViewFactories @Inject constructor(
 
   @Suppress("UNCHECKED_CAST")
   fun createView(context: Context, screen: ScreenKey): View {
-    val actualScreen = screen.unwrapDelegate()
-
-    val name = when (actualScreen) {
+    val name = when (screen) {
       is HomeScreenKey -> HomeView::class
       is EditorScreenKey -> EditorView::class
       is SyncPreferencesScreenKey -> SyncPreferencesView::class
       is GitHostIntegrationScreenKey -> GitHostIntegrationView::class
-      else -> error("Missing mapping for ${actualScreen::class.simpleName}")
+      else -> error("Missing mapping for ${screen::class.simpleName}")
     }.qualifiedName
 
     val factory = factories[name] ?: error("No ViewFactory found for $name. Have factories for: ${factories.keys}")
-    val view = factory.create(context, null)
-
-    return if (screen is DelegatingScreenKey) {
-      screen.transformDelegateView(view)
-    } else {
-      view
-    }
+    return factory.create(context, null)
   }
 }
