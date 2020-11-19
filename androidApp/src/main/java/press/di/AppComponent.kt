@@ -15,6 +15,4 @@ interface AppComponent {
   fun theme(): AppTheme
   fun syncCoordinator(): SyncCoordinator
   fun viewFactories(): ViewFactories
-
-  fun inject(target: PressApp)
 }

@@ -25,7 +25,6 @@ abstract class PressApp : Application(), LifecycleObserver {
     super.onCreate()
     component = buildDependencyGraph()
     SharedComponent.initialize(this)
-    component.inject(this)
 
     RxAndroidPlugins.setInitMainThreadSchedulerHandler {
       AndroidSchedulers.from(Looper.getMainLooper(), true)

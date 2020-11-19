@@ -14,7 +14,6 @@ import timber.log.Timber.DebugTree
 
 @Suppress("unused")
 class DebugPressApp : PressApp() {
-
   override fun onCreate() {
     super.onCreate()
     Timber.plant(DebugTree())
