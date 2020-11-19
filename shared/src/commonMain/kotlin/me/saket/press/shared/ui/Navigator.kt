@@ -6,7 +6,7 @@ interface Navigator {
   // https://www.urbandictionary.com/define.php?term=lfg
   fun lfg(screen: ScreenKey)
   fun clearTopAndLfg(screen: ScreenKey)
-  fun goBack(): Boolean
+  fun goBack(otherwise: (() -> Unit)? = null)
 }
 
 interface ScreenKey : AndroidParcel

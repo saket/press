@@ -43,24 +43,32 @@ class RealNavigator constructor(
 
   // https://www.urbandictionary.com/define.php?term=lfg
   override fun lfg(screen: ScreenKey) {
-    flow.set(
-      CompositeScreenKey(
-        background = flow.history.top<CompositeScreenKey>().foreground,
-        foreground = screen
+    activity.runOnUiThread {
+      flow.set(
+        CompositeScreenKey(
+          background = flow.history.top<CompositeScreenKey>().foreground,
+          foreground = screen
+        )
       )
-    )
+    }
   }
 
   override fun clearTopAndLfg(screen: ScreenKey) {
-    flow.setHistory(History.single(CompositeScreenKey(screen)), REPLACE)
+    activity.runOnUiThread {
+      flow.setHistory(History.single(CompositeScreenKey(screen)), REPLACE)
+    }
   }
 
-  override fun goBack(): Boolean {
+  override fun goBack(otherwise: (() -> Unit)?) {
     // return when (keyChanger.onInterceptBackPress()) {
     //   Ignored -> flow.goBack()
     //   else -> false
     // }
-    return flow.goBack()
+    activity.runOnUiThread {
+      if (!flow.goBack()) {
+        otherwise?.invoke()
+      }
+    }
   }
 }
 
