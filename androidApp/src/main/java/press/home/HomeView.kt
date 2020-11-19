@@ -66,7 +66,6 @@ class HomeView @InflationInject constructor(
     layoutManager = LinearLayoutManager(context)
     adapter = noteAdapter
     dimPainter = DimPainter.listAndPage(color = BLACK, alpha = 0.25f)
-    itemExpandAnimator = ItemExpandAnimator.scale()
     toolbar.doOnLayout {
       clipToPadding = true  // for dimming to be drawn over the toolbar.
       updatePadding(top = toolbar.bottom)

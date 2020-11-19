@@ -3,6 +3,7 @@ package press.navigation.transitions
 import android.view.View
 import androidx.appcompat.widget.Toolbar
 import me.saket.inboxrecyclerview.InboxRecyclerView
+import me.saket.inboxrecyclerview.animation.ItemExpandAnimator
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.SimplePageStateChangeCallbacks
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
@@ -29,7 +30,7 @@ class ExpandableScreenTransition : ScreenTransition {
   ): TransitionResult {
     if (fromKey is HomeScreenKey && toView is ExpandablePageLayout) {
       val fromList = fromView.findChild<InboxRecyclerView>()!!
-      setupInboxList(list = fromList, listParent = fromView, page = toView)
+      fromList.attachPage(toView, parent = fromView)
 
       when (val id = itemIdForExpandingScreen(toKey)) {
         null -> fromList.expandFromTop(immediate = !fromView.isLaidOut)
@@ -42,12 +43,11 @@ class ExpandableScreenTransition : ScreenTransition {
 
     } else if (fromView is ExpandablePageLayout && toKey is HomeScreenKey) {
       val toList = toView.findChild<InboxRecyclerView>()!!
-      setupInboxList(list = toList, listParent = toView, page = fromView)
+      toList.attachPage(fromView, parent = toView)
 
       toList.collapse()
       fromView.doOnCollapse {
-        toList.expandablePage = null
-        fromView.pushParentToolbarOnExpand(null)
+        toList.detachPage(fromView)
         onComplete()
       }
       return Handled
@@ -55,35 +55,49 @@ class ExpandableScreenTransition : ScreenTransition {
 
     return Ignored
   }
-}
 
-private fun setupInboxList(list: InboxRecyclerView, listParent: View, page: ExpandablePageLayout) {
-  page.pushParentToolbarOnExpand(toolbar = listParent.findChild<Toolbar>())
-  list.expandablePage = page
-}
-
-private inline fun ExpandablePageLayout.doOnExpand(crossinline action: () -> Unit) {
-  if (isExpanded) {
-    action()
-  } else {
-    addStateChangeCallbacks(object : SimplePageStateChangeCallbacks() {
-      override fun onPageExpanded() {
-        action()
-        removeStateChangeCallbacks(this)
-      }
-    })
+  private fun InboxRecyclerView.attachPage(page: ExpandablePageLayout, parent: View) {
+    this.expandablePage = page
+    this.itemExpandAnimator = ItemExpandAnimator.scale()
+    page.pushParentToolbarOnExpand(toolbar = parent.findChild<Toolbar>()!!)
   }
-}
 
-private inline fun ExpandablePageLayout.doOnCollapse(crossinline block: () -> Unit) {
-  if (isCollapsed) {
-    block()
-  } else {
-    addStateChangeCallbacks(object : SimplePageStateChangeCallbacks() {
-      override fun onPageCollapsed() {
-        block()
-        removeStateChangeCallbacks(this)
-      }
-    })
+  private fun InboxRecyclerView.detachPage(page: ExpandablePageLayout) {
+    this.expandablePage = null
+    page.pushParentToolbarOnExpand(null)
+  }
+
+  private fun itemIdForExpandingScreen(screen: ScreenKey): Long? {
+    return if (screen is EditorScreenKey && screen.openMode is ExistingNote) {
+      (screen.openMode as ExistingNote).listAdapterId
+    } else {
+      null
+    }
+  }
+
+  private inline fun ExpandablePageLayout.doOnExpand(crossinline action: () -> Unit) {
+    if (isExpanded) {
+      action()
+    } else {
+      addStateChangeCallbacks(object : SimplePageStateChangeCallbacks() {
+        override fun onPageExpanded() {
+          action()
+          removeStateChangeCallbacks(this)
+        }
+      })
+    }
+  }
+
+  private inline fun ExpandablePageLayout.doOnCollapse(crossinline block: () -> Unit) {
+    if (isCollapsed) {
+      block()
+    } else {
+      addStateChangeCallbacks(object : SimplePageStateChangeCallbacks() {
+        override fun onPageCollapsed() {
+          block()
+          removeStateChangeCallbacks(this)
+        }
+      })
+    }
   }
 }
