@@ -151,7 +151,7 @@ inline fun <reified T> View.findChild(): T? {
 
   while (true) {
     when (val current = queue.poll()) {
-      null -> error("Couldn't find ${T::class.qualifiedName} in ${this::class.qualifiedName}'s hierarchy.")
+      null -> return null
       is T -> return current
       is ViewGroup -> current.forEach { queue.addLast(it) }
     }

@@ -57,10 +57,11 @@ class RealNavigator constructor(
   }
 
   override fun goBack(): Boolean {
-    return when (keyChanger.onInterceptBackPress()) {
-      Ignored -> flow.goBack()
-      else -> false
-    }
+    // return when (keyChanger.onInterceptBackPress()) {
+    //   Ignored -> flow.goBack()
+    //   else -> false
+    // }
+    return flow.goBack()
   }
 }
 

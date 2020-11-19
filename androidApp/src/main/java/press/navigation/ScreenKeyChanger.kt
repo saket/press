@@ -9,6 +9,7 @@ import flow.KeyChanger
 import flow.State
 import flow.TraversalCallback
 import me.saket.press.shared.ui.ScreenKey
+import press.extensions.findChild
 import press.navigation.BackPressInterceptor.InterceptResult.Ignored
 import press.navigation.ScreenTransition.TransitionResult
 import press.navigation.ScreenTransition.TransitionResult.Handled
@@ -61,7 +62,7 @@ class ScreenKeyChanger(
       return viewFactories.createView(context, key).also {
         warnIfIdIsMissing(it)
         maybeSetThemeBackground(it)
-        incomingState.restore(it) // todo: check if Flow can save multiple Views here.
+        incomingState.restore(it)
         hostView().addView(it)
       }
     }
@@ -70,6 +71,7 @@ class ScreenKeyChanger(
     val newBackgroundView = incomingKey.background?.let(::findOrCreateView)
     val foregroundView = incomingKey.foreground.let(::findOrCreateView)
     foregroundView.bringToFront()
+    dispatchFocusChangeCallback()
 
     val leftOverViews = hostView().children
       .filter { it !== newBackgroundView && it !== foregroundView }
@@ -144,8 +146,9 @@ class ScreenKeyChanger(
   }
 
   fun onInterceptBackPress(): BackPressInterceptor.InterceptResult {
-    val foreground = hostView().children.lastOrNull() as? BackPressInterceptor ?: return Ignored
-    return foreground.onInterceptBackPress()
+    val foreground = hostView().children.lastOrNull()
+    val interceptor = (foreground as? ViewGroup)?.findChild<BackPressInterceptor>()
+    return interceptor?.onInterceptBackPress() ?: return Ignored
   }
 }
 
