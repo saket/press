@@ -24,7 +24,6 @@ import me.saket.inboxrecyclerview.dimming.DimPainter
 import me.saket.press.R
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorScreenKey
-import me.saket.press.shared.editor.PlaceholderNoteId
 import me.saket.press.shared.editor.PreSavedNoteId
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomePresenter
@@ -43,7 +42,6 @@ import press.extensions.throttleFirst
 import press.navigation.ScreenFocusChangeListener
 import press.navigation.navigator
 import press.navigation.screenKey
-import press.navigation.transitions.ExpandableScreenHost
 import press.theme.themeAware
 import press.widgets.DividerItemDecoration
 import press.widgets.SlideDownItemAnimator
@@ -53,7 +51,7 @@ class HomeView @InflationInject constructor(
   @Assisted attrs: AttributeSet? = null,
   private val noteAdapter: NoteAdapter,
   private val presenter: HomePresenter.Factory
-) : ContourLayout(context), ScreenFocusChangeListener, ExpandableScreenHost {
+) : ContourLayout(context), ScreenFocusChangeListener {
 
   private val toolbar = Toolbar(context).apply {
     setTitle(R.string.app_name)
@@ -134,14 +132,6 @@ class HomeView @InflationInject constructor(
           )
         )
       }
-  }
-
-  override fun itemIdForExpandingScreen(screen: ScreenKey): Long? {
-    return if (screen is EditorScreenKey && screen.openMode is ExistingNote) {
-      (screen.openMode as ExistingNote).listAdapterId
-    } else {
-      null
-    }
   }
 
   override fun onScreenFocusChanged(focusedScreen: View?) {

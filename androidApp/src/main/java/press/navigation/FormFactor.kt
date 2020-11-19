@@ -18,6 +18,9 @@ interface FormFactor {
   fun createView(context: Context, screen: ScreenKey): View
 }
 
+/**
+ * Shows all screens as pull-collapsible.
+ */
 class PhoneFormFactor(private val viewFactories: ViewFactories) : FormFactor {
   override fun createView(context: Context, screen: ScreenKey): View {
     val view = viewFactories.createView(context, screen).let {
