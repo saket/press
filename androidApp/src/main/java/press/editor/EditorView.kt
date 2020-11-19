@@ -176,7 +176,7 @@ class EditorView @InflationInject constructor(
     super.onAttachedToWindow()
 
     val page = findParentOfType<ExpandablePageLayout>()
-    page.pullToCollapseInterceptor = interceptPullToCollapseOnView(scrollView)
+    page?.pullToCollapseInterceptor = interceptPullToCollapseOnView(scrollView)
 
     editorEditText.doOnTextChange {
       presenter.dispatch(NoteTextChanged(it.toString()))

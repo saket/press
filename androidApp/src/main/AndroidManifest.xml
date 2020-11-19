@@ -30,21 +30,17 @@
         <data android:mimeType="text/plain" />
       </intent-filter>
 
-      <meta-data
-        android:name="android.app.shortcuts"
-        android:resource="@xml/shortcuts" />
-    </activity>
-
-    <activity
-      android:name="press.sync.GitHostIntegrationActivity"
-      android:launchMode="singleTask"
-      android:windowSoftInputMode="adjustResize">
+      <!-- Git host integration. -->
       <intent-filter>
         <action android:name="android.intent.action.VIEW" />
         <category android:name="android.intent.category.DEFAULT" />
         <category android:name="android.intent.category.BROWSABLE" />
         <data android:scheme="intent" android:host="press" />
       </intent-filter>
+
+      <meta-data
+        android:name="android.app.shortcuts"
+        android:resource="@xml/shortcuts" />
     </activity>
 
     <activity

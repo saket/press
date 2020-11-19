@@ -1,6 +1,7 @@
 package press.sync
 
 import android.content.Context
+import android.util.AttributeSet
 import android.widget.ProgressBar
 import androidx.core.view.isGone
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -10,6 +11,7 @@ import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import com.squareup.inject.inflation.InflationInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.press.R
 import me.saket.press.shared.localization.strings
@@ -19,6 +21,7 @@ import me.saket.press.shared.sync.git.GitHostIntegrationEvent.RetryClicked
 import me.saket.press.shared.sync.git.GitHostIntegrationEvent.SearchTextChanged
 import me.saket.press.shared.sync.git.GitHostIntegrationPresenter
 import me.saket.press.shared.sync.git.GitHostIntegrationPresenter.Args
+import me.saket.press.shared.sync.git.GitHostIntegrationScreenKey
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.SelectRepo
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowFailure
@@ -28,17 +31,18 @@ import me.saket.press.shared.ui.uiUpdates
 import press.extensions.doOnTextChange
 import press.extensions.hideKeyboard
 import press.navigation.navigator
+import press.navigation.screenKey
 import press.theme.themeAware
 import press.widgets.PressToolbar
 import press.widgets.SlideDownItemAnimator
 import kotlin.math.abs
 
-class GitHostIntegrationView @AssistedInject constructor(
+class GitHostIntegrationView @InflationInject constructor(
   @Assisted context: Context,
-  @Assisted deepLink: String,
-  @Assisted private val onDismiss: () -> Unit,
+  @Assisted attrs: AttributeSet? = null,
   presenterFactory: GitHostIntegrationPresenter.Factory
 ) : ContourLayout(context) {
+  private val deepLink = screenKey<GitHostIntegrationScreenKey>().deepLink
 
   private val presenter = presenterFactory.create(
     Args(
@@ -49,7 +53,6 @@ class GitHostIntegrationView @AssistedInject constructor(
 
   private val toolbar = PressToolbar(context).apply {
     title = GitHost.readHostFromDeepLink(deepLink).displayName()
-    setNavigationOnClickListener { onDismiss() }
     applyLayout(
       x = matchParentX(),
       y = topTo { parent.top() }
@@ -95,6 +98,7 @@ class GitHostIntegrationView @AssistedInject constructor(
   }
 
   init {
+    id = R.id.githostintegration_view
     themeAware {
       setBackgroundColor(it.window.backgroundColor)
     }
@@ -147,14 +151,5 @@ class GitHostIntegrationView @AssistedInject constructor(
         }
       }
     }
-  }
-
-  @AssistedInject.Factory
-  interface Factory {
-    fun create(
-      context: Context,
-      deepLink: String,
-      onDismiss: () -> Unit
-    ): GitHostIntegrationView
   }
 }

@@ -6,7 +6,6 @@ import me.saket.press.shared.sync.SyncCoordinator
 import me.saket.press.shared.theme.AppTheme
 import press.PressApp
 import press.navigation.ViewFactories
-import press.sync.GitHostIntegrationActivity
 import press.sync.stats.SyncStatsForNerdsActivity
 import javax.inject.Singleton
 
@@ -19,6 +18,5 @@ interface AppComponent {
   fun viewFactories(): ViewFactories
 
   fun inject(target: PressApp)
-  fun inject(target: GitHostIntegrationActivity)
   fun inject(target: SyncStatsForNerdsActivity)
 }

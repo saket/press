@@ -89,7 +89,7 @@ class ScreenKeyChanger(
     val outgoingKey = outgoingState?.getKey<ScreenKey>() as? CompositeScreenKey
     val wasStateRestored = outgoingKey == null && incomingKey.background != null && direction == REPLACE
 
-    val forwardTransition = wasStateRestored || oldForegroundView === newBackgroundView
+    val forwardTransition = wasStateRestored || oldForegroundView?.id === newBackgroundView?.id
     val fromView: View? = if (wasStateRestored) newBackgroundView else oldForegroundView
     val fromKey: ScreenKey? = if (wasStateRestored) incomingKey.background else outgoingKey?.foreground
 

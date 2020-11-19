@@ -136,11 +136,13 @@ inline fun ViewGroup.onViewAdds(crossinline action: (View) -> Unit) {
   })
 }
 
-inline fun <reified T> View.findParentOfType(): T {
+inline fun <reified T> View.findParentOfType(): T? {
   var parent = this.parent
   while (parent !is T) {
     parent = parent.parent
-    check(parent is ViewGroup) { "Couldn't find any ancestor of type ${T::class}" }
+    if (parent !is ViewGroup) {
+      return null
+    }
   }
   return parent
 }

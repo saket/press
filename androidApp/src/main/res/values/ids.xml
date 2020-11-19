@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <item name="theming_done" type="id" />
+
   <item name="home_view" type="id" />
   <item name="home_notes" type="id" />
 
@@ -7,9 +9,9 @@
   <item name="editor_scrollable_container" type="id" />
   <item name="editor_textfield" type="id" />
 
-  <item name="theming_done" type="id" />
-
   <item name="syncpreferences_view" type="id" />
+
+  <item name="githostintegration_view" type="id" />
   <item name="git_repos_search" type="id" />
   <item name="search_view_field" type="id" />
 </resources>

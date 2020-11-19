@@ -1,6 +1,11 @@
 package me.saket.press.shared.sync.git
 
+import me.saket.press.shared.AndroidParcelize
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
+import me.saket.press.shared.ui.ScreenKey
+
+@AndroidParcelize
+data class GitHostIntegrationScreenKey(val deepLink: String) : ScreenKey
 
 interface GitHostIntegrationEvent {
   data class GitRepositoryClicked(val repo: GitRepositoryInfo) : GitHostIntegrationEvent

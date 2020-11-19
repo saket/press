@@ -6,9 +6,11 @@ import com.squareup.inject.inflation.ViewFactory
 import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.home.HomeScreenKey
 import me.saket.press.shared.sync.SyncPreferencesScreenKey
+import me.saket.press.shared.sync.git.GitHostIntegrationScreenKey
 import me.saket.press.shared.ui.ScreenKey
 import press.editor.EditorView
 import press.home.HomeView
+import press.sync.GitHostIntegrationView
 import press.sync.SyncPreferencesView
 import javax.inject.Inject
 
@@ -28,7 +30,8 @@ class ViewFactories @Inject constructor(
       is HomeScreenKey -> HomeView::class
       is EditorScreenKey -> EditorView::class
       is SyncPreferencesScreenKey -> SyncPreferencesView::class
-      else -> error("Missing mapping for $actualScreen")
+      is GitHostIntegrationScreenKey -> GitHostIntegrationView::class
+      else -> error("Missing mapping for ${actualScreen::class.simpleName}")
     }.qualifiedName
 
     val factory = factories[name] ?: error("No ViewFactory found for $name. Have factories for: ${factories.keys}")
