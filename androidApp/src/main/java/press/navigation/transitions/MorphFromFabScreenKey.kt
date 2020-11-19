@@ -1,14 +1,12 @@
 package press.navigation.transitions
 
 import android.view.View
-import android.view.animation.PathInterpolator
 import kotlinx.android.parcel.Parcelize
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.StandaloneExpandablePageLayout
 import me.saket.press.shared.ui.ScreenKey
 import press.navigation.DelegatingScreenKey
 import press.navigation.navigator
-import press.widgets.dp
 
 /**
  * Morphs an incoming [screen] from a FAB in the outgoing

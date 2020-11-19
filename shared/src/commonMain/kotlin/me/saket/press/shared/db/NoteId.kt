@@ -18,7 +18,7 @@ import me.saket.press.shared.AndroidParcelize
 // - kotlin multiplatform
 // - kotlinx.serialization
 @AndroidParcelize
-data class NoteId(val value: Uuid): AndroidParcel {
+data class NoteId(val value: Uuid) : AndroidParcel {
   override fun toString() = "NoteId($value)"
 
   object SqlAdapter : ColumnAdapter<NoteId, String> {

@@ -13,7 +13,6 @@ import kotlinx.android.parcel.Parcelize
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.ScreenKey
 import press.extensions.unsafeLazy
-import press.navigation.BackPressInterceptor.InterceptResult.Ignored
 
 /**
  * Maintains a backstack of screens using Square's Flow. Flow may be deprecated, but it's battle-tested
