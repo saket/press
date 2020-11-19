@@ -42,10 +42,5 @@
         android:name="android.app.shortcuts"
         android:resource="@xml/shortcuts" />
     </activity>
-
-    <activity
-      android:name="press.sync.stats.SyncStatsForNerdsActivity"
-      android:launchMode="singleTask"
-      android:windowSoftInputMode="adjustResize" />
   </application>
 </manifest>

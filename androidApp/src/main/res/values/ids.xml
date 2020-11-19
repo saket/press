@@ -14,4 +14,6 @@
   <item name="githostintegration_view" type="id" />
   <item name="git_repos_search" type="id" />
   <item name="search_view_field" type="id" />
+
+  <item name="syncstats_view" type="id" />
 </resources>

@@ -21,6 +21,7 @@ import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncEnabled
 import me.saket.press.shared.sync.git.GitHost.GITHUB
+import me.saket.press.shared.sync.stats.SyncStatsForNerdsScreenKey
 import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextStyles.smallTitle
 import me.saket.press.shared.theme.TextView
@@ -29,7 +30,7 @@ import me.saket.press.shared.theme.applyStyle
 import press.extensions.createRippleDrawable
 import press.extensions.getDrawable
 import press.extensions.textColor
-import press.sync.stats.SyncStatsForNerdsActivity
+import press.navigation.navigator
 import press.theme.AutoThemer
 import press.theme.appTheme
 import press.theme.themeAware
@@ -103,7 +104,7 @@ class SyncEnabledView(context: Context) : ContourLayout(context) {
       menu.add(context.strings().sync.show_sync_stats)
         .setIcon(context.getDrawable(R.drawable.ic_twotone_bug_report_24, palette.textColorPrimary))
         .setOnMenuItemClickListener {
-          context.startActivity(SyncStatsForNerdsActivity.intent(context))
+          navigator().lfg(SyncStatsForNerdsScreenKey)
           true
         }
       show()

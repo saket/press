@@ -1,14 +1,16 @@
 package press.sync.stats
 
 import android.content.Context
+import android.util.AttributeSet
 import android.widget.HorizontalScrollView
 import android.widget.ScrollView
 import androidx.core.view.setPadding
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import com.squareup.inject.inflation.InflationInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.sync.stats.SyncStatsForNerdsPresenter
 import me.saket.press.shared.sync.stats.SyncStatsForNerdsUiModel
@@ -18,12 +20,12 @@ import me.saket.press.shared.theme.TextView
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import press.extensions.textColor
-import press.navigation.navigator
 import press.theme.themeAware
 import press.widgets.PressToolbar
 
-class SyncStatsForNerdsView @AssistedInject constructor(
+class SyncStatsForNerdsView @InflationInject constructor(
   @Assisted context: Context,
+  @Assisted attrs: AttributeSet? = null,
   private val presenter: SyncStatsForNerdsPresenter
 ) : ContourLayout(context) {
 
@@ -67,6 +69,7 @@ class SyncStatsForNerdsView @AssistedInject constructor(
   }
 
   init {
+    id = R.id.syncstats_view
     toolbar.layoutBy(
       x = matchParentX(),
       y = topTo { parent.top() }
@@ -102,10 +105,5 @@ class SyncStatsForNerdsView @AssistedInject constructor(
   private fun render(model: SyncStatsForNerdsUiModel) {
     directorySizeView.text = model.gitDirectorySize
     logsView.text = model.logs
-  }
-
-  @AssistedInject.Factory
-  interface Factory {
-    fun create(context: Context): SyncStatsForNerdsView
   }
 }
