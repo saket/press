@@ -5,9 +5,10 @@ import org.koin.core.parameter.parametersOf
 import org.koin.dsl.module
 
 class SharedHomeComponent {
-
   val module = module {
-    factory { (args: HomePresenter.Args) -> HomePresenter(args, get(), get()) }
+    factory { (args: HomePresenter.Args) ->
+      HomePresenter(args, get(), get(), get())
+    }
   }
 
   companion object {

@@ -3,13 +3,18 @@ package me.saket.press.shared.home
 import com.badoo.reaktive.completable.andThen
 import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.observable.Observable
+import com.badoo.reaktive.observable.combineLatest
 import com.badoo.reaktive.observable.flatMapCompletable
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
+import com.badoo.reaktive.observable.observableOf
 import com.badoo.reaktive.observable.observableOfEmpty
 import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.wrap
+import me.saket.press.PressDatabase
 import me.saket.press.data.shared.Note
+import me.saket.press.shared.db.FolderId
+import me.saket.press.shared.db.FolderId.Companion
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorPresenter
@@ -27,12 +32,13 @@ import me.saket.press.shared.ui.Presenter
 
 class HomePresenter(
   private val args: Args,
+  private val database: PressDatabase,
   private val repository: NoteRepository,
   private val keyboardShortcuts: KeyboardShortcuts
 ) : Presenter<HomeEvent, HomeUiModel, Nothing>() {
 
   override fun defaultUiModel() =
-    HomeUiModel(notes = emptyList())
+    HomeUiModel(rows = emptyList())
 
   override fun uiModels() =
     merge(populateNotes(), openNewNoteScreen()).wrap()
@@ -60,21 +66,25 @@ class HomePresenter(
       args.includeBlankNotes || (note.content.isNotBlank() && note.content != NEW_NOTE_PLACEHOLDER)
     }
 
-    return repository.visibleNotes()
+    val folders = observableOf(
+      emptyList<HomeUiModel.Folder>()
+    )
+
+    val notes = repository.visibleNotes()
       .map { notes -> notes.filter { canInclude(it) } }
       .map {
-        HomeUiModel(
-          it.map { note ->
-            val (heading, body) = HeadingAndBody.parse(note.content)
-            HomeUiModel.Note(
-              id = note.id,
-              adapterId = note.localId,
-              title = heading,
-              body = body
-            )
-          }
-        )
+        it.map { note ->
+          val (heading, body) = HeadingAndBody.parse(note.content)
+          HomeUiModel.Note(
+            id = note.id,
+            adapterId = note.localId,
+            title = heading,
+            body = body
+          )
+        }
       }
+
+    return combineLatest(folders, notes) { f, n -> HomeUiModel(f + n) }
   }
 
   fun interface Factory {

@@ -11,19 +11,21 @@ import android.view.View
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
+import androidx.recyclerview.widget.ConcatAdapter
+import androidx.recyclerview.widget.ConcatAdapter.Config.StableIdMode.ISOLATED_STABLE_IDS
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.inflation.InflationInject
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.dimming.DimPainter
 import me.saket.press.R
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorScreenKey
-import me.saket.press.shared.editor.PreSavedNoteId
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.home.HomePresenter.Args
@@ -45,12 +47,15 @@ import press.theme.themeAware
 import press.widgets.DividerItemDecoration
 import press.widgets.SlideDownItemAnimator
 
+// TODO: Rename to NoteListView
 class HomeView @InflationInject constructor(
   @Assisted context: Context,
   @Assisted attrs: AttributeSet? = null,
-  private val noteAdapter: NoteAdapter,
   private val presenter: HomePresenter.Factory
 ) : ContourLayout(context), ScreenFocusChangeListener {
+
+  private val noteAdapter = NoteAdapter()
+  private val folderAdapter = FolderListAdapter()
 
   private val toolbar = Toolbar(context).apply {
     setTitle(R.string.app_name)
@@ -63,7 +68,6 @@ class HomeView @InflationInject constructor(
   private val notesList = InboxRecyclerView(context).apply {
     id = R.id.home_notes
     layoutManager = LinearLayoutManager(context)
-    adapter = noteAdapter
     dimPainter = DimPainter.listAndPage(color = BLACK, alpha = 0.25f)
     toolbar.doOnLayout {
       clipToPadding = true  // for dimming to be drawn over the toolbar.
@@ -87,6 +91,12 @@ class HomeView @InflationInject constructor(
 
   init {
     id = R.id.home_view
+
+    val adapterConfig = ConcatAdapter.Config.Builder()
+      .setIsolateViewTypes(true)
+      .setStableIdMode(ISOLATED_STABLE_IDS)
+      .build()
+    notesList.adapter = ConcatAdapter(adapterConfig, folderAdapter, noteAdapter)
 
     themeAware { palette ->
       toolbar.menu.clear()
@@ -117,18 +127,11 @@ class HomeView @InflationInject constructor(
       presenter.dispatch(NewNoteClicked)
     }
 
-    noteAdapter.noteClicks
+    Observable.merge(noteAdapter.clicks, folderAdapter.clicks)
       .throttleFirst(1.second, mainThread())
       .takeUntil(detaches())
-      .subscribe { note ->
-        navigator().lfg(
-          EditorScreenKey(
-            ExistingNote(
-              noteId = PreSavedNoteId(note.id),
-              listAdapterId = note.adapterId
-            )
-          )
-        )
+      .subscribe { row ->
+        navigator().lfg(row.screenKey())
       }
   }
 
@@ -156,6 +159,7 @@ class HomeView @InflationInject constructor(
 
   private fun render(model: HomeUiModel) {
     noteAdapter.submitList(model.notes)
+    folderAdapter.submitList(model.folders)
   }
 }
 

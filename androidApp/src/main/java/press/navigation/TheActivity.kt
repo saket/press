@@ -55,7 +55,7 @@ class TheActivity : ThemeAwareActivity(), HasNavigator {
     super.onPostCreate(savedInstanceState)
 
     if (savedInstanceState == null) {
-      navigator.clearTopAndLfg(HomeScreenKey)
+      navigator.clearTopAndLfg(HomeScreenKey.root())
       readDeepLinkedScreen(intent)?.let(navigator::lfg)
     }
   }
