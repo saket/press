@@ -27,8 +27,10 @@ data class MorphFromFabScreenKey(val screen: ScreenKey) : DelegatingScreenKey(sc
 
       applyStyle()
       expandImmediately()
-      onPageRelease = {
-        navigator().goBack()
+      onPageRelease = { collapseEligible ->
+        if (collapseEligible) {
+          navigator().goBack()
+        }
       }
     }
   }
