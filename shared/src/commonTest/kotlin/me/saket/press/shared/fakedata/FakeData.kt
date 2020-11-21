@@ -13,7 +13,6 @@ import kotlin.random.Random
 
 fun fakeNote(
   content: String,
-  localId: Long = Random.Default.nextLong(),
   id: NoteId = NoteId.generate(),
   clock: Clock = FakeClock(),
   createdAt: DateTime = clock.nowUtc(),
@@ -23,7 +22,7 @@ fun fakeNote(
   syncState: SyncState = PENDING
 ): Note {
   return Note(
-    localId = localId,
+    localId = Random.Default.nextLong(),
     id = id,
     content = content,
     createdAt = createdAt,

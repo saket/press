@@ -21,10 +21,9 @@ sealed class EditorOpenMode : AndroidParcel {
    */
   @AndroidParcelize
   data class ExistingNote(
-    override val noteId: NoteIdKind,
-    val listAdapterId: Long
+    override val noteId: PreSavedNoteId
   ) : EditorOpenMode() {
-    constructor(noteId: NoteId, listAdapterId: Long) : this(PreSavedNoteId(noteId), listAdapterId)
+    constructor(noteId: NoteId) : this(PreSavedNoteId(noteId))
   }
 }
 

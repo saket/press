@@ -99,7 +99,7 @@ class EditorPresenterTest {
   @Test fun `blank note is not created on start when an existing note is opened`() {
     repository.savedNotes += fakeNote(id = noteId, content = "Nicolas")
 
-    val observer = presenter(ExistingNote(PreSavedNoteId(noteId), -1))
+    val observer = presenter(ExistingNote(PreSavedNoteId(noteId)))
       .uiModels()
       .test()
 
@@ -163,7 +163,7 @@ class EditorPresenterTest {
   @Test fun `avoid deleting existing blank note on close when enabled`() {
     repository.savedNotes += fakeNote(id = noteId, content = "Existing note")
 
-    val presenter = presenter(ExistingNote(PreSavedNoteId(noteId), -1), deleteBlankNoteOnExit = true)
+    val presenter = presenter(ExistingNote(PreSavedNoteId(noteId)), deleteBlankNoteOnExit = true)
     presenter.saveEditorContentOnClose("")
     presenter.saveEditorContentOnClose("  ")
     presenter.saveEditorContentOnClose("  \n ")
@@ -205,7 +205,7 @@ class EditorPresenterTest {
       content = "Nicolas Cage favorite dialogues"
     )
 
-    presenter(ExistingNote(PreSavedNoteId(noteId), -1))
+    presenter(ExistingNote(PreSavedNoteId(noteId)))
       .uiEffects()
       .test()
       .apply {
@@ -242,7 +242,7 @@ class EditorPresenterTest {
 
   @Test fun `block editing if note is marked as sync-conflicted`() {
     repository.savedNotes += fakeNote(id = noteId, content = "# Existing note")
-    presenter(ExistingNote(PreSavedNoteId(noteId), -1)).uiEffects()
+    presenter(ExistingNote(PreSavedNoteId(noteId))).uiEffects()
       .ofType<BlockedDueToSyncConflict>()
       .test()
       .also { syncConflicts.add(noteId) }
@@ -252,7 +252,7 @@ class EditorPresenterTest {
   @Test fun `stop updating saved note once note is marked as sync-conflicted`() {
     repository.savedNotes += fakeNote(id = noteId, content = "# Content before sync")
 
-    val presenter = presenter(ExistingNote(PreSavedNoteId(noteId), -1))
+    val presenter = presenter(ExistingNote(PreSavedNoteId(noteId)))
     presenter.uiModels().test()
     syncConflicts.add(noteId)
 

@@ -10,11 +10,10 @@ import me.saket.press.shared.ui.ScreenKey
 
 @AndroidParcelize
 data class HomeScreenKey(
-  val folder: FolderId?,
-  val listAdapterId: Long?
+  val folder: FolderId?
 ) : ScreenKey {
   companion object {
-    fun root() = HomeScreenKey(null, null)
+    fun root() = HomeScreenKey(folder = null)
   }
 }
 
@@ -27,31 +26,31 @@ data class HomeUiModel(val rows: List<Row>) {
   val folders: List<Folder> get() = rows.filterIsInstance<Folder>()
 
   interface Row {
-    val adapterId: Long
+    val id: Any
     fun screenKey(): ScreenKey
+
+    override fun equals(other: Any?): Boolean
   }
 
   data class Note(
-    val id: NoteId,
-    override val adapterId: Long,
+    override val id: NoteId,
     val title: String,
     val body: String
   ) : Row {
     override fun screenKey(): ScreenKey {
       return EditorScreenKey(
-        ExistingNote(PreSavedNoteId(id), listAdapterId = adapterId)
+        ExistingNote(PreSavedNoteId(id))
       )
     }
   }
 
   data class Folder(
-    val id: FolderId,
-    override val adapterId: Long,
+    override val id: FolderId,
     val title: String,
     val subtitle: String,
   ) : Row {
     override fun screenKey(): ScreenKey {
-      return HomeScreenKey(folder = id, listAdapterId = adapterId)
+      return HomeScreenKey(folder = id)
     }
   }
 }

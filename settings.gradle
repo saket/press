@@ -5,3 +5,5 @@ include ':shared'
 include ':wysiwyg'
 include ':androidApp'
 include ':kgit'
+
+includeBuild '../InboxRecyclerView'

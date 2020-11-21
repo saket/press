@@ -38,7 +38,6 @@ class HomePresenterTest {
     noteRepository.savedNotes += listOf(
       fakeNote(
         id = noteId,
-        localId = -1L,
         content = "# Nicolas Cage\nOur national treasure"
       )
     )
@@ -52,7 +51,6 @@ class HomePresenterTest {
     assertThat(noteModel).containsOnly(
       Note(
         id = noteId,
-        adapterId = -1L,
         title = "Nicolas Cage",
         body = "Our national treasure"
       )
@@ -106,12 +104,7 @@ class HomePresenterTest {
     val savedNote = noteRepository.savedNotes.single()
 
     assertThat(navigator.pop()).isEqualTo(
-      EditorScreenKey(
-        ExistingNote(
-          noteId = savedNote.id,
-          listAdapterId = savedNote.localId
-        )
-      )
+      EditorScreenKey(ExistingNote(savedNote.id))
     )
   }
 
@@ -122,12 +115,7 @@ class HomePresenterTest {
 
     val savedNote = noteRepository.savedNotes.single()
     assertThat(navigator.pop()).isEqualTo(
-      EditorScreenKey(
-        ExistingNote(
-          noteId = savedNote.id,
-          listAdapterId = savedNote.localId
-        )
-      )
+      EditorScreenKey(ExistingNote(savedNote.id))
     )
   }
 }

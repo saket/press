@@ -23,7 +23,7 @@ interface FormFactor {
 class PhoneFormFactor(private val viewFactories: ViewFactories) : FormFactor {
   override fun createView(context: Context, screen: ScreenKey): View {
     val view = viewFactories.createView(context, screen).let {
-      if (screen !is HomeScreenKey) {
+      if (screen !is HomeScreenKey || screen.folder != null) {
         makeScreenPullCollapsible(it)
       } else {
         it

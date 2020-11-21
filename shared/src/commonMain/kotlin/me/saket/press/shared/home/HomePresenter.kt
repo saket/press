@@ -67,7 +67,11 @@ class HomePresenter(
     }
 
     val folders = observableOf(
-      emptyList<HomeUiModel.Folder>()
+      listOf(
+        HomeUiModel.Folder(id = FolderId.generate(), title = "Blog", subtitle = "3 notes"),
+        HomeUiModel.Folder(id = FolderId.generate(), title = "Press", subtitle = "13 notes"),
+        HomeUiModel.Folder(id = FolderId.generate(), title = "Square", subtitle = "24 notes"),
+      )
     )
 
     val notes = repository.visibleNotes()
@@ -77,7 +81,6 @@ class HomePresenter(
           val (heading, body) = HeadingAndBody.parse(note.content)
           HomeUiModel.Note(
             id = note.id,
-            adapterId = note.localId,
             title = heading,
             body = body
           )

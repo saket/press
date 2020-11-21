@@ -2,12 +2,11 @@ package press.navigation.transitions
 
 import android.view.View
 import androidx.appcompat.widget.Toolbar
+import me.saket.inboxrecyclerview.ExpandedItemFinder
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.animation.ItemExpandAnimator
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.SimplePageStateChangeCallbacks
-import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
-import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.home.HomeScreenKey
 import me.saket.press.shared.ui.ScreenKey
 import press.extensions.findChild
@@ -15,6 +14,10 @@ import press.navigation.ScreenTransition
 import press.navigation.ScreenTransition.TransitionResult
 import press.navigation.ScreenTransition.TransitionResult.Handled
 import press.navigation.ScreenTransition.TransitionResult.Ignored
+
+interface ExpandableScreenHost {
+  fun identifyExpandingItem(): ExpandedItemFinder?
+}
 
 /**
  * Wires an [InboxRecyclerView] with its expandable
@@ -31,11 +34,7 @@ class ExpandableScreenTransition : ScreenTransition {
     if (fromKey is HomeScreenKey && toView is ExpandablePageLayout) {
       val fromList = fromView.findChild<InboxRecyclerView>()!!
       fromList.attachPage(toView, parent = fromView)
-
-      when (val id = itemIdForExpandingScreen(toKey)) {
-        null -> fromList.expandFromTop(immediate = !fromView.isLaidOut)
-        else -> fromList.expandItem(id, immediate = !fromView.isLaidOut)
-      }
+      fromList.expandItem(toKey, immediate = !fromView.isLaidOut)
       toView.doOnExpand {
         onComplete()
       }
@@ -59,20 +58,13 @@ class ExpandableScreenTransition : ScreenTransition {
   private fun InboxRecyclerView.attachPage(page: ExpandablePageLayout, parent: View) {
     this.expandablePage = page
     this.itemExpandAnimator = ItemExpandAnimator.scale()
+    this.expandedItemFinder = parent.findChild<ExpandableScreenHost>()?.identifyExpandingItem()
     page.pushParentToolbarOnExpand(toolbar = parent.findChild<Toolbar>()!!)
   }
 
   private fun InboxRecyclerView.detachPage(page: ExpandablePageLayout) {
     this.expandablePage = null
     page.pushParentToolbarOnExpand(null)
-  }
-
-  private fun itemIdForExpandingScreen(screen: ScreenKey): Long? {
-    return if (screen is EditorScreenKey && screen.openMode is ExistingNote) {
-      (screen.openMode as ExistingNote).listAdapterId
-    } else {
-      null
-    }
   }
 
   private inline fun ExpandablePageLayout.doOnExpand(crossinline action: () -> Unit) {

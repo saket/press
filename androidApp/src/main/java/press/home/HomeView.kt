@@ -21,6 +21,7 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.inflation.InflationInject
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import me.saket.inboxrecyclerview.ExpandedItemFinder
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.dimming.DimPainter
 import me.saket.press.R
@@ -29,6 +30,7 @@ import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.home.HomePresenter.Args
+import me.saket.press.shared.home.HomeScreenKey
 import me.saket.press.shared.home.HomeUiModel
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.sync.SyncPreferencesScreenKey
@@ -43,6 +45,7 @@ import press.extensions.throttleFirst
 import press.navigation.ScreenFocusChangeListener
 import press.navigation.navigator
 import press.navigation.screenKey
+import press.navigation.transitions.ExpandableScreenHost
 import press.theme.themeAware
 import press.widgets.DividerItemDecoration
 import press.widgets.SlideDownItemAnimator
@@ -52,7 +55,7 @@ class HomeView @InflationInject constructor(
   @Assisted context: Context,
   @Assisted attrs: AttributeSet? = null,
   private val presenter: HomePresenter.Factory
-) : ContourLayout(context), ScreenFocusChangeListener {
+) : ContourLayout(context), ScreenFocusChangeListener, ExpandableScreenHost {
 
   private val noteAdapter = NoteAdapter()
   private val folderAdapter = FolderListAdapter()
@@ -133,6 +136,24 @@ class HomeView @InflationInject constructor(
       .subscribe { row ->
         navigator().lfg(row.screenKey())
       }
+  }
+
+  override fun identifyExpandingItem(): ExpandedItemFinder? {
+    return ExpandedItemFinder { parent, id ->
+      when (id) {
+        is EditorScreenKey -> {
+          (id.openMode as? ExistingNote)?.let {
+            noteAdapter.findExpandedItem(parent, it.noteId.id)
+          }
+        }
+        is HomeScreenKey -> {
+          id.folder?.let {
+            folderAdapter.findExpandedItem(parent, it)
+          }
+        }
+        else -> null
+      }
+    }
   }
 
   override fun onScreenFocusChanged(focusedScreen: View?) {
