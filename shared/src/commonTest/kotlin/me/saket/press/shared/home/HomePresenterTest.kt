@@ -6,6 +6,7 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import com.badoo.reaktive.test.observable.test
+import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
@@ -20,7 +21,7 @@ import me.saket.press.shared.note.FakeNoteRepository
 import me.saket.press.shared.ui.FakeNavigator
 import kotlin.test.Test
 
-class HomePresenterTest {
+class HomePresenterTest : BaseDatabaeTest() {
   private val noteRepository = FakeNoteRepository()
   private val keyboardShortcuts = RealKeyboardShortcuts()
   private val navigator = FakeNavigator()
@@ -29,7 +30,8 @@ class HomePresenterTest {
     return HomePresenter(
       args = Args(includeEmptyNotes, navigator),
       repository = noteRepository,
-      keyboardShortcuts = keyboardShortcuts
+      keyboardShortcuts = keyboardShortcuts,
+      database = database
     )
   }
 

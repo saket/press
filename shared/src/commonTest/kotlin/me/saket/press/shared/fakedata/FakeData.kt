@@ -2,6 +2,7 @@ package me.saket.press.shared.fakedata
 
 import com.soywiz.klock.DateTime
 import me.saket.press.data.shared.Note
+import me.saket.press.shared.db.FolderId
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.sync.SyncState
 import me.saket.press.shared.sync.SyncState.PENDING
@@ -14,6 +15,7 @@ import kotlin.random.Random
 fun fakeNote(
   content: String,
   id: NoteId = NoteId.generate(),
+  folderId: FolderId = FolderId.generate(),
   clock: Clock = FakeClock(),
   createdAt: DateTime = clock.nowUtc(),
   updatedAt: DateTime = createdAt,
@@ -24,6 +26,7 @@ fun fakeNote(
   return Note(
     localId = Random.Default.nextLong(),
     id = id,
+    folderId = folderId,
     content = content,
     createdAt = createdAt,
     updatedAt = updatedAt,
