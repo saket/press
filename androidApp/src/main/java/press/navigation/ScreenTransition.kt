@@ -9,6 +9,8 @@ interface ScreenTransition {
     fromKey: ScreenKey,
     toView: View,
     toKey: ScreenKey,
+    newBackground: View?,
+    goingForward: Boolean,
     onComplete: () -> Unit = {}
   ): TransitionResult
 

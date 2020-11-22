@@ -6,15 +6,21 @@ import me.saket.inboxrecyclerview.ExpandedItemFinder
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.animation.ItemExpandAnimator
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
-import me.saket.inboxrecyclerview.page.SimplePageStateChangeCallbacks
-import me.saket.press.shared.home.HomeScreenKey
+import me.saket.inboxrecyclerview.page.StandaloneExpandablePageLayout
 import me.saket.press.shared.ui.ScreenKey
+import press.extensions.doOnCollapse
+import press.extensions.doOnExpand
 import press.extensions.findChild
 import press.navigation.ScreenTransition
 import press.navigation.ScreenTransition.TransitionResult
 import press.navigation.ScreenTransition.TransitionResult.Handled
 import press.navigation.ScreenTransition.TransitionResult.Ignored
+import press.navigation.screenKey
 
+/**
+ * Implemented by screens that support expansion of
+ * incoming screens from their [InboxRecyclerView] list.
+ */
 interface ExpandableScreenHost {
   fun identifyExpandingItem(): ExpandedItemFinder?
 }
@@ -29,67 +35,58 @@ class ExpandableScreenTransition : ScreenTransition {
     fromKey: ScreenKey,
     toView: View,
     toKey: ScreenKey,
+    newBackground: View?,
+    goingForward: Boolean,
     onComplete: () -> Unit
   ): TransitionResult {
-    if (fromKey is HomeScreenKey && toView is ExpandablePageLayout) {
+    val expandableHost = (if (goingForward) fromView else toView).findChild<ExpandableScreenHost>()
+
+    if (goingForward && toView is ExpandablePageLayout && expandableHost != null) {
       val fromList = fromView.findChild<InboxRecyclerView>()!!
-      fromList.attachPage(toView, parent = fromView)
+      fromList.attachPage(toView, expandableHost, parent = fromView)
       fromList.expandItem(toKey, immediate = !fromView.isLaidOut)
-      toView.doOnExpand {
-        onComplete()
-      }
+      toView.doOnExpand(onComplete)
       return Handled
 
-    } else if (fromView is ExpandablePageLayout && toKey is HomeScreenKey) {
+    } else if (!goingForward && fromView is ExpandablePageLayout && expandableHost != null) {
       val toList = toView.findChild<InboxRecyclerView>()!!
-      toList.attachPage(fromView, parent = toView)
+      toList.attachPage(fromView, expandableHost, parent = toView)
 
       toList.collapse()
       fromView.doOnCollapse {
         toList.detachPage(fromView)
         onComplete()
       }
+
+      // Background screens are expanded immediately on creation. They must be
+      // wired with the expanded item manually for pull-to-collapse to work.
+      if (newBackground != null && toView is ExpandablePageLayout) {
+        newBackground.findChild<InboxRecyclerView>()?.let { bgList ->
+          val bgHost = newBackground.findChild<ExpandableScreenHost>()!!
+          bgList.attachPage(toView, bgHost, newBackground)  // Will be detached on collapse above.
+          bgList.forceUpdateExpandedItem(toKey)
+        }
+      }
+
       return Handled
     }
 
     return Ignored
   }
 
-  private fun InboxRecyclerView.attachPage(page: ExpandablePageLayout, parent: View) {
+  private fun InboxRecyclerView.attachPage(
+    page: ExpandablePageLayout,
+    expandableHost: ExpandableScreenHost,
+    parent: View
+  ) {
+    this.expandedItemFinder = expandableHost.identifyExpandingItem()
     this.expandablePage = page
     this.itemExpandAnimator = ItemExpandAnimator.scale()
-    this.expandedItemFinder = parent.findChild<ExpandableScreenHost>()?.identifyExpandingItem()
     page.pushParentToolbarOnExpand(toolbar = parent.findChild<Toolbar>()!!)
   }
 
   private fun InboxRecyclerView.detachPage(page: ExpandablePageLayout) {
     this.expandablePage = null
     page.pushParentToolbarOnExpand(null)
-  }
-
-  private inline fun ExpandablePageLayout.doOnExpand(crossinline action: () -> Unit) {
-    if (isExpanded) {
-      action()
-    } else {
-      addStateChangeCallbacks(object : SimplePageStateChangeCallbacks() {
-        override fun onPageExpanded() {
-          action()
-          removeStateChangeCallbacks(this)
-        }
-      })
-    }
-  }
-
-  private inline fun ExpandablePageLayout.doOnCollapse(crossinline block: () -> Unit) {
-    if (isCollapsed) {
-      block()
-    } else {
-      addStateChangeCallbacks(object : SimplePageStateChangeCallbacks() {
-        override fun onPageCollapsed() {
-          block()
-          removeStateChangeCallbacks(this)
-        }
-      })
-    }
   }
 }

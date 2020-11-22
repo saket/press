@@ -4,14 +4,17 @@ import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
-import androidx.transition.TransitionManager
+import flow.Direction
+import flow.Direction.BACKWARD
+import flow.Direction.FORWARD
 import flow.Direction.REPLACE
 import flow.KeyChanger
 import flow.State
 import flow.TraversalCallback
-import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.StandaloneExpandablePageLayout
 import me.saket.press.shared.ui.ScreenKey
+import press.extensions.doOnCollapse
+import press.extensions.doOnExpand
 import press.extensions.findChild
 import press.navigation.BackPressInterceptor.InterceptResult.Ignored
 import press.navigation.ScreenTransition.TransitionResult
@@ -32,10 +35,23 @@ class ScreenKeyChanger(
   private val transitions = transitions + BasicTransition()
   private var previousKey: ScreenKey? = null
 
+//  private fun View.visibilityString(): String {
+//    val s = when (visibility) {
+//      View.VISIBLE -> "Visible"
+//      View.INVISIBLE -> "Invisible"
+//      View.GONE -> "Gone"
+//      else -> "Unknown: $visibility"
+//    }
+//    if (this is ExpandablePageLayout) {
+//      return "$s, elevation: $elevation"
+//    }
+//    return s
+//  }
+
   override fun changeKey(
     outgoingState: State?,
     incomingState: State,
-    direction: flow.Direction,
+    direction: Direction,
     incomingContexts: Map<Any, Context>,
     callback: TraversalCallback
   ) {
@@ -72,14 +88,17 @@ class ScreenKeyChanger(
 
     val oldForegroundView = hostView().children.lastOrNull()
     val newBackgroundView = incomingKey.background?.let(::findOrCreateView)
-    val foregroundView = incomingKey.foreground.let(::findOrCreateView)
-    foregroundView.bringToFront()
+    val newForegroundView = incomingKey.foreground.let(::findOrCreateView)
+
+    // The incoming or outgoing View must be drawn last.
+    newForegroundView.bringToFront()
+    if (direction == BACKWARD) {
+      oldForegroundView?.bringToFront()
+    }
     dispatchFocusChangeCallback()
 
-    val leftOverViews = hostView().children
-      .filter { it !== newBackgroundView && it !== foregroundView }
-
-    val onTransitionEnd = {
+    val leftOverViews = hostView().children.filter { it !== newBackgroundView && it !== newForegroundView }
+    val removeLeftOverViews = {
       leftOverViews.forEach {
         outgoingState?.save(it)
         hostView().removeView(it)
@@ -87,19 +106,28 @@ class ScreenKeyChanger(
       dispatchFocusChangeCallback()
     }
 
-    val outgoingKey = outgoingState?.getKey<ScreenKey>() as? CompositeScreenKey
-    val wasStateRestored = outgoingKey == null && incomingKey.background != null && direction == REPLACE
+    // When animating forward, the background View can be discarded immediately.
+    // When animating backward, the foreground View is discarded after the transition.
+    var onTransitionEnd = {}
+    when (direction) {
+      FORWARD, REPLACE -> removeLeftOverViews()
+      BACKWARD -> onTransitionEnd = removeLeftOverViews
+    }.javaClass
 
-    val fromView: View? = if (wasStateRestored) newBackgroundView else oldForegroundView
-    val fromKey: ScreenKey? = if (wasStateRestored) incomingKey.background else outgoingKey?.foreground
+    val children = hostView().children.toList()
+    val forwardTransition = direction != BACKWARD
+    val fromView: View? = if (forwardTransition) children.secondLast() else children.last()
+    val toView: View = if (forwardTransition) children.last() else children.secondLast()!!
 
     if (fromView != null) {
       transitions.first {
         it.transition(
           fromView = fromView,
-          fromKey = fromKey!!,
-          toView = foregroundView,
-          toKey = incomingKey.foreground,
+          fromKey = fromView.screenKey(),
+          toView = toView,
+          toKey = toView.screenKey(),
+          newBackground = newBackgroundView,
+          goingForward = forwardTransition,
           onComplete = onTransitionEnd
         ) == Handled
       }
@@ -108,6 +136,10 @@ class ScreenKeyChanger(
     }
 
     callback.onTraversalCompleted()
+  }
+
+  private fun <T> List<T>.secondLast(): T? {
+    return if (size >= 2) this[lastIndex - 1] else null
   }
 
   private fun warnIfIdIsMissing(incomingView: View) {
@@ -140,15 +172,18 @@ private class BasicTransition : ScreenTransition {
     fromKey: ScreenKey,
     toView: View,
     toKey: ScreenKey,
+    newBackground: View?,
+    goingForward: Boolean,
     onComplete: () -> Unit
   ): TransitionResult {
-    if (toView is StandaloneExpandablePageLayout) {
-      toView.expandImmediately()
-    } else if (fromView is ExpandablePageLayout) {
-      // Can't collapse without a parent InboxRecyclerView.
-      TransitionManager.beginDelayedTransition(fromView.parent as ViewGroup)
+    if (goingForward && toView is StandaloneExpandablePageLayout) {
+      toView.expandFromTop()
+      toView.doOnExpand(onComplete)
+
+    } else if (!goingForward && fromView is StandaloneExpandablePageLayout) {
+      fromView.collapseToTop()
+      fromView.doOnCollapse(onComplete)
     }
-    onComplete()
     return Handled
   }
 }

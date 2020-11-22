@@ -36,6 +36,8 @@ class MorphFromFabScreenTransition : ScreenTransition {
     fromKey: ScreenKey,
     toView: View,
     toKey: ScreenKey,
+    newBackground: View?,
+    goingForward: Boolean,
     onComplete: () -> Unit
   ): TransitionResult {
     if (fromKey is HomeScreenKey && isNewNoteScreen(toView, toKey)) {
