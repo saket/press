@@ -14,6 +14,7 @@ import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomePresenter.Args
+import me.saket.press.shared.home.HomeScreenKey.Companion
 import me.saket.press.shared.home.HomeUiModel.Note
 import me.saket.press.shared.keyboard.KeyboardShortcuts
 import me.saket.press.shared.keyboard.RealKeyboardShortcuts
@@ -28,7 +29,7 @@ class HomePresenterTest : BaseDatabaeTest() {
 
   private fun presenter(includeEmptyNotes: Boolean = true): HomePresenter {
     return HomePresenter(
-      args = Args(includeEmptyNotes, navigator),
+      args = Args(HomeScreenKey.root(), includeEmptyNotes, navigator),
       repository = noteRepository,
       keyboardShortcuts = keyboardShortcuts,
       database = database

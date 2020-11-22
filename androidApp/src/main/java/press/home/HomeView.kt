@@ -24,6 +24,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.inboxrecyclerview.ExpandedItemFinder
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.dimming.DimPainter
+import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.R
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorScreenKey
@@ -38,8 +39,10 @@ import me.saket.press.shared.ui.ScreenKey
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import press.extensions.attr
+import press.extensions.findParentOfType
 import press.extensions.getDrawable
 import press.extensions.heightOf
+import press.extensions.interceptPullToCollapseOnView
 import press.extensions.second
 import press.extensions.throttleFirst
 import press.navigation.ScreenFocusChangeListener
@@ -48,6 +51,7 @@ import press.navigation.screenKey
 import press.navigation.transitions.ExpandableScreenHost
 import press.theme.themeAware
 import press.widgets.DividerItemDecoration
+import press.widgets.PressToolbar
 import press.widgets.SlideDownItemAnimator
 
 // TODO: Rename to NoteListView
@@ -59,9 +63,9 @@ class HomeView @InflationInject constructor(
 
   private val noteAdapter = NoteAdapter()
   private val folderAdapter = FolderListAdapter()
+  private val screenKey = screenKey<HomeScreenKey>()
 
-  private val toolbar = Toolbar(context).apply {
-    setTitle(R.string.app_name)
+  private val toolbar = PressToolbar(context, showNavIcon = screenKey.folder != null).apply {
     applyLayout(
       x = leftTo { parent.left() }.rightTo { parent.right() },
       y = topTo { parent.top() }.heightOf(attr(android.R.attr.actionBarSize))
@@ -94,12 +98,7 @@ class HomeView @InflationInject constructor(
 
   init {
     id = R.id.home_view
-
-    val adapterConfig = ConcatAdapter.Config.Builder()
-      .setIsolateViewTypes(true)
-      .setStableIdMode(ISOLATED_STABLE_IDS)
-      .build()
-    notesList.adapter = ConcatAdapter(adapterConfig, folderAdapter, noteAdapter)
+    notesList.adapter = ConcatAdapter(folderAdapter, noteAdapter)
 
     themeAware { palette ->
       toolbar.menu.clear()
@@ -116,6 +115,7 @@ class HomeView @InflationInject constructor(
 
     val presenter = presenter.create(
       Args(
+        screenKey = screenKey(),
         includeBlankNotes = false,
         navigator = navigator()
       )
@@ -136,6 +136,9 @@ class HomeView @InflationInject constructor(
       .subscribe { row ->
         navigator().lfg(row.screenKey())
       }
+
+    val page = findParentOfType<ExpandablePageLayout>()
+    page?.pullToCollapseInterceptor = interceptPullToCollapseOnView(notesList)
   }
 
   override fun identifyExpandingItem(): ExpandedItemFinder? {
@@ -179,6 +182,7 @@ class HomeView @InflationInject constructor(
   }
 
   private fun render(model: HomeUiModel) {
+    toolbar.title = model.title
     noteAdapter.submitList(model.notes)
     folderAdapter.submitList(model.folders)
   }

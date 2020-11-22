@@ -38,7 +38,7 @@ class HomePresenter(
 ) : Presenter<HomeEvent, HomeUiModel, Nothing>() {
 
   override fun defaultUiModel() =
-    HomeUiModel(rows = emptyList())
+    HomeUiModel(rows = emptyList(), title = "")
 
   override fun uiModels() =
     merge(populateNotes(), openNewNoteScreen()).wrap()
@@ -87,7 +87,12 @@ class HomePresenter(
         }
       }
 
-    return combineLatest(folders, notes) { f, n -> HomeUiModel(f + n) }
+    return combineLatest(folders, notes) { f, n ->
+      HomeUiModel(
+        title = args.screenKey.folder?.value?.toString() ?: "Press (d)",
+        rows = f + n.shuffled() // todo: REMOVE SHUFFLED!
+      )
+    }
   }
 
   fun interface Factory {
@@ -95,6 +100,8 @@ class HomePresenter(
   }
 
   data class Args(
+    val screenKey: HomeScreenKey,
+
     /**
      * [EditorPresenter] creates a new note as soon as the editor screen is opened,
      * causing the new note to show up on home while the new note screen is opening.

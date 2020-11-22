@@ -21,7 +21,7 @@ interface HomeEvent {
   object NewNoteClicked : HomeEvent
 }
 
-data class HomeUiModel(val rows: List<Row>) {
+data class HomeUiModel(val title: String, val rows: List<Row>) {
   val notes: List<Note> get() = rows.filterIsInstance<Note>()
   val folders: List<Folder> get() = rows.filterIsInstance<Folder>()
 
