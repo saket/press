@@ -8,7 +8,7 @@ buildscript {
     kotlin: '1.4.10',
     moshi: '1.9.2',
     okhttp: '4.0.1',
-    contour: '1.0.0-SNAPSHOT',
+    contour: '1.0.0',
     flexmark: '0.50.26',
     flipper: '0.43.0',
     androidXTest: '1.2.0',
