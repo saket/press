@@ -143,7 +143,7 @@ class GitSyncer(
     // DB operations are executed in one go to
     // avoid locking the DB in a transaction for long.
     val dbOperations = mutableListOf<DbOperation>()
-    val register = FileNameRegister(directory)
+    val register = FileNameRegister(directory, database)
   }
 
   class DbOperation(

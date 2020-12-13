@@ -1128,7 +1128,7 @@ class GitSyncerTest : BaseDatabaeTest() {
 
   private inner class RemoteRepositoryRobot(prepare: RemoteRepositoryRobot.() -> Unit = {}) {
     private val directory = File(deviceInfo.appStorage, "temp").apply { makeDirectories() }
-    private val register = FileNameRegister(directory)
+    private val register = FileNameRegister(directory, database)
     private val gitRepo = RealGit().repository(
       path = directory.path,
       sshKey = remoteAndAuth.sshKey,

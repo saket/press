@@ -1,5 +1,6 @@
 package me.saket.press.shared.sync.git
 
+import me.saket.press.PressDatabase
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.note.HeadingAndBody
@@ -15,7 +16,11 @@ typealias FileName = String
  * to solve this.
  */
 @OptIn(ExperimentalStdlibApi::class)
-internal class FileNameRegister(private val notesDirectory: File) {
+internal class FileNameRegister(
+  private val notesDirectory: File,
+  private val database: PressDatabase
+) {
+
   companion object {
     // Both NTFS and Unix file systems have a max-length of 255 letters.
     // Reserving 15 letters for handling conflicts and file name extension.
@@ -136,8 +141,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
     val expectedName = if (heading.isNotBlank()) heading else "untitled_note"
     val folder = note.folder()?.plus("/") ?: ""
 
-    val existingNames = notesDirectory
-      .children(recursively = true)
+    val existingNames = notesDirectory.children(recursively = true)
       .map { it.relativePathIn(notesDirectory) }
       .filter { it.endsWith(".md") }
 
@@ -164,7 +168,25 @@ internal class FileNameRegister(private val notesDirectory: File) {
   }
 
   private fun Note.folder(): String? {
-    return if (isArchived) "archived" else null
+    val folders = buildList {
+      // TODO: Use recursive SQLITE query for maximum performance (and coolness).
+      var parentId = folderId
+      while (parentId != null) {
+        val parent = database.folderQueries.folder(parentId).executeAsOne()
+        val folderName = sanitize(parent.name, MAX_NAME_LENGTH)
+        add(folderName)
+        parentId = parent.parent
+      }
+
+      if (isArchived) {
+        add("archived")
+      }
+    }.reversed()
+
+    return when {
+      folders.isEmpty() -> null
+      else -> folders.joinToString(separator = "/")
+    }
   }
 
   fun pruneStaleRecords(currentIds: Collection<NoteId>) {
@@ -200,7 +222,6 @@ internal class FileNameRegister(private val notesDirectory: File) {
     companion object {
       fun from(registerDirectory: File, relativePath: String): Record? {
         require(relativePath.endsWith("md")) { "Not a note: $relativePath" }
-        require(!relativePath.hasMultipleOf('/')) { "Nested folders aren't supported yet" }
 
         val registerFile = File(registerDirectory, relativePath.dropLast(".md".length))
           .existsOrNull() ?: return null
@@ -232,7 +253,7 @@ internal class FileNameRegister(private val notesDirectory: File) {
       get() = registerFile.read()
 
     internal val noteFolder: String
-      get() = noteFilePath.substringBefore("/", missingDelimiterValue = "")
+      get() = noteFilePath.substringBeforeLast("/", missingDelimiterValue = "")
 
     internal fun noteFileIn(notesDirectory: File): File {
       return File(notesDirectory, noteFilePath)

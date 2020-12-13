@@ -1,5 +1,6 @@
 import me.saket.press.shared.db.FolderId;
 
+-- TODO: Drop localId column.
 CREATE TABLE folder (
   localId INTEGER PRIMARY KEY AUTOINCREMENT,
   id TEXT AS FolderId NOT NULL,
@@ -10,3 +11,12 @@ CREATE TABLE folder (
 foldersUnder:
 SELECT * FROM folder
 WHERE parent = ?;
+
+folder:
+SELECT * FROM folder
+WHERE id = ?;
+
+-- Test functions
+testInsert:
+INSERT INTO folder
+VALUES ?;

@@ -1,6 +1,7 @@
 package me.saket.press.shared.fakedata
 
 import com.soywiz.klock.DateTime
+import me.saket.press.data.shared.Folder
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.FolderId
 import me.saket.press.shared.db.NoteId
@@ -15,7 +16,7 @@ import kotlin.random.Random
 fun fakeNote(
   content: String,
   id: NoteId = NoteId.generate(),
-  folderId: FolderId = FolderId.generate(),
+  folderId: FolderId? = null,
   clock: Clock = FakeClock(),
   createdAt: DateTime = clock.nowUtc(),
   updatedAt: DateTime = createdAt,
@@ -36,6 +37,18 @@ fun fakeNote(
   )
 }
 
+fun fakeFolder(
+  name: String,
+  id: FolderId = FolderId.generate(),
+  parent: FolderId? = null
+) = Folder(
+  localId = Random.Default.nextLong(),
+  id = id,
+  name = name,
+  parent = parent
+)
+
+// TODO: rename to fakeGitRepository()
 fun fakeRepository(
   name: String = "nationaltreasure"
 ): GitRepositoryInfo {
