@@ -148,7 +148,7 @@ class FileNameRegisterTest : BaseDatabaeTest() {
   }
 
   @Test fun `support for single folder`() {
-    val gamesFolder = fakeFolder("Games", parent = null)
+    val gamesFolder = fakeFolder("games", parent = null)
     database.folderQueries.testInsert(gamesFolder)
 
     val note = fakeNote(
@@ -175,10 +175,10 @@ class FileNameRegisterTest : BaseDatabaeTest() {
     )
     val file = register.fileFor(note)
 
-    assertThat(file.relativePathIn(directory)).isEqualTo("archived/games/the_witcher_3.md")
-    with (register.recordFor("archived/games/the_witcher_3.md")!!) {
+    assertThat(file.relativePathIn(directory)).isEqualTo("archived/Games/the_witcher_3.md")
+    with (register.recordFor("archived/Games/the_witcher_3.md")!!) {
       assertThat(noteId).isEqualTo(note.id)
-      assertThat(noteFolder).isEqualTo("archived/games")
+      assertThat(noteFolder).isEqualTo("archived/Games")
     }
   }
 
@@ -193,10 +193,10 @@ class FileNameRegisterTest : BaseDatabaeTest() {
     )
     val file = register.fileFor(note)
 
-    assertThat(file.relativePathIn(directory)).isEqualTo("games/the_witcher_3/hearts_of_stone.md")
-    with (register.recordFor("games/the_witcher_3/hearts_of_stone.md")!!) {
+    assertThat(file.relativePathIn(directory)).isEqualTo("Games/The Witcher 3/hearts_of_stone.md")
+    with (register.recordFor("Games/The Witcher 3/hearts_of_stone.md")!!) {
       assertThat(noteId).isEqualTo(note.id)
-      assertThat(noteFolder).isEqualTo("games/the_witcher_3")
+      assertThat(noteFolder).isEqualTo("Games/The Witcher 3")
     }
   }
 
@@ -212,10 +212,10 @@ class FileNameRegisterTest : BaseDatabaeTest() {
     )
     val file = register.fileFor(note)
 
-    assertThat(file.relativePathIn(directory)).isEqualTo("archived/games/the_witcher_3/hearts_of_stone.md")
-    with (register.recordFor("archived/games/the_witcher_3/hearts_of_stone.md")!!) {
+    assertThat(file.relativePathIn(directory)).isEqualTo("archived/Games/The Witcher 3/hearts_of_stone.md")
+    with (register.recordFor("archived/Games/The Witcher 3/hearts_of_stone.md")!!) {
       assertThat(noteId).isEqualTo(note.id)
-      assertThat(noteFolder).isEqualTo("archived/games/the_witcher_3")
+      assertThat(noteFolder).isEqualTo("archived/Games/The Witcher 3")
     }
   }
 
@@ -223,8 +223,4 @@ class FileNameRegisterTest : BaseDatabaeTest() {
     val suggestion = suggestFile(note).apply { acceptRename?.invoke() }
     return suggestion.suggestedFile.also { it.touch() }
   }
-}
-
-private fun FolderQueries.testInsert(vararg folders: Folder) {
-  folders.forEach { testInsert(it) }
 }

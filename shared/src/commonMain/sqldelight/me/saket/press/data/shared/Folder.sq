@@ -16,6 +16,13 @@ folder:
 SELECT * FROM folder
 WHERE id = ?;
 
+insert:
+INSERT INTO folder(id, name, parent)
+VALUES (?, ?, ?);
+
+allFolders:
+SELECT * FROM folder;
+
 -- Test functions
 testInsert:
 INSERT INTO folder

@@ -20,6 +20,7 @@ internal class FileNameRegister(
   private val notesDirectory: File,
   private val database: PressDatabase
 ) {
+  private val folderPaths = FolderPaths(database)
 
   companion object {
     // Both NTFS and Unix file systems have a max-length of 255 letters.
@@ -168,24 +169,10 @@ internal class FileNameRegister(
   }
 
   private fun Note.folder(): String? {
-    val folders = buildList {
-      // TODO: Use recursive SQLITE query for maximum performance (and coolness).
-      var parentId = folderId
-      while (parentId != null) {
-        val parent = database.folderQueries.folder(parentId).executeAsOne()
-        val folderName = sanitize(parent.name, MAX_NAME_LENGTH)
-        add(folderName)
-        parentId = parent.parent
-      }
-
-      if (isArchived) {
-        add("archived")
-      }
-    }.reversed()
-
+    val folderPath = folderId?.let(folderPaths::createPath)
     return when {
-      folders.isEmpty() -> null
-      else -> folders.joinToString(separator = "/")
+      isArchived -> "archived" + (folderPath?.prefix("/") ?: "")
+      else -> folderPath
     }
   }
 
@@ -263,6 +250,10 @@ internal class FileNameRegister(
       registerFile.delete()
     }
   }
+}
+
+private fun String.prefix(prefix: String): String {
+  return prefix + this
 }
 
 private inline fun <T> File?.hideAndRun(crossinline run: () -> T): T {

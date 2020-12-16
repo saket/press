@@ -55,9 +55,12 @@ class GitSyncer(
   private val mergeConflicts: SyncMergeConflicts,
   private val backupBeforeFirstSync: AtomicBoolean = AtomicBoolean(true)
 ) : Syncer() {
-  override val directory = File(deviceInfo.appStorage, "git")
   private val noteQueries get() = database.noteQueries
+  private val folderQueries get() = database.folderQueries
   private val configQueries get() = database.folderSyncConfigQueries
+  private val folderPaths = FolderPaths(database)
+
+  override val directory = File(deviceInfo.appStorage, "git")
   private val loggers = SyncLoggers(PrintLnSyncLogger, FileBasedSyncLogger(directory))
   private val git = {
     val remote = readConfig()!!.remote
@@ -484,16 +487,16 @@ class GitSyncer(
             ?: register.createNewRecordFor(file, id = NoteId.generate())
 
           val noteId = record.noteId
-          val isArchived = record.noteFolder == "archived"
+          val isArchived = record.noteFolder.startsWith("archived", ignoreCase = true)
           val isNewNote = !noteQueries.exists(noteId).executeAsOne()
           val commitTime = diffPathTimestamps[diff.path]!!
 
           if (isNewNote) {
-            log("   creating new note for ${diff.path} with id=${noteId.value} (isArchived=$isArchived)")
+            log("   creating new note for ${diff.path} with id=${noteId.value} (folder=${record.noteFolder})")
             DbOperation.includeId(noteId) {
               noteQueries.insert(
                 id = noteId,
-                folderId = null,
+                folderId = folderPaths.mkdirs(record.noteFolder),
                 content = content,
                 createdAt = commitTime,
                 updatedAt = commitTime
@@ -510,10 +513,11 @@ class GitSyncer(
             }
           } else {
             if (!ignoreModifications) {
-              log("   updating ${diff.path} with id=${noteId.value} (isArchived=$isArchived)")
+              log("   updating ${diff.path} with id=${noteId.value} (folder=${record.noteFolder})")
               DbOperation.includeId(noteId) {
-                noteQueries.updateContent(
+                noteQueries.updateContentAndFolder(
                   id = noteId,
+                  folderId = folderPaths.mkdirs(record.noteFolder),
                   content = content,
                   updatedAt = commitTime
                 )
@@ -678,12 +682,6 @@ private fun GitTreeDiff.flattenToString(): String {
 private fun GitTreeDiff.Change.isNoteChange() = when {
   !path.endsWith(".md") -> false                                        // Not a markdown note.
   path.startsWith(".press/") -> false                                   // Meta-files, ignore.
-  path.contains("/") -> {
-    when {
-      path.startsWith("archived/") && !path.hasMultipleOf('/') -> true  // Archived note.
-      else -> error("Folders aren't supported yet: '$path'")
-    }
-  }
   else -> true
 }
 

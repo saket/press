@@ -48,6 +48,7 @@ class GitSyncerTest : BaseDatabaeTest() {
   override val database = DelegatingPressDatabase(super.database)
   private val noteQueries get() = database.noteQueries
   private val configQueries get() = database.folderSyncConfigQueries
+  private val folderPaths = FolderPaths(database)
 
   private val deviceInfo = testDeviceInfo()
   private val clock = FakeClock()
@@ -140,7 +141,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     syncer.sync()
 
     // Check that the notes were pulled and saved into DB.
-    val notesAfterSync = noteQueries.visibleNotes().executeAsList()
+    val notesAfterSync = noteQueries.allNotes().executeAsList()
     assertThat(notesAfterSync.map { it.content }).containsOnly(
       "# The Witcher",
       "# Uncharted: The Lost Legacy",
@@ -148,16 +149,64 @@ class GitSyncerTest : BaseDatabaeTest() {
       "# The Last of Us"
     )
 
-    notesAfterSync.first { it.content == "# The Witcher" }.apply {
+    notesAfterSync.find { it.content == "# The Witcher" }!!.apply {
       assertThat(createdAt).isEqualTo(firstCommitTime)
       assertThat(updatedAt).isEqualTo(firstCommitTime)
       assertThat(isArchived).isFalse()
       assertThat(isPendingDeletion).isFalse()
     }
 
-    notesAfterSync.first { it.content == "# The Last of Us" }.apply {
+    notesAfterSync.find { it.content == "# The Last of Us" }!!.apply {
       assertThat(createdAt).isEqualTo(secondCommitTime)
     }
+  }
+
+  @Test fun `pull notes with new folders`() {
+    if (!canRunTests()) return
+
+    RemoteRepositoryRobot {
+      commitFiles(
+        message = "Add witcher and unravel",
+        add = listOf(
+          "folder1/note_1.md" to "# The Witcher 3",
+          "folder1/folder2/note_2.md" to "# Unravel 2",
+          "folder1/folder2/folder1/note_2.md" to "# Among Us",
+          "archived/folder1/note_3.md" to "# Uncharted 4"
+        )
+      )
+      forcePush()
+    }
+
+    syncer.sync()
+
+    val notesAfterSync = noteQueries.allNotes().executeAsList()
+    notesAfterSync.find { it.content == "# The Witcher 3" }!!.apply {
+      assertThat(folderPaths.createPath(folderId!!)).isEqualTo("folder1")
+      assertThat(isArchived).isFalse()
+      assertThat(isPendingDeletion).isFalse()
+    }
+    notesAfterSync.find { it.content == "# Unravel 2" }!!.apply {
+      assertThat(folderPaths.createPath(folderId!!)).isEqualTo("folder1/folder2")
+    }
+    notesAfterSync.find { it.content == "# Among Us" }!!.apply {
+      assertThat(folderPaths.createPath(folderId!!)).isEqualTo("folder1/folder2/folder1")
+    }
+    notesAfterSync.find { it.content == "# Uncharted 4" }!!.apply {
+      assertThat(folderPaths.createPath(folderId!!)).isEqualTo("archived/folder1")
+      assertThat(isArchived).isTrue()
+    }
+  }
+
+  // TODO
+  @Test fun `pull notes with existing folders`() {
+  }
+
+  // TODO
+  @Test fun `push notes with folders`() {
+  }
+
+  // TODO
+  @Test fun `pull updates to existing notes whose folders have changed`() {
   }
 
   @Test fun `push notes to an empty repo with non-empty branches`() {

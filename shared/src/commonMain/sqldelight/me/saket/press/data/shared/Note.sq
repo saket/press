@@ -78,6 +78,11 @@ UPDATE note
 SET content = :content, updatedAt = ?
 WHERE id = ? AND TRIM(content) != TRIM(:content);
 
+updateContentAndFolder:
+UPDATE note
+SET content = :content, updatedAt = ?, folderId = ?
+WHERE id = ? AND TRIM(content) != TRIM(:content);
+
 updateSyncState:
 UPDATE note
 SET syncState = ?
