@@ -1,0 +1,7 @@
+DROP TABLE IF EXISTS folder;
+
+CREATE TABLE folder (
+  id TEXT NOT NULL,
+  name TEXT NOT NULL,
+  parent TEXT
+);

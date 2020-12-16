@@ -19,7 +19,7 @@ class FolderPathsTest : BaseDatabaeTest() {
     val grandParent = fakeFolder(name = "folder1")
     val parent = fakeFolder(name = "folder2", parent = grandParent.id)
     val child = fakeFolder(name = "folder3", parent = parent.id)
-    queries.testInsert(grandParent, parent, child)
+    queries.insert(grandParent, parent, child)
 
     assertThat(paths.createPath(grandParent.id)).isEqualTo("folder1")
     assertThat(paths.createPath(parent.id)).isEqualTo("folder1/folder2")

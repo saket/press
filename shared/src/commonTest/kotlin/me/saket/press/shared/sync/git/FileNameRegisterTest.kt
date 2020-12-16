@@ -8,8 +8,6 @@ import assertk.assertions.isFalse
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
-import me.saket.press.data.shared.Folder
-import me.saket.press.data.shared.FolderQueries
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.NoteId
@@ -149,7 +147,7 @@ class FileNameRegisterTest : BaseDatabaeTest() {
 
   @Test fun `support for single folder`() {
     val gamesFolder = fakeFolder("games", parent = null)
-    database.folderQueries.testInsert(gamesFolder)
+    database.folderQueries.insert(gamesFolder)
 
     val note = fakeNote(
       content = "# The Witcher 3\nHearts of Stone",
@@ -166,7 +164,7 @@ class FileNameRegisterTest : BaseDatabaeTest() {
 
   @Test fun `support for archived note inside a single folder`() {
     val gamesFolder = fakeFolder("Games", parent = null)
-    database.folderQueries.testInsert(gamesFolder)
+    database.folderQueries.insert(gamesFolder)
 
     val note = fakeNote(
       content = "# The Witcher 3\nHearts of Stone",
@@ -185,7 +183,7 @@ class FileNameRegisterTest : BaseDatabaeTest() {
   @Test fun `support for nested folders`() {
     val gamesFolder = fakeFolder("Games", parent = null)
     val witcherFolder = fakeFolder("The Witcher 3", parent = gamesFolder.id)
-    database.folderQueries.testInsert(gamesFolder, witcherFolder)
+    database.folderQueries.insert(gamesFolder, witcherFolder)
 
     val note = fakeNote(
       content = "# Hearts of Stone",
@@ -203,7 +201,7 @@ class FileNameRegisterTest : BaseDatabaeTest() {
   @Test fun `support for archived note inside nested folder`() {
     val gamesFolder = fakeFolder("Games", parent = null)
     val witcherFolder = fakeFolder("The Witcher 3", parent = gamesFolder.id)
-    database.folderQueries.testInsert(gamesFolder, witcherFolder)
+    database.folderQueries.insert(gamesFolder, witcherFolder)
 
     val note = fakeNote(
       content = "# Hearts of Stone",

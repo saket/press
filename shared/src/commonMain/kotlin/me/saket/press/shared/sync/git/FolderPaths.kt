@@ -45,13 +45,13 @@ class FolderPaths(private val database: PressDatabase) {
     var nextPath = ""
     var nextParent: FolderId? = null
 
-    for (folder in folderPath.split("/")) {
-      nextPath += folder
+    for (path in folderPath.split("/")) {
+      nextPath += path
 
       if (nextPath !in pathsToFolders) {
-        val folderId = FolderId.generate()
-        queries.insert(id = folderId, name = folder, parent = nextParent)
-        pathsToFolders[nextPath] = Folder(localId = -1, id = folderId, name = folder, parent = nextParent)
+        val folder = Folder(id = FolderId.generate(), name = path, parent = nextParent)
+        pathsToFolders[nextPath] = folder
+        queries.insert(folder)
       }
 
       nextParent = pathsToFolders[nextPath]!!.id
@@ -62,6 +62,6 @@ class FolderPaths(private val database: PressDatabase) {
   }
 }
 
-fun FolderQueries.testInsert(vararg folders: Folder) {
-  folders.forEach { testInsert(it) }
+fun FolderQueries.insert(vararg folders: Folder) {
+  folders.forEach { insert(it) }
 }

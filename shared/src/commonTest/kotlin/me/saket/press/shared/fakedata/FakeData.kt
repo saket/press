@@ -42,7 +42,6 @@ fun fakeFolder(
   id: FolderId = FolderId.generate(),
   parent: FolderId? = null
 ) = Folder(
-  localId = Random.Default.nextLong(),
   id = id,
   name = name,
   parent = parent
