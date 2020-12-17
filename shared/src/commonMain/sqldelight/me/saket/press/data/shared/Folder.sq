@@ -1,5 +1,6 @@
 import me.saket.press.shared.db.FolderId;
 
+-- todo: add name+parent as a primary key.
 CREATE TABLE folder (
   id TEXT AS FolderId NOT NULL,
   name TEXT NOT NULL,
@@ -20,3 +21,8 @@ VALUES ?;
 
 allFolders:
 SELECT * FROM folder;
+
+updateParent:
+UPDATE folder
+SET parent = ?
+WHERE id = ?;

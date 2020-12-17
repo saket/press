@@ -42,6 +42,14 @@ BEGIN
   WHERE id = new.id;
 END;
 
+CREATE TRIGGER pending_sync_on_folder_update
+AFTER UPDATE OF folderId ON note
+BEGIN
+	UPDATE note
+  SET syncState = 'PENDING'
+  WHERE id = new.id;
+END;
+
 visibleNotes:
 SELECT *
 FROM note
@@ -78,10 +86,10 @@ UPDATE note
 SET content = :content, updatedAt = ?
 WHERE id = ? AND TRIM(content) != TRIM(:content);
 
-updateContentAndFolder:
+updateFolder:
 UPDATE note
-SET content = :content, updatedAt = ?, folderId = ?
-WHERE id = ? AND TRIM(content) != TRIM(:content);
+SET folderId = ?
+WHERE id = ?;
 
 updateSyncState:
 UPDATE note

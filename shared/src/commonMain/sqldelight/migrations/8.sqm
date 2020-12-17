@@ -1,0 +1,7 @@
+CREATE TRIGGER pending_sync_on_folder_update
+AFTER UPDATE OF folderId ON note
+BEGIN
+	UPDATE note
+  SET syncState = 'PENDING'
+  WHERE id = new.id;
+END;

@@ -31,6 +31,7 @@ import me.saket.press.shared.PlatformHost.Android
 import me.saket.press.shared.containsOnly
 import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.NoteId
+import me.saket.press.shared.fakedata.fakeFolder
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.fakedata.fakeRepository
 import me.saket.press.shared.localization.ENGLISH_STRINGS
@@ -47,6 +48,7 @@ import kotlin.test.Test
 class GitSyncerTest : BaseDatabaeTest() {
   override val database = DelegatingPressDatabase(super.database)
   private val noteQueries get() = database.noteQueries
+  private val folderQueries get() = database.folderQueries
   private val configQueries get() = database.folderSyncConfigQueries
   private val folderPaths = FolderPaths(database)
 
@@ -166,7 +168,7 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     RemoteRepositoryRobot {
       commitFiles(
-        message = "Add witcher and unravel",
+        message = "Add games",
         add = listOf(
           "folder1/note_1.md" to "# The Witcher 3",
           "folder1/folder2/note_2.md" to "# Unravel 2",
@@ -176,6 +178,9 @@ class GitSyncerTest : BaseDatabaeTest() {
       )
       forcePush()
     }
+
+    val storedFolders = { folderQueries.allFolders().executeAsList() }
+    assertThat(storedFolders()).isEmpty()
 
     syncer.sync()
 
@@ -195,18 +200,116 @@ class GitSyncerTest : BaseDatabaeTest() {
       assertThat(folderPaths.createPath(folderId!!)).isEqualTo("archived/folder1")
       assertThat(isArchived).isTrue()
     }
+
+    assertThat(storedFolders().map { it.name }).containsOnly(
+      "folder1",
+      "folder2",
+      "folder1",
+      "archived"
+    )
   }
 
-  // TODO
-  @Test fun `pull notes with existing folders`() {
+  @Test fun `pull notes whose folders already exist`() {
+    if (!canRunTests()) return
+
+    folderPaths.mkdirs("folder1")
+    folderPaths.mkdirs("folder1/folder2")
+    folderPaths.mkdirs("archived/folder1")
+
+    RemoteRepositoryRobot {
+      commitFiles(
+        message = "Add games",
+        add = listOf(
+          "folder1/note_1.md" to "# The Witcher 3",
+          "folder1/folder2/note_2.md" to "# Unravel 2",
+          "archived/folder1/note_3.md" to "# Uncharted 4"
+        )
+      )
+      forcePush()
+    }
+
+    val foldersBefore = folderQueries.allFolders().executeAsList()
+    syncer.sync()
+    val foldersAfter = folderQueries.allFolders().executeAsList()
+
+    assertThat(foldersAfter).isEqualTo(foldersBefore)
   }
 
-  // TODO
-  @Test fun `push notes with folders`() {
-  }
-
-  // TODO
   @Test fun `pull updates to existing notes whose folders have changed`() {
+    val remote = RemoteRepositoryRobot {
+      commitFiles(
+        message = "Add games",
+        add = listOf(
+          "the_witcher_3.md" to "# The Witcher 3",
+          "uncharted.md" to "# Uncharted 4",
+          "games/unravel_2.md" to "# Unravel 2",
+        )
+      )
+      forcePush()
+    }
+    syncer.sync()
+
+    val storedNotes = { noteQueries.allNotes().executeAsList() }
+    val witcher = { storedNotes().find { it.content == "# The Witcher 3" }!! }
+    val unravel = { storedNotes().find { it.content == "# Unravel 2" }!! }
+    val uncharted = { storedNotes().find { it.content == "# Uncharted 4" }!! }
+
+    assertThat(witcher().folderId).isNull()
+    assertThat(uncharted().folderId).isNull()
+    assertThat(folderPaths.createPath(unravel().folderId!!)).isEqualTo("games")
+
+    remote.run {
+      commitFiles(
+        message = "Move games",
+        rename = listOf(
+          "the_witcher_3.md" to "archived/the_witcher_3.md",
+          "uncharted.md" to "games/uncharted.md",
+          "games/unravel_2.md" to "games/unravel/unravel_2.md"
+        )
+      )
+      forcePush()
+    }
+    syncer.sync()
+    assertThat(folderPaths.createPath(witcher().folderId!!)).isEqualTo("archived")
+    assertThat(folderPaths.createPath(uncharted().folderId!!)).isEqualTo("games")
+    assertThat(folderPaths.createPath(unravel().folderId!!)).isEqualTo("games/unravel")
+
+    val folders = folderQueries.allFolders().executeAsList()
+    folderQueries.updateParent(
+      id = folders.find { it.name == "games" }!!.id,
+      parent = folders.find { it.name == "archived" }!!.id
+    )
+    noteQueries.updateFolder(
+      id = witcher().id,
+      folderId = null // Unarchive uncharted.
+    )
+    syncer.sync()
+
+    assertThat(remote.fetchNoteFiles()).containsOnly(
+      "the_witcher_3.md" to "# The Witcher 3",
+      "archived/games/uncharted.md" to "# Uncharted 4",
+      "archived/games/unravel/unravel_2.md" to "# Unravel 2",
+    )
+  }
+
+  @Test fun `push notes with folders`() {
+    val gamesFolder = fakeFolder(name = "games")
+    val witcherFolder = fakeFolder(name = "witcher 3", parent = gamesFolder.id)
+    folderQueries.insert(gamesFolder, witcherFolder)
+    noteQueries.testInsert(
+      fakeNote("# Unravel", folderId = gamesFolder.id),
+      fakeNote("# Hearts of Stone", folderId = witcherFolder.id),
+      fakeNote("# Blood and Wine", folderId = witcherFolder.id)
+    )
+
+    syncer.sync()
+
+    val remote = RemoteRepositoryRobot()
+    assertThat(remote.fetchNoteFiles()).containsOnly(
+      "games/unravel.md" to "# Unravel",
+      "games/witcher 3/hearts_of_stone.md" to "# Hearts of Stone",
+      "games/witcher 3/blood_and_wine.md" to "# Blood and Wine"
+    )
   }
 
   @Test fun `push notes to an empty repo with non-empty branches`() {

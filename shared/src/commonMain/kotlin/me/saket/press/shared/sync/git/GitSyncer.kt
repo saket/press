@@ -490,13 +490,14 @@ class GitSyncer(
           val isArchived = record.noteFolder.startsWith("archived", ignoreCase = true)
           val isNewNote = !noteQueries.exists(noteId).executeAsOne()
           val commitTime = diffPathTimestamps[diff.path]!!
+          val folderId = folderPaths.mkdirs(record.noteFolder)
 
           if (isNewNote) {
-            log("   creating new note for ${diff.path} with id=${noteId.value} (folder=${record.noteFolder})")
+            log("   creating new note for ${diff.path} with id=${noteId.value}")
             DbOperation.includeId(noteId) {
               noteQueries.insert(
                 id = noteId,
-                folderId = folderPaths.mkdirs(record.noteFolder),
+                folderId = folderId,
                 content = content,
                 createdAt = commitTime,
                 updatedAt = commitTime
@@ -513,13 +514,16 @@ class GitSyncer(
             }
           } else {
             if (!ignoreModifications) {
-              log("   updating ${diff.path} with id=${noteId.value} (folder=${record.noteFolder})")
+              log("   updating ${diff.path} with id=${noteId.value}")
               DbOperation.includeId(noteId) {
-                noteQueries.updateContentAndFolder(
+                noteQueries.updateContent(
                   id = noteId,
-                  folderId = folderPaths.mkdirs(record.noteFolder),
                   content = content,
                   updatedAt = commitTime
+                )
+                noteQueries.updateFolder(
+                  id = noteId,
+                  folderId = folderId
                 )
                 noteQueries.setArchived(
                   id = noteId,
