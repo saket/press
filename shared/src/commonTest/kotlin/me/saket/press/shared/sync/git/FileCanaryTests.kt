@@ -37,9 +37,9 @@ class FileCanaryTests {
   }
 
   @Test fun paths() {
-    val file = File(storage, "archived/batman.md").makeDirectories()
+    val file = File(storage, "archive/batman.md").makeDirectories()
     assertThat(file.path).isEqualTo(storage.path + "/archived/batman.md")
-    assertThat(file.relativePathIn(storage)).isEqualTo("archived/batman.md")
+    assertThat(file.relativePathIn(storage)).isEqualTo("archive/batman.md")
   }
 
   @Test fun delete() {
@@ -56,23 +56,23 @@ class FileCanaryTests {
     val file = File(storage, "batman.md")
     file.write(content)
 
-    val archived = File(storage, "archived").makeDirectories()
+    val archived = File(storage, "archive").makeDirectories()
     val renamedFile = file.renameTo(File(archived, "batman.md"))
 
     assertThat(file.exists).isFalse()
     assertThat(renamedFile.exists).isTrue()
     assertThat(renamedFile.read()).isEqualTo(content)
-    assertThat(renamedFile.relativePathIn(storage)).isEqualTo("archived/batman.md")
+    assertThat(renamedFile.relativePathIn(storage)).isEqualTo("archive/batman.md")
   }
 
   @Test fun parent() {
-    val file = File(storage, "archived/batman.md")
-    assertThat(file.relativePathIn(storage)).isEqualTo("archived/batman.md")
-    assertThat(file.parent.relativePathIn(storage)).isEqualTo("archived")
+    val file = File(storage, "archive/batman.md")
+    assertThat(file.relativePathIn(storage)).isEqualTo("archive/batman.md")
+    assertThat(file.parent.relativePathIn(storage)).isEqualTo("archive")
   }
 
   @Test fun `make directories`() {
-    val archived = File(storage, "archived")
+    val archived = File(storage, "archive")
     archived.makeDirectories()
 
     assertThat(archived.exists).isTrue()
@@ -96,7 +96,7 @@ class FileCanaryTests {
     File(storage, "note_2.md").touch()
     File(storage, "note_3.md").touch()
 
-    val archived = File(storage, "archived").apply { makeDirectories() }
+    val archived = File(storage, "archive").apply { makeDirectories() }
     File(archived, "note_3.md").touch()
     File(archived, "note_4.md").touch()
     File(archived, "note_5.md").touch()
@@ -106,26 +106,26 @@ class FileCanaryTests {
         "note_1.md",
         "note_2.md",
         "note_3.md",
-        "archived"
+        "archive"
       )
     assertThat(storage.children(recursively = true, skipDirectories = true).map { it.relativePathIn(storage) })
       .containsOnly(
         "note_1.md",
         "note_2.md",
         "note_3.md",
-        "archived/note_3.md",
-        "archived/note_4.md",
-        "archived/note_5.md"
+        "archive/note_3.md",
+        "archive/note_4.md",
+        "archive/note_5.md"
       )
     assertThat(storage.children(recursively = true, skipDirectories = false).map { it.relativePathIn(storage) })
       .containsOnly(
         "note_1.md",
         "note_2.md",
         "note_3.md",
-        "archived",
-        "archived/note_3.md",
-        "archived/note_4.md",
-        "archived/note_5.md"
+        "archive",
+        "archive/note_3.md",
+        "archive/note_4.md",
+        "archive/note_5.md"
       )
     assertThat(archived.children(recursively = true).map { it.relativePathIn(archived) })
       .containsOnly(

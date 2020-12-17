@@ -138,7 +138,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     }
 
     // Given: User hasn't saved any notes on this device yet.
-    assertThat(noteQueries.visibleNotes().executeAsList()).isEmpty()
+    assertThat(noteQueries.allNotes().executeAsList()).isEmpty()
 
     syncer.sync()
 
@@ -154,7 +154,6 @@ class GitSyncerTest : BaseDatabaeTest() {
     notesAfterSync.find { it.content == "# The Witcher" }!!.apply {
       assertThat(createdAt).isEqualTo(firstCommitTime)
       assertThat(updatedAt).isEqualTo(firstCommitTime)
-      assertThat(isArchived).isFalse()
       assertThat(isPendingDeletion).isFalse()
     }
 
@@ -173,7 +172,7 @@ class GitSyncerTest : BaseDatabaeTest() {
           "folder1/note_1.md" to "# The Witcher 3",
           "folder1/folder2/note_2.md" to "# Unravel 2",
           "folder1/folder2/folder1/note_2.md" to "# Among Us",
-          "archived/folder1/note_3.md" to "# Uncharted 4"
+          "archive/folder1/note_3.md" to "# Uncharted 4"
         )
       )
       forcePush()
@@ -184,28 +183,23 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     syncer.sync()
 
-    val notesAfterSync = noteQueries.allNotes().executeAsList()
-    notesAfterSync.find { it.content == "# The Witcher 3" }!!.apply {
-      assertThat(folderPaths.createPath(folderId!!)).isEqualTo("folder1")
-      assertThat(isArchived).isFalse()
-      assertThat(isPendingDeletion).isFalse()
+    val notesAfterSync = noteQueries.allNotes().executeAsList().map {
+      folderPaths.createPath(it.folderId!!) to it.content
     }
-    notesAfterSync.find { it.content == "# Unravel 2" }!!.apply {
-      assertThat(folderPaths.createPath(folderId!!)).isEqualTo("folder1/folder2")
-    }
-    notesAfterSync.find { it.content == "# Among Us" }!!.apply {
-      assertThat(folderPaths.createPath(folderId!!)).isEqualTo("folder1/folder2/folder1")
-    }
-    notesAfterSync.find { it.content == "# Uncharted 4" }!!.apply {
-      assertThat(folderPaths.createPath(folderId!!)).isEqualTo("archived/folder1")
-      assertThat(isArchived).isTrue()
-    }
-
+    assertThat(notesAfterSync).containsOnly(
+      "folder1" to "# The Witcher 3",
+      "folder1/folder2" to "# Unravel 2",
+      "folder1/folder2/folder1" to "# Among Us",
+      "archive/folder1" to "# Uncharted 4"
+    )
+    assertThat(noteQueries.archivedNotes().executeAsOne().content).isEqualTo(
+      "# Uncharted 4"
+    )
     assertThat(storedFolders().map { it.name }).containsOnly(
       "folder1",
       "folder2",
       "folder1",
-      "archived"
+      "archive"
     )
   }
 
@@ -214,7 +208,7 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     folderPaths.mkdirs("folder1")
     folderPaths.mkdirs("folder1/folder2")
-    folderPaths.mkdirs("archived/folder1")
+    folderPaths.mkdirs("archive/folder1")
 
     RemoteRepositoryRobot {
       commitFiles(
@@ -222,7 +216,7 @@ class GitSyncerTest : BaseDatabaeTest() {
         add = listOf(
           "folder1/note_1.md" to "# The Witcher 3",
           "folder1/folder2/note_2.md" to "# Unravel 2",
-          "archived/folder1/note_3.md" to "# Uncharted 4"
+          "archive/folder1/note_3.md" to "# Uncharted 4"
         )
       )
       forcePush()
@@ -262,7 +256,7 @@ class GitSyncerTest : BaseDatabaeTest() {
       commitFiles(
         message = "Move games",
         rename = listOf(
-          "the_witcher_3.md" to "archived/the_witcher_3.md",
+          "the_witcher_3.md" to "archive/the_witcher_3.md",
           "uncharted.md" to "games/uncharted.md",
           "games/unravel_2.md" to "games/unravel/unravel_2.md"
         )
@@ -270,14 +264,14 @@ class GitSyncerTest : BaseDatabaeTest() {
       forcePush()
     }
     syncer.sync()
-    assertThat(folderPaths.createPath(witcher().folderId!!)).isEqualTo("archived")
+    assertThat(folderPaths.createPath(witcher().folderId!!)).isEqualTo("archive")
     assertThat(folderPaths.createPath(uncharted().folderId!!)).isEqualTo("games")
     assertThat(folderPaths.createPath(unravel().folderId!!)).isEqualTo("games/unravel")
 
     val folders = folderQueries.allFolders().executeAsList()
     folderQueries.updateParent(
       id = folders.find { it.name == "games" }!!.id,
-      parent = folders.find { it.name == "archived" }!!.id
+      parent = folders.find { it.name == "archive" }!!.id
     )
     noteQueries.updateFolder(
       id = witcher().id,
@@ -287,8 +281,8 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     assertThat(remote.fetchNoteFiles()).containsOnly(
       "the_witcher_3.md" to "# The Witcher 3",
-      "archived/games/uncharted.md" to "# Uncharted 4",
-      "archived/games/unravel/unravel_2.md" to "# Unravel 2",
+      "archive/games/uncharted.md" to "# Uncharted 4",
+      "archive/games/unravel/unravel_2.md" to "# Unravel 2",
     )
   }
 
@@ -368,7 +362,7 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     syncer.sync()
 
-    val localNotes = noteQueries.visibleNotes().executeAsList().map { it.content }
+    val localNotes = noteQueries.allNotes().executeAsList().map { it.content }
     assertThat(localNotes).containsOnly(
       "# Test",
       "# Test"
@@ -414,7 +408,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     syncer.sync()
 
     // Check: both local and remote have same notes with same timestamps.
-    val localNotes = noteQueries.visibleNotes()
+    val localNotes = noteQueries.allNotes()
       .executeAsList()
       .sortedBy { it.updatedAt }
 
@@ -472,7 +466,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     syncer.sync()
 
     // Given: the same note was edited locally.
-    val locallyEditedNote = noteQueries.visibleNotes().executeAsOne()
+    val locallyEditedNote = noteQueries.allNotes().executeAsOne()
     clock.advanceTimeBy(1.hours)
     noteQueries.updateContent(
       id = locallyEditedNote.id,
@@ -494,7 +488,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     // The conflict should get auto-resolved here.
     syncer.sync()
 
-    val localNotes = noteQueries.visibleNotes().executeAsList().sortedBy { it.updatedAt }
+    val localNotes = noteQueries.allNotes().executeAsList().sortedBy { it.updatedAt }
 
     // The local note should get duplicated as a new note and then
     // the old local note should get overridden by the server copy.
@@ -523,7 +517,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     syncer.sync()
 
     // Given: the same note was renamed locally, effectively DELETING the old file.
-    val locallyEditedNote = noteQueries.visibleNotes().executeAsOne()
+    val locallyEditedNote = noteQueries.allNotes().executeAsOne()
     clock.advanceTimeBy(1.hours)
     noteQueries.updateContent(
       id = locallyEditedNote.id,
@@ -546,7 +540,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     // The conflict should get auto-resolved here.
     syncer.sync()
 
-    val localNotes = noteQueries.visibleNotes().executeAsList().sortedBy { it.updatedAt }
+    val localNotes = noteQueries.allNotes().executeAsList().sortedBy { it.updatedAt }
 
     println("localNotes: ")
     localNotes.forEach { println(it) }
@@ -602,7 +596,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     // The conflict should get auto-resolved here.
     syncer.sync()
 
-    val localNotes = noteQueries.visibleNotes().executeAsList().sortedBy { it.updatedAt }
+    val localNotes = noteQueries.allNotes().executeAsList().sortedBy { it.updatedAt }
 
     println("localNotes: ")
     localNotes.forEach { println(it) }
@@ -639,7 +633,7 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     syncer.sync()
 
-    val localNotes = noteQueries.visibleNotes().executeAsList()
+    val localNotes = noteQueries.allNotes().executeAsList()
     assertThat(localNotes).hasSize(1)
   }
 
@@ -689,7 +683,6 @@ class GitSyncerTest : BaseDatabaeTest() {
       )
       forcePush()
     }
-    noteQueries.setArchived(id = note.id, isArchived = false, updatedAt = clock.nowUtc())
     syncer.sync()
 
     val localNotes = noteQueries.allNotes().executeAsList()
@@ -859,20 +852,22 @@ class GitSyncerTest : BaseDatabaeTest() {
     noteQueries.testInsert(note1, note2, note3)
     syncer.sync()
 
-    noteQueries.setArchived(
+    val archive = fakeFolder("archive")
+    folderQueries.insert(archive)
+
+    noteQueries.updateFolder(
       id = note3.id,
-      isArchived = true,
-      updatedAt = clock.nowUtc()
+      folderId = archive.id
     )
     syncer.sync()
 
-    val notes = noteQueries.allNotes().executeAsList()
-    assertThat(notes.all { it.isArchived }).isTrue()
+    val archivedNotes = noteQueries.archivedNotes().executeAsList().map { it.id }
+    assertThat(archivedNotes).containsOnly(note3.id)
 
     assertThat(RemoteRepositoryRobot().fetchNoteFiles()).containsOnly(
-      "archived/horizon_zero_dawn.md" to "# Horizon Zero Dawn",
-      "archived/uncharted.md" to "# Uncharted",
-      "archived/uncharted_2.md" to "# Uncharted"
+      "archive/horizon_zero_dawn.md" to "# Horizon Zero Dawn",
+      "archive/uncharted.md" to "# Uncharted",
+      "archive/uncharted_2.md" to "# Uncharted"
     )
   }
 
@@ -885,26 +880,29 @@ class GitSyncerTest : BaseDatabaeTest() {
     syncer.sync()
 
     // Archive both notes: one on local and the other on remote.
-    noteQueries.setArchived(id = note1.id, isArchived = true, updatedAt = clock.nowUtc())
+    val archive = fakeFolder("archive")
+    folderQueries.insert(archive)
+    noteQueries.updateFolder(id = note1.id, folderId = archive.id)
+
     val remote = RemoteRepositoryRobot {
       pull()
       commitFiles(
         message = "Archive uncharted.md",
         rename = listOf(
-          "uncharted.md" to "archived/uncharted.md"
+          "uncharted.md" to "archive/uncharted.md"
         )
       )
       forcePush()
     }
     syncer.sync()
 
-    val notes = noteQueries.allNotes().executeAsList()
-    println("Local notes after syncing:"); notes.forEach { println(it) }
-    assertThat(notes.all { it.isArchived }).isTrue()
+    val allNotes = noteQueries.allNotes().executeAsList()
+    val archivedNotes = noteQueries.archivedNotes().executeAsList()
+    assertThat(archivedNotes).isEqualTo(allNotes)
 
     assertThat(remote.fetchNoteFiles()).containsOnly(
-      "archived/horizon_zero_dawn.md" to "# Horizon Zero Dawn",
-      "archived/uncharted.md" to "# Uncharted"
+      "archive/horizon_zero_dawn.md" to "# Horizon Zero Dawn",
+      "archive/uncharted.md" to "# Uncharted"
     )
   }
 
@@ -914,12 +912,13 @@ class GitSyncerTest : BaseDatabaeTest() {
     RemoteRepositoryRobot {
       commitFiles(
         message = "Archive uncharted.md",
-        add = listOf("archived/uncharted.md" to "# Uncharted")
+        add = listOf("archive/uncharted.md" to "# Uncharted")
       )
       forcePush()
     }
     syncer.sync()
-    assertThat(noteQueries.allNotes().executeAsOne().isArchived).isTrue()
+
+    assertThat(noteQueries.archivedNotes().executeAsOne().content).isEqualTo("# Uncharted")
   }
 
   @Test fun `sync unarchived note`() {
@@ -928,21 +927,19 @@ class GitSyncerTest : BaseDatabaeTest() {
     val remote = RemoteRepositoryRobot {
       commitFiles(
         message = "Archive uncharted.md",
-        add = listOf("archived/uncharted.md" to "# Uncharted")
+        add = listOf("archive/uncharted.md" to "# Uncharted")
       )
       forcePush()
     }
     syncer.sync()
 
     val note = { noteQueries.allNotes().executeAsOne() }
-    noteQueries.setArchived(
+    noteQueries.updateFolder(
       id = note().id,
-      isArchived = false,
-      updatedAt = clock.nowUtc()
+      folderId = null
     )
     syncer.sync()
 
-    assertThat(note().isArchived).isFalse()
     assertThat(remote.fetchNoteFiles()).containsOnly("uncharted.md" to "# Uncharted")
   }
 
@@ -955,21 +952,22 @@ class GitSyncerTest : BaseDatabaeTest() {
     syncer.sync()
 
     // kgit should be able to identify these ADD + DELETE as RENAME.
+    val archive = fakeFolder("archive")
+    noteQueries.updateFolder(id = note2.id, folderId = archive.id)
     noteQueries.updateContent(id = note2.id, content = "", updatedAt = clock.nowUtc())
-    noteQueries.setArchived(id = note2.id, isArchived = true, updatedAt = clock.nowUtc())
     RemoteRepositoryRobot {
       pull()
       commitFiles(
         message = "Archive horizon_zero_dawn.md",
         delete = listOf("horizon_zero_dawn.md"),
-        add = listOf("archived/horizon_zero_dawn.md" to "# Horizon Zero Dawn")
+        add = listOf("archive/horizon_zero_dawn.md" to "# Horizon Zero Dawn")
       )
       forcePush()
     }
     syncer.sync()
 
     val savedNotes = noteQueries.allNotes().executeAsList()
-    assertThat(savedNotes.all { it.isArchived }).isTrue()
+    assertThat(savedNotes).isEqualTo(noteQueries.archivedNotes().executeAsList())
     assertThat(savedNotes.map { it.id }).containsOnly(note1.id, note2.id)
   }
 

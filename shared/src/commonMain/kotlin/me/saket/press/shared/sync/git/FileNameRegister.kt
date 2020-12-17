@@ -169,11 +169,7 @@ internal class FileNameRegister(
   }
 
   private fun Note.folder(): String? {
-    val folderPath = folderId?.let(folderPaths::createPath)
-    return when {
-      isArchived -> "archived" + (folderPath?.prefix("/") ?: "")
-      else -> folderPath
-    }
+    return folderId?.let(folderPaths::createPath)
   }
 
   fun pruneStaleRecords(currentIds: Collection<NoteId>) {
@@ -250,10 +246,6 @@ internal class FileNameRegister(
       registerFile.delete()
     }
   }
-}
-
-private fun String.prefix(prefix: String): String {
-  return prefix + this
 }
 
 private inline fun <T> File?.hideAndRun(crossinline run: () -> T): T {

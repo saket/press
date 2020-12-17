@@ -1,0 +1,14 @@
+CREATE VIEW folders_with_roots
+AS
+WITH RECURSIVE cte_folder (id, name, parent, root_name, root_id) AS (
+  SELECT id, name, parent, name AS root_name, id AS root_id
+  FROM folder
+  WHERE folder.parent IS NULL
+
+  UNION
+
+  SELECT folder.id, folder.name, folder.parent, cte_folder.root_name, cte_folder.root_id
+  FROM folder, cte_folder
+  WHERE folder.parent = cte_folder.id
+)
+SELECT id, root_name, root_id FROM cte_folder;

@@ -15,12 +15,11 @@ import me.saket.press.shared.time.FakeClock
 import kotlin.test.Test
 
 class RealNoteRepositoryTest : BaseDatabaeTest() {
-
   private val clock = FakeClock()
   private val noteQueries get() = database.noteQueries
 
   private fun repository() = RealNoteRepository(
-    noteQueries = noteQueries,
+    database = database,
     schedulers = FakeSchedulers(),
     clock = clock
   )
@@ -30,7 +29,7 @@ class RealNoteRepositoryTest : BaseDatabaeTest() {
     val content = "Nicolas Cage is a national treasure"
     repository().create(id = noteId, content = content).test()
 
-    val savedNote = noteQueries.visibleNotes().executeAsOne()
+    val savedNote = noteQueries.allNotes().executeAsOne()
 
     savedNote.let {
       assertThat(it.id).isEqualTo(noteId)
@@ -63,17 +62,5 @@ class RealNoteRepositoryTest : BaseDatabaeTest() {
 
     val savedNote = noteQueries.note(note.id).executeAsOne()
     assertThat(savedNote.isPendingDeletion).isTrue()
-  }
-
-  @Test fun `mark a note as archived`() {
-    val note = fakeNote(id = NoteId.generate(), content = "# A national treasure", clock = clock)
-    noteQueries.testInsert(note)
-
-    clock.advanceTimeBy(2.hours)
-    repository().markAsArchived(note.id).test()
-
-    val savedNote = noteQueries.note(note.id).executeAsOne()
-    assertThat(savedNote.isArchived).isTrue()
-    assertThat(savedNote.updatedAt).isEqualTo(clock.nowUtc())
   }
 }

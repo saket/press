@@ -4,12 +4,10 @@ import me.saket.press.shared.db.NoteId;
 import me.saket.press.shared.sync.SyncState;
 
 CREATE TABLE note (
-  localId INTEGER PRIMARY KEY AUTOINCREMENT,
   id TEXT AS NoteId NOT NULL,
   content TEXT NOT NULL,
   createdAt TEXT AS DateTime NOT NULL,
   updatedAt TEXT AS DateTime NOT NULL,
-  isArchived INTEGER AS Boolean NOT NULL DEFAULT 0,
   isPendingDeletion INTEGER AS Boolean NOT NULL DEFAULT 0,
   syncState TEXT AS SyncState NOT NULL DEFAULT 'PENDING',
   folderId TEXT AS FolderId
@@ -20,14 +18,6 @@ CREATE INDEX note_content ON note(content);
 -- Mark as pending-sync when notes are updated.
 CREATE TRIGGER pending_sync_on_content_update
 AFTER UPDATE OF content ON note
-BEGIN
-	UPDATE note
-  SET syncState = 'PENDING'
-  WHERE id = new.id;
-END;
-
-CREATE TRIGGER pending_sync_on_archived_update
-AFTER UPDATE OF isArchived ON note
 BEGIN
 	UPDATE note
   SET syncState = 'PENDING'
@@ -53,8 +43,21 @@ END;
 visibleNotes:
 SELECT *
 FROM note
-WHERE isPendingDeletion IS 0 AND isArchived IS 0
+WHERE isPendingDeletion IS 0 AND (
+  folderId IS NULL
+  OR folderId NOT IN (
+    SELECT id FROM folders_with_roots
+    WHERE root_name = 'archive'
+  )
+)
 ORDER BY updatedAt DESC;
+
+archivedNotes:
+SELECT * FROM note
+WHERE folderId IN (
+  SELECT id FROM folders_with_roots
+  WHERE root_name = 'archive'
+);
 
 allNotes:
 SELECT *
@@ -100,11 +103,6 @@ swapSyncStates:
 UPDATE note
 SET syncState = :new
 WHERE syncState IN :old;
-
-setArchived:
-UPDATE note
-SET isArchived = :isArchived, updatedAt = ?
-WHERE id = ? AND isArchived != :isArchived;
 
 markAsPendingDeletion:
 UPDATE note

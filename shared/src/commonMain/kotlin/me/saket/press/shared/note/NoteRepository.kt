@@ -18,8 +18,6 @@ interface NoteRepository {
 
   fun update(id: NoteId, content: String): Completable
 
-  fun markAsArchived(id: NoteId): Completable
-
   /** Note will be permanently deleted once it has been synced. */
   fun markAsPendingDeletion(id: NoteId): Completable
 

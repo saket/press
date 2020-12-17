@@ -25,13 +25,11 @@ fun fakeNote(
   syncState: SyncState = PENDING
 ): Note {
   return Note(
-    localId = Random.Default.nextLong(),
     id = id,
     folderId = folderId,
     content = content,
     createdAt = createdAt,
     updatedAt = updatedAt,
-    isArchived = isArchived,
     isPendingDeletion = isPendingDeletion,
     syncState = syncState
   )

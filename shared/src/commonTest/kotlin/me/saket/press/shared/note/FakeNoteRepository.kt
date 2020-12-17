@@ -59,13 +59,4 @@ class FakeNoteRepository : NoteRepository {
       _updateCount.addAndGet(1)
     }.observeOn(scheduler)
   }
-
-  override fun markAsArchived(id: NoteId): Completable {
-    return completableFromFunction {
-      val existingNote = findNote(id)!!
-      assertTrue(savedNotes.remove(existingNote))
-      savedNotes += existingNote.copy(isArchived = true)
-      _updateCount.addAndGet(1)
-    }.observeOn(scheduler)
-  }
 }

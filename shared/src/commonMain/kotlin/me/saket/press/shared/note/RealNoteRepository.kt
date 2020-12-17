@@ -3,21 +3,26 @@ package me.saket.press.shared.note
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.observable.Observable
+import com.badoo.reaktive.observable.combineLatest
+import com.badoo.reaktive.observable.distinctUntilChanged
+import com.badoo.reaktive.observable.observableFromFunction
+import me.saket.press.PressDatabase
 import me.saket.press.data.shared.Note
-import me.saket.press.data.shared.NoteQueries
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.rx.Schedulers
 import me.saket.press.shared.rx.asObservable
 import me.saket.press.shared.rx.mapToList
 import me.saket.press.shared.rx.mapToOneOrOptional
+import me.saket.press.shared.sync.git.FolderPaths
 import me.saket.press.shared.time.Clock
 import me.saket.press.shared.util.Optional
 
 internal class RealNoteRepository(
-  private val noteQueries: NoteQueries,
+  private val database: PressDatabase,
   private val schedulers: Schedulers,
   private val clock: Clock
 ) : NoteRepository {
+  private val noteQueries get() = database.noteQueries
 
   override fun note(id: NoteId): Observable<Optional<Note>> {
     return noteQueries.note(id)
@@ -60,16 +65,6 @@ internal class RealNoteRepository(
   override fun markAsPendingDeletion(id: NoteId): Completable {
     return completableFromFunction {
       noteQueries.markAsPendingDeletion(id)
-    }
-  }
-
-  override fun markAsArchived(id: NoteId): Completable {
-    return completableFromFunction {
-      noteQueries.setArchived(
-        id = id,
-        isArchived = true,
-        updatedAt = clock.nowUtc()
-      )
     }
   }
 }

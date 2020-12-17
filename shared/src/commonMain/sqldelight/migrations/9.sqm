@@ -1,0 +1,59 @@
+BEGIN TRANSACTION;
+
+CREATE TABLE note_copy (
+  id TEXT NOT NULL,
+  content TEXT NOT NULL,
+  createdAt TEXT NOT NULL,
+  updatedAt TEXT NOT NULL,
+  isPendingDeletion INTEGER NOT NULL DEFAULT 0,
+  syncState TEXT NOT NULL DEFAULT 'PENDING',
+  folderId TEXT
+);
+
+INSERT INTO note_copy
+SELECT
+  id,
+  content,
+  createdAt,
+  updatedAt,
+  isPendingDeletion,
+  syncState,
+  folderId
+FROM note;
+
+-- Move all archived notes to /archived folder.
+INSERT INTO folder(id, name, parent) VALUES ('c692f5b2-0f8c-46df-b7c4-c48b7c1a2379', 'archive', NULL);
+UPDATE note SET folderId = 'c692f5b2-0f8c-46df-b7c4-c48b7c1a2379' WHERE isArchived = 1;
+
+DROP TABLE note;
+ALTER TABLE note_copy
+RENAME TO note;
+
+CREATE INDEX note_content ON note(content);
+
+-- Mark as pending-sync when notes are updated.
+CREATE TRIGGER pending_sync_on_content_update
+AFTER UPDATE OF content ON note
+BEGIN
+	UPDATE note
+  SET syncState = 'PENDING'
+  WHERE id = new.id;
+END;
+
+CREATE TRIGGER pending_sync_on_deletion_update
+AFTER UPDATE OF isPendingDeletion ON note
+BEGIN
+	UPDATE note
+  SET syncState = 'PENDING'
+  WHERE id = new.id;
+END;
+
+CREATE TRIGGER pending_sync_on_folder_update
+AFTER UPDATE OF folderId ON note
+BEGIN
+	UPDATE note
+  SET syncState = 'PENDING'
+  WHERE id = new.id;
+END;
+
+END TRANSACTION;

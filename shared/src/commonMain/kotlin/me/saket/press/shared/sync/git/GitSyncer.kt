@@ -56,7 +56,6 @@ class GitSyncer(
   private val backupBeforeFirstSync: AtomicBoolean = AtomicBoolean(true)
 ) : Syncer() {
   private val noteQueries get() = database.noteQueries
-  private val folderQueries get() = database.folderQueries
   private val configQueries get() = database.folderSyncConfigQueries
   private val folderPaths = FolderPaths(database)
 
@@ -487,24 +486,17 @@ class GitSyncer(
             ?: register.createNewRecordFor(file, id = NoteId.generate())
 
           val noteId = record.noteId
-          val isArchived = record.noteFolder.startsWith("archived", ignoreCase = true)
           val isNewNote = !noteQueries.exists(noteId).executeAsOne()
           val commitTime = diffPathTimestamps[diff.path]!!
-          val folderId = folderPaths.mkdirs(record.noteFolder)
 
           if (isNewNote) {
             log("   creating new note for ${diff.path} with id=${noteId.value}")
             DbOperation.includeId(noteId) {
               noteQueries.insert(
                 id = noteId,
-                folderId = folderId,
+                folderId = folderPaths.mkdirs(record.noteFolder),
                 content = content,
                 createdAt = commitTime,
-                updatedAt = commitTime
-              )
-              noteQueries.setArchived(
-                id = noteId,
-                isArchived = isArchived,
                 updatedAt = commitTime
               )
               noteQueries.updateSyncState(
@@ -523,12 +515,7 @@ class GitSyncer(
                 )
                 noteQueries.updateFolder(
                   id = noteId,
-                  folderId = folderId
-                )
-                noteQueries.setArchived(
-                  id = noteId,
-                  isArchived = isArchived,
-                  updatedAt = commitTime
+                  folderId = folderPaths.mkdirs(record.noteFolder)
                 )
                 noteQueries.updateSyncState(
                   ids = listOf(noteId),

@@ -30,17 +30,17 @@ class FileNameRegisterTest : BaseDatabaeTest() {
   }
 
   @Test fun canary() {
-    val archivedDir = File(directory, "archived").apply { makeDirectories() }
+    val archivedDir = File(directory, "archive/games").apply { makeDirectories() }
     val noteFile = File(archivedDir, "uncharted.md").apply { write("A Thief's End") }
     val noteId = NoteId.generate()
 
     val record = register.createNewRecordFor(noteFile, noteId)
-    assertThat(record.noteFilePath).isEqualTo("archived/uncharted.md")
-    assertThat(record.noteFolder).isEqualTo("archived")
+    assertThat(record.noteFilePath).isEqualTo("archive/games/uncharted.md")
+    assertThat(record.noteFolder).isEqualTo("archive/games")
     assertThat(record.noteId).isEqualTo(noteId)
 
-    assertThat(record.noteFileIn(directory).relativePathIn(directory)).isEqualTo("archived/uncharted.md")
-    assertThat(record.registerFile.path).endsWith(".press/registers/archived/uncharted")
+    assertThat(record.noteFileIn(directory).relativePathIn(directory)).isEqualTo("archive/games/uncharted.md")
+    assertThat(record.registerFile.path).endsWith(".press/registers/archive/games/uncharted")
   }
 
   @Test fun `generates unique file names to avoid conflicts`() {
@@ -80,7 +80,7 @@ class FileNameRegisterTest : BaseDatabaeTest() {
   @Test fun `generation of a new file name for resolving conflict in the same folder`() {
     File(directory, "uncharted.md").write("A Thief's End")
     File(directory, "uncharted_2.md").write("The Lost Legacy")
-    File(directory, "archived/uncharted_3.md").touch().write("Archived The Lost Legacy")
+    File(directory, "archive/uncharted_3.md").touch().write("Archived The Lost Legacy")
 
     val conflictingNote = fakeNote("# Uncharted\nDrake's Fortune")
     val newName = register.generateNameFor(conflictingNote, canUseExisting = false)
@@ -117,8 +117,8 @@ class FileNameRegisterTest : BaseDatabaeTest() {
     assertThat(register.noteIdFor(record1.noteFilePath)).isNotEqualTo(register.noteIdFor(record2.noteFilePath))
   }
 
-  @Test fun `support for archived note`() {
-    val note = fakeNote(content = "# The Witcher 3\nWild hunt", isArchived = false)
+  @Test fun `detect updates to note's folder`() {
+    val note = fakeNote(content = "# The Witcher 3\nWild hunt", folderId = null)
 
     val unarchivedFile = register.fileFor(note)
     assertThat(unarchivedFile.exists).isTrue()
@@ -128,15 +128,18 @@ class FileNameRegisterTest : BaseDatabaeTest() {
       assertThat(noteFolder).isEmpty()
     }
 
-    val archivedFile = register.fileFor(note.copy(isArchived = true))
-    assertThat(archivedFile.relativePathIn(directory)).isEqualTo("archived/the_witcher_3.md")
+    val archive = fakeFolder("archive")
+    database.folderQueries.insert(archive)
+
+    val archivedFile = register.fileFor(note.copy(folderId = archive.id))
+    assertThat(archivedFile.relativePathIn(directory)).isEqualTo("archive/the_witcher_3.md")
     assertThat(unarchivedFile.exists).isFalse()
-    with(register.recordFor("archived/the_witcher_3.md")!!) {
+    with(register.recordFor("archive/the_witcher_3.md")!!) {
       assertThat(noteId).isEqualTo(note.id)
-      assertThat(noteFolder).isEqualTo("archived")
+      assertThat(noteFolder).isEqualTo("archive")
     }
 
-    register.fileFor(note.copy(isArchived = false))
+    register.fileFor(note.copy(folderId = null))
     assertThat(archivedFile.exists).isFalse()
     assertThat(unarchivedFile.exists).isTrue()
     with(register.recordFor("the_witcher_3.md")!!) {
@@ -163,20 +166,20 @@ class FileNameRegisterTest : BaseDatabaeTest() {
   }
 
   @Test fun `support for archived note inside a single folder`() {
-    val gamesFolder = fakeFolder("Games", parent = null)
-    database.folderQueries.insert(gamesFolder)
+    val archiveFolder = fakeFolder("archive", parent = null)
+    val gamesFolder = fakeFolder("Games", parent = archiveFolder.id)
+    database.folderQueries.insert(archiveFolder, gamesFolder)
 
     val note = fakeNote(
       content = "# The Witcher 3\nHearts of Stone",
-      folderId = gamesFolder.id,
-      isArchived = true
+      folderId = gamesFolder.id
     )
     val file = register.fileFor(note)
 
-    assertThat(file.relativePathIn(directory)).isEqualTo("archived/Games/the_witcher_3.md")
-    with (register.recordFor("archived/Games/the_witcher_3.md")!!) {
+    assertThat(file.relativePathIn(directory)).isEqualTo("archive/Games/the_witcher_3.md")
+    with (register.recordFor("archive/Games/the_witcher_3.md")!!) {
       assertThat(noteId).isEqualTo(note.id)
-      assertThat(noteFolder).isEqualTo("archived/Games")
+      assertThat(noteFolder).isEqualTo("archive/Games")
     }
   }
 
@@ -198,22 +201,22 @@ class FileNameRegisterTest : BaseDatabaeTest() {
     }
   }
 
-  @Test fun `support for archived note inside nested folder`() {
-    val gamesFolder = fakeFolder("Games", parent = null)
+  @Test fun `support for archived note inside nested folders`() {
+    val archiveFolder = fakeFolder("archive", parent = null)
+    val gamesFolder = fakeFolder("Games", parent = archiveFolder.id)
     val witcherFolder = fakeFolder("The Witcher 3", parent = gamesFolder.id)
-    database.folderQueries.insert(gamesFolder, witcherFolder)
+    database.folderQueries.insert(archiveFolder, gamesFolder, witcherFolder)
 
     val note = fakeNote(
       content = "# Hearts of Stone",
-      folderId = witcherFolder.id,
-      isArchived = true
+      folderId = witcherFolder.id
     )
     val file = register.fileFor(note)
 
-    assertThat(file.relativePathIn(directory)).isEqualTo("archived/Games/The Witcher 3/hearts_of_stone.md")
-    with (register.recordFor("archived/Games/The Witcher 3/hearts_of_stone.md")!!) {
+    assertThat(file.relativePathIn(directory)).isEqualTo("archive/Games/The Witcher 3/hearts_of_stone.md")
+    with (register.recordFor("archive/Games/The Witcher 3/hearts_of_stone.md")!!) {
       assertThat(noteId).isEqualTo(note.id)
-      assertThat(noteFolder).isEqualTo("archived/Games/The Witcher 3")
+      assertThat(noteFolder).isEqualTo("archive/Games/The Witcher 3")
     }
   }
 
