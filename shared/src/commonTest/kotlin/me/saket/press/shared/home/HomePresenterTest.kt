@@ -6,6 +6,7 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import com.badoo.reaktive.test.observable.test
+import me.saket.press.shared.FakeSchedulers
 import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
@@ -32,7 +33,8 @@ class HomePresenterTest : BaseDatabaeTest() {
       args = Args(HomeScreenKey.root(), includeEmptyNotes, navigator),
       repository = noteRepository,
       keyboardShortcuts = keyboardShortcuts,
-      database = database
+      database = database,
+      schedulers = FakeSchedulers()
     )
   }
 

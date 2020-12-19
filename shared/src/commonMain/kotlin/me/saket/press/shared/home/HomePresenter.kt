@@ -26,6 +26,9 @@ import me.saket.press.shared.keyboard.KeyboardShortcuts
 import me.saket.press.shared.keyboard.KeyboardShortcuts.Companion.newNote
 import me.saket.press.shared.note.HeadingAndBody
 import me.saket.press.shared.note.NoteRepository
+import me.saket.press.shared.rx.Schedulers
+import me.saket.press.shared.rx.asObservable
+import me.saket.press.shared.rx.mapToList
 import me.saket.press.shared.rx.mergeWith
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
@@ -34,6 +37,7 @@ class HomePresenter(
   private val args: Args,
   private val database: PressDatabase,
   private val repository: NoteRepository,
+  private val schedulers: Schedulers,
   private val keyboardShortcuts: KeyboardShortcuts
 ) : Presenter<HomeEvent, HomeUiModel, Nothing>() {
 
@@ -66,13 +70,18 @@ class HomePresenter(
       args.includeBlankNotes || (note.content.isNotBlank() && note.content != NEW_NOTE_PLACEHOLDER)
     }
 
-    val folders = observableOf(
-      listOf(
-        HomeUiModel.Folder(id = FolderId.generate(), title = "Blog", subtitle = "3 notes"),
-        HomeUiModel.Folder(id = FolderId.generate(), title = "Press", subtitle = "13 notes"),
-        HomeUiModel.Folder(id = FolderId.generate(), title = "Square", subtitle = "24 notes"),
-      )
-    )
+    val folders = database.folderQueries.nonEmptyFolders()
+      .asObservable(schedulers.io)
+      .mapToList()
+      .map { folders ->
+        folders.map {
+          HomeUiModel.Folder(
+            id = it.id,
+            title = it.name,
+            subtitle = "" // TODO: show number of notes.
+          )
+        }
+      }
 
     val notes = repository.visibleNotes()
       .map { notes -> notes.filter { canInclude(it) } }
@@ -90,7 +99,7 @@ class HomePresenter(
     return combineLatest(folders, notes) { f, n ->
       HomeUiModel(
         title = args.screenKey.folder?.value?.toString() ?: "Press (d)",
-        rows = f + n.shuffled() // todo: REMOVE SHUFFLED!
+        rows = f + n
       )
     }
   }

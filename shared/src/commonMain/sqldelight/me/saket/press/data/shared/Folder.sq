@@ -38,3 +38,10 @@ WHERE id = ?;
 
 allFolders:
 SELECT * FROM folder;
+
+nonEmptyFolders:
+SELECT * FROM folder
+WHERE id IN (
+  SELECT folderId FROM note
+  WHERE folderId IS NOT NULL
+);
