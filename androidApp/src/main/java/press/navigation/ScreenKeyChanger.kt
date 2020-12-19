@@ -1,9 +1,11 @@
 package press.navigation
 
 import android.content.Context
+import android.graphics.Rect
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
+import androidx.core.view.doOnLayout
 import flow.Direction
 import flow.Direction.BACKWARD
 import flow.Direction.FORWARD
@@ -19,6 +21,7 @@ import press.extensions.findChild
 import press.navigation.BackPressInterceptor.InterceptResult.Ignored
 import press.navigation.ScreenTransition.TransitionResult
 import press.navigation.ScreenTransition.TransitionResult.Handled
+import press.widgets.dp
 
 /**
  * Inflates screen Views in response to backstack changes.
@@ -177,11 +180,13 @@ private class BasicTransition : ScreenTransition {
     onComplete: () -> Unit
   ): TransitionResult {
     if (goingForward && toView is StandaloneExpandablePageLayout) {
-      toView.expandFromTop()
-      toView.doOnExpand(onComplete)
+      toView.doOnLayout {
+        toView.expandFrom(Rect(0, fromView.dp(56), toView.width, fromView.dp(56)))
+        toView.doOnExpand(onComplete)
+      }
 
     } else if (!goingForward && fromView is StandaloneExpandablePageLayout) {
-      fromView.collapseToTop()
+      fromView.collapseTo(Rect(0, fromView.dp(56), toView.width, fromView.dp(56)))
       fromView.doOnCollapse(onComplete)
     }
     return Handled
