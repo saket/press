@@ -3,6 +3,8 @@ package me.saket.press.shared
 import assertk.Assert
 import assertk.assertions.support.expected
 
+fun Assert<Collection<*>?>.isEqualTo(other: Collection<*>) = containsOnly(*other.toTypedArray())
+
 /**
  * Prints a readable error message, unlike assertk.
  */

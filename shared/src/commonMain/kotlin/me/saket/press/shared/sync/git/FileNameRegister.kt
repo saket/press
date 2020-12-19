@@ -169,7 +169,7 @@ internal class FileNameRegister(
   }
 
   private fun Note.folder(): String? {
-    return folderId?.let(folderPaths::createPath)
+    return folderId?.let(folderPaths::createFlatPath)
   }
 
   fun pruneStaleRecords(currentIds: Collection<NoteId>) {

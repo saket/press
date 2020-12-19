@@ -9,8 +9,8 @@ CREATE TABLE folder (
 
 -- Makes it easy to find archived notes.
 -- https://www.db-fiddle.com/f/b6Ms5mzMwL3YWY2N2RmQoD/1
-CREATE VIEW folders_with_roots
-AS
+-- https://haughtcodeworks.com/blog/software-development/recursive-sql-queries-using-ctes/
+CREATE VIEW folders_with_roots AS
 WITH RECURSIVE cte_folder (id, name, parent, root_name, root_id) AS (
   SELECT id, name, parent, name AS root_name, id AS root_id
   FROM folder
@@ -38,8 +38,3 @@ WHERE id = ?;
 
 allFolders:
 SELECT * FROM folder;
-
-updateParent:
-UPDATE folder
-SET parent = ?
-WHERE id = ?;

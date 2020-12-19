@@ -39,15 +39,6 @@
       <option name="PACKAGES_TO_USE_STAR_IMPORTS">
         <value />
       </option>
-      <option name="PACKAGES_IMPORT_LAYOUT">
-        <value>
-          <package name="" alias="false" withSubpackages="true" />
-          <package name="java" alias="false" withSubpackages="true" />
-          <package name="javax" alias="false" withSubpackages="true" />
-          <package name="kotlin" alias="false" withSubpackages="true" />
-          <package name="" alias="true" withSubpackages="true" />
-        </value>
-      </option>
       <option name="NAME_COUNT_TO_USE_STAR_IMPORT" value="999" />
       <option name="NAME_COUNT_TO_USE_STAR_IMPORT_FOR_MEMBERS" value="999" />
       <option name="IMPORT_NESTED_CLASSES" value="true" />
@@ -72,51 +63,6 @@
       <option name="CONTINUATION_INDENT_SIZE" value="2" />
       <option name="TAB_SIZE" value="2" />
     </ADDITIONAL_INDENT_OPTIONS>
-    <codeStyleSettings language="CSS">
-      <indentOptions>
-        <option name="INDENT_SIZE" value="2" />
-        <option name="CONTINUATION_INDENT_SIZE" value="4" />
-        <option name="TAB_SIZE" value="2" />
-      </indentOptions>
-    </codeStyleSettings>
-    <codeStyleSettings language="CoffeeScript">
-      <option name="KEEP_FIRST_COLUMN_COMMENT" value="false" />
-      <option name="KEEP_BLANK_LINES_IN_CODE" value="1" />
-      <option name="ALIGN_MULTILINE_PARAMETERS" value="false" />
-      <option name="METHOD_PARAMETERS_WRAP" value="1" />
-    </codeStyleSettings>
-    <codeStyleSettings language="Groovy">
-      <option name="KEEP_FIRST_COLUMN_COMMENT" value="false" />
-      <option name="KEEP_BLANK_LINES_IN_DECLARATIONS" value="1" />
-      <option name="KEEP_BLANK_LINES_IN_CODE" value="1" />
-      <option name="KEEP_BLANK_LINES_BEFORE_RBRACE" value="0" />
-      <option name="ALIGN_MULTILINE_PARAMETERS" value="false" />
-      <option name="ALIGN_MULTILINE_FOR" value="false" />
-      <option name="CALL_PARAMETERS_WRAP" value="1" />
-      <option name="METHOD_PARAMETERS_WRAP" value="1" />
-      <option name="EXTENDS_LIST_WRAP" value="1" />
-      <option name="THROWS_LIST_WRAP" value="1" />
-      <option name="EXTENDS_KEYWORD_WRAP" value="1" />
-      <option name="THROWS_KEYWORD_WRAP" value="1" />
-      <option name="METHOD_CALL_CHAIN_WRAP" value="5" />
-      <option name="BINARY_OPERATION_WRAP" value="5" />
-      <option name="TERNARY_OPERATION_WRAP" value="1" />
-      <option name="FOR_STATEMENT_WRAP" value="1" />
-      <option name="ASSIGNMENT_WRAP" value="1" />
-      <option name="ASSERT_STATEMENT_WRAP" value="1" />
-      <option name="IF_BRACE_FORCE" value="1" />
-      <option name="WHILE_BRACE_FORCE" value="1" />
-      <option name="METHOD_ANNOTATION_WRAP" value="1" />
-      <option name="CLASS_ANNOTATION_WRAP" value="1" />
-      <option name="FIELD_ANNOTATION_WRAP" value="1" />
-      <option name="PARAMETER_ANNOTATION_WRAP" value="1" />
-      <option name="VARIABLE_ANNOTATION_WRAP" value="1" />
-      <indentOptions>
-        <option name="INDENT_SIZE" value="2" />
-        <option name="CONTINUATION_INDENT_SIZE" value="4" />
-        <option name="TAB_SIZE" value="2" />
-      </indentOptions>
-    </codeStyleSettings>
     <codeStyleSettings language="JAVA">
       <option name="LINE_COMMENT_AT_FIRST_COLUMN" value="false" />
       <option name="BLOCK_COMMENT_AT_FIRST_COLUMN" value="false" />

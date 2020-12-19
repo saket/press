@@ -4,28 +4,40 @@ import me.saket.press.PressDatabase
 import me.saket.press.data.shared.Folder
 import me.saket.press.data.shared.FolderQueries
 import me.saket.press.shared.db.FolderId
+import me.saket.press.shared.db.NoteId
 
 @OptIn(ExperimentalStdlibApi::class)
 class FolderPaths(private val database: PressDatabase) {
-  private val queries get() = database.folderQueries
+  private val noteQueries get() = database.noteQueries
+  private val folderQueries get() = database.folderQueries
 
-  /**
-   * Path of a [FolderId], relative to the root notes directory.
-   */
-  fun createPath(
-    id: FolderId,
+  fun createFlatPath(
+    id: FolderId?,
     existingFolders: List<Folder> = database.folderQueries.allFolders().executeAsList()
   ): String {
-    return buildList {
-      val idsToFolders = existingFolders.associateBy { it.id }
+    return createPath(id, existingFolders).flatten()
+  }
 
-      var parentId: FolderId? = id
-      while (parentId != null) {
-        val parent = idsToFolders[parentId]!!
-        add(parent.name)
-        parentId = parent.parent
-      }
-    }.reversed().joinToString(separator = "/")
+  private fun createPath(
+    id: FolderId?,
+    existingFolders: List<Folder> = database.folderQueries.allFolders().executeAsList()
+  ): FolderPath {
+    if (id == null) {
+      return FolderPath(emptyList())
+    }
+
+    return FolderPath(
+      buildList {
+        val idsToFolders = existingFolders.associateBy { it.id }
+
+        var parentId: FolderId? = id
+        while (parentId != null) {
+          val parent = idsToFolders[parentId]!!
+          add(parent.name)
+          parentId = parent.parent
+        }
+      }.reversed()
+    )
   }
 
   /**
@@ -37,9 +49,9 @@ class FolderPaths(private val database: PressDatabase) {
       return null
     }
 
-    val allFolders = queries.allFolders().executeAsList()
+    val allFolders = folderQueries.allFolders().executeAsList()
     val pathsToFolders = allFolders
-      .associateBy { createPath(id = it.id, allFolders) }
+      .associateBy { createFlatPath(id = it.id, allFolders) }
       .toMutableMap()
 
     var nextPath = ""
@@ -51,7 +63,7 @@ class FolderPaths(private val database: PressDatabase) {
       if (nextPath !in pathsToFolders) {
         val folder = Folder(id = FolderId.generate(), name = path, parent = nextParent)
         pathsToFolders[nextPath] = folder
-        queries.insert(folder)
+        folderQueries.insert(folder)
       }
 
       nextParent = pathsToFolders[nextPath]!!.id
@@ -60,6 +72,40 @@ class FolderPaths(private val database: PressDatabase) {
 
     return pathsToFolders[folderPath]!!.id
   }
+
+  fun setArchived(noteId: NoteId, archive: Boolean) {
+    val note = noteQueries.note(noteId).executeAsOne()
+    val currentPath = createPath(note.folderId)
+
+    if (archive) {
+      check(currentPath.head() != "archive")
+    } else {
+      check(currentPath.head() == "archive")
+    }
+
+    val newPath = when {
+      archive -> currentPath.pushToHead(with = "archive")
+      else -> currentPath.popHead()
+    }
+    noteQueries.updateFolder(
+      id = note.id,
+      folderId = mkdirs(newPath.flatten())
+    )
+  }
+}
+
+private class FolderPath(val paths: List<String>) {
+  fun flatten(): String =
+    paths.joinToString(separator = "/")
+
+  fun head(): String? =
+    paths.firstOrNull()
+
+  fun pushToHead(with: String) =
+    FolderPath(listOf(with) + paths)
+
+  fun popHead() =
+    FolderPath(paths.subList(1, paths.size))
 }
 
 fun FolderQueries.insert(vararg folders: Folder) {

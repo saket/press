@@ -20,7 +20,6 @@ fun fakeNote(
   clock: Clock = FakeClock(),
   createdAt: DateTime = clock.nowUtc(),
   updatedAt: DateTime = createdAt,
-  isArchived: Boolean = false,
   isPendingDeletion: Boolean = false,
   syncState: SyncState = PENDING
 ): Note {
