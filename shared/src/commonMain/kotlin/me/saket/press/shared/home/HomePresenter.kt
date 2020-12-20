@@ -12,7 +12,6 @@ import com.badoo.reaktive.observable.observableOfEmpty
 import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.wrap
 import me.saket.press.PressDatabase
-import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorPresenter
@@ -24,24 +23,24 @@ import me.saket.press.shared.keyboard.KeyboardShortcuts
 import me.saket.press.shared.keyboard.KeyboardShortcuts.Companion.newNote
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.note.HeadingAndBody
-import me.saket.press.shared.note.NoteRepository
 import me.saket.press.shared.rx.Schedulers
 import me.saket.press.shared.rx.asObservable
 import me.saket.press.shared.rx.mapToList
 import me.saket.press.shared.rx.mapToOneOrNull
 import me.saket.press.shared.rx.mergeWith
+import me.saket.press.shared.time.Clock
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
-import me.saket.press.shared.util.None
 
 class HomePresenter(
   private val args: Args,
   private val database: PressDatabase,
-  private val repository: NoteRepository,
   private val schedulers: Schedulers,
   private val strings: Strings,
+  private val clock: Clock,
   private val keyboardShortcuts: KeyboardShortcuts
 ) : Presenter<HomeEvent, HomeUiModel, Nothing>() {
+  private val noteQueries get() = database.noteQueries
 
   override fun defaultUiModel() =
     HomeUiModel(rows = emptyList(), title = "")
@@ -53,37 +52,39 @@ class HomePresenter(
     return viewEvents().ofType<NewNoteClicked>()
       .mergeWith(keyboardShortcuts.listen(newNote))
       .flatMapCompletable {
-        // Inserting a new note before-hand makes it possible for
-        // two-pane layouts to immediately show the new note in the list.
-        val newNoteId = NoteId.generate()
-        repository
-          .create(newNoteId, NEW_NOTE_PLACEHOLDER)
-          .andThen(completableFromFunction {
-            args.navigator.lfg(
-              EditorScreenKey(NewNote(PreSavedNoteId(newNoteId)))
-            )
-          })
+        completableFromFunction {
+          // Inserting a new note before-hand makes it possible for
+          // two-pane layouts to immediately show the new note in the list.
+          val newNoteId = NoteId.generate()
+          noteQueries.insert(
+            id = newNoteId,
+            folderId = null,
+            content = NEW_NOTE_PLACEHOLDER,
+            createdAt = clock.nowUtc(),
+            updatedAt = clock.nowUtc()
+          )
+
+          args.navigator.lfg(
+            EditorScreenKey(NewNote(PreSavedNoteId(newNoteId)))
+          )
+        }
       }
       .andThen(observableOfEmpty())
   }
 
   private fun populateNotes(): Observable<HomeUiModel> {
-    val canInclude = { note: Note ->
-      args.includeBlankNotes || (note.content.isNotBlank() && note.content != NEW_NOTE_PLACEHOLDER)
-    }
-
     val folderId = args.screenKey.folder
 
-    val folderName = if (folderId != null) {
+    val screenTitle = if (folderId != null) {
       database.folderQueries.folder(folderId)
         .asObservable(schedulers.io)
         .mapToOneOrNull()
-        .map { folder -> folder?.name }
+        .map { folder -> folder?.name ?: strings.common.app_name }
     } else {
-      observableOf(null)
+      observableOf(strings.common.app_name)
     }
 
-    val folders = database.folderQueries.nonEmptyFoldersUnder(folderId)
+    val folderModels = database.folderQueries.nonEmptyFoldersUnder(folderId)
       .asObservable(schedulers.io)
       .mapToList()
       .map { folders ->
@@ -96,8 +97,11 @@ class HomePresenter(
         }
       }
 
-    val notes = repository.visibleNotes()
-      .map { notes -> notes.filter { canInclude(it) } }
+    val noteModels = when {
+      args.includeBlankNotes -> noteQueries.visibleNotesInFolder(folderId)
+      else -> noteQueries.visibleNonEmptyNotesInFolder(folderId)
+    }.asObservable(schedulers.io)
+      .mapToList()
       .map {
         it.map { note ->
           val (heading, body) = HeadingAndBody.parse(note.content)
@@ -109,9 +113,9 @@ class HomePresenter(
         }
       }
 
-    return combineLatest(folderName, folders, notes) { name, folders, notes ->
+    return combineLatest(screenTitle, folderModels, noteModels) { title, folders, notes ->
       HomeUiModel(
-        title = name ?: strings.common.app_name,
+        title = title,
         rows = folders + notes
       )
     }

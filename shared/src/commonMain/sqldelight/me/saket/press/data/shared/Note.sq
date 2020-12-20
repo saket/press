@@ -40,16 +40,21 @@ BEGIN
   WHERE id = new.id;
 END;
 
-visibleNotes:
+CREATE VIEW visibleNonEmptyNotes AS
 SELECT *
 FROM note
-WHERE isPendingDeletion IS 0 AND (
-  folderId IS NULL
-  OR folderId NOT IN (
-    SELECT id FROM folders_with_roots
-    WHERE root_name = 'archive'
-  )
-)
+WHERE isPendingDeletion IS 0 AND trim(content) != '' AND trim(content) != '#';
+
+visibleNonEmptyNotesInFolder:
+SELECT *
+FROM visibleNonEmptyNotes
+WHERE folderId = ?
+ORDER BY updatedAt DESC;
+
+visibleNotesInFolder:
+SELECT *
+FROM note
+WHERE folderId = ? AND isPendingDeletion IS 0
 ORDER BY updatedAt DESC;
 
 archivedNotes:

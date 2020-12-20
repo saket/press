@@ -22,9 +22,7 @@ sealed class EditorOpenMode : AndroidParcel {
   @AndroidParcelize
   data class ExistingNote(
     override val noteId: PreSavedNoteId
-  ) : EditorOpenMode() {
-    constructor(noteId: NoteId) : this(PreSavedNoteId(noteId))
-  }
+  ) : EditorOpenMode()
 }
 
 // The base type intentionally does not have an abstract uuid

@@ -22,10 +22,13 @@ class FolderQueriesTest : BaseDatabaeTest() {
       fakeNote("Note 1", folderId = folder1.id),
       fakeNote("Note 2", folderId = folder1.id),
       fakeNote("Note 3", folderId = folder2.id),
-      fakeNote("Note 4"),
+      fakeNote("Note 4", folderId = folder3.id, isPendingDeletion = true),
+      fakeNote("", folderId = folder3.id),
+      fakeNote("# ", folderId = folder3.id),
+      fakeNote("Note 5"),
     )
 
-    val nonEmptyFolders = folderQueries.nonEmptyFolders().executeAsList().map { it.name }
+    val nonEmptyFolders = folderQueries.nonEmptyFoldersUnder(parent = null).executeAsList().map { it.name }
     assertThat(nonEmptyFolders).containsOnly(
       "folder1",
       "folder2"

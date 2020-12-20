@@ -1,0 +1,4 @@
+CREATE VIEW visibleNonEmptyNotes AS
+SELECT *
+FROM note
+WHERE isPendingDeletion IS 0 AND trim(content) != '' AND trim(content) != '#';

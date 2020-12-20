@@ -32,6 +32,7 @@ data class HomeUiModel(val title: String, val rows: List<Row>) {
     override fun equals(other: Any?): Boolean
   }
 
+  // TODO: Rename to NoteModel.
   data class Note(
     override val id: NoteId,
     val title: String,
@@ -44,6 +45,7 @@ data class HomeUiModel(val title: String, val rows: List<Row>) {
     }
   }
 
+  // TODO: Rename to FolderModel.
   data class Folder(
     override val id: FolderId,
     val title: String,

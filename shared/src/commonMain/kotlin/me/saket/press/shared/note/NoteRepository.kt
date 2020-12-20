@@ -11,9 +11,6 @@ import me.saket.press.shared.util.Optional
 interface NoteRepository {
   fun note(id: NoteId): Observable<Optional<Note>>
 
-  /** Non-archived and non-deleted notes. */
-  fun visibleNotes(): Observable<List<Note>>
-
   fun create(vararg insertNotes: InsertNote): Completable
 
   fun update(id: NoteId, content: String): Completable

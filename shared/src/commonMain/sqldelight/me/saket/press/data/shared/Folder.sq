@@ -42,6 +42,7 @@ WHERE parent = ?;
 nonEmptyFoldersUnder:
 SELECT * FROM folder
 WHERE parent = ? AND id IN (
-  SELECT folderId FROM note
+  SELECT folderId
+  FROM visibleNonEmptyNotes
   WHERE folderId IS NOT NULL
 );

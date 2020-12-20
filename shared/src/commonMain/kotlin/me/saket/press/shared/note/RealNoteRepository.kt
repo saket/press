@@ -29,12 +29,6 @@ internal class RealNoteRepository(
       .map { it.toOptional() }
   }
 
-  override fun visibleNotes(): Observable<List<Note>> {
-    return noteQueries.visibleNotes()
-      .asObservable(schedulers.io)
-      .mapToList()
-  }
-
   override fun create(vararg insertNotes: InsertNote): Completable {
     return completableFromFunction {
       noteQueries.transaction {
