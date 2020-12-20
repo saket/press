@@ -26,19 +26,19 @@ internal fun createPressDatabase(driver: SqlDriver, json: Json): PressDatabase {
   return PressDatabase(
     driver = driver,
     noteAdapter = Note.Adapter(
-      idAdapter = NoteId.SqlAdapter,
-      createdAtAdapter = DateTimeAdapter,
-      updatedAtAdapter = DateTimeAdapter,
+      idAdapter = NoteId.SqlAdapter(),
+      createdAtAdapter = DateTimeAdapter(),
+      updatedAtAdapter = DateTimeAdapter(),
       syncStateAdapter = EnumColumnAdapter(),
-      folderIdAdapter = FolderId.SqlAdapter
+      folderIdAdapter = FolderId.SqlAdapter()
     ),
     folderAdapter = Folder.Adapter(
-      idAdapter = FolderId.SqlAdapter,
-      parentAdapter = FolderId.SqlAdapter
+      idAdapter = FolderId.SqlAdapter(),
+      parentAdapter = FolderId.SqlAdapter()
     ),
     folderSyncConfigAdapter = FolderSyncConfig.Adapter(
       remoteAdapter = GitRemoteAndAuth.SqlAdapter(json),
-      lastSyncedAtAdapter = DateTimeAdapter
+      lastSyncedAtAdapter = DateTimeAdapter()
     )
   )
 }

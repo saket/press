@@ -1,26 +1,18 @@
 package me.saket.press.shared.note
 
-import com.badoo.reaktive.completable.subscribe
-import com.badoo.reaktive.completable.subscribeOn
 import com.benasher44.uuid.uuidFrom
+import me.saket.press.PressDatabase
 import me.saket.press.shared.db.NoteId
-import me.saket.press.shared.rx.Schedulers
-import me.saket.press.shared.settings.Setting
-
-data class PrePopulatedNotesInserted(val inserted: Boolean)
+import me.saket.press.shared.time.Clock
 
 @Suppress("PrivatePropertyName")
-class PrePopulatedNotes(
-  private val setting: Setting<PrePopulatedNotesInserted>,
-  private val repository: NoteRepository,
-  private val schedulers: Schedulers
-) {
+object PrePopulatedNotes {
 
   /**
    * @param uuid UUIDs are hardcoded to ensure they remain the same for everyone. It's important
    * that they get merged and not duplicated when notes are synced between multiple devices.
    */
-  private val WELCOME = InsertNote(
+  private val WELCOME = SeedNote(
     id = NoteId(uuidFrom("e731d56f-8db6-4351-a05e-8df27d5086f0")),
     content = """
       |# Welcome to Press
@@ -34,7 +26,7 @@ class PrePopulatedNotes(
     """.trimMargin()
   )
 
-  private val MARKDOWN_GUIDE = InsertNote(
+  private val MARKDOWN_GUIDE = SeedNote(
     id = NoteId(uuidFrom("8f4192fd-38cf-4c15-8ac7-028d15fe5fc3")),
     content = """
       |# Markdown guide
@@ -90,15 +82,22 @@ class PrePopulatedNotes(
       """.trimMargin()
   )
 
-  fun doWork() {
-    val (inserted) = setting.get()!!
-
-    if (inserted.not()) {
-      repository.create(WELCOME, MARKDOWN_GUIDE)
-        .subscribeOn(schedulers.io)
-        .subscribe {
-          setting.set(PrePopulatedNotesInserted(true))
-        }
+  fun seed(database: PressDatabase, clock: Clock) {
+    database.transaction {
+      for (seed in listOf(WELCOME, MARKDOWN_GUIDE)) {
+        database.noteQueries.insert(
+          id = seed.id,
+          folderId = null,
+          content = seed.content,
+          createdAt = clock.nowUtc(),
+          updatedAt = clock.nowUtc()
+        )
+      }
     }
   }
+
+  data class SeedNote(
+    val id: NoteId,
+    val content: String
+  )
 }

@@ -6,6 +6,7 @@ import android.provider.Settings
 import androidx.preference.PreferenceManager
 import com.russhwolf.settings.AndroidSettings
 import com.squareup.sqldelight.android.AndroidSqliteDriver
+import com.squareup.sqldelight.db.SqlDriver
 import me.saket.press.PressDatabase
 import me.saket.press.shared.sync.git.DeviceInfo
 import me.saket.press.shared.sync.git.File
@@ -14,15 +15,15 @@ actual object SharedComponent : BaseSharedComponent() {
   fun initialize(appContext: Application) {
     setupGraph(
       PlatformDependencies(
-        sqlDriver = { sqliteDriver(appContext) },
+        sqlDriver = { sqliteDriver(it, appContext) },
         settings = { settings(appContext) },
         deviceInfo = { deviceInfo(appContext) }
       )
     )
   }
 
-  private fun sqliteDriver(appContext: Application) =
-    AndroidSqliteDriver(PressDatabase.Schema, appContext, "press.db")
+  private fun sqliteDriver(schema: SqlDriver.Schema, appContext: Application) =
+    AndroidSqliteDriver(schema, appContext, "press.db")
 
   private fun settings(appContext: Application) =
     AndroidSettings(PreferenceManager.getDefaultSharedPreferences(appContext))

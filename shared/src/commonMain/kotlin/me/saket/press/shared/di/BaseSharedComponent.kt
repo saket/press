@@ -4,8 +4,6 @@ import me.saket.press.shared.SharedAppComponent
 import me.saket.press.shared.db.SharedDatabaseComponent
 import me.saket.press.shared.editor.SharedEditorComponent
 import me.saket.press.shared.home.SharedHomeComponent
-import me.saket.press.shared.note.PrePopulatedNotes
-import me.saket.press.shared.note.SharedNoteComponent
 import me.saket.press.shared.sync.SharedSyncComponent
 import me.saket.press.shared.sync.SyncCoordinator
 import org.koin.core.context.startKoin
@@ -20,7 +18,6 @@ abstract class BaseSharedComponent {
           SharedAppComponent().module,
           SharedHomeComponent().module,
           SharedEditorComponent().module,
-          SharedNoteComponent().module,
           SharedDatabaseComponent().module,
           SharedSyncComponent().module,
           platform.asKoinModule()
@@ -28,7 +25,6 @@ abstract class BaseSharedComponent {
       )
     }
 
-    koin<PrePopulatedNotes>().doWork()
     koin<SyncCoordinator>().start()
   }
 }

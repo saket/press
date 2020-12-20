@@ -1,6 +1,7 @@
 package me.saket.press.shared.di
 
 import com.russhwolf.settings.AppleSettings
+import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.drivers.native.NativeSqliteDriver
 import me.saket.press.PressDatabase
 import me.saket.press.shared.sync.git.DeviceInfo
@@ -11,15 +12,15 @@ actual object SharedComponent : BaseSharedComponent() {
   fun initialize() {
     setupGraph(
       PlatformDependencies(
-        sqlDriver = { sqliteDriver() },
+        sqlDriver = { sqliteDriver(it) },
         settings = { settings() },
         deviceInfo = { deviceInfo() }
       )
     )
   }
 
-  private fun sqliteDriver() =
-    NativeSqliteDriver(PressDatabase.Schema, "press.db")
+  private fun sqliteDriver(schema: SqlDriver.Schema) =
+    NativeSqliteDriver(schema, "press.db")
 
   private fun settings() =
     AppleSettings(NSUserDefaults.standardUserDefaults())

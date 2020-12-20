@@ -14,7 +14,7 @@ import me.saket.press.shared.AndroidParcelize
 data class FolderId(val value: Uuid) : AndroidParcel {
   override fun toString() = "FolderId($value)"
 
-  object SqlAdapter : ColumnAdapter<FolderId, String> {
+  class SqlAdapter : ColumnAdapter<FolderId, String> {
     override fun decode(databaseValue: String) = FolderId(uuidFrom(databaseValue))
     override fun encode(value: FolderId) = value.value.toString()
   }
