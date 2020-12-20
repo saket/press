@@ -89,7 +89,6 @@ class HomePresenterTest : BaseDatabaeTest() {
       HomeUiModel.Folder(
         id = archive.id,
         title = "archive (folder)",
-        subtitle = ""
       ),
       Note(
         id = nicolasCage.id,
@@ -131,7 +130,6 @@ class HomePresenterTest : BaseDatabaeTest() {
       HomeUiModel.Folder(
         id = games.id,
         title = "games (folder)",
-        subtitle = ""
       ),
       Note(
         id = witcher3.id,

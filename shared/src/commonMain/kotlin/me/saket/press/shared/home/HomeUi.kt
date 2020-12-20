@@ -48,8 +48,7 @@ data class HomeUiModel(val title: String, val rows: List<Row>) {
   // TODO: Rename to FolderModel.
   data class Folder(
     override val id: FolderId,
-    val title: String,
-    val subtitle: String,
+    val title: String
   ) : Row {
     override fun screenKey(): ScreenKey {
       return HomeScreenKey(folder = id)

@@ -91,8 +91,7 @@ class HomePresenter(
         folders.map {
           HomeUiModel.Folder(
             id = it.id,
-            title = "${it.name} (folder)",
-            subtitle = "" // TODO: show number of notes.
+            title = it.name
           )
         }
       }
