@@ -27,33 +27,12 @@ class FakeNoteRepository : NoteRepository {
 
   private fun findNote(noteId: NoteId) = savedNotes.find { it.id == noteId }
 
-  override fun note(id: NoteId): Observable<Optional<Note>> {
-    return observableFromFunction { findNote(id).toOptional() }.observeOn(scheduler)
-  }
-
   override fun create(vararg insertNotes: InsertNote): Completable {
     return completableFromFunction {
       for (note in insertNotes) {
         assertNull(findNote(note.id))
         savedNotes += fakeNote(id = note.id, content = note.content)
       }
-    }.observeOn(scheduler)
-  }
-
-  override fun update(id: NoteId, content: String): Completable {
-    return completableFromFunction {
-      assertTrue(savedNotes.remove(findNote(id)))
-      savedNotes += fakeNote(id = id, content = content)
-      _updateCount.addAndGet(1)
-    }.observeOn(scheduler)
-  }
-
-  override fun markAsPendingDeletion(id: NoteId): Completable {
-    return completableFromFunction {
-      val existingNote = findNote(id)!!
-      assertTrue(savedNotes.remove(existingNote))
-      savedNotes += existingNote.copy(isPendingDeletion = true)
-      _updateCount.addAndGet(1)
     }.observeOn(scheduler)
   }
 }

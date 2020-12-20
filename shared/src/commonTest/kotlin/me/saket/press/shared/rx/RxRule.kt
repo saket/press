@@ -129,6 +129,7 @@ interface RecordingObserver<T> : ObservableObserver<T> {
 
   fun assertValue(value: T): RecordingObserver<T>
   fun assertValue(predicate: (T) -> Boolean): RecordingObserver<T>
+  fun assertAnyValue() { popValue() }
 
   fun assertComplete()
 

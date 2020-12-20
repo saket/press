@@ -1,6 +1,7 @@
 package me.saket.press.shared.sync.git
 
 import co.touchlab.stately.concurrency.AtomicInt
+import co.touchlab.stately.concurrency.value
 import com.soywiz.klock.DateTime
 import me.saket.press.PressDatabase
 import me.saket.press.data.shared.NoteQueries
@@ -12,10 +13,11 @@ class DelegatingPressDatabase(val delegate: PressDatabase) : PressDatabase by de
 }
 
 class DelegatingNoteQueries(val delegate: NoteQueries) : NoteQueries by delegate {
-  val updateCount = AtomicInt(0)
+  private val _updateCount = AtomicInt(0)
+  val updateCount get() = _updateCount.value
 
   override fun updateContent(content: String, updatedAt: DateTime, id: NoteId) {
-    updateCount.incrementAndGet()
+    _updateCount.incrementAndGet()
     delegate.updateContent(content, updatedAt, id)
   }
 }

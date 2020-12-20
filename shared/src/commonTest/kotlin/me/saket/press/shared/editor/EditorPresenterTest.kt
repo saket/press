@@ -9,12 +9,14 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.test.base.assertNotError
+import com.badoo.reaktive.test.observable.assertNoValues
 import com.badoo.reaktive.test.observable.assertValue
 import com.badoo.reaktive.test.observable.test
 import com.badoo.reaktive.test.scheduler.TestScheduler
 import com.soywiz.klock.TimeSpan
 import com.soywiz.klock.seconds
 import me.saket.press.shared.FakeSchedulers
+import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
@@ -25,16 +27,23 @@ import me.saket.press.shared.editor.EditorUiEffect.BlockedDueToSyncConflict
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.localization.ENGLISH_STRINGS
-import me.saket.press.shared.note.FakeNoteRepository
+import me.saket.press.shared.rx.RxRule
+import me.saket.press.shared.rx.test
 import me.saket.press.shared.sync.SyncMergeConflicts
+import me.saket.press.shared.sync.git.DelegatingPressDatabase
+import me.saket.press.shared.time.FakeClock
 import me.saket.press.shared.ui.FakeNavigator
 import me.saket.wysiwyg.formatting.TextSelection
+import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class EditorPresenterTest {
+class EditorPresenterTest : BaseDatabaeTest() {
+  override val database = DelegatingPressDatabase(super.database)
+  private val noteQueries get() = database.noteQueries
+  private val rxRule = RxRule()
+
   private val noteId = NoteId.generate()
-  private val repository = FakeNoteRepository()
   private val testScheduler = TestScheduler()
   private val config = EditorConfig(autoSaveEvery = 5.seconds)
   private val navigator = FakeNavigator()
@@ -46,7 +55,8 @@ class EditorPresenterTest {
   ): EditorPresenter {
     return EditorPresenter(
       args = Args(openMode, deleteBlankNoteOnExit, navigator),
-      noteRepository = repository,
+      database = database,
+      clock = FakeClock(),
       schedulers = FakeSchedulers(computation = testScheduler),
       strings = ENGLISH_STRINGS,
       config = config,
@@ -54,32 +64,31 @@ class EditorPresenterTest {
     )
   }
 
+  @AfterTest
+  fun finish() {
+    rxRule.assertEmpty()
+  }
+
   @Test fun `blank note is created on start when a new note is opened`() {
-    assertThat(repository.savedNotes).hasSize(0)
+    assertThat(noteQueries.allNotes().executeAsList()).hasSize(0)
 
-    val observer = presenter(NewNote(noteId))
+    presenter(NewNote(noteId))
       .uiModels()
-      .test()
+      .test(rxRule)
 
-    repository.savedNotes.single().let {
+    noteQueries.allNotes().executeAsOne().let {
       assertThat(it.id).isEqualTo(noteId)
       assertThat(it.content).isEqualTo(NEW_NOTE_PLACEHOLDER)
     }
-    observer.assertNotError()
   }
 
   @Test fun `auto-save note at regular intervals`() {
-    repository.savedNotes += fakeNote(
-      id = noteId,
-      content = "# "
-    )
+    noteQueries.testInsert(fakeNote("# ", id = noteId))
 
     val presenter = presenter(NewNote(noteId))
-    val observer = presenter
-      .uiModels()
-      .test()
+    val models = presenter.uiModels().test(rxRule)
 
-    val savedNote = { repository.savedNotes.single { it.id == noteId } }
+    val savedNote = { noteQueries.allNotes().executeAsOne() }
 
     presenter.dispatch(NoteTextChanged("# Ghost Rider"))
     testScheduler.timer.advanceBy(config.autoSaveEvery)
@@ -91,36 +100,34 @@ class EditorPresenterTest {
 
     presenter.dispatch(NoteTextChanged("# Ghost"))
     testScheduler.timer.advanceBy(config.autoSaveEvery)
-    assertThat(repository.updateCount).isEqualTo(2)
+    assertThat(noteQueries.updateCount).isEqualTo(2)
 
-    observer.assertNotError()
+    repeat(2) {
+      models.assertAnyValue()
+    }
   }
 
   @Test fun `blank note is not created on start when an existing note is opened`() {
-    repository.savedNotes += fakeNote(id = noteId, content = "Nicolas")
+    noteQueries.testInsert(fakeNote("Nicolas", id = noteId))
 
-    val observer = presenter(ExistingNote(PreSavedNoteId(noteId)))
+    presenter(ExistingNote(PreSavedNoteId(noteId)))
       .uiModels()
-      .test()
+      .test(rxRule)
 
-    repository.savedNotes.single().let {
+    noteQueries.allNotes().executeAsOne().let {
       assertThat(it.id).isEqualTo(noteId)
       assertThat(it.content).isEqualTo("Nicolas")
     }
-    observer.assertNotError()
   }
 
   @Test fun `updating an existing note on close when its content is non-blank`() {
-    repository.savedNotes += fakeNote(
-      id = noteId,
-      content = "Existing note"
-    )
+    noteQueries.testInsert(fakeNote("Existing note", id = noteId))
 
     val presenter = presenter(NewNote(noteId))
     presenter.saveEditorContentOnClose("Updated note")
 
-    val savedNote = repository.savedNotes.last()
-    assertEquals("Updated note", savedNote.content)
+    val savedNote = noteQueries.allNotes().executeAsOne()
+    assertThat(savedNote.content).isEqualTo("Updated note")
   }
 
   @Test fun `delete new blank notes on close when enabled`() {
@@ -133,7 +140,7 @@ class EditorPresenterTest {
     presenter.dispatch(NoteTextChanged("# Nicolas Cage"))
     testScheduler.timer.advanceBy(config.autoSaveEvery)
 
-    val savedNote = { repository.savedNotes.single() }
+    val savedNote = { noteQueries.allNotes().executeAsOne() }
     assertThat(savedNote().content).isEqualTo("# Nicolas Cage")
 
     presenter.saveEditorContentOnClose("")
@@ -152,7 +159,7 @@ class EditorPresenterTest {
 
     presenter.dispatch(NoteTextChanged("# Nicolas Cage"))
     testScheduler.timer.advanceBy(config.autoSaveEvery)
-    val savedNote = { repository.savedNotes.single() }
+    val savedNote = { noteQueries.allNotes().executeAsOne() }
     assertThat(savedNote().content).isEqualTo("# Nicolas Cage")
 
     presenter.saveEditorContentOnClose("")
@@ -161,16 +168,17 @@ class EditorPresenterTest {
   }
 
   @Test fun `avoid deleting existing blank note on close when enabled`() {
-    repository.savedNotes += fakeNote(id = noteId, content = "Existing note")
+    noteQueries.testInsert(fakeNote("Existing note", id = noteId))
 
     val presenter = presenter(ExistingNote(PreSavedNoteId(noteId)), deleteBlankNoteOnExit = true)
     presenter.saveEditorContentOnClose("")
     presenter.saveEditorContentOnClose("  ")
     presenter.saveEditorContentOnClose("  \n ")
 
-    val savedNote = repository.savedNotes.single()
-    assertThat(savedNote.content).isEqualTo("  \n ")
-    assertThat(savedNote.isPendingDeletion).isFalse()
+    noteQueries.allNotes().executeAsOne().let {
+      assertThat(it.content).isEqualTo("  \n ")
+      assertThat(it.isPendingDeletion).isFalse()
+    }
   }
 
   @Test fun `show hint text until the text is changed`() {
@@ -200,57 +208,48 @@ class EditorPresenterTest {
   }
 
   @Test fun `populate existing note's content on start`() {
-    repository.savedNotes += fakeNote(
-      id = noteId,
-      content = "Nicolas Cage favorite dialogues"
-    )
+    noteQueries.testInsert(fakeNote("Nicolas Cage favorite dialogues", id = noteId))
 
     presenter(ExistingNote(PreSavedNoteId(noteId)))
       .uiEffects()
-      .test()
-      .apply {
-        assertValue(UpdateNoteText("Nicolas Cage favorite dialogues", newSelection = null))
-        assertNotError()
-      }
+      .test(rxRule)
+      .assertValue(
+        UpdateNoteText("Nicolas Cage favorite dialogues", newSelection = null)
+      )
   }
 
   @Test fun `populate new note's content with placeholder on start`() {
     presenter(NewNote(PlaceholderNoteId(noteId), preFilledNote = "   "))
       .uiEffects()
       .test()
-      .apply {
-        assertValue(
-          UpdateNoteText(
-            newText = NEW_NOTE_PLACEHOLDER,
-            newSelection = TextSelection.cursor(NEW_NOTE_PLACEHOLDER.length)
-          )
+      .assertValue(
+        UpdateNoteText(
+          newText = NEW_NOTE_PLACEHOLDER,
+          newSelection = TextSelection.cursor(NEW_NOTE_PLACEHOLDER.length)
         )
-        assertNotError()
-      }
+      )
   }
 
   @Test fun `populate new note's content with pre-filled note on start`() {
     val note = "Hello, World!"
     presenter(NewNote(PlaceholderNoteId(noteId), note))
       .uiEffects()
-      .test()
-      .apply {
-        assertValue(UpdateNoteText(newText = note, newSelection = null))
-        assertNotError()
-      }
+      .test(rxRule)
+      .assertValue(UpdateNoteText(newText = note, newSelection = null))
   }
 
   @Test fun `block editing if note is marked as sync-conflicted`() {
-    repository.savedNotes += fakeNote(id = noteId, content = "# Existing note")
+    noteQueries.testInsert(fakeNote("# Existing note", id = noteId))
+
     presenter(ExistingNote(PreSavedNoteId(noteId))).uiEffects()
       .ofType<BlockedDueToSyncConflict>()
-      .test()
+      .test(rxRule)
       .also { syncConflicts.add(noteId) }
       .assertValue(BlockedDueToSyncConflict)
   }
 
   @Test fun `stop updating saved note once note is marked as sync-conflicted`() {
-    repository.savedNotes += fakeNote(id = noteId, content = "# Content before sync")
+    noteQueries.testInsert(fakeNote("# Content before sync", id = noteId))
 
     val presenter = presenter(ExistingNote(PreSavedNoteId(noteId)))
     presenter.uiModels().test()
@@ -259,7 +258,7 @@ class EditorPresenterTest {
     presenter.dispatch(NoteTextChanged("# Updated note"))
     presenter.saveEditorContentOnClose("# Exitingggggg")
 
-    val savedNote = repository.savedNotes.single()
+    val savedNote = noteQueries.allNotes().executeAsOne()
     assertThat(savedNote.content).isEqualTo("# Content before sync")
   }
 }

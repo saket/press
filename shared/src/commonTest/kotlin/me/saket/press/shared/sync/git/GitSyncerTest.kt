@@ -1196,10 +1196,10 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     val note = fakeNote("# Raji")
     noteQueries.testInsert(note)
-    assertThat(noteQueries.updateCount.value).isEqualTo(0)
+    assertThat(noteQueries.updateCount).isEqualTo(0)
 
     syncer.sync()
-    assertThat(noteQueries.updateCount.value).isEqualTo(0)
+    assertThat(noteQueries.updateCount).isEqualTo(0)
   }
 
   /**

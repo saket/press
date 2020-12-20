@@ -22,13 +22,6 @@ internal class RealNoteRepository(
 ) : NoteRepository {
   private val noteQueries get() = database.noteQueries
 
-  override fun note(id: NoteId): Observable<Optional<Note>> {
-    return noteQueries.note(id)
-      .asObservable(schedulers.io)
-      .mapToOneOrNull()
-      .map { it.toOptional() }
-  }
-
   override fun create(vararg insertNotes: InsertNote): Completable {
     return completableFromFunction {
       noteQueries.transaction {
@@ -42,22 +35,6 @@ internal class RealNoteRepository(
           )
         }
       }
-    }
-  }
-
-  override fun update(id: NoteId, content: String): Completable {
-    return completableFromFunction {
-      noteQueries.updateContent(
-        id = id,
-        content = content,
-        updatedAt = clock.nowUtc()
-      )
-    }
-  }
-
-  override fun markAsPendingDeletion(id: NoteId): Completable {
-    return completableFromFunction {
-      noteQueries.markAsPendingDeletion(id)
     }
   }
 }

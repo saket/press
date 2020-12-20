@@ -13,7 +13,8 @@ class SharedEditorComponent {
     factory { (args: EditorPresenter.Args) ->
       EditorPresenter(
         args = args,
-        noteRepository = get(),
+        database = get(),
+        clock = get(),
         schedulers = get(),
         strings = get(),
         config = editorConfig(),

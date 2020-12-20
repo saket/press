@@ -2,6 +2,7 @@ package me.saket.press.shared.editor
 
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.andThen
+import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.completable.completableOfEmpty
 import com.badoo.reaktive.completable.subscribe
 import com.badoo.reaktive.completable.subscribeOn
@@ -21,6 +22,7 @@ import com.badoo.reaktive.observable.take
 import com.badoo.reaktive.observable.takeUntil
 import com.badoo.reaktive.observable.withLatestFrom
 import com.badoo.reaktive.observable.wrap
+import me.saket.press.PressDatabase
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
@@ -28,23 +30,26 @@ import me.saket.press.shared.editor.EditorUiEffect.BlockedDueToSyncConflict
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.localization.Strings
-import me.saket.press.shared.note.NoteRepository
 import me.saket.press.shared.rx.Schedulers
+import me.saket.press.shared.rx.asObservable
 import me.saket.press.shared.rx.combineLatestWith
 import me.saket.press.shared.rx.consumeOnNext
+import me.saket.press.shared.rx.filterNull
+import me.saket.press.shared.rx.mapToOne
+import me.saket.press.shared.rx.mapToOneOrNull
 import me.saket.press.shared.rx.mapToOptional
-import me.saket.press.shared.rx.mapToSome
 import me.saket.press.shared.rx.observableInterval
 import me.saket.press.shared.sync.SyncMergeConflicts
+import me.saket.press.shared.time.Clock
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.util.Optional
-import me.saket.press.shared.util.filterNone
 import me.saket.wysiwyg.formatting.TextSelection
 
 class EditorPresenter(
   val args: Args,
-  private val noteRepository: NoteRepository,
+  private val clock: Clock,
+  private val database: PressDatabase,
   private val schedulers: Schedulers,
   private val strings: Strings,
   private val config: EditorConfig,
@@ -52,6 +57,7 @@ class EditorPresenter(
 ) : Presenter<EditorEvent, EditorUiModel, EditorUiEffect>() {
 
   private val openMode = args.openMode
+  private val noteQueries get() = database.noteQueries
   private val noteStream = createOrFetchNote().replay(1).refCount()
 
   override fun defaultUiModel() =
@@ -63,7 +69,6 @@ class EditorPresenter(
       .map { (hint) -> EditorUiModel(hintText = hint) }
 
     val autoSave = viewEvents().autoSaveContent()
-
     return merge(uiModels, autoSave, closeIfNoteGetsDeleted()).wrap()
   }
 
@@ -83,13 +88,21 @@ class EditorPresenter(
     val createIfNeeded = if (openMode is NewNote) {
       // This function can get called multiple times if it's re-subscribed.
       // Create a new note only if one doesn't exist already.
-      noteRepository
-        .note(newOrExistingId)
+      noteQueries.note(newOrExistingId)
+        .asObservable(schedulers.io)
+        .mapToOneOrNull()
         .take(1)
-        .filterNone()
+        .filterNull()
         .flatMapCompletable {
-          val content = openMode.preFilledNote.ifBlankOrNull { NEW_NOTE_PLACEHOLDER }
-          noteRepository.create(newOrExistingId, content)
+          completableFromFunction {
+            noteQueries.insert(
+              id = newOrExistingId,
+              folderId = null,
+              content = openMode.preFilledNote.ifBlankOrNull { NEW_NOTE_PLACEHOLDER },
+              createdAt = clock.nowUtc(),
+              updatedAt = clock.nowUtc()
+            )
+          }
         }
     } else {
       // If the note gets deleted on another device (that is, deletedAt != null),
@@ -97,9 +110,11 @@ class EditorPresenter(
       completableOfEmpty()
     }
 
-    return createIfNeeded
-      .andThen(noteRepository.note(newOrExistingId))
-      .mapToSome()
+    return createIfNeeded.andThen(
+      noteQueries.note(newOrExistingId)
+        .asObservable(schedulers.io)
+        .mapToOne()
+    )
   }
 
   private fun populateExistingNoteOnStart(): Observable<EditorUiEffect> {
@@ -161,7 +176,15 @@ class EditorPresenter(
           .withLatestFrom(textChanges) { _, text -> text }
           .distinctUntilChanged()
           .takeUntil(noteConflicts())
-          .flatMapCompletable { text -> noteRepository.update(note.id, text) }
+          .flatMapCompletable { text ->
+            completableFromFunction {
+              noteQueries.updateContent(
+                id = note.id,
+                content = text,
+                updatedAt = clock.nowUtc()
+              )
+            }
+          }
       }
       .andThen(observableOfEmpty())
   }
@@ -185,17 +208,25 @@ class EditorPresenter(
     // For reasons I don't understand, noteStream doesn't get re-subscribed
     // when this function is called after EditorView gets detached. Fetching
     // the note again here.
-    return noteRepository.note(noteId)
-      .mapToSome()
+    return noteQueries.note(noteId)
+      .asObservable(schedulers.io)
+      .mapToOne()
       .combineLatestWith(syncConflicts.isConflicted(noteId))
       .filter { (_, isConflicted) -> !isConflicted }
       .take(1)
       .flatMapCompletable { (note) ->
         val maybeDelete = when {
-          shouldDelete -> noteRepository.markAsPendingDeletion(note.id)
+          shouldDelete -> completableFromFunction { noteQueries.markAsPendingDeletion(note.id) }
           else -> completableOfEmpty()
         }
-        noteRepository.update(note.id, content).andThen(maybeDelete)
+        val update = completableFromFunction {
+          noteQueries.updateContent(
+            id = note.id,
+            content = content,
+            updatedAt = clock.nowUtc()
+          )
+        }
+        return@flatMapCompletable update.andThen(maybeDelete)
       }
   }
 

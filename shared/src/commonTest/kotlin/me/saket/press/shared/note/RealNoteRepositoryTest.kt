@@ -39,28 +39,4 @@ class RealNoteRepositoryTest : BaseDatabaeTest() {
       assertThat(it.isPendingDeletion).isFalse()
     }
   }
-
-  @Test fun `update a note only if its content is changed`() {
-    val note = fakeNote(id = NoteId.generate(), content = "# Nicolas", clock = clock)
-    noteQueries.testInsert(note)
-
-    repository().update(note.id, content = "# Nicolas").test()
-
-    val savedNote = { noteQueries.note(note.id).executeAsOne() }
-    assertThat(savedNote().updatedAt).isEqualTo(note.updatedAt)
-
-    clock.advanceTimeBy(5.seconds)
-    repository().update(note.id, content = "# Nicolas Cage").test()
-    assertThat(savedNote().updatedAt).isEqualTo(note.updatedAt + 5.seconds)
-  }
-
-  @Test fun `mark a note as pending deletion`() {
-    val note = fakeNote(id = NoteId.generate(), content = "# Nicolas Cage")
-    noteQueries.testInsert(note)
-
-    repository().markAsPendingDeletion(note.id).test()
-
-    val savedNote = noteQueries.note(note.id).executeAsOne()
-    assertThat(savedNote.isPendingDeletion).isTrue()
-  }
 }
