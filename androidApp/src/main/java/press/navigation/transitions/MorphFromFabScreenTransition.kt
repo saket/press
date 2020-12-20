@@ -5,7 +5,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat.Type.ime
-import androidx.core.view.doOnNextLayout
 import androidx.transition.Transition
 import androidx.transition.TransitionListenerAdapter
 import androidx.transition.TransitionManager
@@ -93,8 +92,8 @@ class MorphFromFabScreenTransition : ScreenTransition {
     val isKeyboardVisible = if (insets == null) false else insets.bottom > 0
 
     if (isKeyboardVisible) {
+      doOnHeightChange(action)
       hideKeyboard()
-      doOnNextLayout { action() }
 
     } else {
       action()
@@ -121,4 +120,25 @@ class MorphFromFabScreenTransition : ScreenTransition {
       })
     }
   }
+}
+
+private inline fun View.doOnHeightChange(crossinline action: () -> Unit) {
+  addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
+    override fun onLayoutChange(
+      view: View,
+      left: Int,
+      top: Int,
+      right: Int,
+      bottom: Int,
+      oldLeft: Int,
+      oldTop: Int,
+      oldRight: Int,
+      oldBottom: Int
+    ) {
+      if ((oldBottom - oldTop) != (bottom - top)) {
+        view.removeOnLayoutChangeListener(this)
+        action()
+      }
+    }
+  })
 }
