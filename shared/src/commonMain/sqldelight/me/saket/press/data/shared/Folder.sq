@@ -33,11 +33,13 @@ SELECT * FROM folder
 WHERE id = ?;
 
 allFolders:
-SELECT * FROM folder;
+SELECT * FROM folder
+ORDER BY name ASC;
 
 foldersUnder:
 SELECT * FROM folder
-WHERE parent = ?;
+WHERE parent = ?
+ORDER BY name ASC;
 
 nonEmptyFoldersUnder:
 SELECT * FROM folder
@@ -45,4 +47,5 @@ WHERE parent = ? AND id IN (
   SELECT folderId
   FROM visibleNonEmptyNotes
   WHERE folderId IS NOT NULL
-);
+)
+ORDER BY name ASC;
