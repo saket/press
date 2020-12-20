@@ -13,8 +13,6 @@ import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.wrap
 import me.saket.press.PressDatabase
 import me.saket.press.data.shared.Note
-import me.saket.press.shared.db.FolderId
-import me.saket.press.shared.db.FolderId.Companion
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorPresenter
@@ -24,20 +22,24 @@ import me.saket.press.shared.editor.PreSavedNoteId
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.keyboard.KeyboardShortcuts
 import me.saket.press.shared.keyboard.KeyboardShortcuts.Companion.newNote
+import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.note.HeadingAndBody
 import me.saket.press.shared.note.NoteRepository
 import me.saket.press.shared.rx.Schedulers
 import me.saket.press.shared.rx.asObservable
 import me.saket.press.shared.rx.mapToList
+import me.saket.press.shared.rx.mapToOneOrNull
 import me.saket.press.shared.rx.mergeWith
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
+import me.saket.press.shared.util.None
 
 class HomePresenter(
   private val args: Args,
   private val database: PressDatabase,
   private val repository: NoteRepository,
   private val schedulers: Schedulers,
+  private val strings: Strings,
   private val keyboardShortcuts: KeyboardShortcuts
 ) : Presenter<HomeEvent, HomeUiModel, Nothing>() {
 
@@ -70,14 +72,25 @@ class HomePresenter(
       args.includeBlankNotes || (note.content.isNotBlank() && note.content != NEW_NOTE_PLACEHOLDER)
     }
 
-    val folders = database.folderQueries.nonEmptyFolders()
+    val folderId = args.screenKey.folder
+
+    val folderName = if (folderId != null) {
+      database.folderQueries.folder(folderId)
+        .asObservable(schedulers.io)
+        .mapToOneOrNull()
+        .map { folder -> folder?.name }
+    } else {
+      observableOf(null)
+    }
+
+    val folders = database.folderQueries.nonEmptyFoldersUnder(folderId)
       .asObservable(schedulers.io)
       .mapToList()
       .map { folders ->
         folders.map {
           HomeUiModel.Folder(
             id = it.id,
-            title = it.name,
+            title = "${it.name} (folder)",
             subtitle = "" // TODO: show number of notes.
           )
         }
@@ -96,10 +109,10 @@ class HomePresenter(
         }
       }
 
-    return combineLatest(folders, notes) { f, n ->
+    return combineLatest(folderName, folders, notes) { name, folders, notes ->
       HomeUiModel(
-        title = args.screenKey.folder?.value?.toString() ?: "Press (d)",
-        rows = f + n
+        title = name ?: strings.common.app_name,
+        rows = folders + notes
       )
     }
   }

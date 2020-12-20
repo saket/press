@@ -40,12 +40,12 @@ private class QueryListenerAndDisposable<T : Any>(
   }
 }
 
-internal fun <T : Any> Observable<Query<T>>.mapToOneOrOptional(): Observable<Optional<T>> {
-  return map { it.executeAsOneOrNull().toOptional() }
-}
-
 internal fun <T : Any> Observable<Query<T>>.mapToOne(): Observable<T> {
   return map { it.executeAsOne() }
+}
+
+internal fun <T : Any> Observable<Query<T>>.mapToOneOrNull(): Observable<T?> {
+  return map { it.executeAsOneOrNull() }
 }
 
 internal fun <T : Any> Observable<Query<T>>.mapToList(): Observable<List<T>> {

@@ -28,10 +28,6 @@ insert:
 INSERT INTO folder
 VALUES ?;
 
-foldersUnder:
-SELECT * FROM folder
-WHERE parent = ?;
-
 folder:
 SELECT * FROM folder
 WHERE id = ?;
@@ -39,9 +35,13 @@ WHERE id = ?;
 allFolders:
 SELECT * FROM folder;
 
-nonEmptyFolders:
+foldersUnder:
 SELECT * FROM folder
-WHERE id IN (
+WHERE parent = ?;
+
+nonEmptyFoldersUnder:
+SELECT * FROM folder
+WHERE parent = ? AND id IN (
   SELECT folderId FROM note
   WHERE folderId IS NOT NULL
 );

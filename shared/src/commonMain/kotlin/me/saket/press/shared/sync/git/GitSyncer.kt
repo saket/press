@@ -32,7 +32,7 @@ import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.note.HeadingAndBody
 import me.saket.press.shared.rx.asObservable
-import me.saket.press.shared.rx.mapToOneOrOptional
+import me.saket.press.shared.rx.mapToOneOrNull
 import me.saket.press.shared.sync.LastSyncedAt
 import me.saket.press.shared.sync.SyncMergeConflicts
 import me.saket.press.shared.sync.SyncState
@@ -82,9 +82,9 @@ class GitSyncer(
   override fun status(): Observable<Status> {
     val config = configQueries.select()
       .asObservable(ioScheduler)
-      .mapToOneOrOptional()
+      .mapToOneOrNull()
 
-    return combineLatest(config, lastOp) { (config), op ->
+    return combineLatest(config, lastOp) { config, op ->
       when (config) {
         null -> Status.Disabled
         else -> Status.Enabled(
@@ -229,7 +229,9 @@ class GitSyncer(
     git.checkout(backupBranch)
 
     for (note in localNotes) {
-      register.suggestFile(note).suggestedFile.write(note.content)
+      val suggestion = register.suggestFile(note)
+      suggestion.suggestedFile.write(note.content)
+      log(" • ${suggestion.suggestedFilePath} (id=${note.id.value})")
     }
     git.commitAll(
       message = """

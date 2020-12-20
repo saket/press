@@ -3,19 +3,17 @@ package me.saket.press.shared.note
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.observable.Observable
-import com.badoo.reaktive.observable.combineLatest
-import com.badoo.reaktive.observable.distinctUntilChanged
-import com.badoo.reaktive.observable.observableFromFunction
+import com.badoo.reaktive.observable.map
 import me.saket.press.PressDatabase
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.rx.Schedulers
 import me.saket.press.shared.rx.asObservable
 import me.saket.press.shared.rx.mapToList
-import me.saket.press.shared.rx.mapToOneOrOptional
-import me.saket.press.shared.sync.git.FolderPaths
+import me.saket.press.shared.rx.mapToOneOrNull
 import me.saket.press.shared.time.Clock
 import me.saket.press.shared.util.Optional
+import me.saket.press.shared.util.toOptional
 
 internal class RealNoteRepository(
   private val database: PressDatabase,
@@ -27,7 +25,8 @@ internal class RealNoteRepository(
   override fun note(id: NoteId): Observable<Optional<Note>> {
     return noteQueries.note(id)
       .asObservable(schedulers.io)
-      .mapToOneOrOptional()
+      .mapToOneOrNull()
+      .map { it.toOptional() }
   }
 
   override fun visibleNotes(): Observable<List<Note>> {

@@ -7,7 +7,7 @@ import org.koin.dsl.module
 class SharedHomeComponent {
   val module = module {
     factory { (args: HomePresenter.Args) ->
-      HomePresenter(args, get(), get(), get(), get())
+      HomePresenter(args, get(), get(), get(), get(), get())
     }
   }
 

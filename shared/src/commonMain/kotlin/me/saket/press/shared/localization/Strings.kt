@@ -12,6 +12,7 @@ data class Strings(
   val sync: Sync
 ) {
   data class Common(
+    val app_name: String,
     val close_nav_icon_description: String,
     val generic_error: String,
     val retry: String
@@ -65,6 +66,7 @@ data class Strings(
 
 val ENGLISH_STRINGS = Strings(
   common = Common(
+    app_name = "Press",
     close_nav_icon_description = "Go back",
     generic_error = "Something went wrong, try again?",
     retry = "Retry"
