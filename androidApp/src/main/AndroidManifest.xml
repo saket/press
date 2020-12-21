@@ -37,10 +37,6 @@
         <category android:name="android.intent.category.BROWSABLE" />
         <data android:scheme="intent" android:host="press" />
       </intent-filter>
-
-      <meta-data
-        android:name="android.app.shortcuts"
-        android:resource="@xml/shortcuts" />
     </activity>
   </application>
 </manifest>
