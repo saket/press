@@ -3,13 +3,13 @@ package me.saket.press.shared.editor
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.hasSize
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.test.base.assertNotError
-import com.badoo.reaktive.test.observable.assertNoValues
 import com.badoo.reaktive.test.observable.assertValue
 import com.badoo.reaktive.test.observable.test
 import com.badoo.reaktive.test.scheduler.TestScheduler
@@ -30,13 +30,13 @@ import me.saket.press.shared.localization.ENGLISH_STRINGS
 import me.saket.press.shared.rx.RxRule
 import me.saket.press.shared.rx.test
 import me.saket.press.shared.sync.SyncMergeConflicts
+import me.saket.press.shared.sync.SyncState.IN_FLIGHT
 import me.saket.press.shared.sync.git.DelegatingPressDatabase
 import me.saket.press.shared.time.FakeClock
 import me.saket.press.shared.ui.FakeNavigator
 import me.saket.wysiwyg.formatting.TextSelection
 import kotlin.test.AfterTest
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class EditorPresenterTest : BaseDatabaeTest() {
   override val database = DelegatingPressDatabase(super.database)
@@ -123,8 +123,10 @@ class EditorPresenterTest : BaseDatabaeTest() {
   @Test fun `updating an existing note on close when its content is non-blank`() {
     noteQueries.testInsert(fakeNote("Existing note", id = noteId))
 
-    val presenter = presenter(NewNote(noteId))
-    presenter.saveEditorContentOnClose("Updated note")
+    presenter(NewNote(noteId))
+      .saveEditorContentOnClose("Updated note")
+      .test(rxRule)
+      .assertComplete()
 
     val savedNote = noteQueries.allNotes().executeAsOne()
     assertThat(savedNote.content).isEqualTo("Updated note")
@@ -143,11 +145,33 @@ class EditorPresenterTest : BaseDatabaeTest() {
     val savedNote = { noteQueries.allNotes().executeAsOne() }
     assertThat(savedNote().content).isEqualTo("# Nicolas Cage")
 
-    presenter.saveEditorContentOnClose("")
-    presenter.saveEditorContentOnClose("  ")
-    presenter.saveEditorContentOnClose("  \n ")
+    presenter.saveEditorContentOnClose("").test(rxRule).assertComplete()
+    presenter.saveEditorContentOnClose("  ").test(rxRule).assertComplete()
+    presenter.saveEditorContentOnClose("  \n ").test(rxRule).assertComplete()
     assertThat(savedNote().content).isEqualTo("  \n ")
     assertThat(savedNote().isPendingDeletion).isTrue()
+  }
+
+  @Test fun `deletion of note shouldn't cause any error`() {
+    val note = fakeNote("# The")
+    noteQueries.testInsert(note)
+
+    val presenter = presenter(ExistingNote(PreSavedNoteId(note.id)))
+    val models = presenter.uiModels().test(rxRule)
+
+    noteQueries.run {
+      markAsPendingDeletion(note.id)
+      updateSyncState(ids = listOf(note.id), syncState = IN_FLIGHT)
+      deleteNote(note.id)
+    }
+
+    presenter.dispatch(NoteTextChanged("# The Witcher"))
+    testScheduler.timer.advanceBy(config.autoSaveEvery)
+    models.assertAnyValue()
+
+    presenter.saveEditorContentOnClose("# The Witcher 3").test(rxRule)
+
+    assertThat(noteQueries.allNotes().executeAsList()).isEmpty()
   }
 
   @Test fun `avoid deleting new blank note on close when disabled`() {
@@ -162,7 +186,7 @@ class EditorPresenterTest : BaseDatabaeTest() {
     val savedNote = { noteQueries.allNotes().executeAsOne() }
     assertThat(savedNote().content).isEqualTo("# Nicolas Cage")
 
-    presenter.saveEditorContentOnClose("")
+    presenter.saveEditorContentOnClose("").test(rxRule).assertComplete()
     assertThat(savedNote().content).isEqualTo("")
     assertThat(savedNote().isPendingDeletion).isFalse()
   }
@@ -171,9 +195,9 @@ class EditorPresenterTest : BaseDatabaeTest() {
     noteQueries.testInsert(fakeNote("Existing note", id = noteId))
 
     val presenter = presenter(ExistingNote(PreSavedNoteId(noteId)), deleteBlankNoteOnExit = true)
-    presenter.saveEditorContentOnClose("")
-    presenter.saveEditorContentOnClose("  ")
-    presenter.saveEditorContentOnClose("  \n ")
+    presenter.saveEditorContentOnClose("").test(rxRule).assertComplete()
+    presenter.saveEditorContentOnClose("  ").test(rxRule).assertComplete()
+    presenter.saveEditorContentOnClose("  \n ").test(rxRule).assertComplete()
 
     noteQueries.allNotes().executeAsOne().let {
       assertThat(it.content).isEqualTo("  \n ")
@@ -256,7 +280,7 @@ class EditorPresenterTest : BaseDatabaeTest() {
     syncConflicts.add(noteId)
 
     presenter.dispatch(NoteTextChanged("# Updated note"))
-    presenter.saveEditorContentOnClose("# Exitingggggg")
+    presenter.saveEditorContentOnClose("# Exitingggggg").test(rxRule)
 
     val savedNote = noteQueries.allNotes().executeAsOne()
     assertThat(savedNote.content).isEqualTo("# Content before sync")

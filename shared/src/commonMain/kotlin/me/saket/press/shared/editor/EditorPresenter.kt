@@ -4,8 +4,6 @@ import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.andThen
 import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.completable.completableOfEmpty
-import com.badoo.reaktive.completable.subscribe
-import com.badoo.reaktive.completable.subscribeOn
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.ObservableWrapper
 import com.badoo.reaktive.observable.distinctUntilChanged
@@ -33,7 +31,7 @@ import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.rx.Schedulers
 import me.saket.press.shared.rx.asObservable
 import me.saket.press.shared.rx.combineLatestWith
-import me.saket.press.shared.rx.consumeOnNext
+import me.saket.press.shared.rx.filterNotNull
 import me.saket.press.shared.rx.filterNull
 import me.saket.press.shared.rx.mapToOne
 import me.saket.press.shared.rx.mapToOneOrNull
@@ -69,7 +67,7 @@ class EditorPresenter(
       .map { (hint) -> EditorUiModel(hintText = hint) }
 
     val autoSave = viewEvents().autoSaveContent()
-    return merge(uiModels, autoSave, closeIfNoteGetsDeleted()).wrap()
+    return merge(uiModels, autoSave).wrap()
   }
 
   override fun uiEffects(): ObservableWrapper<EditorUiEffect> {
@@ -141,18 +139,6 @@ class EditorPresenter(
       .map { Unit }
   }
 
-  /**
-   * Can happen if the note was deleted outside of the app (e.g., on another device).
-   */
-  private fun closeIfNoteGetsDeleted(): Observable<EditorUiModel> {
-    return noteStream
-      .filter { it.isPendingDeletion }
-      .take(1)
-      .consumeOnNext {
-        args.navigator.goBack()
-      }
-  }
-
   private fun Observable<EditorEvent>.toggleHintText(): Observable<Optional<String>> {
     val randomHint = strings.editor.new_note_hints.shuffled().first()
 
@@ -189,13 +175,7 @@ class EditorPresenter(
       .andThen(observableOfEmpty())
   }
 
-  fun saveEditorContentOnClose(content: String) {
-    updateOrDeleteNote(content)
-      .subscribeOn(schedulers.io)
-      .subscribe()
-  }
-
-  private fun updateOrDeleteNote(content: String): Completable {
+  internal fun saveEditorContentOnClose(content: String): Completable {
     val shouldDelete = openMode is NewNote
       && args.deleteBlankNewNoteOnExit
       && content.trim().let { it.isBlank() || it == NEW_NOTE_PLACEHOLDER.trim() }
@@ -210,7 +190,8 @@ class EditorPresenter(
     // the note again here.
     return noteQueries.note(noteId)
       .asObservable(schedulers.io)
-      .mapToOne()
+      .mapToOneOrNull()
+      .filterNotNull()
       .combineLatestWith(syncConflicts.isConflicted(noteId))
       .filter { (_, isConflicted) -> !isConflicted }
       .take(1)

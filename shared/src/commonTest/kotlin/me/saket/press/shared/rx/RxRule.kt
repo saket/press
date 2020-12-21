@@ -5,6 +5,8 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isSameAs
+import com.badoo.reaktive.completable.Completable
+import com.badoo.reaktive.completable.asObservable
 import com.badoo.reaktive.disposable.Disposable
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.ObservableObserver
@@ -38,6 +40,12 @@ class RxRule {
 fun <T> Observable<T>.test(rxRule: RxRule): RecordingObserver<T> {
   val observer = rxRule.newObserver<T>()
   subscribe(observer)
+  return observer
+}
+
+fun Completable.test(rxRule: RxRule): RecordingObserver<Unit> {
+  val observer = rxRule.newObserver<Unit>()
+  asObservable<Unit>().subscribe(observer)
   return observer
 }
 

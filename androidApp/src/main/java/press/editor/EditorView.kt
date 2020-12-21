@@ -22,6 +22,7 @@ import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.inflation.InflationInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import io.reactivex.schedulers.Schedulers
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.R
 import me.saket.press.shared.editor.AutoCorrectEnabled
@@ -34,6 +35,7 @@ import me.saket.press.shared.editor.EditorUiEffect
 import me.saket.press.shared.editor.EditorUiEffect.BlockedDueToSyncConflict
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.editor.EditorUiModel
+import me.saket.press.shared.editor.saveEditorContentOnClose
 import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.theme.DisplayUnits
 import me.saket.press.shared.theme.TextStyles.mainBody
@@ -186,6 +188,8 @@ class EditorView @InflationInject constructor(
     // the note to get deleted if the note was empty even if the Activity was
     // being recreated, say, due to a theme change.
     presenter.saveEditorContentOnClose(editorEditText.text.toString())
+      .subscribeOn(Schedulers.io())
+      .subscribe()
     return Ignored
   }
 

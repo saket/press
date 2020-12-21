@@ -47,7 +47,7 @@ kotlin {
       dependencies {
         implementation project(':wysiwyg')
         implementation project(':kgit')
-        implementation deps.reaktive.core.common
+        api deps.reaktive.core.common
         implementation deps.reaktive.interop.coroutines
         implementation deps.koin.core.common
         implementation deps.multiplatformUuid
