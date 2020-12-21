@@ -110,6 +110,18 @@ class ScreenKeyChanger(
     val toView: View = if (forwardTransition) children.last() else children.secondLast()!!
 
     if (fromView != null) {
+      if (!forwardTransition && newBackgroundView != null) {
+        // The transition that handles this transition may not be the same class
+        // that handles the background View, so all transitions must be called.
+        transitions.forEach {
+          it.prepareBackground(
+            background = newBackgroundView,
+            foreground = toView,
+            foregroundKey = toView.screenKey()
+          )
+        }
+      }
+
       transitions.first {
         it.transition(
           fromView = fromView,

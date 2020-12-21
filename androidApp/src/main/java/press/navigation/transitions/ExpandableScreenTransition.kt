@@ -30,6 +30,18 @@ interface ExpandableScreenHost {
  * page across screens for expand/collapse transition.
  */
 class ExpandableScreenTransition : ScreenTransition {
+  override fun prepareBackground(background: View, foreground: View, foregroundKey: ScreenKey) {
+    // Background screens are expanded immediately on creation. They must be
+    // wired with the expanded item manually for pull-to-collapse to work.
+    if (background is ExpandableScreenHost && foreground is ExpandablePageLayout) {
+      background.findChild<InboxRecyclerView>()?.let { bgList ->
+        val bgHost = background.findChild<ExpandableScreenHost>()!!
+        bgList.attachPage(foreground, bgHost, background)  // Will be detached on collapse during transition.
+        bgList.forceUpdateExpandedItem(foregroundKey)
+      }
+    }
+  }
+
   override fun transition(
     fromView: View,
     fromKey: ScreenKey,
@@ -57,17 +69,6 @@ class ExpandableScreenTransition : ScreenTransition {
         toList.detachPage(fromView)
         onComplete()
       }
-
-      // Background screens are expanded immediately on creation. They must be
-      // wired with the expanded item manually for pull-to-collapse to work.
-      if (newBackground != null && toView is ExpandablePageLayout) {
-        newBackground.findChild<InboxRecyclerView>()?.let { bgList ->
-          val bgHost = newBackground.findChild<ExpandableScreenHost>()!!
-          bgList.attachPage(toView, bgHost, newBackground)  // Will be detached on collapse above.
-          bgList.forceUpdateExpandedItem(toKey)
-        }
-      }
-
       return Handled
     }
 
