@@ -38,19 +38,6 @@ class ScreenKeyChanger(
   private val transitions = transitions + BasicTransition()
   private var previousKey: ScreenKey? = null
 
-//  private fun View.visibilityString(): String {
-//    val s = when (visibility) {
-//      View.VISIBLE -> "Visible"
-//      View.INVISIBLE -> "Invisible"
-//      View.GONE -> "Gone"
-//      else -> "Unknown: $visibility"
-//    }
-//    if (this is ExpandablePageLayout) {
-//      return "$s, elevation: $elevation"
-//    }
-//    return s
-//  }
-
   override fun changeKey(
     outgoingState: State?,
     incomingState: State,

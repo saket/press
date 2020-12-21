@@ -14,6 +14,7 @@ data class HomeScreenKey(
 ) : ScreenKey {
   companion object {
     fun root() = HomeScreenKey(folder = null)
+    fun isRoot(key: ScreenKey) = key is HomeScreenKey && key.folder == null
   }
 }
 
