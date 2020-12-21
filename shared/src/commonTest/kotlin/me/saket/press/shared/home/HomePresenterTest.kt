@@ -1,21 +1,19 @@
 package me.saket.press.shared.home
 
 import assertk.assertThat
-import assertk.assertions.containsOnly
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.test.observable.test
 import com.soywiz.klock.hours
 import me.saket.press.shared.FakeSchedulers
+import me.saket.press.shared.containsOnly
 import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.FolderId
 import me.saket.press.shared.db.NoteId
-import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
 import me.saket.press.shared.editor.EditorScreenKey
-import me.saket.press.shared.editor.NoteIdKind
 import me.saket.press.shared.editor.PreSavedNoteId
 import me.saket.press.shared.fakedata.fakeFolder
 import me.saket.press.shared.fakedata.fakeNote
@@ -88,7 +86,7 @@ class HomePresenterTest : BaseDatabaeTest() {
     assertThat(models.popValue()).containsOnly(
       HomeUiModel.Folder(
         id = archive.id,
-        title = "archive (folder)",
+        title = "archive",
       ),
       Note(
         id = nicolasCage.id,
@@ -129,7 +127,7 @@ class HomePresenterTest : BaseDatabaeTest() {
     assertThat(models.popValue()).containsOnly(
       HomeUiModel.Folder(
         id = games.id,
-        title = "games (folder)",
+        title = "games",
       ),
       Note(
         id = witcher3.id,
@@ -201,5 +199,17 @@ class HomePresenterTest : BaseDatabaeTest() {
     assertThat(navigator.pop()).isEqualTo(
       EditorScreenKey(NewNote(PreSavedNoteId(savedNote.id)))
     )
+  }
+
+  @Test fun `create new note in the current folder`() {
+    val folderId = FolderId.generate()
+    val presenter = presenter(folder = folderId).also {
+      it.uiModels().test()
+    }
+
+    presenter.dispatch(NewNoteClicked)
+
+    val savedNote = noteQueries.allNotes().executeAsOne()
+    assertThat(savedNote.folderId).isEqualTo(folderId)
   }
 }

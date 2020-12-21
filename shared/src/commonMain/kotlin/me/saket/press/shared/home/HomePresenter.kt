@@ -58,7 +58,7 @@ class HomePresenter(
           val newNoteId = NoteId.generate()
           noteQueries.insert(
             id = newNoteId,
-            folderId = null,
+            folderId = args.screenKey.folder,
             content = NEW_NOTE_PLACEHOLDER,
             createdAt = clock.nowUtc(),
             updatedAt = clock.nowUtc()
