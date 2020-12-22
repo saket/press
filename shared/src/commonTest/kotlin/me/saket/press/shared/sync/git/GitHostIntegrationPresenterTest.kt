@@ -45,6 +45,7 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
     args = Args(deepLink = GITHUB.deepLink(), navigator),
     httpClient = HttpClient(),
     authToken = { authToken },
+    userSetting = FakeSetting(null),
     gitHostService = { _, _ -> gitService },
     cachedRepos = cachedRepos,
     syncCoordinator = syncCoordinator,

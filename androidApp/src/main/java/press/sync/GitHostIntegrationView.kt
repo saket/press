@@ -3,10 +3,14 @@ package press.sync
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.ProgressBar
+import androidx.core.view.doOnLayout
 import androidx.core.view.isGone
+import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
@@ -16,6 +20,7 @@ import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.sync.git.GitHost
+import me.saket.press.shared.sync.git.GitHostIntegrationEvent.CreateNewGitRepoClicked
 import me.saket.press.shared.sync.git.GitHostIntegrationEvent.GitRepositoryClicked
 import me.saket.press.shared.sync.git.GitHostIntegrationEvent.RetryClicked
 import me.saket.press.shared.sync.git.GitHostIntegrationEvent.SearchTextChanged
@@ -99,10 +104,25 @@ class GitHostIntegrationView @InflationInject constructor(
     )
   }
 
+  private val newGitRepoFab = FloatingActionButton(context).apply {
+    isVisible = false
+    setImageResource(R.drawable.ic_add_24)
+  }
+
   init {
     id = R.id.githostintegration_view
     themeAware {
       setBackgroundColor(it.window.backgroundColor)
+    }
+
+    val fabMargin = 24.dip
+    newGitRepoFab.layoutBy(
+      x = rightTo { parent.right() - fabMargin },
+      y = bottomTo { parent.bottom() - fabMargin }
+    )
+    newGitRepoFab.doOnLayout {
+      recyclerView.updatePadding(bottom = newGitRepoFab.height + fabMargin * 2)
+      recyclerView.clipToPadding = false
     }
 
     recyclerView.addOnScrollListener(object : OnScrollListener() {
@@ -127,6 +147,9 @@ class GitHostIntegrationView @InflationInject constructor(
     searchView.editText!!.doOnTextChange {
       presenter.dispatch(SearchTextChanged(it.toString()))
     }
+    newGitRepoFab.setOnClickListener {
+      presenter.dispatch(CreateNewGitRepoClicked)
+    }
 
     presenter.uiUpdates()
       .takeUntil(detaches())
@@ -142,6 +165,12 @@ class GitHostIntegrationView @InflationInject constructor(
     errorView.isGone = model !is ShowFailure
     recyclerView.isGone = model !is SelectRepo
     searchView.isGone = model !is SelectRepo
+
+    if (model is SelectRepo) {
+      newGitRepoFab.show()
+    } else {
+      newGitRepoFab.hide()
+    }
 
     return when (model) {
       is ShowProgress -> Unit

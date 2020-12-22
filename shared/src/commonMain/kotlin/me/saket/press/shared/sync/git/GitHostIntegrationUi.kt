@@ -11,6 +11,7 @@ interface GitHostIntegrationEvent {
   data class GitRepositoryClicked(val repo: GitRepositoryInfo) : GitHostIntegrationEvent
   data class RetryClicked(val failure: FailureKind) : GitHostIntegrationEvent
   data class SearchTextChanged(val text: String) : GitHostIntegrationEvent
+  object CreateNewGitRepoClicked : GitHostIntegrationEvent
 }
 
 sealed class GitHostIntegrationUiModel {

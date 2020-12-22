@@ -23,17 +23,17 @@ import me.saket.press.shared.sync.git.service.GitHostService
 import me.saket.press.shared.sync.git.service.NewGitRepositoryInfo
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
-import me.saket.press.shared.util.isLetterOrDigit2
+import me.saket.press.shared.util.isLetterOrDigit
 import me.saket.press.shared.sync.git.NewGitRepositoryEvent as Event
 import me.saket.press.shared.sync.git.NewGitRepositoryUiModel as Model
 
 class NewGitRepositoryPresenter(
-  private val screenKey: NewGitRepositoryScreenKey,
+  private val args: Args,
   private val httpClient: HttpClient,
-  private val navigator: Navigator,
   authToken: (GitHost) -> Setting<GitHostAuthToken>,
 ) : Presenter<Event, Model, Nothing>() {
 
+  private val screenKey: NewGitRepositoryScreenKey get() = args.screenKey
   private val gitHost: GitHost get() = screenKey.gitHost
   private val gitHostService: GitHostService get() = gitHost.service(httpClient)
   private val authToken: Setting<GitHostAuthToken> = authToken(gitHost)
@@ -48,7 +48,7 @@ class NewGitRepositoryPresenter(
     return viewEvents().publish { events ->
       val repoUrls = events
         .ofType<NameTextChanged>()
-        .map { gitHost.newRepoUrl(screenKey.user.name, sanitize(it.name)) }
+        .map { gitHost.newRepoUrl(screenKey.username, sanitize(it.name)) }
 
       combineLatest(repoUrls, handleSubmits(events)) { repoUrl, submitResult ->
         Model(
@@ -63,7 +63,7 @@ class NewGitRepositoryPresenter(
   private fun sanitize(string: String): String {
     return buildString {
       for (char in string) {
-        if (char.isLetterOrDigit2()) {
+        if (char.isLetterOrDigit()) {
           append(char)
         } else if (lastOrNull() != '-') {
           append('-')
@@ -84,7 +84,7 @@ class NewGitRepositoryPresenter(
         gitHostService
           .createNewRepo(authToken.get()!!, newRepo)
           .andThen(completableFromFunction {
-            navigator.goBack()
+            args.navigator.goBack()
           })
           .asObservable<SubmitResult>()
           .startWithValue(Ongoing)
@@ -98,9 +98,12 @@ class NewGitRepositoryPresenter(
     Failed
   }
 
+  data class Args(
+    val screenKey: NewGitRepositoryScreenKey,
+    val navigator: Navigator
+  )
+
   fun interface Factory {
-    fun create(
-      screenKey: NewGitRepositoryScreenKey
-    ): NewGitRepositoryPresenter
+    fun create(args: Args): NewGitRepositoryPresenter
   }
 }

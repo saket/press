@@ -1,6 +1,7 @@
 package me.saket.press.shared.sync.git
 
 import com.badoo.reaktive.completable.Completable
+import com.badoo.reaktive.completable.andThen
 import com.badoo.reaktive.completable.asObservable
 import com.badoo.reaktive.completable.asSingle
 import com.badoo.reaktive.completable.completableFromFunction
@@ -40,6 +41,7 @@ import me.saket.press.shared.sync.SyncCoordinator
 import me.saket.press.shared.sync.git.FailureKind.AddingDeployKey
 import me.saket.press.shared.sync.git.FailureKind.Authorization
 import me.saket.press.shared.sync.git.FailureKind.FetchingRepos
+import me.saket.press.shared.sync.git.GitHostIntegrationEvent.CreateNewGitRepoClicked
 import me.saket.press.shared.sync.git.GitHostIntegrationEvent.GitRepositoryClicked
 import me.saket.press.shared.sync.git.GitHostIntegrationEvent.RetryClicked
 import me.saket.press.shared.sync.git.GitHostIntegrationEvent.SearchTextChanged
@@ -51,12 +53,12 @@ import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
 
-@OptIn(ExperimentalListener::class)
 class GitHostIntegrationPresenter(
   private val args: Args,
   httpClient: HttpClient,
   authToken: (GitHost) -> Setting<GitHostAuthToken>,
   gitHostService: (GitHost, HttpClient) -> GitHostService = { host, http -> host.service(http) },
+  private val userSetting: Setting<GitIdentity>,
   private val deviceInfo: DeviceInfo,
   private val database: PressDatabase,
   private val cachedRepos: GitRepositoryCache,
@@ -76,6 +78,7 @@ class GitHostIntegrationPresenter(
         completeAuth(events),
         fetchRepositories(events),
         displayRepositories(events),
+        showNewGitRepoScreen(events),
         selectRepository(events)
       )
     }.wrap()
@@ -110,12 +113,20 @@ class GitHostIntegrationPresenter(
       .take(1)
       .repeatItemOnRetry(events, kind = FetchingRepos)
       .switchMap { (token) ->
-        gitHostService.fetchUserRepos(token)
+        zip(
+          gitHostService.fetchUser(token),
+          gitHostService.fetchUserRepos(token),
+          ::Pair
+        )
           .asObservable()
-          .publish { userRepos ->
+          .publish { networkCalls ->
             merge(
-              userRepos.ignoreErrors().consumeOnNext { cachedRepos.set(it) },
-              userRepos
+              networkCalls.ignoreErrors()
+                .consumeOnNext { (user, repos) ->
+                  userSetting.set(user)
+                  cachedRepos.set(repos)
+                },
+              networkCalls
                 .doOnBeforeError { e -> e.printStackTrace() }
                 .onErrorReturnValue(ShowFailure(kind = FetchingRepos))
                 .startWithValue(ShowProgress)
@@ -139,6 +150,19 @@ class GitHostIntegrationPresenter(
       .distinctUntilChanged()
   }
 
+  private fun showNewGitRepoScreen(
+    events: Observable<GitHostIntegrationEvent>
+  ): Observable<GitHostIntegrationUiModel> {
+    return events.ofType<CreateNewGitRepoClicked>().consumeOnNext {
+      args.navigator.lfg(
+        NewGitRepositoryScreenKey(
+          username = userSetting.get()!!.name,
+          gitHost = gitHost
+        )
+      )
+    }
+  }
+
   private fun selectRepository(
     events: Observable<GitHostIntegrationEvent>
   ): Observable<GitHostIntegrationUiModel> {
@@ -151,12 +175,8 @@ class GitHostIntegrationPresenter(
           title = "Press (${deviceInfo.deviceName()})",
           key = sshKeygen.generateRsa(comment = "(Created by Press)")
         )
-        zip(
-          gitHostService.addDeployKey(token, repo, deployKey).asSingle(Unit),
-          gitHostService.fetchUser(token)
-        ) { _, user -> user }
-          .asObservable()
-          .flatMapCompletable { user -> completeSetup(repo, deployKey, user) }
+        gitHostService.addDeployKey(token, repo, deployKey)
+          .andThen(completeSetup(repo, deployKey, userSetting.get()!!))
           .asObservable<GitHostIntegrationUiModel>()
           .doOnBeforeError { e -> e.printStackTrace() }
           .onErrorReturnValue(ShowFailure(kind = AddingDeployKey))
@@ -171,6 +191,7 @@ class GitHostIntegrationPresenter(
   ): Completable {
     return completableFromFunction {
       authToken.set(null)
+      userSetting.set(null)
       database.folderSyncConfigQueries.save(
         remote = GitRemoteAndAuth(repo, deployKey.key.privateKey, user)
       )

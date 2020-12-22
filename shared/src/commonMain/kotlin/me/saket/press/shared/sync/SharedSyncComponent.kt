@@ -1,5 +1,7 @@
 package me.saket.press.shared.sync
 
+import com.russhwolf.settings.ExperimentalListener
+import com.russhwolf.settings.ObservableSettings
 import io.ktor.client.HttpClient
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.json.serializer.KotlinxSerializer
@@ -8,6 +10,7 @@ import io.ktor.client.features.logging.Logger
 import io.ktor.client.features.logging.Logging
 import io.ktor.client.features.logging.SIMPLE
 import kotlinx.serialization.json.Json
+import me.saket.kgit.GitIdentity
 import me.saket.kgit.RealGit
 import me.saket.kgit.RealSshKeygen
 import me.saket.press.shared.di.koin
@@ -17,6 +20,8 @@ import me.saket.press.shared.sync.git.GitHostAuthToken
 import me.saket.press.shared.sync.git.GitHostIntegrationPresenter
 import me.saket.press.shared.sync.git.GitRepositoryCache
 import me.saket.press.shared.sync.git.GitSyncer
+import me.saket.press.shared.sync.git.NewGitRepositoryPresenter
+import me.saket.press.shared.sync.git.NewGitRepositoryScreenKey
 import me.saket.press.shared.sync.stats.SyncStatsForNerdsPresenter
 import org.koin.core.parameter.parametersOf
 import org.koin.dsl.module
@@ -44,11 +49,19 @@ class SharedSyncComponent {
         args = args,
         httpClient = get(),
         authToken = get(),
+        userSetting = gitUserSetting(settings = get(), json = get()),
         deviceInfo = get(),
         database = get(),
         cachedRepos = get(),
         syncCoordinator = get(),
         sshKeygen = RealSshKeygen()
+      )
+    }
+    factory { (args: NewGitRepositoryPresenter.Args) ->
+      NewGitRepositoryPresenter(
+        args = args,
+        httpClient = get(),
+        authToken = get()
       )
     }
 
@@ -76,6 +89,17 @@ class SharedSyncComponent {
     }
   }
 
+  @OptIn(ExperimentalListener::class)
+  private fun gitUserSetting(settings: ObservableSettings, json: Json): Setting<GitIdentity> {
+    return Setting.create(
+      settings = settings,
+      key = "githost_username",
+      from = { json.decodeFromString(GitIdentity.serializer(), it) },
+      to = { json.encodeToString(GitIdentity.serializer(), it) },
+      defaultValue = null
+    )
+  }
+
   private fun httpClient(json: Json): HttpClient {
     return HttpClient {
       install(JsonFeature) {
@@ -94,6 +118,9 @@ class SharedSyncComponent {
 
     fun integrationPresenter(args: GitHostIntegrationPresenter.Args) =
       koin<GitHostIntegrationPresenter> { parametersOf(args) }
+
+    fun newGitRepositoryPresenter(args: NewGitRepositoryPresenter.Args) =
+      koin<NewGitRepositoryPresenter> { parametersOf(args) }
   }
 }
 
