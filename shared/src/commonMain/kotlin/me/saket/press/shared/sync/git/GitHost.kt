@@ -18,10 +18,12 @@ enum class GitHost {
   GITHUB {
     override fun displayName() = "GitHub"
     override fun service(http: HttpClient) = GitHubService(http)
+    override fun newRepoUrl(owner: String, name: String) = "https://github.com/$owner/$name"
   };
 
   abstract fun displayName(): String
   abstract fun service(http: HttpClient): GitHostService
+  abstract fun newRepoUrl(owner: String, name: String): String
 
   fun deepLink() = "intent://press/authorization-granted?githost=$name"
 

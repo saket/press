@@ -25,7 +25,7 @@ import press.theme.themeAware
  * Rounded corners and theme colors, because [AlertDialog] isn't very customizable.
  * Essentially copies dialogs from [https://cash.app]'s Android app.
  */
-class PressDialogView private constructor(context: Context) : ContourLayout(context) {
+class PressDialogView(context: Context) : ContourLayout(context) {
   private val titleView = TextView(context, mainTitle).apply {
     gravity = CENTER_HORIZONTAL
     themeAware { textColor = it.textColorPrimary }

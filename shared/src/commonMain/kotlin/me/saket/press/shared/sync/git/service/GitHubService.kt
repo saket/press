@@ -107,6 +107,20 @@ class GitHubService(private val http: HttpClient) : GitHostService {
       }
     }
   }
+
+  override fun createNewRepo(token: GitHostAuthToken, repo: NewGitRepositoryInfo): Completable {
+    check('/' !in repo.name)
+    return completableFromCoroutine {
+      http.post<String>("https://api.github.com/user/repos") {
+        header("Authorization", "token ${token.value}")
+        contentType(Application.Json)
+        body = CreateRepoRequest(
+          name = repo.name,
+          private = repo.private
+        )
+      }
+    }
+  }
 }
 
 @Serializable
@@ -144,4 +158,12 @@ private data class CreateDeployKeyRequest(
   val title: String,
   val key: String,
   val read_only: Boolean
+)
+
+private data class CreateRepoRequest(
+  val name: String,
+  val private: Boolean,
+  val has_issues: Boolean = false,
+  val has_projects: Boolean = false,
+  val has_wiki: Boolean = false
 )

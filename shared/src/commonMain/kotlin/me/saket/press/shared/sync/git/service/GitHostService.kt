@@ -42,6 +42,12 @@ interface GitHostService {
   fun addDeployKey(token: GitHostAuthToken, repository: GitRepositoryInfo, key: DeployKey): Completable
 
   /**
+   * Create a new repository for syncing notes with Press.
+   * If the repository already exists, use it.
+   */
+  fun createNewRepo(token: GitHostAuthToken, repo: NewGitRepositoryInfo): Completable
+
+  /**
    * @param title the label that's displayed for this key.
    */
   data class DeployKey(val title: String, val key: SshKeyPair)

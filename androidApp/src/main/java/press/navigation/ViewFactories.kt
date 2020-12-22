@@ -7,11 +7,13 @@ import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.home.HomeScreenKey
 import me.saket.press.shared.sync.SyncPreferencesScreenKey
 import me.saket.press.shared.sync.git.GitHostIntegrationScreenKey
+import me.saket.press.shared.sync.git.NewGitRepositoryScreenKey
 import me.saket.press.shared.sync.stats.SyncStatsForNerdsScreenKey
 import me.saket.press.shared.ui.ScreenKey
 import press.editor.EditorView
 import press.home.HomeView
 import press.sync.GitHostIntegrationView
+import press.sync.NewGitRepositoryView
 import press.sync.SyncPreferencesView
 import press.sync.stats.SyncStatsForNerdsView
 import javax.inject.Inject
@@ -33,6 +35,7 @@ class ViewFactories @Inject constructor(
       is EditorScreenKey -> EditorView::class
       is SyncPreferencesScreenKey -> SyncPreferencesView::class
       is GitHostIntegrationScreenKey -> GitHostIntegrationView::class
+      is NewGitRepositoryScreenKey -> NewGitRepositoryView::class
       is SyncStatsForNerdsScreenKey -> SyncStatsForNerdsView::class
       else -> error("Missing mapping for ${screen::class.simpleName}")
     }.qualifiedName
