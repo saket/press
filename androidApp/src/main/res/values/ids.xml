@@ -16,6 +16,7 @@
   <item name="search_view_field" type="id" />
 
   <item name="newgitrepo_view" type="id" />
+  <item name="newgitrepo_repo_name" type="id" />
 
   <item name="syncstats_view" type="id" />
 </resources>

@@ -160,6 +160,7 @@ private data class CreateDeployKeyRequest(
   val read_only: Boolean
 )
 
+@Serializable
 private data class CreateRepoRequest(
   val name: String,
   val private: Boolean,

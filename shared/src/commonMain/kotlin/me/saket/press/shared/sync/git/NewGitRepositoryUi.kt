@@ -11,11 +11,11 @@ data class NewGitRepositoryScreenKey(
 
 interface NewGitRepositoryEvent {
   data class NameTextChanged(val name: String) : NewGitRepositoryEvent
-  data class SubmitClicked(val privateRepo: Boolean) : NewGitRepositoryEvent
+  object SubmitClicked : NewGitRepositoryEvent
 }
 
 data class NewGitRepositoryUiModel(
-  val repoUrlPreview: String,
+  val repoUrlPreview: String?,
   val errorMessage: String?,
   val isLoading: Boolean
 )

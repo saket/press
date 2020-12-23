@@ -60,7 +60,12 @@ data class Strings(
 
     val nerd_stats_title: String,
     val nerd_stats_git_size: String,
-    val nerd_stats_logs_label: String
+    val nerd_stats_logs_label: String,
+
+    val newgitrepo_title: String,
+    val newgitrepo_name_hint: String,
+    val newgitrepo_submit: String,
+    val newgitrepo_cancel: String,
   )
 }
 
@@ -124,6 +129,11 @@ val ENGLISH_STRINGS = Strings(
 
     nerd_stats_title = "Stats for nerds",
     nerd_stats_git_size = "Git directory size: %s",
-    nerd_stats_logs_label = "Logs: "
+    nerd_stats_logs_label = "Logs: ",
+
+    newgitrepo_title = "New private repository",
+    newgitrepo_name_hint = "Enter a name…",
+    newgitrepo_submit = "Create",
+    newgitrepo_cancel = "Cancel"
   )
 )

@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window.ID_ANDROID_CONTENT
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.EdgeEffect
 import android.widget.EditText
 import android.widget.HorizontalScrollView
@@ -66,6 +67,7 @@ object AutoThemer {
 
     when (view) {
       is EditText -> themed(view)
+      is CheckBox -> themed(view)
       is Button -> themed(view)
       is TextView -> themed(view)
       is ScrollView -> themed(view)
@@ -98,6 +100,13 @@ private fun <T : EditText> themed(view: T): T = view.apply {
 
   themeAware { palette ->
     setHintTextColor(palette.textColorSecondary)
+  }
+}
+
+private fun <T: CheckBox> themed(view: T): T = view.apply {
+  themeAware {
+    background = createRippleDrawable(it, borderless = true)
+    buttonTintList = ColorStateList.valueOf(it.accentColor)
   }
 }
 

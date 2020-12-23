@@ -13,12 +13,15 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.core.view.setMargins
 import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
+import androidx.core.view.updatePaddingRelative
 import com.squareup.contour.ContourLayout
 import me.saket.press.shared.theme.TextStyles.mainTitle
 import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextView
 import press.extensions.padding
 import press.extensions.textColor
+import press.extensions.updatePadding
 import press.theme.themeAware
 
 /**
@@ -38,16 +41,11 @@ class PressDialogView(context: Context) : ContourLayout(context) {
   private val messageView = TextView(context, smallBody).apply {
     gravity = CENTER_HORIZONTAL
     themeAware { textColor = it.textColorPrimary }
-    applyLayout(
-      x = matchParentX(marginLeft = 20.dip, marginRight = 20.dip),
-      y = topTo {
-        if (titleView.isVisible) {
-          titleView.bottom() + 16.ydip
-        } else {
-          parent.top() + 20.ydip
-        }
-      }
-    )
+    updatePaddingRelative(start = 20.dip, end = 20.dip)
+  }
+
+  private val contentView = FrameLayout(context).apply {
+    addView(messageView)
   }
 
   private val negativeButtonView = PressBorderlessButton(context, smallBody).apply {
@@ -74,7 +72,7 @@ class PressDialogView(context: Context) : ContourLayout(context) {
     themeAware { setBackgroundColor(it.separator) }
     applyLayout(
       x = matchParentX(),
-      y = topTo { messageView.bottom() + 20.ydip }.heightOf { 1.ydip }
+      y = topTo { contentView.bottom() + 20.ydip }.heightOf { 1.ydip }
     )
   }
 
@@ -89,7 +87,18 @@ class PressDialogView(context: Context) : ContourLayout(context) {
 
   init {
     clipToOutline = true
-    elevation = 20f
+    elevation = dp(20f)
+
+    contentView.layoutBy(
+      x = matchParentX(),
+      y = topTo {
+        if (titleView.isVisible) {
+          titleView.bottom() + 16.ydip
+        } else {
+          parent.top() + 20.ydip
+        }
+      }
+    )
 
     themeAware {
       background = PaintDrawable(it.window.backgroundColor).apply {
@@ -99,6 +108,35 @@ class PressDialogView(context: Context) : ContourLayout(context) {
 
     contourWidthOf { available -> minOf(300.xdip, available) }
     contourHeightOf { positiveButtonView.bottom() }
+  }
+
+  fun render(
+    title: CharSequence? = null,
+    message: CharSequence? = null,
+    negativeButton: String? = null,
+    positiveButton: String,
+    negativeOnClick: () -> Unit,
+    positiveOnClick: () -> Unit
+  ) {
+    titleView.text = title
+    titleView.isVisible = !title.isNullOrBlank()
+    messageView.text = message
+
+    negativeButtonView.text = negativeButton
+    negativeButtonView.isVisible = !negativeButton.isNullOrBlank()
+    negativeButtonView.setOnClickListener { negativeOnClick() }
+
+    buttonsMidSeparator.isVisible = negativeButtonView.isVisible
+
+    positiveButtonView.text = positiveButton
+    positiveButtonView.setOnClickListener { positiveOnClick() }
+  }
+
+  fun replaceMessageWith(vararg views: View) {
+    contentView.removeAllViews()
+    for (view in views) {
+      contentView.addView(view)
+    }
   }
 
   companion object {
@@ -111,16 +149,7 @@ class PressDialogView(context: Context) : ContourLayout(context) {
       positiveOnClick: () -> Unit,
       dismissOnOutsideTap: Boolean = true
     ) {
-      val dialogView = PressDialogView(context).apply {
-        titleView.text = title
-        titleView.isVisible = !title.isNullOrBlank()
-        messageView.text = message
-        negativeButtonView.text = negativeButton
-        negativeButtonView.isVisible = !negativeButton.isNullOrBlank()
-        buttonsMidSeparator.isVisible = negativeButtonView.isVisible
-        positiveButtonView.text = positiveButton
-      }
-
+      val dialogView = PressDialogView(context)
       val dialog = AlertDialog.Builder(context)
         .setView(
           FrameLayout(context).also {
@@ -143,15 +172,19 @@ class PressDialogView(context: Context) : ContourLayout(context) {
           window!!.setBackgroundDrawable(null)
         }
 
-      dialogView.apply {
-        negativeButtonView.setOnClickListener {
+      dialogView.render(
+        title = title,
+        message = message,
+        negativeButton = negativeButton,
+        positiveButton = positiveButton,
+        negativeOnClick = {
           dialog.dismiss()
-        }
-        positiveButtonView.setOnClickListener {
+        },
+        positiveOnClick = {
           positiveOnClick()
           dialog.dismiss()
         }
-      }
+      )
     }
   }
 }

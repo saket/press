@@ -48,7 +48,10 @@ class NewGitRepositoryPresenter(
     return viewEvents().publish { events ->
       val repoUrls = events
         .ofType<NameTextChanged>()
-        .map { gitHost.newRepoUrl(screenKey.username, sanitize(it.name)) }
+        .map {
+          if (it.name.isBlank()) null
+          else gitHost.newRepoUrl(screenKey.username, sanitize(it.name))
+        }
 
       combineLatest(repoUrls, handleSubmits(events)) { repoUrl, submitResult ->
         Model(
@@ -79,8 +82,8 @@ class NewGitRepositoryPresenter(
 
     return events.ofType<SubmitClicked>()
       .withLatestFrom(repoNames, ::Pair)
-      .switchMap { (event, repoName) ->
-        val newRepo = NewGitRepositoryInfo(name = repoName, private = event.privateRepo)
+      .switchMap { (_, repoName) ->
+        val newRepo = NewGitRepositoryInfo(name = repoName, private = true)
         gitHostService
           .createNewRepo(authToken.get()!!, newRepo)
           .andThen(completableFromFunction {
