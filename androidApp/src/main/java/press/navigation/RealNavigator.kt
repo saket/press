@@ -45,12 +45,15 @@ class RealNavigator constructor(
   // https://www.urbandictionary.com/define.php?term=lfg
   override fun lfg(screen: ScreenKey) {
     activity.runOnUiThread {
-      flow.set(
-        CompositeScreenKey(
-          background = flow.history.top<CompositeScreenKey>().foreground,
-          foreground = screen
+      val head = flow.history.top<CompositeScreenKey>()
+      if (head.foreground != screen) {
+        flow.set(
+          CompositeScreenKey(
+            background = head.foreground,
+            foreground = screen
+          )
         )
-      )
+      }
     }
   }
 
