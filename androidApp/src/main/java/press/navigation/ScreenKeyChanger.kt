@@ -183,10 +183,11 @@ private class BasicTransition : ScreenTransition {
         toView.expandFrom(Rect(0, fromView.dp(56), toView.width, fromView.dp(56)))
         toView.doOnExpand(onComplete)
       }
-
     } else if (!goingForward && fromView is StandaloneExpandablePageLayout) {
       fromView.collapseTo(Rect(0, fromView.dp(56), toView.width, fromView.dp(56)))
       fromView.doOnCollapse(onComplete)
+    } else {
+      onComplete()
     }
     return Handled
   }
