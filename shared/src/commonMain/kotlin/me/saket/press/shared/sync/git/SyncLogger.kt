@@ -9,15 +9,7 @@ internal interface SyncLogger {
   fun onSyncComplete()
 }
 
-internal class SyncLoggers(private vararg val defaultLoggers: SyncLogger) : SyncLogger {
-  private val loggers = IsoMutableList<SyncLogger>().apply {
-    addAll(defaultLoggers.toList())
-  }
-
-  fun add(logger: SyncLogger) {
-    loggers.add(logger)
-  }
-
+internal class SyncLoggers(private vararg val loggers: SyncLogger) : SyncLogger {
   override fun log(message: String) = loggers.forEach { it.log(message) }
   override fun onSyncStart(fromDevice: String) = loggers.forEach { it.onSyncStart(fromDevice) }
   override fun onSyncComplete() = loggers.forEach { it.onSyncComplete() }

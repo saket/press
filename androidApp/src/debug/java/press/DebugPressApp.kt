@@ -11,12 +11,18 @@ import press.di.AppComponent
 import press.di.DaggerAppComponent
 import timber.log.Timber
 import timber.log.Timber.DebugTree
+import me.saket.press.shared.util.Timber as MppTimber
 
 @Suppress("unused")
 class DebugPressApp : PressApp() {
   override fun onCreate() {
     super.onCreate()
+
     Timber.plant(DebugTree())
+    MppTimber.plant(object : MppTimber.Tree {
+      override fun i(message: String) = Timber.i(message)
+      override fun e(e: Throwable, message: String) = Timber.e(e, message)
+    })
 
     SoLoader.init(this, false)
     if (FlipperUtils.shouldEnableFlipper(this)) {

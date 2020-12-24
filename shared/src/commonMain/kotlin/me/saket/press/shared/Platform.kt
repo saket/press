@@ -9,7 +9,6 @@ expect object Platform {
 @Suppress("EnumEntryName")
 enum class PlatformHost {
   macOS,
-  iOS,
   Android
 }
 
