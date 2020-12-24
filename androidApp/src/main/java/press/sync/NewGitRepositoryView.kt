@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
 import android.view.inputmethod.EditorInfo.IME_ACTION_GO
-import android.widget.EditText
 import android.widget.ProgressBar
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
@@ -13,7 +12,6 @@ import androidx.transition.ChangeBounds
 import androidx.transition.Fade
 import androidx.transition.TransitionManager
 import com.jakewharton.rxbinding3.view.detaches
-import com.jakewharton.rxbinding3.widget.editorActions
 import com.squareup.contour.ContourLayout
 import com.squareup.contour.SizeMode.AtMost
 import com.squareup.inject.assisted.Assisted

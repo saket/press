@@ -7,6 +7,7 @@ import android.view.View
 import flow.Direction.REPLACE
 import flow.Flow
 import flow.History
+import flow.KeyChanger
 import flow.KeyDispatcher
 import flow.KeyParceler
 import kotlinx.android.parcel.Parcelize
@@ -29,7 +30,13 @@ class RealNavigator constructor(
   private val flow by unsafeLazy { Flow.get(activity) }
 
   fun installInContext(baseContext: Context, initialScreen: ScreenKey): Context {
-    val keyDispatcher = KeyDispatcher.configure(activity, keyChanger).build()
+    val uiThreadKeyChanger = KeyChanger { outgoingState, incomingState, direction, incomingContexts, callback ->
+      activity.runOnUiThread {
+        keyChanger.changeKey(outgoingState, incomingState, direction, incomingContexts, callback)
+      }
+    }
+
+    val keyDispatcher = KeyDispatcher.configure(activity, uiThreadKeyChanger).build()
     val keyParceler = object : KeyParceler {
       override fun toParcelable(key: Any) = key as Parcelable
       override fun toKey(parcelable: Parcelable) = parcelable
@@ -44,33 +51,27 @@ class RealNavigator constructor(
 
   // https://www.urbandictionary.com/define.php?term=lfg
   override fun lfg(screen: ScreenKey) {
-    activity.runOnUiThread {
-      val head = flow.history.top<CompositeScreenKey>()
-      if (head.foreground != screen) {
-        flow.set(
-          CompositeScreenKey(
-            background = head.foreground,
-            foreground = screen
-          )
+    val head = flow.history.top<CompositeScreenKey>()
+    if (head.foreground != screen) {
+      flow.set(
+        CompositeScreenKey(
+          background = head.foreground,
+          foreground = screen
         )
-      }
+      )
     }
   }
 
   @Suppress("NAME_SHADOWING")
   override fun clearTopAndLfg(screen: ScreenKey) {
     check(screen !is CompositeScreenKey)
-    activity.runOnUiThread {
-      flow.setHistory(History.single(CompositeScreenKey(screen)), REPLACE)
-    }
+    flow.setHistory(History.single(CompositeScreenKey(screen)), REPLACE)
   }
 
-  override fun goBack(otherwise: (() -> Unit)?) {
-    activity.runOnUiThread {
-      if (keyChanger.onInterceptBackPress() == Ignored) {
-        if (!flow.goBack()) {
-          otherwise?.invoke()
-        }
+  override fun goBack() {
+    if (keyChanger.onInterceptBackPress() == Ignored) {
+      if (!flow.goBack()) {
+        activity.finish()
       }
     }
   }

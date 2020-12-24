@@ -3,14 +3,12 @@ package me.saket.press.shared.sync.git
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.andThen
 import com.badoo.reaktive.completable.asObservable
-import com.badoo.reaktive.completable.asSingle
 import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.ObservableWrapper
 import com.badoo.reaktive.observable.distinctUntilChanged
 import com.badoo.reaktive.observable.doOnBeforeError
 import com.badoo.reaktive.observable.filter
-import com.badoo.reaktive.observable.flatMapCompletable
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observableOfNever
@@ -25,8 +23,6 @@ import com.badoo.reaktive.observable.wrap
 import com.badoo.reaktive.single.asObservable
 import com.badoo.reaktive.single.zip
 import com.badoo.reaktive.subject.behavior.BehaviorSubject
-import com.russhwolf.settings.ExperimentalListener
-import io.ktor.client.HttpClient
 import me.saket.kgit.GitIdentity
 import me.saket.kgit.SshKeygen
 import me.saket.press.PressDatabase

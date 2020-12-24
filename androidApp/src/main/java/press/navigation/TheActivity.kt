@@ -85,9 +85,7 @@ class TheActivity : ThemeAwareActivity(), HasNavigator {
   }
 
   override fun onBackPressed() {
-    navigator.goBack(otherwise = {
-      super.onBackPressed()
-    })
+    navigator.goBack()
   }
 }
 

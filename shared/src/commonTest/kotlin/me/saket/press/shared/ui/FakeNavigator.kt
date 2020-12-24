@@ -12,10 +12,8 @@ class FakeNavigator : Navigator {
     lfg(screen)
   }
 
-  override fun goBack(otherwise: (() -> Unit)?) {
-    if (backstack.isEmpty()) {
-      otherwise?.invoke()
-    } else {
+  override fun goBack() {
+    if (backstack.isNotEmpty()) {
       backstack.removeFirst()
     }
   }
