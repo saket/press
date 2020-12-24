@@ -3,6 +3,7 @@ package me.saket.press.shared.sync
 import com.russhwolf.settings.ExperimentalListener
 import com.russhwolf.settings.ObservableSettings
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.json.serializer.KotlinxSerializer
 import io.ktor.client.features.logging.LogLevel
@@ -13,6 +14,7 @@ import kotlinx.serialization.json.Json
 import me.saket.kgit.GitIdentity
 import me.saket.kgit.RealGit
 import me.saket.kgit.RealSshKeygen
+import me.saket.press.shared.di.PlatformDependencies
 import me.saket.press.shared.di.koin
 import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.sync.git.GitHost
@@ -29,7 +31,7 @@ import org.koin.dsl.module
 
 class SharedSyncComponent {
   val module = module {
-    single { httpClient(get()) }
+    single { httpClient(get(), get()) }
     single { createJson() }
 
     factory {
@@ -60,6 +62,7 @@ class SharedSyncComponent {
         cachedRepos = get(),
         syncCoordinator = get(),
         sshKeygen = RealSshKeygen(),
+        screenResults = get()
       )
     }
     factory { (args: NewGitRepositoryPresenter.Args) ->
@@ -106,8 +109,10 @@ class SharedSyncComponent {
     )
   }
 
-  private fun httpClient(json: Json): HttpClient {
-    return HttpClient {
+  private fun httpClient(json: Json, platformEngine: HttpClientEngine): HttpClient {
+    return HttpClient(platformEngine) {
+      followRedirects = true
+
       install(JsonFeature) {
         serializer = KotlinxSerializer(json)
       }

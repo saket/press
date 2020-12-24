@@ -7,7 +7,7 @@ import androidx.preference.PreferenceManager
 import com.russhwolf.settings.AndroidSettings
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import com.squareup.sqldelight.db.SqlDriver
-import me.saket.press.PressDatabase
+import io.ktor.client.engine.okhttp.OkHttp
 import me.saket.press.shared.sync.git.DeviceInfo
 import me.saket.press.shared.sync.git.File
 
@@ -17,7 +17,8 @@ actual object SharedComponent : BaseSharedComponent() {
       PlatformDependencies(
         sqlDriver = { sqliteDriver(it, appContext) },
         settings = { settings(appContext) },
-        deviceInfo = { deviceInfo(appContext) }
+        deviceInfo = { deviceInfo(appContext) },
+        httpEngine = { okHttpEngine() }
       )
     )
   }
@@ -37,6 +38,13 @@ actual object SharedComponent : BaseSharedComponent() {
         val bluetoothName = Settings.Secure.getString(context.contentResolver, "bluetooth_name")
         return bluetoothName ?: android.os.Build.MODEL
       }
+    }
+  }
+
+  private fun okHttpEngine() = OkHttp.create {
+    config {
+      // Defaults to true by OkHttp but Ktor sets it to false.
+      retryOnConnectionFailure(true)
     }
   }
 }

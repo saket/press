@@ -3,7 +3,7 @@ package me.saket.press.shared.di
 import com.russhwolf.settings.AppleSettings
 import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.drivers.native.NativeSqliteDriver
-import me.saket.press.PressDatabase
+import io.ktor.client.engine.cio.CIO
 import me.saket.press.shared.sync.git.DeviceInfo
 import me.saket.press.shared.sync.git.File
 import platform.Foundation.NSUserDefaults
@@ -14,7 +14,8 @@ actual object SharedComponent : BaseSharedComponent() {
       PlatformDependencies(
         sqlDriver = { sqliteDriver(it) },
         settings = { settings() },
-        deviceInfo = { deviceInfo() }
+        deviceInfo = { deviceInfo() },
+        httpEngine = { CIO.create() }
       )
     )
   }
