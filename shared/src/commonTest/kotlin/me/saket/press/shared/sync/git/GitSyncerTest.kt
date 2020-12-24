@@ -1137,9 +1137,17 @@ class GitSyncerTest : BaseDatabaeTest() {
     if (!canRunTests()) return
 
     // Note to self: it is important to use a constant time or else
-    // each test will create a new branch in the test repo lol.
+    // each test will create a new branch in the test repo LOL.
     clock.setTime(epochMillis = 1601612911000)
     configQueries.setBackupDone(false)
+
+    var isFirstPush = true
+    git.prePushes += {
+      if (isFirstPush) {
+        assertThat(git.repository.currentBranch().name).isEqualTo(remoteAndAuth.remote.defaultBranch)
+        isFirstPush = false
+      }
+    }
 
     for (note in listOf("I couldn't", "understand half of", "the muffled dialogues", "in Tenet")) {
       clock.advanceTimeBy(1.seconds)
@@ -1159,7 +1167,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     )
     assertThat(configQueries.select().executeAsOne().backupDone).isTrue()
 
-    // Check that the backup is only created once.
+    // Check that another sync doesn't create a backup again.
     remote.deleteAllFiles()
     clock.setTime(epochMillis = 1601612922000)
     syncer.sync()

@@ -222,6 +222,14 @@ class GitSyncer(
       return
     }
 
+    // Git hosts will use the first branch as the default
+    // branch so push the current branch before pushing backups.
+    try {
+      git.push(force = false)
+    } catch (ignored: Throwable) {
+      // Branch already exists and Press hasn't pulled remote commits yet.
+    }
+
     val backupBranch = "notes-backup-${clock.nowUtc().unixMillisLong}"
     log("Syncing for the first time. Backing up notes to '$backupBranch' branch.")
 
