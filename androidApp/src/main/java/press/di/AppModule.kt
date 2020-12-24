@@ -7,6 +7,7 @@ import dagger.Provides
 import me.saket.press.shared.SharedAppComponent
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.sync.SyncCoordinator
+import me.saket.press.shared.ui.ScreenResults
 import press.editor.EditorModule
 import press.home.HomeModule
 import press.sync.SyncModule
@@ -30,4 +31,7 @@ object AppModule {
 
   @Provides
   fun syncCoordinator(): SyncCoordinator = SharedAppComponent.syncCoordinator()
+
+  @Provides
+  fun screenResults(): ScreenResults = SharedAppComponent.screenResults()
 }

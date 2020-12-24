@@ -13,6 +13,8 @@ import flow.KeyParceler
 import kotlinx.android.parcel.Parcelize
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.ScreenKey
+import me.saket.press.shared.ui.ScreenResult
+import me.saket.press.shared.ui.ScreenResults
 import press.extensions.unsafeLazy
 import press.navigation.BackPressInterceptor.InterceptResult.Ignored
 
@@ -23,20 +25,15 @@ import press.navigation.BackPressInterceptor.InterceptResult.Ignored
  * a) Expects apps to hand-write their navigation graph before-hand.
  * b) Relies on XML and View IDs, and can't entirely be used from Kotlin.
  */
-class RealNavigator constructor(
+class RealNavigator(
   private val activity: Activity,
-  private val keyChanger: ScreenKeyChanger
+  private val keyChanger: ScreenKeyChanger,
+  private val screenResults: ScreenResults
 ) : Navigator {
   private val flow by unsafeLazy { Flow.get(activity) }
 
   fun installInContext(baseContext: Context, initialScreen: ScreenKey): Context {
-    val uiThreadKeyChanger = KeyChanger { outgoingState, incomingState, direction, incomingContexts, callback ->
-      activity.runOnUiThread {
-        keyChanger.changeKey(outgoingState, incomingState, direction, incomingContexts, callback)
-      }
-    }
-
-    val keyDispatcher = KeyDispatcher.configure(activity, uiThreadKeyChanger).build()
+    val keyDispatcher = KeyDispatcher.configure(activity, keyChanger).build()
     val keyParceler = object : KeyParceler {
       override fun toParcelable(key: Any) = key as Parcelable
       override fun toKey(parcelable: Parcelable) = parcelable
@@ -51,14 +48,16 @@ class RealNavigator constructor(
 
   // https://www.urbandictionary.com/define.php?term=lfg
   override fun lfg(screen: ScreenKey) {
-    val head = flow.history.top<CompositeScreenKey>()
-    if (head.foreground != screen) {
-      flow.set(
-        CompositeScreenKey(
-          background = head.foreground,
-          foreground = screen
+    activity.runOnUiThread {
+      val head = flow.history.top<CompositeScreenKey>()
+      if (head.foreground != screen) {
+        flow.set(
+          CompositeScreenKey(
+            background = head.foreground,
+            foreground = screen
+          )
         )
-      )
+      }
     }
   }
 
@@ -68,11 +67,16 @@ class RealNavigator constructor(
     flow.setHistory(History.single(CompositeScreenKey(screen)), REPLACE)
   }
 
-  override fun goBack() {
-    if (keyChanger.onInterceptBackPress() == Ignored) {
-      if (!flow.goBack()) {
-        activity.finish()
+  override fun goBack(result: ScreenResult?) {
+    activity.runOnUiThread {
+      if (keyChanger.onInterceptBackPress() == Ignored) {
+        if (!flow.goBack()) {
+          activity.finish()
+        }
       }
+
+      // Must happen after the back traversal has finished and Views are ready.
+      result?.let(screenResults::broadcast)
     }
   }
 }

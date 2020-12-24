@@ -12,7 +12,7 @@ class FakeNavigator : Navigator {
     lfg(screen)
   }
 
-  override fun goBack() {
+  override fun goBack(result: ScreenResult?) {
     if (backstack.isNotEmpty()) {
       backstack.removeFirst()
     }

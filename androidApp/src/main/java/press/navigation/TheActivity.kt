@@ -41,7 +41,8 @@ class TheActivity : ThemeAwareActivity(), HasNavigator {
         ExpandableScreenTransition(),
       )
     )
-    navigator = RealNavigator(this, screenChanger).also {
+    val screenResults = PressApp.component.screenResults()
+    navigator = RealNavigator(this, screenChanger, screenResults).also {
       super.attachBaseContext(it.installInContext(newBase, PlaceholderScreenKey()))
     }
   }

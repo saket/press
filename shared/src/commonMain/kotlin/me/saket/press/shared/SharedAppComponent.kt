@@ -11,6 +11,7 @@ import me.saket.press.shared.rx.Schedulers
 import me.saket.press.shared.sync.SyncCoordinator
 import me.saket.press.shared.time.Clock
 import me.saket.press.shared.time.RealClock
+import me.saket.press.shared.ui.ScreenResults
 import org.koin.dsl.module
 
 class SharedAppComponent {
@@ -18,6 +19,7 @@ class SharedAppComponent {
     single { ENGLISH_STRINGS }
     single<KeyboardShortcuts> { RealKeyboardShortcuts() }
     single<Clock> { RealClock() }
+    single { ScreenResults() }
     factory { Schedulers(io = ioScheduler, computation = computationScheduler) }
   }
 
@@ -25,5 +27,6 @@ class SharedAppComponent {
     fun strings(): Strings = koin()
     fun keyboardShortcuts(): KeyboardShortcuts = koin()
     fun syncCoordinator(): SyncCoordinator = koin()
+    fun screenResults(): ScreenResults = koin()
   }
 }
