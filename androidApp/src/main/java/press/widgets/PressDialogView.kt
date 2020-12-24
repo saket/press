@@ -116,7 +116,7 @@ class PressDialogView(context: Context) : ContourLayout(context) {
     negativeButton: String? = null,
     positiveButton: String,
     negativeOnClick: () -> Unit,
-    positiveOnClick: () -> Unit
+    positiveOnClick: () -> Unit = {}
   ) {
     titleView.text = title
     titleView.isVisible = !title.isNullOrBlank()

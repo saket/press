@@ -83,9 +83,6 @@ class NewGitRepositoryView @InflationInject constructor(
       positiveButton = context.strings().sync.newgitrepo_submit,
       negativeOnClick = {
         navigator().goBack()
-      },
-      positiveOnClick = {
-        presenter.dispatch(SubmitClicked)
       }
     )
     dialogView.replaceMessageWith(contentView)
@@ -100,10 +97,12 @@ class NewGitRepositoryView @InflationInject constructor(
 
     contentView.textField.editText.apply {
       post { showKeyboard() }
-
-      doOnTextChange {
-        presenter.dispatch(NameTextChanged(it.toString()))
-      }
+    }
+    dialogView.positiveButtonView.setOnClickListener {
+      presenter.dispatch(SubmitClicked)
+    }
+    contentView.textField.editText.doOnTextChange {
+      presenter.dispatch(NameTextChanged(it.toString()))
     }
 
     presenter.uiUpdates()
