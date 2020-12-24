@@ -3,6 +3,8 @@ package press.sync
 import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
+import android.view.inputmethod.EditorInfo.IME_ACTION_GO
+import android.widget.EditText
 import android.widget.ProgressBar
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
@@ -11,6 +13,7 @@ import androidx.transition.ChangeBounds
 import androidx.transition.Fade
 import androidx.transition.TransitionManager
 import com.jakewharton.rxbinding3.view.detaches
+import com.jakewharton.rxbinding3.widget.editorActions
 import com.squareup.contour.ContourLayout
 import com.squareup.contour.SizeMode.AtMost
 import com.squareup.inject.assisted.Assisted
@@ -27,6 +30,7 @@ import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
+import press.extensions.doOnEditorAction
 import press.extensions.doOnTextChange
 import press.extensions.showKeyboard
 import press.extensions.textColor
@@ -85,6 +89,10 @@ class NewGitRepositoryView @InflationInject constructor(
       }
     )
     dialogView.replaceMessageWith(contentView)
+
+    contentView.textField.editText.doOnEditorAction(IME_ACTION_GO) {
+      dialogView.positiveButtonView.performClick()
+    }
   }
 
   override fun onAttachedToWindow() {
@@ -124,6 +132,11 @@ class NewGitRepositoryView @InflationInject constructor(
       textField.isInvisible = model.isLoading
       loadingView.isVisible = model.isLoading
     }
+
+    // Not sure why the text field loses focus when an error is shown.
+    if (!contentView.textField.hasFocus()) {
+      contentView.textField.requestFocus()
+    }
   }
 }
 
@@ -132,6 +145,7 @@ private class ContentView(context: Context) : ContourLayout(context) {
     editText.applyStyle(smallBody)
     editText.id = R.id.newgitrepo_repo_name
     editText.isSingleLine = true
+    editText.imeOptions = editText.imeOptions or IME_ACTION_GO
     hint = context.strings().sync.newgitrepo_name_hint
     isHelperTextEnabled = true
     themeAware {

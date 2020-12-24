@@ -1,10 +1,11 @@
 package me.saket.press.shared.sync.git
 
-import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.completableFromFunction
+import com.badoo.reaktive.single.Single
 import com.badoo.reaktive.single.singleFromFunction
 import com.badoo.reaktive.utils.atomic.AtomicReference
 import me.saket.kgit.GitIdentity
+import me.saket.press.shared.sync.git.service.ApiResult
 import me.saket.press.shared.sync.git.service.GitHostService
 import me.saket.press.shared.sync.git.service.GitHostService.DeployKey
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
@@ -30,7 +31,7 @@ class FakeGitHostService : GitHostService {
       deployKeyResult.value!!.invoke()
     }
 
-  override fun createNewRepo(token: GitHostAuthToken, repo: NewGitRepositoryInfo): Completable {
+  override fun createNewRepo(token: GitHostAuthToken, repo: NewGitRepositoryInfo): Single<ApiResult> {
     TODO()
   }
 }

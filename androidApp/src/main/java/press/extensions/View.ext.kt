@@ -159,3 +159,14 @@ inline fun <reified T> View.findChild(): T? {
     }
   }
 }
+
+inline fun EditText.doOnEditorAction(imeAction: Int, crossinline action: () -> Unit) {
+  setOnEditorActionListener { _, actionId, _ ->
+    if (actionId == imeAction) {
+      action()
+      true
+    } else {
+      false
+    }
+  }
+}

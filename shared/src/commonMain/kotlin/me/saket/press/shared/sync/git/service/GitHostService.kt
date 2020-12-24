@@ -47,7 +47,7 @@ interface GitHostService {
    * Create a new repository for syncing notes with Press.
    * If the repository already exists, use it.
    */
-  fun createNewRepo(token: GitHostAuthToken, repo: NewGitRepositoryInfo): Completable
+  fun createNewRepo(token: GitHostAuthToken, repo: NewGitRepositoryInfo): Single<ApiResult>
 
   /**
    * @param title the label that's displayed for this key.

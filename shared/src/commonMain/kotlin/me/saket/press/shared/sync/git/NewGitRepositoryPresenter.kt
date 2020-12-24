@@ -1,22 +1,20 @@
 package me.saket.press.shared.sync.git
 
-import com.badoo.reaktive.completable.andThen
-import com.badoo.reaktive.completable.asObservable
-import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.ObservableWrapper
 import com.badoo.reaktive.observable.combineLatest
-import com.badoo.reaktive.observable.doOnBeforeError
 import com.badoo.reaktive.observable.filter
 import com.badoo.reaktive.observable.map
+import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.ofType
-import com.badoo.reaktive.observable.onErrorReturnValue
 import com.badoo.reaktive.observable.publish
 import com.badoo.reaktive.observable.startWithValue
 import com.badoo.reaktive.observable.switchMap
 import com.badoo.reaktive.observable.withLatestFrom
 import com.badoo.reaktive.observable.wrap
+import com.badoo.reaktive.single.asObservable
 import me.saket.press.shared.localization.Strings
+import me.saket.press.shared.rx.consumeOnNext
 import me.saket.press.shared.rx.mergeWith
 import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.sync.git.NewGitRepositoryEvent.NameTextChanged
@@ -26,9 +24,10 @@ import me.saket.press.shared.sync.git.NewGitRepositoryPresenter.SubmitResult.Idl
 import me.saket.press.shared.sync.git.NewGitRepositoryPresenter.SubmitResult.Ongoing
 import me.saket.press.shared.sync.git.service.GitHostService
 import me.saket.press.shared.sync.git.service.NewGitRepositoryInfo
+import me.saket.press.shared.sync.git.service.filterFailure
+import me.saket.press.shared.sync.git.service.filterSuccess
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
-import me.saket.press.shared.util.Timber
 import me.saket.press.shared.util.isLetterOrDigit
 import me.saket.press.shared.sync.git.NewGitRepositoryEvent as Event
 import me.saket.press.shared.sync.git.NewGitRepositoryUiModel as Model
@@ -64,9 +63,9 @@ class NewGitRepositoryPresenter(
       combineLatest(repoUrls, handleSubmits(events)) { repoUrl, submitResult ->
         Model(
           repoUrlPreview = repoUrl,
-          isLoading = submitResult == Ongoing,
-          errorMessage = if (submitResult == Failure) strings.common.generic_error else null,
-          submitEnabled = !repoUrl.isNullOrBlank() && submitResult != Ongoing
+          isLoading = submitResult is Ongoing,
+          errorMessage = if (submitResult is Failure) submitResult.message else null,
+          submitEnabled = !repoUrl.isNullOrBlank() && submitResult !is Ongoing
         )
       }
     }.wrap()
@@ -95,21 +94,22 @@ class NewGitRepositoryPresenter(
       .switchMap { (_, repoName) ->
         val newRepo = NewGitRepositoryInfo(repoName, private = true)
         gitHostService.createNewRepo(authToken.get()!!, newRepo)
-          .andThen(completableFromFunction {
-            args.navigator.goBack()
-          })
-          .asObservable<SubmitResult>()
+          .asObservable()
+          .publish {
+            merge(
+              it.filterFailure().map { Failure(it.errorMessage ?: strings.common.generic_error) },
+              it.filterSuccess().consumeOnNext { args.navigator.goBack() }
+            )
+          }
           .startWithValue(Ongoing)
-          .doOnBeforeError { Timber.e(it, "Failed to create repository") }
-          .onErrorReturnValue(Failure)
       }
       .mergeWith(repoNames.map { Idle })
   }
 
-  enum class SubmitResult {
-    Idle,
-    Ongoing,
-    Failure
+  sealed class SubmitResult {
+    object Idle : SubmitResult()
+    object Ongoing : SubmitResult()
+    data class Failure(val message: String) : SubmitResult()
   }
 
   data class Args(

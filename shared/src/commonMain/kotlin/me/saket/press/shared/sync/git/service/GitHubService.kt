@@ -4,6 +4,7 @@ import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.coroutinesinterop.completableFromCoroutine
 import com.badoo.reaktive.coroutinesinterop.singleFromCoroutine
 import com.badoo.reaktive.single.Single
+import com.badoo.reaktive.single.onErrorReturnValue
 import io.ktor.client.call.receive
 import io.ktor.client.request.accept
 import io.ktor.client.request.get
@@ -15,6 +16,7 @@ import io.ktor.http.ContentType.Application
 import io.ktor.http.URLBuilder
 import io.ktor.http.Url
 import io.ktor.http.contentType
+import io.ktor.utils.io.readUTF8Line
 import kotlinx.serialization.Serializable
 import me.saket.kgit.GitIdentity
 import me.saket.press.shared.BuildKonfig
@@ -24,6 +26,7 @@ import me.saket.press.shared.sync.git.service.GitHostService.DeployKey
 
 class GitHubService(private val args: GitHostServiceArgs) : GitHostService {
   private val http get() = args.http
+  private val json get() = args.json
 
   override fun generateAuthUrl(redirectUrl: String): String {
     return URLBuilder("https://github.com/login/oauth/authorize").apply {
@@ -108,10 +111,10 @@ class GitHubService(private val args: GitHostServiceArgs) : GitHostService {
     }
   }
 
-  override fun createNewRepo(token: GitHostAuthToken, repo: NewGitRepositoryInfo): Completable {
+  override fun createNewRepo(token: GitHostAuthToken, repo: NewGitRepositoryInfo): Single<ApiResult> {
     check('/' !in repo.name)
-    return completableFromCoroutine {
-      http.post<String>("https://api.github.com/user/repos") {
+    return singleFromCoroutine {
+      val response = http.post<HttpResponse>("https://api.github.com/user/repos") {
         header("Authorization", "token ${token.value}")
         contentType(Application.Json)
         body = CreateRepoRequest(
@@ -119,8 +122,39 @@ class GitHubService(private val args: GitHostServiceArgs) : GitHostService {
           private = repo.private
         )
       }
+
+      if (response.isSuccessful()) {
+        ApiResult.Success
+      } else {
+        ApiResult.Failure(readErrorMessage(response))
+      }
+    }.onErrorReturnValue(ApiResult.Failure(errorMessage = null))
+  }
+
+  private suspend fun readErrorMessage(response: HttpResponse): String? {
+    return try {
+      response.content.readUTF8Line()?.let { errorJson ->
+        json.decodeFromString(GithubError.serializer(), errorJson).errorMessage
+      }
+    } catch (e: Throwable) {
+      // Unexpected error json.
+      null
     }
   }
+}
+
+private fun HttpResponse.isSuccessful(): Boolean {
+  return status.value in 200..299
+}
+
+@Serializable
+private data class GithubError(private val errors: List<Error>) {
+  val errorMessage: String? get() = errors.firstOrNull()?.message
+
+  @Serializable
+  data class Error(
+    val message: String
+  )
 }
 
 @Serializable
