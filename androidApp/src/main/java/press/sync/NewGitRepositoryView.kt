@@ -3,9 +3,12 @@ package press.sync
 import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
-import androidx.core.widget.doAfterTextChanged
+import android.widget.ProgressBar
+import androidx.core.view.isInvisible
+import androidx.core.view.isVisible
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.transition.ChangeBounds
+import androidx.transition.Fade
 import androidx.transition.TransitionManager
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
@@ -109,9 +112,18 @@ class NewGitRepositoryView @InflationInject constructor(
   }
 
   private fun render(model: NewGitRepositoryUiModel) {
-    contentView.textField.helperText = model.repoUrlPreview
-    contentView.textField.isHelperTextEnabled = true  // TextInputLayout hides space for helper text if it's null.
-    contentView.textField.error = model.errorMessage
+    contentView.textField.apply {
+      helperText = model.repoUrlPreview
+      isHelperTextEnabled = true  // TextInputLayout hides space for helper text if it's null.
+      error = model.errorMessage
+    }
+    dialogView.positiveButtonView.isEnabled = model.submitEnabled
+
+    TransitionManager.beginDelayedTransition(this, Fade().setDuration(150))
+    contentView.apply {
+      textField.isInvisible = model.isLoading
+      loadingView.isVisible = model.isLoading
+    }
   }
 }
 
@@ -119,6 +131,7 @@ private class ContentView(context: Context) : ContourLayout(context) {
   val textField = MaterialTextInputLayout(context).apply {
     editText.applyStyle(smallBody)
     editText.id = R.id.newgitrepo_repo_name
+    editText.isSingleLine = true
     hint = context.strings().sync.newgitrepo_name_hint
     isHelperTextEnabled = true
     themeAware {
@@ -126,11 +139,19 @@ private class ContentView(context: Context) : ContourLayout(context) {
     }
   }
 
+  val loadingView = ProgressBar(context)
+
   init {
     textField.layoutBy(
       x = matchParentX(marginLeft = 20.dip, marginRight = 20.dip),
       y = topTo { parent.top() }
     )
+    loadingView.layoutBy(
+      x = matchParentX(),
+      y = centerVerticallyTo { textField.centerY() }
+    )
     contourHeightWrapContent()
+
+    loadingView.isVisible = false
   }
 }

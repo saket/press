@@ -2,17 +2,21 @@ package press.widgets
 
 import android.content.Context
 import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.Color.BLACK
+import android.graphics.Color.GRAY
 import android.graphics.Color.TRANSPARENT
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.PaintDrawable
 import android.graphics.drawable.RippleDrawable
 import android.view.View
 import androidx.appcompat.widget.AppCompatButton
+import androidx.core.graphics.ColorUtils
 import me.saket.press.shared.theme.UiStyles
 import me.saket.press.shared.theme.applyStyle
 import press.theme.themeAware
 import press.extensions.updatePadding
+import press.extensions.withOpacity
 
 open class PressButton(context: Context, style: UiStyles.Text) : AppCompatButton(context) {
   init {
@@ -24,6 +28,15 @@ open class PressButton(context: Context, style: UiStyles.Text) : AppCompatButton
     themeAware {
       background = pressButtonDrawable(it.buttonNormal, pressedColor = it.buttonPressed)
     }
+  }
+
+  override fun setTextColor(color: Int) {
+    super.setTextColor(
+      colorStateListOf(
+        intArrayOf(-android.R.attr.state_enabled) to GRAY,
+        intArrayOf() to color
+      )
+    )
   }
 }
 

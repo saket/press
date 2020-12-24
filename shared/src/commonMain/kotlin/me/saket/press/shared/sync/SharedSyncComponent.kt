@@ -61,7 +61,8 @@ class SharedSyncComponent {
       NewGitRepositoryPresenter(
         args = args,
         httpClient = get(),
-        authToken = get()
+        authToken = get(),
+        strings = get()
       )
     }
 

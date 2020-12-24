@@ -57,7 +57,7 @@ class PressDialogView(context: Context) : ContourLayout(context) {
     )
   }
 
-  private val positiveButtonView = PressBorderlessButton(context, smallBody).apply {
+  val positiveButtonView = PressBorderlessButton(context, smallBody).apply {
     padding = dp(16)
     isSingleLine = true
     themeAware { textColor = it.accentColor }

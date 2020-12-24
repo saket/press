@@ -17,5 +17,6 @@ interface NewGitRepositoryEvent {
 data class NewGitRepositoryUiModel(
   val repoUrlPreview: String?,
   val errorMessage: String?,
-  val isLoading: Boolean
+  val submitEnabled: Boolean,
+  val isLoading: Boolean,
 )
