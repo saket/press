@@ -4,6 +4,8 @@ import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.subject.publish.PublishSubject
 
+interface ScreenResult
+
 class ScreenResults {
   private val results = PublishSubject<ScreenResult>()
 
@@ -15,5 +17,3 @@ class ScreenResults {
     return results.ofType()
   }
 }
-
-interface ScreenResult

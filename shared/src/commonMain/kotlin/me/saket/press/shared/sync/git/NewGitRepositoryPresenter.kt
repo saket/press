@@ -97,8 +97,12 @@ class NewGitRepositoryPresenter(
           .asObservable()
           .publish {
             merge(
-              it.filterFailure().map { Failure(it.errorMessage ?: strings.common.generic_error) },
-              it.filterSuccess().consumeOnNext { args.navigator.goBack() }
+              it.filterFailure().map {
+                Failure(it.errorMessage ?: strings.common.generic_error)
+              },
+              it.filterSuccess().consumeOnNext { (repo) ->
+                args.navigator.goBack(result = NewGitRepositoryCreatedResult(repo))
+              }
             )
           }
           .startWithValue(Ongoing)

@@ -31,7 +31,10 @@ class FakeGitHostService : GitHostService {
       deployKeyResult.value!!.invoke()
     }
 
-  override fun createNewRepo(token: GitHostAuthToken, repo: NewGitRepositoryInfo): Single<ApiResult> {
+  override fun createNewRepo(
+    token: GitHostAuthToken,
+    repo: NewGitRepositoryInfo
+  ): Single<ApiResult<GitRepositoryInfo>> {
     TODO()
   }
 }

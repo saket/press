@@ -4,10 +4,10 @@ import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.single.Single
 import io.ktor.client.HttpClient
 import kotlinx.serialization.json.Json
+import me.saket.kgit.GitIdentity
 import me.saket.kgit.SshKeyPair
 import me.saket.press.shared.sync.git.GitHost
 import me.saket.press.shared.sync.git.GitHostAuthToken
-import me.saket.kgit.GitIdentity
 
 /** See [GitHost]. */
 interface GitHostService {
@@ -47,7 +47,7 @@ interface GitHostService {
    * Create a new repository for syncing notes with Press.
    * If the repository already exists, use it.
    */
-  fun createNewRepo(token: GitHostAuthToken, repo: NewGitRepositoryInfo): Single<ApiResult>
+  fun createNewRepo(token: GitHostAuthToken, repo: NewGitRepositoryInfo): Single<ApiResult<GitRepositoryInfo>>
 
   /**
    * @param title the label that's displayed for this key.

@@ -1,7 +1,9 @@
 package me.saket.press.shared.sync.git
 
 import me.saket.press.shared.AndroidParcelize
+import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 import me.saket.press.shared.ui.ScreenKey
+import me.saket.press.shared.ui.ScreenResult
 
 @AndroidParcelize
 data class NewGitRepositoryScreenKey(
@@ -21,3 +23,7 @@ data class NewGitRepositoryUiModel(
   val submitEnabled: Boolean,
   val isLoading: Boolean,
 )
+
+data class NewGitRepositoryCreatedResult(
+  val repo: GitRepositoryInfo
+) : ScreenResult

@@ -31,6 +31,7 @@ import me.saket.press.shared.rx.combineLatestWith
 import me.saket.press.shared.rx.consumeOnNext
 import me.saket.press.shared.rx.filterNotNull
 import me.saket.press.shared.rx.filterNull
+import me.saket.press.shared.rx.mergeWith
 import me.saket.press.shared.rx.repeatItemWhen
 import me.saket.press.shared.rx.zip
 import me.saket.press.shared.settings.Setting
@@ -49,6 +50,7 @@ import me.saket.press.shared.sync.git.service.GitHostService
 import me.saket.press.shared.sync.git.service.GitRepositoryInfo
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
+import me.saket.press.shared.ui.ScreenResults
 
 class GitHostIntegrationPresenter(
   private val args: Args,
@@ -59,7 +61,8 @@ class GitHostIntegrationPresenter(
   private val database: PressDatabase,
   private val cachedRepos: GitRepositoryCache,
   private val syncCoordinator: SyncCoordinator,
-  private val sshKeygen: SshKeygen
+  private val sshKeygen: SshKeygen,
+  private val screenResults: ScreenResults
 ) : Presenter<GitHostIntegrationEvent, GitHostIntegrationUiModel, Nothing>() {
 
   private val gitHost = GitHost.readHostFromDeepLink(args.deepLink)
@@ -156,21 +159,28 @@ class GitHostIntegrationPresenter(
     return events.ofType<CreateNewGitRepoClicked>()
       .withLatestFrom(searchTexts, ::Pair)
       .consumeOnNext { (_, searchText) ->
-      args.navigator.lfg(
-        NewGitRepositoryScreenKey(
-          username = userSetting.get()!!.name,
-          gitHost = gitHost,
-          preFilledRepoName = searchText
+        args.navigator.lfg(
+          NewGitRepositoryScreenKey(
+            username = userSetting.get()!!.name,
+            gitHost = gitHost,
+            preFilledRepoName = searchText
+          )
         )
-      )
-    }
+      }
   }
 
   private fun selectRepository(
     events: Observable<GitHostIntegrationEvent>
   ): Observable<GitHostIntegrationUiModel> {
-    return events.ofType<GitRepositoryClicked>()
+    val repoSelections = events.ofType<GitRepositoryClicked>()
       .map { it.repo }
+      .mergeWith(
+        screenResults
+          .listen<NewGitRepositoryCreatedResult>()
+          .map { it.repo }
+      )
+
+    return repoSelections
       .repeatItemOnRetry(events, kind = AddingDeployKey)
       .switchMap { repo ->
         val token = authToken.get()!!

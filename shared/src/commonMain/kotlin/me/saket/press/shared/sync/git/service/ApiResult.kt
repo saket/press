@@ -1,16 +1,14 @@
 package me.saket.press.shared.sync.git.service
 
 import com.badoo.reaktive.observable.Observable
-import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.ofType
-import com.badoo.reaktive.observable.publish
 import me.saket.press.shared.sync.git.service.ApiResult.Failure
 import me.saket.press.shared.sync.git.service.ApiResult.Success
 
-sealed class ApiResult {
-  object Success : ApiResult()
-  data class Failure(val errorMessage: String?) : ApiResult()
+sealed class ApiResult<out T> {
+  data class Success<T>(val result: T) : ApiResult<T>()
+  data class Failure(val errorMessage: String?) : ApiResult<Nothing>()
 }
 
-fun Observable<ApiResult>.filterSuccess() = ofType<Success>()
-fun Observable<ApiResult>.filterFailure() = ofType<Failure>()
+fun <T> Observable<ApiResult<T>>.filterSuccess() = ofType<Success<T>>()
+fun Observable<ApiResult<*>>.filterFailure() = ofType<Failure>()

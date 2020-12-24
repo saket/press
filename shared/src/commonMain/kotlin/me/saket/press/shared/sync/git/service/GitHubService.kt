@@ -4,7 +4,6 @@ import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.coroutinesinterop.completableFromCoroutine
 import com.badoo.reaktive.coroutinesinterop.singleFromCoroutine
 import com.badoo.reaktive.single.Single
-import com.badoo.reaktive.single.onErrorReturnValue
 import io.ktor.client.call.receive
 import io.ktor.client.request.accept
 import io.ktor.client.request.get
@@ -67,18 +66,9 @@ class GitHubService(private val args: GitHostServiceArgs) : GitHostService {
             parameter("page", "${pageNum++}")
           }
 
-          val responseBody = response.receive<List<GitHubRepo>>()
+          val repositories = response.receive<List<GitHubRepo>>()
           addAll(
-            responseBody.map {
-              GitRepositoryInfo(
-                host = GITHUB,
-                owner = it.owner.login,
-                name = it.name,
-                url = it.html_url,
-                sshUrl = it.ssh_url,
-                defaultBranch = it.default_branch
-              )
-            }
+            repositories.map { it.toRepoInfo() }
           )
 
           hasNextPage = "rel=\"next\"" in response.headers["Link"].orEmpty()
@@ -111,24 +101,34 @@ class GitHubService(private val args: GitHostServiceArgs) : GitHostService {
     }
   }
 
-  override fun createNewRepo(token: GitHostAuthToken, repo: NewGitRepositoryInfo): Single<ApiResult> {
+  override fun createNewRepo(
+    token: GitHostAuthToken,
+    repo: NewGitRepositoryInfo
+  ): Single<ApiResult<GitRepositoryInfo>> {
     check('/' !in repo.name)
     return singleFromCoroutine {
-      val response = http.post<HttpResponse>("https://api.github.com/user/repos") {
-        header("Authorization", "token ${token.value}")
-        contentType(Application.Json)
-        body = CreateRepoRequest(
-          name = repo.name,
-          private = repo.private
-        )
-      }
+      try {
+        val response = http.post<HttpResponse>("https://api.github.com/user/repos") {
+          header("Authorization", "token ${token.value}")
+          contentType(Application.Json)
+          body = CreateRepoRequest(
+            name = repo.name,
+            private = repo.private,
+            has_issues = false,
+            has_projects = false,
+            has_wiki = false,
+          )
+        }
 
-      if (response.isSuccessful()) {
-        ApiResult.Success
-      } else {
-        ApiResult.Failure(readErrorMessage(response))
+        if (response.isSuccessful()) {
+          ApiResult.Success(response.receive<GitHubRepo>().toRepoInfo())
+        } else {
+          ApiResult.Failure(readErrorMessage(response))
+        }
+      } catch (e: Throwable) {
+        ApiResult.Failure(errorMessage = null)
       }
-    }.onErrorReturnValue(ApiResult.Failure(errorMessage = null))
+    }
   }
 
   private suspend fun readErrorMessage(response: HttpResponse): String? {
@@ -141,6 +141,17 @@ class GitHubService(private val args: GitHostServiceArgs) : GitHostService {
       null
     }
   }
+}
+
+private fun GitHubRepo.toRepoInfo(): GitRepositoryInfo {
+  return GitRepositoryInfo(
+    host = GITHUB,
+    owner = this.owner.login,
+    name = this.name,
+    url = this.html_url,
+    sshUrl = this.ssh_url,
+    defaultBranch = this.default_branch
+  )
 }
 
 private fun HttpResponse.isSuccessful(): Boolean {
@@ -198,7 +209,7 @@ private data class CreateDeployKeyRequest(
 private data class CreateRepoRequest(
   val name: String,
   val private: Boolean,
-  val has_issues: Boolean = false,
-  val has_projects: Boolean = false,
-  val has_wiki: Boolean = false
+  val has_issues: Boolean,
+  val has_projects: Boolean,
+  val has_wiki: Boolean
 )

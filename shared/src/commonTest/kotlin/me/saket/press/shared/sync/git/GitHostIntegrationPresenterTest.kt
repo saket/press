@@ -29,6 +29,7 @@ import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowProgress
 import me.saket.press.shared.sync.git.service.GitHostService.DeployKey
 import me.saket.press.shared.testDeviceInfo
 import me.saket.press.shared.ui.FakeNavigator
+import me.saket.press.shared.ui.ScreenResults
 import kotlin.test.AfterTest
 import kotlin.test.Test
 
@@ -43,15 +44,15 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
 
   private val presenter = GitHostIntegrationPresenter(
     args = Args(deepLink = GITHUB.deepLink(), navigator),
-    httpClient = HttpClient(),
+    gitHostService = { gitService },
     authToken = { authToken },
     userSetting = FakeSetting(null),
-    gitHostService = { _, _ -> gitService },
     cachedRepos = cachedRepos,
     syncCoordinator = syncCoordinator,
     database = database,
     deviceInfo = testDeviceInfo(),
-    sshKeygen = sshKeygen
+    sshKeygen = sshKeygen,
+    screenResults = ScreenResults()
   )
 
   @AfterTest
