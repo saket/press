@@ -23,6 +23,7 @@ import me.saket.press.shared.sync.git.NewGitRepositoryEvent.NameTextChanged
 import me.saket.press.shared.sync.git.NewGitRepositoryEvent.SubmitClicked
 import me.saket.press.shared.sync.git.NewGitRepositoryPresenter
 import me.saket.press.shared.sync.git.NewGitRepositoryPresenter.Args
+import me.saket.press.shared.sync.git.NewGitRepositoryScreenKey
 import me.saket.press.shared.sync.git.NewGitRepositoryUiModel
 import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.applyStyle
@@ -30,6 +31,7 @@ import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import press.extensions.doOnEditorAction
 import press.extensions.doOnTextChange
+import press.extensions.setTextAndCursor
 import press.extensions.showKeyboard
 import press.extensions.textColor
 import press.extensions.withOpacity
@@ -85,8 +87,11 @@ class NewGitRepositoryView @InflationInject constructor(
     )
     dialogView.replaceMessageWith(contentView)
 
-    contentView.textField.editText.doOnEditorAction(IME_ACTION_GO) {
-      dialogView.positiveButtonView.performClick()
+    contentView.textField.editText.run {
+      setTextAndCursor(screenKey<NewGitRepositoryScreenKey>().preFilledRepoName)
+      doOnEditorAction(IME_ACTION_GO) {
+        dialogView.positiveButtonView.performClick()
+      }
     }
   }
 

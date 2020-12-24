@@ -19,6 +19,7 @@ import com.badoo.reaktive.observable.publish
 import com.badoo.reaktive.observable.startWithValue
 import com.badoo.reaktive.observable.switchMap
 import com.badoo.reaktive.observable.take
+import com.badoo.reaktive.observable.withLatestFrom
 import com.badoo.reaktive.observable.wrap
 import com.badoo.reaktive.single.asObservable
 import com.badoo.reaktive.single.zip
@@ -148,11 +149,18 @@ class GitHostIntegrationPresenter(
   private fun showNewGitRepoScreen(
     events: Observable<GitHostIntegrationEvent>
   ): Observable<GitHostIntegrationUiModel> {
-    return events.ofType<CreateNewGitRepoClicked>().consumeOnNext {
+    val searchTexts = events
+      .ofType<SearchTextChanged>()
+      .map { it.text }
+
+    return events.ofType<CreateNewGitRepoClicked>()
+      .withLatestFrom(searchTexts, ::Pair)
+      .consumeOnNext { (_, searchText) ->
       args.navigator.lfg(
         NewGitRepositoryScreenKey(
           username = userSetting.get()!!.name,
-          gitHost = gitHost
+          gitHost = gitHost,
+          preFilledRepoName = searchText
         )
       )
     }

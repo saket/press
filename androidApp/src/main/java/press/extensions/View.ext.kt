@@ -170,3 +170,8 @@ inline fun EditText.doOnEditorAction(imeAction: Int, crossinline action: () -> U
     }
   }
 }
+
+inline fun EditText.setTextAndCursor(newText: String) {
+  setText(newText)
+  setSelection(this.text.length)  // EditText's input-filters may change the set text.
+}

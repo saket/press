@@ -6,7 +6,8 @@ import me.saket.press.shared.ui.ScreenKey
 @AndroidParcelize
 data class NewGitRepositoryScreenKey(
   val username: String,
-  val gitHost: GitHost
+  val gitHost: GitHost,
+  val preFilledRepoName: String
 ) : ScreenKey
 
 interface NewGitRepositoryEvent {
