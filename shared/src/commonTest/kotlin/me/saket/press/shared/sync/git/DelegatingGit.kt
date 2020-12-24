@@ -38,8 +38,8 @@ class DelegatingGit(private val delegate: Git) : Git {
     }
 
     override fun push(force: Boolean): PushResult {
-      git.pushCount++
       git.prePushes.forEach { it() }
+      git.pushCount++
       return delegate.push(force).also {
         git.postPushes.forEach { it() }
       }
