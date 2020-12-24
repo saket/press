@@ -15,6 +15,7 @@
     <item name="android:scrollViewStyle">@style/DefaultScrollViewStyle</item>
     <item name="android:horizontalScrollViewStyle">@style/DefaultScrollViewStyle</item>
     <item name="recyclerViewStyle">@style/DefaultRecyclerViewStyle</item>
+    <item name="alertDialogTheme">@style/AlertDialogStyle</item>
   </style>
 
   <style name="AppTheme.TransparentWindow">
@@ -35,5 +36,10 @@
   <style name="DefaultRecyclerViewStyle">
     <item name="android:scrollbars">vertical</item>
     <item name="android:scrollbarStyle">insideOverlay</item>
+  </style>
+
+  <style name="AlertDialogStyle" parent="Theme.MaterialComponents.Dialog">
+    <item name="windowMinWidthMajor">0dp</item>
+    <item name="windowMinWidthMinor">0dp</item>
   </style>
 </resources>

@@ -1,6 +1,8 @@
 package press.widgets
 
+import android.app.Dialog
 import android.content.Context
+import android.graphics.Color
 import android.graphics.drawable.PaintDrawable
 import android.view.Gravity.CENTER
 import android.view.Gravity.CENTER_HORIZONTAL
@@ -106,7 +108,7 @@ class PressDialogView(context: Context) : ContourLayout(context) {
       }
     }
 
-    contourWidthOf { available -> minOf(300.xdip, available) }
+    contourWidthOf { available -> minOf(300.xdip, available - 60.xdip) }
     contourHeightOf { positiveButtonView.bottom() }
   }
 
@@ -155,10 +157,7 @@ class PressDialogView(context: Context) : ContourLayout(context) {
           FrameLayout(context).also {
             it.elevation = dialogView.elevation
             it.addView(dialogView)
-            dialogView.updateLayoutParams<FrameLayout.LayoutParams> {
-              gravity = CENTER
-              setMargins(context.dp(40))
-            }
+            dialogView.updateLayoutParams<FrameLayout.LayoutParams> { gravity = CENTER }
           }
         )
         .show()

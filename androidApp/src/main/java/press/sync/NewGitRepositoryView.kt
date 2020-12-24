@@ -3,10 +3,14 @@ package press.sync
 import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
+import android.view.Gravity
+import android.view.Gravity.CENTER
 import android.view.inputmethod.EditorInfo.IME_ACTION_GO
+import android.widget.FrameLayout
 import android.widget.ProgressBar
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.transition.ChangeBounds
 import androidx.transition.Fade
@@ -46,7 +50,7 @@ class NewGitRepositoryView @InflationInject constructor(
   @Assisted context: Context,
   @Assisted attrs: AttributeSet? = null,
   presenterFactory: NewGitRepositoryPresenter.Factory
-) : ContourLayout(context), NotPullCollapsible {
+) : FrameLayout(context), NotPullCollapsible {
 
   private val dialogView = PressDialogView(context)
   private val contentView = ContentView(context)
@@ -65,12 +69,9 @@ class NewGitRepositoryView @InflationInject constructor(
 
   init {
     id = R.id.newgitrepo_view
-    dialogView.layoutBy(
-      x = centerHorizontallyTo { parent.centerX() }.widthOf(AtMost) { 300.xdip },
-      y = centerVerticallyTo { parent.centerY() }
-    )
-    contourWidthMatchParent()
-    contourHeightMatchParent()
+
+    addView(dialogView)
+    dialogView.updateLayoutParams<LayoutParams> { gravity = CENTER }
 
     setBackgroundColor(Color.BLACK.withOpacity(0.35f))
     setOnClickListener {
