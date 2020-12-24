@@ -1,8 +1,8 @@
 package me.saket.press.shared.sync.git
 
-import io.ktor.client.HttpClient
 import io.ktor.http.Url
 import me.saket.press.shared.sync.git.service.GitHostService
+import me.saket.press.shared.sync.git.service.GitHostServiceArgs
 import me.saket.press.shared.sync.git.service.GitHubService
 
 /**
@@ -17,12 +17,12 @@ import me.saket.press.shared.sync.git.service.GitHubService
 enum class GitHost {
   GITHUB {
     override fun displayName() = "GitHub"
-    override fun service(http: HttpClient) = GitHubService(http)
+    override fun service(args: GitHostServiceArgs) = GitHubService(args)
     override fun newRepoUrl(owner: String, name: String) = "https://github.com/$owner/$name"
   };
 
   abstract fun displayName(): String
-  abstract fun service(http: HttpClient): GitHostService
+  abstract fun service(args: GitHostServiceArgs): GitHostService
   abstract fun newRepoUrl(owner: String, name: String): String
 
   fun deepLink() = "intent://press/authorization-granted?githost=$name"

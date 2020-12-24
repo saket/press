@@ -10,7 +10,6 @@ import com.badoo.reaktive.observable.wrap
 import com.soywiz.klock.days
 import com.soywiz.klock.hours
 import com.soywiz.klock.minutes
-import io.ktor.client.HttpClient
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.rx.Schedulers
 import me.saket.press.shared.rx.consumeOnNext
@@ -29,13 +28,14 @@ import me.saket.press.shared.sync.Syncer.Status.LastOp.InFlight
 import me.saket.press.shared.sync.git.GitHost
 import me.saket.press.shared.sync.git.GitHostAuthToken
 import me.saket.press.shared.sync.git.GitRepositoryCache
+import me.saket.press.shared.sync.git.service.GitHostService
 import me.saket.press.shared.time.Clock
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.util.format
 
 class SyncPreferencesPresenter(
   private val syncer: Syncer,
-  private val http: HttpClient,
+  private val gitHostService: GitHostService.Factory,
   private val schedulers: Schedulers,
   private val authToken: (GitHost) -> Setting<GitHostAuthToken>,
   private val clock: Clock,
@@ -109,7 +109,7 @@ class SyncPreferencesPresenter(
       .map { (host) ->
         cachedRepos.set(null)
         authToken(host).set(null)
-        val service = host.service(http)
+        val service = gitHostService.create(host)
         OpenUrl(service.generateAuthUrl(host.deepLink()))
       }
       .wrap()

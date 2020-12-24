@@ -21,7 +21,8 @@ import me.saket.press.shared.sync.git.GitHostIntegrationPresenter
 import me.saket.press.shared.sync.git.GitRepositoryCache
 import me.saket.press.shared.sync.git.GitSyncer
 import me.saket.press.shared.sync.git.NewGitRepositoryPresenter
-import me.saket.press.shared.sync.git.NewGitRepositoryScreenKey
+import me.saket.press.shared.sync.git.service.GitHostService
+import me.saket.press.shared.sync.git.service.GitHostServiceArgs
 import me.saket.press.shared.sync.stats.SyncStatsForNerdsPresenter
 import org.koin.core.parameter.parametersOf
 import org.koin.dsl.module
@@ -32,6 +33,10 @@ class SharedSyncComponent {
     single { createJson() }
 
     factory {
+      GitHostService.Factory { it.service(GitHostServiceArgs(get(), get())) }
+    }
+
+    factory { // Note to self: this probably blocks all future <(GitHost) -> *> definitions.
       { host: GitHost ->
         Setting.create(
           settings = get(),
@@ -47,22 +52,22 @@ class SharedSyncComponent {
     factory { (args: GitHostIntegrationPresenter.Args) ->
       GitHostIntegrationPresenter(
         args = args,
-        httpClient = get(),
         authToken = get(),
+        gitHostService = get(),
         userSetting = gitUserSetting(settings = get(), json = get()),
         deviceInfo = get(),
         database = get(),
         cachedRepos = get(),
         syncCoordinator = get(),
-        sshKeygen = RealSshKeygen()
+        sshKeygen = RealSshKeygen(),
       )
     }
     factory { (args: NewGitRepositoryPresenter.Args) ->
       NewGitRepositoryPresenter(
         args = args,
-        httpClient = get(),
         authToken = get(),
-        strings = get()
+        strings = get(),
+        gitHostService = get(),
       )
     }
 

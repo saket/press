@@ -55,9 +55,8 @@ import me.saket.press.shared.ui.Presenter
 
 class GitHostIntegrationPresenter(
   private val args: Args,
-  httpClient: HttpClient,
   authToken: (GitHost) -> Setting<GitHostAuthToken>,
-  gitHostService: (GitHost, HttpClient) -> GitHostService = { host, http -> host.service(http) },
+  gitHostService: GitHostService.Factory,
   private val userSetting: Setting<GitIdentity>,
   private val deviceInfo: DeviceInfo,
   private val database: PressDatabase,
@@ -68,7 +67,7 @@ class GitHostIntegrationPresenter(
 
   private val gitHost = GitHost.readHostFromDeepLink(args.deepLink)
   private val authToken: Setting<GitHostAuthToken> = authToken(gitHost)
-  private val gitHostService: GitHostService = gitHostService(gitHost, httpClient)
+  private val gitHostService: GitHostService = gitHostService.create(gitHost)
 
   override fun defaultUiModel() = ShowProgress
 

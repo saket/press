@@ -16,7 +16,6 @@ import com.badoo.reaktive.observable.startWithValue
 import com.badoo.reaktive.observable.switchMap
 import com.badoo.reaktive.observable.withLatestFrom
 import com.badoo.reaktive.observable.wrap
-import io.ktor.client.HttpClient
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.rx.mergeWith
 import me.saket.press.shared.settings.Setting
@@ -36,14 +35,14 @@ import me.saket.press.shared.sync.git.NewGitRepositoryUiModel as Model
 
 class NewGitRepositoryPresenter(
   private val args: Args,
-  private val httpClient: HttpClient,
   private val strings: Strings,
+  gitHostService: GitHostService.Factory,
   authToken: (GitHost) -> Setting<GitHostAuthToken>,
 ) : Presenter<Event, Model, Nothing>() {
 
   private val screenKey: NewGitRepositoryScreenKey get() = args.screenKey
   private val gitHost: GitHost get() = screenKey.gitHost
-  private val gitHostService: GitHostService get() = gitHost.service(httpClient)
+  private val gitHostService: GitHostService = gitHostService.create(gitHost)
   private val authToken: Setting<GitHostAuthToken> = authToken(gitHost)
 
   override fun defaultUiModel() = Model(

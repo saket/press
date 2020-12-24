@@ -2,6 +2,8 @@ package me.saket.press.shared.sync.git.service
 
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.single.Single
+import io.ktor.client.HttpClient
+import kotlinx.serialization.json.Json
 import me.saket.kgit.SshKeyPair
 import me.saket.press.shared.sync.git.GitHost
 import me.saket.press.shared.sync.git.GitHostAuthToken
@@ -51,4 +53,13 @@ interface GitHostService {
    * @param title the label that's displayed for this key.
    */
   data class DeployKey(val title: String, val key: SshKeyPair)
+
+  fun interface Factory {
+    fun create(host: GitHost): GitHostService
+  }
 }
+
+class GitHostServiceArgs(
+  val http: HttpClient,
+  val json: Json
+)

@@ -4,7 +4,6 @@ import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.coroutinesinterop.completableFromCoroutine
 import com.badoo.reaktive.coroutinesinterop.singleFromCoroutine
 import com.badoo.reaktive.single.Single
-import io.ktor.client.HttpClient
 import io.ktor.client.call.receive
 import io.ktor.client.request.accept
 import io.ktor.client.request.get
@@ -23,7 +22,8 @@ import me.saket.press.shared.sync.git.GitHost.GITHUB
 import me.saket.press.shared.sync.git.GitHostAuthToken
 import me.saket.press.shared.sync.git.service.GitHostService.DeployKey
 
-class GitHubService(private val http: HttpClient) : GitHostService {
+class GitHubService(private val args: GitHostServiceArgs) : GitHostService {
+  private val http get() = args.http
 
   override fun generateAuthUrl(redirectUrl: String): String {
     return URLBuilder("https://github.com/login/oauth/authorize").apply {
