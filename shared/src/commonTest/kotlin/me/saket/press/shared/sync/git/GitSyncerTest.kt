@@ -1157,7 +1157,7 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     val remote = RemoteRepositoryRobot {
       pull()
-      checkout("notes-backup-${clock.nowUtc().unixMillisLong}")
+      checkout("press-notes-backup-${clock.nowUtc().unixMillisLong}")
     }
     assertThat(remote.fetchNoteFiles()).containsOnly(
       "untitled_note.md" to "I couldn't",
@@ -1172,7 +1172,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     clock.setTime(epochMillis = 1601612922000)
     syncer.sync()
 
-    remote.checkout("notes-backup-1601612922000")
+    remote.checkout("press-notes-backup-1601612922000")
     remote.fetchNoteFiles().isEmpty()
   }
 

@@ -230,7 +230,7 @@ class GitSyncer(
       // Branch already exists and Press hasn't pulled remote commits yet.
     }
 
-    val backupBranch = "notes-backup-${clock.nowUtc().unixMillisLong}"
+    val backupBranch = "press-notes-backup-${clock.nowUtc().unixMillisLong}"
     log("Syncing for the first time. Backing up notes to '$backupBranch' branch.")
 
     val restoreToBranch = git.currentBranch()
