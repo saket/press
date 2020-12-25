@@ -23,7 +23,7 @@ Press primarily treats git as a tool for syncing files and not for storing them 
 
 Press tries really hard to avoid leaking Press's implementation into user's git repository. This includes using human readable filenames for saving notes, generated from notes' H1 headings. Considering that multiple notes can have the same heading (e.g., `Shopping list`), Press maintains a canonical directory for mapping unique file names (e.g., `shopping_list.md`, `shopping_list_2.md`) with their SQLite IDs.
 
-See [FileNameRegisterTest](https://github.com/saket/press/blob/trunk/shared/src/commonTest/kotlin/me/saket/press/shared/sync/FileNameRegisterTest.kt) for more info.
+See [FileNameRegisterTest](https://github.com/saket/press/blob/trunk/shared/src/commonTest/kotlin/me/saket/press/shared/sync/git/FileNameRegisterTest.kt) for more info.
 
 ### Future improvements
 
