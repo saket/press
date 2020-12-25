@@ -1,10 +1,17 @@
 package me.saket.press.shared.sync.git
 
 import com.badoo.reaktive.completable.completableFromFunction
+import com.badoo.reaktive.observable.firstOrError
 import com.badoo.reaktive.single.Single
+import com.badoo.reaktive.single.filter
+import com.badoo.reaktive.single.map
+import com.badoo.reaktive.single.mapNotNull
 import com.badoo.reaktive.single.singleFromFunction
+import com.badoo.reaktive.subject.behavior.BehaviorSubject
 import com.badoo.reaktive.utils.atomic.AtomicReference
+import com.soywiz.kds.CopyOnWriteFrozenList
 import me.saket.kgit.GitIdentity
+import me.saket.press.shared.rx.filterNotNull
 import me.saket.press.shared.sync.git.service.ApiResult
 import me.saket.press.shared.sync.git.service.GitHostService
 import me.saket.press.shared.sync.git.service.GitHostService.DeployKey
@@ -31,10 +38,16 @@ class FakeGitHostService : GitHostService {
       deployKeyResult.value!!.invoke()
     }
 
+  val authToken = AtomicReference<GitHostAuthToken?>(null)
+  val newRepoRequest = AtomicReference<NewGitRepositoryInfo?>(null)
+  val newRepoResult = BehaviorSubject<ApiResult<GitRepositoryInfo>?>(null)
+
   override fun createNewRepo(
     token: GitHostAuthToken,
     repo: NewGitRepositoryInfo
   ): Single<ApiResult<GitRepositoryInfo>> {
-    TODO()
+    authToken.value = token
+    newRepoRequest.value = repo
+    return newRepoResult.filterNotNull().firstOrError()
   }
 }

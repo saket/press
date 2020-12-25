@@ -1,7 +1,7 @@
 package me.saket.press.shared.ui
 
 class FakeNavigator : Navigator {
-  private val backstack = ArrayDeque<ScreenKey>()
+  private val backstack = ArrayDeque<Any>()
 
   override fun lfg(screen: ScreenKey) {
     backstack.addFirst(screen)
@@ -13,10 +13,10 @@ class FakeNavigator : Navigator {
   }
 
   override fun goBack(result: ScreenResult?) {
-    if (backstack.isNotEmpty()) {
-      backstack.removeFirst()
-    }
+    backstack.addFirst(Back(result))
   }
 
-  fun pop() = backstack.removeFirstOrNull()
+  fun pop(): Any? = backstack.removeFirstOrNull()
 }
+
+data class Back(val result: ScreenResult?)

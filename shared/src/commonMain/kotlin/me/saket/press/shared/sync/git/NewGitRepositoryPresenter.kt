@@ -71,10 +71,11 @@ class NewGitRepositoryPresenter(
     }.wrap()
   }
 
+  // https://stackoverflow.com/a/59082561/2511884
   private fun sanitize(string: String): String {
     return buildString {
       for (char in string) {
-        if (char.isLetterOrDigit()) {
+        if (char.isLetterOrDigit() || char == '.' || char == '_') {
           append(char)
         } else if (lastOrNull() != '-') {
           append('-')
