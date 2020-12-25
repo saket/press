@@ -76,7 +76,8 @@ private class Recorder<T> : RecordingObserver<T> {
 
   override fun popValue(): T {
     return takeNotification().let {
-      (it as? OnNext)?.value ?: error("Expected onNext event but was $it")
+      check(it is OnNext) { "Expected onNext event but was $it" }
+      it.value
     }
   }
 
@@ -93,16 +94,8 @@ private class Recorder<T> : RecordingObserver<T> {
     }
   }
 
-  override fun assertValue(value: T): Recorder<T> {
+  override fun assertValue(value: T?): Recorder<T> {
     assertThat(popValue()).isEqualTo(value)
-    return this
-  }
-
-  override fun assertValue(predicate: (T) -> Boolean): Recorder<T> {
-    val value = popValue()
-    if (!predicate(value)) {
-      throw AssertionError("Predicate return false for value $value")
-    }
     return this
   }
 
@@ -135,8 +128,7 @@ interface RecordingObserver<T> : ObservableObserver<T> {
   fun popValue(): T
   fun popAllValues(): RecordingObserver<T>
 
-  fun assertValue(value: T): RecordingObserver<T>
-  fun assertValue(predicate: (T) -> Boolean): RecordingObserver<T>
+  fun assertValue(value: T?): RecordingObserver<T>
   fun assertAnyValue() { popValue() }
 
   fun assertComplete()

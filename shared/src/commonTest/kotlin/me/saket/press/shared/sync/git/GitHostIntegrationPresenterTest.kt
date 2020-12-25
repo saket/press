@@ -2,11 +2,12 @@ package me.saket.press.shared.sync.git
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isEqualToWithGivenProperties
+import assertk.assertions.isInstanceOf
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import co.touchlab.stately.concurrency.value
 import com.badoo.reaktive.observable.distinctUntilChanged
-import io.ktor.client.HttpClient
 import me.saket.kgit.GitIdentity
 import me.saket.kgit.SshKeyPair
 import me.saket.kgit.SshPrivateKey
@@ -19,6 +20,7 @@ import me.saket.press.shared.sync.git.FailureKind.AddingDeployKey
 import me.saket.press.shared.sync.git.FailureKind.Authorization
 import me.saket.press.shared.sync.git.FailureKind.FetchingRepos
 import me.saket.press.shared.sync.git.GitHost.GITHUB
+import me.saket.press.shared.sync.git.GitHostIntegrationEvent.CreateNewGitRepoClicked
 import me.saket.press.shared.sync.git.GitHostIntegrationEvent.GitRepositoryClicked
 import me.saket.press.shared.sync.git.GitHostIntegrationEvent.RetryClicked
 import me.saket.press.shared.sync.git.GitHostIntegrationEvent.SearchTextChanged
@@ -37,6 +39,7 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
   private val cachedRepos = GitRepositoryCache.InMemory()
   private val gitService = FakeGitHostService()
   private val authToken = FakeSetting<GitHostAuthToken>(null)
+  private val userSetting = FakeSetting<GitIdentity>(null)
   private val navigator = FakeNavigator()
   private val syncCoordinator = FakeSyncCoordinator()
   private val sshKeygen = FakeSshKeygen()
@@ -46,7 +49,7 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
     args = Args(deepLink = GITHUB.deepLink(), navigator),
     gitHostService = { gitService },
     authToken = { authToken },
-    userSetting = FakeSetting(null),
+    userSetting = userSetting,
     cachedRepos = cachedRepos,
     syncCoordinator = syncCoordinator,
     database = database,
@@ -80,7 +83,8 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
 
   @Test fun `retry fetching of repositories`() {
     gitService.completeAuth.value = { GitHostAuthToken("nicolas.cage") }
-    gitService.userRepos.value = { error("boom!") }
+    gitService.userRepos.value = { error("repo fetch failure") }
+    gitService.user.value = { error("user fetch failure") }
     presenter.dispatch(SearchTextChanged("")) // Initial event sent by the view.
 
     val models = presenter.uiModels()
@@ -94,15 +98,22 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
 
     models
       .assertValue(ShowProgress)
-      .assertValue { it is SelectRepo }
+      .assertValue(ShowFailure(kind = FetchingRepos))
+
+    gitService.user.value = { user }
+
+    presenter.dispatch(RetryClicked(failure = FetchingRepos))
+
+    models.assertValue(ShowProgress)
+    assertThat(models.popValue()).isInstanceOf(SelectRepo::class)
   }
 
   @Test fun `retry selection of repo`() {
     cachedRepos.set(emptyList())
     authToken.set(GitHostAuthToken("nicolas.cage"))
+    userSetting.set(user)
     sshKeygen.key.value = sshKeyPair
 
-    gitService.user.value = { error("user boom!") }
     gitService.deployKeyResult.value = { error("key boom!") }
     presenter.dispatch(GitRepositoryClicked(repo))
 
@@ -111,15 +122,9 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
       .assertValue(ShowProgress)
       .assertValue(ShowFailure(kind = AddingDeployKey))
 
-    gitService.user.value = { user }
-    presenter.dispatch(RetryClicked(failure = AddingDeployKey))
-    models
-      .assertValue(ShowProgress)
-      .assertValue(ShowFailure(kind = AddingDeployKey))
-
     gitService.deployKeyResult.value = { Unit }
     presenter.dispatch(RetryClicked(failure = AddingDeployKey))
-    models.popAllValues()
+    models.assertAnyValue()
 
     assertThat(gitService.deployedKey.value).isEqualTo(
       DeployKey(
@@ -137,7 +142,7 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
     assertThat(syncConfig.remote.user).isEqualTo(user)
   }
 
-  @Test fun `fetch repositories only if it isn't cached yet`() {
+  @Test fun `skip fetching of repositories if it's already in cache`() {
     cachedRepos.set(emptyList())  // cache is non-empty (even if it's an empty list).
     gitService.completeAuth.value = { GitHostAuthToken("nicolas.cage") }
     gitService.userRepos.value = { listOf(repo) }
@@ -151,10 +156,11 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
       .assertValue(emptyList())
   }
 
-  @Test fun `skip fetching of repositories if it's already in cache`() {
+  @Test fun `fetch repositories only if it isn't cached yet`() {
     cachedRepos.set(null)
     gitService.completeAuth.value = { GitHostAuthToken("nicolas.cage") }
     gitService.userRepos.value = { listOf(repo) }
+    gitService.user.value = { user }
 
     presenter.uiModels()
       .test(rxRule)
@@ -166,8 +172,28 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
       .assertValue(listOf(repo))
   }
 
+  @Test fun `show new git repo screen`() {
+    userSetting.set(user)
+
+    val models = presenter.uiModels().test(rxRule)
+
+    presenter.run {
+      dispatch(SearchTextChanged("cage"))
+      dispatch(CreateNewGitRepoClicked)
+    }
+    models.popAllValues()
+
+    assertThat(navigator.pop()).isEqualTo(
+      NewGitRepositoryScreenKey(
+        username = user.name,
+        gitHost = GITHUB,
+        preFilledRepoName = "cage"
+      )
+    )
+  }
+
+  // TODO.
   @Test fun `show empty view if user doesn't have any repository`() {
-    // TODO.
   }
 
   companion object {
