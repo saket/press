@@ -17,7 +17,7 @@ buildscript {
     workManager: '2.4.0',
     ktLint: '0.39.0', // blocked on https://github.com/pinterest/ktlint/issues/816
     ktLintPlugin: '9.1.1',
-    cascade: '1.2.0-SNAPSHOT',
+    cascade: '1.2.0',
 
     // multiplatform dependencies
     sqlDelight: '1.4.3',
