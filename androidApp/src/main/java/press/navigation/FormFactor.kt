@@ -47,6 +47,7 @@ class PhoneFormFactor(private val viewFactories: ViewFactories) : FormFactor {
       elevation = dp(SCREEN_ELEVATION_DP)
       animationInterpolator = PathInterpolator(0.5f, 0f, 0f, 1f)
       animationDurationMillis = 350
+      contentOpacityWhenCollapsed = 0f
 
       onPageRelease = { collapseEligible ->
         if (collapseEligible) {
