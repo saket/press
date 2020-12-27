@@ -25,7 +25,12 @@ data class Strings(
   data class Editor(
     val new_note_hints: List<String>,
     val open_url: String,
-    val edit_url: String
+    val edit_url: String,
+
+    val menu_archive: String,
+    val menu_unarchive: String,
+    val menu_copy_as: String,
+    val menu_share_as: String
   )
 
   data class Sync(
@@ -91,7 +96,12 @@ val ENGLISH_STRINGS = Strings(
       "Type your heart out"
     ),
     open_url = "Open",
-    edit_url = "Edit"
+    edit_url = "Edit",
+
+    menu_archive = "Archive",
+    menu_unarchive = "Unarchive",
+    menu_copy_as = "Copy as",
+    menu_share_as = "Share as"
   ),
   sync = Sync(
     title = "Sync",

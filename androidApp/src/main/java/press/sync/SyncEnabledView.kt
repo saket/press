@@ -4,8 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_VIEW
 import android.graphics.Rect
-import android.graphics.drawable.Drawable
-import android.graphics.drawable.PaintDrawable
 import android.net.Uri
 import android.text.TextUtils.TruncateAt.END
 import android.view.TouchDelegate
@@ -26,13 +24,12 @@ import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextStyles.smallTitle
 import me.saket.press.shared.theme.TextView
 import me.saket.press.shared.theme.ThemePalette
-import me.saket.press.shared.theme.applyStyle
 import press.extensions.createRippleDrawable
 import press.extensions.getDrawable
 import press.extensions.textColor
 import press.navigation.navigator
-import press.theme.AutoThemer
 import press.theme.appTheme
+import press.theme.pressCascadeStyler
 import press.theme.themeAware
 
 class SyncEnabledView(context: Context) : ContourLayout(context) {
@@ -59,26 +56,7 @@ class SyncEnabledView(context: Context) : ContourLayout(context) {
   }
 
   private fun showOptionsMenu(palette: ThemePalette, openRepo: () -> Unit) {
-    val styler = CascadePopupMenu.Styler(
-      background = {
-        roundedRectDrawable(palette.buttonNormal, radius = 4f.dip)
-      },
-      menuList = {
-        AutoThemer.themeGroup(it)
-      },
-      menuTitle = {
-        it.titleView.textColor = palette.textColorSecondary
-        it.titleView.applyStyle(smallTitle)
-        it.itemView.background = createRippleDrawable(palette)
-      },
-      menuItem = {
-        it.titleView.textColor = palette.textColorPrimary
-        it.titleView.applyStyle(smallBody)
-        it.itemView.background = createRippleDrawable(palette)
-      }
-    )
-
-    CascadePopupMenu(context, anchor = itemView.optionsButton, styler = styler).apply {
+    CascadePopupMenu(context, anchor = itemView.optionsButton, styler = pressCascadeStyler(palette)).apply {
       menu.add(context.strings().sync.open_repository)
         .setIcon(context.getDrawable(R.drawable.ic_twotone_web_24, palette.textColorPrimary))
         .setOnMenuItemClickListener {
@@ -182,10 +160,6 @@ class SyncEnabledView(context: Context) : ContourLayout(context) {
       // TODO: Fix this bug in ContourLayout
       requestLayout()
     }
-  }
-
-  private fun roundedRectDrawable(color: Int, radius: Float): Drawable {
-    return PaintDrawable(color).also { it.setCornerRadius(radius) }
   }
 }
 

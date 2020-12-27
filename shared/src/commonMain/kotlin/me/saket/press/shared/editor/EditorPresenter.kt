@@ -6,6 +6,7 @@ import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.completable.completableOfEmpty
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.ObservableWrapper
+import com.badoo.reaktive.observable.combineLatest
 import com.badoo.reaktive.observable.distinctUntilChanged
 import com.badoo.reaktive.observable.filter
 import com.badoo.reaktive.observable.flatMap
@@ -13,7 +14,9 @@ import com.badoo.reaktive.observable.flatMapCompletable
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observableOfEmpty
+import com.badoo.reaktive.observable.observeOn
 import com.badoo.reaktive.observable.ofType
+import com.badoo.reaktive.observable.publish
 import com.badoo.reaktive.observable.refCount
 import com.badoo.reaktive.observable.replay
 import com.badoo.reaktive.observable.take
@@ -22,6 +25,7 @@ import com.badoo.reaktive.observable.withLatestFrom
 import com.badoo.reaktive.observable.wrap
 import me.saket.press.PressDatabase
 import me.saket.press.data.shared.Note
+import me.saket.press.shared.editor.EditorEvent.ArchiveToggleClicked
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorUiEffect.BlockedDueToSyncConflict
@@ -31,17 +35,17 @@ import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.rx.Schedulers
 import me.saket.press.shared.rx.asObservable
 import me.saket.press.shared.rx.combineLatestWith
+import me.saket.press.shared.rx.consumeOnNext
 import me.saket.press.shared.rx.filterNotNull
 import me.saket.press.shared.rx.filterNull
 import me.saket.press.shared.rx.mapToOne
 import me.saket.press.shared.rx.mapToOneOrNull
-import me.saket.press.shared.rx.mapToOptional
 import me.saket.press.shared.rx.observableInterval
 import me.saket.press.shared.sync.SyncMergeConflicts
+import me.saket.press.shared.sync.git.FolderPaths
 import me.saket.press.shared.time.Clock
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
-import me.saket.press.shared.util.Optional
 import me.saket.wysiwyg.formatting.TextSelection
 
 class EditorPresenter(
@@ -57,17 +61,27 @@ class EditorPresenter(
   private val openMode = args.openMode
   private val noteQueries get() = database.noteQueries
   private val noteStream = createOrFetchNote().replay(1).refCount()
+  private val folderPaths = FolderPaths(database)
 
   override fun defaultUiModel() =
-    EditorUiModel(hintText = null)
+    EditorUiModel(hintText = null, isArchived = false)
 
   override fun uiModels(): ObservableWrapper<EditorUiModel> {
-    val uiModels = viewEvents()
-      .toggleHintText()
-      .map { (hint) -> EditorUiModel(hintText = hint) }
+    return viewEvents().publish { events ->
+      val hintTexts = events.toggleHintText()
+      val uiModels = combineLatest(hintTexts, isNoteArchived()) { hintText, isArchived ->
+        EditorUiModel(
+          hintText = hintText,
+          isArchived = isArchived
+        )
+      }.distinctUntilChanged()
 
-    val autoSave = viewEvents().autoSaveContent()
-    return merge(uiModels, autoSave).wrap()
+      return@publish merge(
+        uiModels,
+        events.autoSaveContent(),
+        handleArchiveClicks(events)
+      )
+    }.wrap()
   }
 
   override fun uiEffects(): ObservableWrapper<EditorUiEffect> {
@@ -139,15 +153,37 @@ class EditorPresenter(
       .map { Unit }
   }
 
-  private fun Observable<EditorEvent>.toggleHintText(): Observable<Optional<String>> {
+  private fun Observable<EditorEvent>.toggleHintText(): Observable<String?> {
     val randomHint = strings.editor.new_note_hints.shuffled().first()
 
     return ofType<NoteTextChanged>()
       .distinctUntilChanged()
-      .mapToOptional { (text) ->
+      .map { (text) ->
         when {
           text.trimEnd() == NEW_NOTE_PLACEHOLDER.trim() -> "# $randomHint"
           else -> null
+        }
+      }
+  }
+
+  private fun isNoteArchived(): Observable<Boolean> {
+    return noteStream
+      .map { it.folderId }
+      .distinctUntilChanged()
+      .map(folderPaths::isArchived)
+  }
+
+  private fun handleArchiveClicks(
+    events: Observable<EditorEvent>
+  ): Observable<EditorUiModel> {
+    return events.ofType<ArchiveToggleClicked>()
+      .withLatestFrom(noteStream, ::Pair)
+      .observeOn(schedulers.io)
+      .consumeOnNext { (event, note) ->
+        folderPaths.setArchived(note.id, archive = event.archive)
+
+        if (event.archive) {
+          args.navigator.goBack()
         }
       }
   }

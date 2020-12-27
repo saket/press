@@ -1,6 +1,7 @@
 package press.editor
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.text.InputType.TYPE_CLASS_TEXT
 import android.text.InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
 import android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
@@ -13,6 +14,7 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN
 import android.widget.EditText
+import android.widget.Toast
 import androidx.core.text.buildSpannedString
 import androidx.core.text.inSpans
 import androidx.core.view.updatePaddingRelative
@@ -23,9 +25,14 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.inflation.InflationInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import io.reactivex.schedulers.Schedulers
+import me.saket.cascade.CascadePopupMenu
+import me.saket.cascade.allChildren
+import me.saket.cascade.overrideOverflowMenu
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.R
 import me.saket.press.shared.editor.AutoCorrectEnabled
+import me.saket.press.shared.editor.EditorEvent
+import me.saket.press.shared.editor.EditorEvent.ArchiveToggleClicked
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorPresenter
@@ -36,10 +43,12 @@ import me.saket.press.shared.editor.EditorUiEffect.BlockedDueToSyncConflict
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.editor.EditorUiModel
 import me.saket.press.shared.editor.saveEditorContentOnClose
+import me.saket.press.shared.localization.strings
 import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.theme.DisplayUnits
 import me.saket.press.shared.theme.TextStyles.mainBody
 import me.saket.press.shared.theme.TextView
+import me.saket.press.shared.theme.ThemePalette
 import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.theme.from
 import me.saket.press.shared.ui.subscribe
@@ -62,6 +71,7 @@ import press.navigation.BackPressInterceptor.InterceptResult
 import press.navigation.BackPressInterceptor.InterceptResult.Ignored
 import press.navigation.navigator
 import press.navigation.screenKey
+import press.theme.pressCascadeStyler
 import press.theme.themeAware
 import press.theme.themePalette
 import press.widgets.PressToolbar
@@ -140,6 +150,10 @@ class EditorView @InflationInject constructor(
     )
   }
 
+  private val toolbarArchiveItem by unsafeLazy { toolbar.menu.findItem(R.id.editortoolbar_archive) }
+  private val toolbarUnarchiveItem by unsafeLazy { toolbar.menu.findItem(R.id.editortoolbar_unarchive) }
+  private lateinit var toolbarMenuClicks: (EditorEvent) -> Unit
+
   init {
     id = R.id.editor_view
     scrollView.addView(editorEditText, MATCH_PARENT, WRAP_CONTENT)
@@ -147,6 +161,7 @@ class EditorView @InflationInject constructor(
 
     themeAware { palette ->
       setBackgroundColor(palette.window.editorBackgroundColor)
+      populateToolbarMenu(palette)
     }
 
     // TODO: add support for changing WysiwygStyle.
@@ -174,6 +189,9 @@ class EditorView @InflationInject constructor(
 
     editorEditText.doOnTextChange {
       presenter.dispatch(NoteTextChanged(it.toString()))
+    }
+    toolbarMenuClicks = {
+      presenter.dispatch(it)
     }
 
     presenter.uiUpdates()
@@ -204,6 +222,9 @@ class EditorView @InflationInject constructor(
         }
       }
     }
+
+    toolbarArchiveItem.isVisible = !model.isArchived
+    toolbarUnarchiveItem.isVisible = model.isArchived
   }
 
   private fun render(uiUpdate: EditorUiEffect) {
@@ -217,6 +238,39 @@ class EditorView @InflationInject constructor(
     setText(newText)
     newSelection?.let {
       setSelection(it.start, it.end)
+    }
+  }
+
+  private fun populateToolbarMenu(palette: ThemePalette) {
+    val strings = context.strings().editor
+    val titles = { itemId: Int ->
+      when (itemId) {
+        R.id.editortoolbar_archive -> strings.menu_archive
+        R.id.editortoolbar_unarchive -> strings.menu_unarchive
+        R.id.editortoolbar_copy_as -> strings.menu_copy_as
+        R.id.editortoolbar_share_as -> strings.menu_share_as
+        else -> error("No title for $itemId")
+      }
+    }
+
+    toolbar.inflateMenu(R.menu.editor_toolbar)
+    toolbar.menu.allChildren.forEach { item ->
+      item.title = titles(item.itemId)
+      item.iconTintList = ColorStateList.valueOf(palette.accentColor)
+    }
+
+    toolbar.overflowIcon!!.setTint(palette.accentColor)
+    toolbar.overrideOverflowMenu { context, anchor ->
+      CascadePopupMenu(context, anchor, styler = pressCascadeStyler(palette))
+    }
+
+    toolbar.setOnMenuItemClickListener { item ->
+      when (item.itemId) {
+        R.id.editortoolbar_archive -> toolbarMenuClicks(ArchiveToggleClicked(archive = true))
+        R.id.editortoolbar_unarchive -> toolbarMenuClicks(ArchiveToggleClicked(archive = false))
+        else -> Toast.makeText(context, "Work in progress", Toast.LENGTH_SHORT).show()
+      }
+      true
     }
   }
 }

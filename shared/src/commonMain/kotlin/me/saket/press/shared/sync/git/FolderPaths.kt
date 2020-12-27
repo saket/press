@@ -3,11 +3,12 @@ package me.saket.press.shared.sync.git
 import me.saket.press.PressDatabase
 import me.saket.press.data.shared.Folder
 import me.saket.press.data.shared.FolderQueries
+import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.FolderId
 import me.saket.press.shared.db.NoteId
 
 @OptIn(ExperimentalStdlibApi::class)
-class FolderPaths(private val database: PressDatabase) {
+internal class FolderPaths(private val database: PressDatabase) {
   private val noteQueries get() = database.noteQueries
   private val folderQueries get() = database.folderQueries
 
@@ -18,6 +19,7 @@ class FolderPaths(private val database: PressDatabase) {
     return createPath(id, existingFolders).flatten()
   }
 
+  // TODO: convert existingFolders() into a lambda
   private fun createPath(
     id: FolderId?,
     existingFolders: List<Folder> = database.folderQueries.allFolders().executeAsList()
@@ -92,9 +94,13 @@ class FolderPaths(private val database: PressDatabase) {
       folderId = mkdirs(newPath.flatten())
     )
   }
+
+  fun isArchived(folderId: FolderId?): Boolean {
+    return createPath(folderId).head() == "archive"
+  }
 }
 
-private class FolderPath(val paths: List<String>) {
+internal class FolderPath(val paths: List<String>) {
   fun flatten(): String =
     paths.joinToString(separator = "/")
 

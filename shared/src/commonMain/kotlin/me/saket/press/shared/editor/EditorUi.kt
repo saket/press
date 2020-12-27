@@ -23,10 +23,12 @@ data class EditorScreenKey(val openMode: EditorOpenMode) : ScreenKey
 // - Call `AutoFormatOnEnterPress` when enter key is pressed for formatting markdown.
 interface EditorEvent {
   data class NoteTextChanged(val text: String) : EditorEvent
+  data class ArchiveToggleClicked(val archive: Boolean): EditorEvent
 }
 
 data class EditorUiModel(
-  val hintText: String?
+  val hintText: String?,
+  val isArchived: Boolean
 )
 
 sealed class EditorUiEffect {
