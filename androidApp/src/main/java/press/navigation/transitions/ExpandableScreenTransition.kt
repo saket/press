@@ -80,7 +80,7 @@ class ExpandableScreenTransition : ScreenTransition {
   ) {
     this.expandedItemFinder = expandableHost.identifyExpandingItem()
     this.expandablePage = page
-    this.itemExpandAnimator = ItemExpandAnimator.scale()
+    this.itemExpandAnimator = ItemExpandAnimator.split()
     page.pushParentToolbarOnExpand(toolbar = parent.findChild<Toolbar>()!!)
   }
 
