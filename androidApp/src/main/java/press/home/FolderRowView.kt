@@ -43,7 +43,7 @@ class FolderRowView(context: Context) : ContourLayout(context) {
 
   fun render(noteModel: HomeUiModel.Folder) {
     this.model = noteModel
-    titleView.text = noteModel.title.capitalize()
+    titleView.text = noteModel.title
   }
 }
 
