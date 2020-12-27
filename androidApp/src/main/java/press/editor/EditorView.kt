@@ -119,7 +119,7 @@ class EditorView @InflationInject constructor(
     movementMethod = EditorLinkMovementMethod(scrollView)
     filters += FormatMarkdownOnEnterPress(this)
     CapitalizeOnHeadingStart.capitalize(this)
-    updatePaddingRelative(start = 20.dip, end = 20.dip, bottom = 20.dip)
+    updatePaddingRelative(start = 20.dip, end = 20.dip, bottom = 80.dip)
     fromOreo {
       importantForAutofill = IMPORTANT_FOR_AUTOFILL_NO
     }
