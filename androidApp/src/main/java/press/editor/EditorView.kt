@@ -27,7 +27,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import io.reactivex.schedulers.Schedulers
 import me.saket.cascade.CascadePopupMenu
 import me.saket.cascade.allChildren
-import me.saket.cascade.overrideOverflowMenu
+import me.saket.cascade.overrideAllPopupMenus
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.R
 import me.saket.press.shared.editor.AutoCorrectEnabled
@@ -42,13 +42,15 @@ import me.saket.press.shared.editor.EditorUiEffect
 import me.saket.press.shared.editor.EditorUiEffect.BlockedDueToSyncConflict
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.editor.EditorUiModel
+import me.saket.press.shared.editor.TextFormat
+import me.saket.press.shared.editor.TextFormat.Html
+import me.saket.press.shared.editor.TextFormat.Markdown
 import me.saket.press.shared.editor.saveEditorContentOnClose
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.theme.DisplayUnits
 import me.saket.press.shared.theme.TextStyles.mainBody
 import me.saket.press.shared.theme.TextView
-import me.saket.press.shared.theme.ThemePalette
 import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.theme.from
 import me.saket.press.shared.ui.subscribe
@@ -58,6 +60,7 @@ import me.saket.wysiwyg.formatting.TextSelection
 import me.saket.wysiwyg.parser.node.HeadingLevel.H1
 import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.widgets.addTextChangedListener
+import press.Intents
 import press.extensions.doOnTextChange
 import press.extensions.findParentOfType
 import press.extensions.fromOreo
@@ -158,11 +161,11 @@ class EditorView @InflationInject constructor(
     id = R.id.editor_view
     scrollView.addView(editorEditText, MATCH_PARENT, WRAP_CONTENT)
     bringChildToFront(scrollView)
-
     themeAware { palette ->
       setBackgroundColor(palette.window.editorBackgroundColor)
-      populateToolbarMenu(palette)
     }
+
+    populateToolbarMenu()
 
     // TODO: add support for changing WysiwygStyle.
     themePalette()
@@ -241,36 +244,61 @@ class EditorView @InflationInject constructor(
     }
   }
 
-  private fun populateToolbarMenu(palette: ThemePalette) {
+  private fun populateToolbarMenu() {
+    toolbar.inflateMenu(R.menu.editor_toolbar)
+    val menuItems = toolbar.menu.allChildren
+
     val strings = context.strings().editor
-    val titles = { itemId: Int ->
-      when (itemId) {
+    menuItems.forEach { item ->
+      item.title = when (item.itemId) {
         R.id.editortoolbar_archive -> strings.menu_archive
         R.id.editortoolbar_unarchive -> strings.menu_unarchive
-        R.id.editortoolbar_copy_as -> strings.menu_copy_as
         R.id.editortoolbar_share_as -> strings.menu_share_as
-        else -> error("No title for $itemId")
+        R.id.editortoolbar_share_as_markdown -> strings.menu_share_as_markdown
+        R.id.editortoolbar_share_as_html -> strings.menu_share_as_html
+        R.id.editortoolbar_copy_as -> strings.menu_copy_as
+        R.id.editortoolbar_copy_as_markdown -> strings.menu_copy_as_markdown
+        R.id.editortoolbar_copy_as_html -> strings.menu_copy_as_html
+        R.id.editortoolbar_duplicate -> strings.menu_duplicate_note
+        else -> error("No title for ${resources.getResourceEntryName(item.itemId)}")
       }
     }
 
-    toolbar.inflateMenu(R.menu.editor_toolbar)
-    toolbar.menu.allChildren.forEach { item ->
-      item.title = titles(item.itemId)
-      item.iconTintList = ColorStateList.valueOf(palette.accentColor)
-    }
+    themeAware { palette ->
+      toolbar.overflowIcon!!.setTint(palette.accentColor)
+      menuItems.forEach { it.iconTintList = ColorStateList.valueOf(palette.accentColor) }
 
-    toolbar.overflowIcon!!.setTint(palette.accentColor)
-    toolbar.overrideOverflowMenu { context, anchor ->
-      CascadePopupMenu(context, anchor, styler = pressCascadeStyler(palette))
+      toolbar.overrideAllPopupMenus { context, anchor ->
+        CascadePopupMenu(context, anchor, styler = pressCascadeStyler(palette))
+      }
     }
 
     toolbar.setOnMenuItemClickListener { item ->
       when (item.itemId) {
-        R.id.editortoolbar_archive -> toolbarMenuClicks(ArchiveToggleClicked(archive = true))
-        R.id.editortoolbar_unarchive -> toolbarMenuClicks(ArchiveToggleClicked(archive = false))
-        else -> Toast.makeText(context, "Work in progress", Toast.LENGTH_SHORT).show()
+        R.id.editortoolbar_archive -> {
+          Toast.makeText(context, strings.note_archived, Toast.LENGTH_SHORT).show()
+          toolbarMenuClicks(ArchiveToggleClicked(archive = true))
+        }
+        R.id.editortoolbar_unarchive -> {
+          Toast.makeText(context, strings.note_unarchived, Toast.LENGTH_SHORT).show()
+          toolbarMenuClicks(ArchiveToggleClicked(archive = false))
+        }
+        R.id.editortoolbar_share_as_markdown -> shareNoteAs(Markdown)
+        else -> {
+          if (!item.hasSubMenu()) {
+            Toast.makeText(context, "Work in progress", Toast.LENGTH_SHORT).show()
+          }
+        }
       }
       true
     }
+  }
+
+  private fun shareNoteAs(format: TextFormat) {
+    val textToShare: CharSequence = when (format) {
+      Markdown -> editorEditText.text.toString()
+      Html -> TODO("Convert markdown to HTML")
+    }
+    Intents.sharePlainText(context, textToShare)
   }
 }

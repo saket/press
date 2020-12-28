@@ -9,6 +9,7 @@ import me.saket.press.shared.theme.ThemePalette
 import me.saket.press.shared.theme.applyStyle
 import press.extensions.createRippleDrawable
 import press.extensions.textColor
+import press.extensions.withOpacity
 import press.widgets.dp
 
 fun View.pressCascadeStyler(palette: ThemePalette): CascadePopupMenu.Styler {
@@ -20,7 +21,7 @@ fun View.pressCascadeStyler(palette: ThemePalette): CascadePopupMenu.Styler {
       AutoThemer.themeGroup(it)
     },
     menuTitle = {
-      it.titleView.textColor = palette.textColorSecondary
+      it.titleView.textColor = palette.textColorPrimary.withOpacity(0.5f)
       it.titleView.applyStyle(TextStyles.smallTitle)
       it.itemView.background = createRippleDrawable(palette)
     },

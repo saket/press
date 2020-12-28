@@ -57,9 +57,9 @@ actual class RealMarkdownRenderer actual constructor(
     if (headingSpansUpdated) {
       // TextView#setHint() internally leads to checkForRelayout(). This
       // may stop working in the future, but TextView#setText() resets
-      // the keyboard. Imagine pressing '#' on the symbols screen and the
-      // keyboard resetting back to the alphabets screen. Terrible
-      // experience if you're writing an H6.
+      // the keyboard mode. Imagine pressing '#' on the symbols screen
+      // and the keyboard resetting back to the alphabets screen.
+      // Terrible experience if you're writing an H6.
       textField.hint = textField.hint
     }
   }

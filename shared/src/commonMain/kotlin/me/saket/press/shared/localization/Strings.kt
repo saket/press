@@ -15,7 +15,8 @@ data class Strings(
     val app_name: String,
     val close_nav_icon_description: String,
     val generic_error: String,
-    val retry: String
+    val retry: String,
+    val share_picker_title: String
   )
 
   data class Home(
@@ -29,8 +30,16 @@ data class Strings(
 
     val menu_archive: String,
     val menu_unarchive: String,
+    val menu_share_as: String,
+    val menu_share_as_markdown: String,
+    val menu_share_as_html: String,
     val menu_copy_as: String,
-    val menu_share_as: String
+    val menu_copy_as_markdown: String,
+    val menu_copy_as_html: String,
+    val menu_duplicate_note: String,
+
+    val note_archived: String,
+    val note_unarchived: String
   )
 
   data class Sync(
@@ -79,7 +88,8 @@ val ENGLISH_STRINGS = Strings(
     app_name = "Press",
     close_nav_icon_description = "Go back",
     generic_error = "Something went wrong, try again?",
-    retry = "Retry"
+    retry = "Retry",
+    share_picker_title = "Share with"
   ),
   home = Home(
     preferences = "Preferences"
@@ -100,8 +110,16 @@ val ENGLISH_STRINGS = Strings(
 
     menu_archive = "Archive",
     menu_unarchive = "Unarchive",
+    menu_share_as = "Share as",
+    menu_share_as_markdown = "Markdown",
+    menu_share_as_html = "HTML",
     menu_copy_as = "Copy as",
-    menu_share_as = "Share as"
+    menu_copy_as_markdown = "Markdown",
+    menu_copy_as_html = "HTML",
+    menu_duplicate_note = "Duplicate note",
+
+    note_archived = "Note archived",
+    note_unarchived = "Note unarchived",
   ),
   sync = Sync(
     title = "Sync",
