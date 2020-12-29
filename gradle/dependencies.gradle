@@ -18,6 +18,7 @@ buildscript {
     ktLint: '0.39.0', // blocked on https://github.com/pinterest/ktlint/issues/816
     ktLintPlugin: '9.1.1',
     cascade: '1.2.0',
+    exhaustive: '0.1.1',
 
     // multiplatform dependencies
     sqlDelight: '1.4.3',

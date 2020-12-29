@@ -17,6 +17,7 @@ buildscript {
     classpath "com.squareup.sqldelight:gradle-plugin:$versions.sqlDelight"
     classpath "com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:$versions.buildKonfig"
     classpath "org.jlleitschuh.gradle:ktlint-gradle:$versions.ktLintPlugin"
+    classpath "app.cash.exhaustive:exhaustive-gradle:$versions.exhaustive"
   }
 }
 
