@@ -9,7 +9,6 @@ import me.saket.wysiwyg.parser.node.nextNode
 import me.saket.wysiwyg.parser.node.parent
 
 object RootNodeHighlighter : NodeVisitor<Node> {
-
   private val highlighters = SyntaxHighlighters()
 
   override fun visit(

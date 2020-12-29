@@ -1,13 +1,21 @@
 package press.editor
 
+import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
+import me.saket.wysiwyg.parser.MarkdownParser
+
 enum class TextFormat {
   Markdown,
   Html;
 
-  fun generateFrom(text: CharSequence): CharSequence {
-    return when (this) {
-      Markdown -> text
-      Html -> TODO("Convert markdown to HTML")
-    }
+  @Suppress("NAME_SHADOWING")
+  fun generateFrom(text: CharSequence): Single<String> {
+    val text = text.toString()
+    return Single.fromCallable {
+      when (this) {
+        Markdown -> text
+        Html -> MarkdownParser().renderHtml(text)
+      }
+    }.subscribeOn(Schedulers.io())
   }
 }

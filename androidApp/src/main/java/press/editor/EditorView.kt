@@ -19,6 +19,7 @@ import androidx.core.text.buildSpannedString
 import androidx.core.text.inSpans
 import androidx.core.view.updatePaddingRelative
 import androidx.core.widget.NestedScrollView
+import app.cash.exhaustive.Exhaustive
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
@@ -284,7 +285,9 @@ class EditorView @InflationInject constructor(
           toolbarMenuEvents(ArchiveToggleClicked(archive = false))
         }
         R.id.editortoolbar_share_as_markdown -> shareNoteAs(Markdown)
+        R.id.editortoolbar_share_as_html -> shareNoteAs(Html)
         R.id.editortoolbar_copy_as_markdown -> copyNoteAs(Markdown)
+        R.id.editortoolbar_copy_as_html -> copyNoteAs(Html)
         else -> {
           if (!item.hasSubMenu()) {
             Toast.makeText(context, "Work in progress", Toast.LENGTH_SHORT).show()
@@ -296,20 +299,26 @@ class EditorView @InflationInject constructor(
   }
 
   private fun shareNoteAs(format: TextFormat) {
-    when (format) {
-      Markdown -> {
-        Intents.sharePlainText(context, format.generateFrom(editorEditText.text))
+    format.generateFrom(editorEditText.text)
+      .observeOn(mainThread())
+      .subscribe { text ->
+        @Exhaustive
+        when (format) {
+          Markdown,
+          Html -> Intents.sharePlainText(context, text)
+        }
       }
-      Html -> TODO("Convert markdown to HTML")
-    }
   }
 
   private fun copyNoteAs(format: TextFormat) {
-    when (format) {
-      Markdown -> {
-        Clipboards.copyPlainText(context, format.generateFrom(editorEditText.text).toString())
+    format.generateFrom(editorEditText.text)
+      .observeOn(mainThread())
+      .subscribe { text ->
+        @Exhaustive
+        when (format) {
+          Markdown,
+          Html -> Clipboards.copyPlainText(context, text)
+        }
       }
-      Html -> TODO("Convert markdown to HTML")
-    }
   }
 }
