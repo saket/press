@@ -33,8 +33,11 @@ import me.saket.press.shared.sync.SyncMergeConflicts
 import me.saket.press.shared.sync.SyncState.IN_FLIGHT
 import me.saket.press.shared.sync.git.DelegatingPressDatabase
 import me.saket.press.shared.time.FakeClock
+import me.saket.press.shared.ui.FakeClipboard
+import me.saket.press.shared.ui.FakeIntentLauncher
 import me.saket.press.shared.ui.FakeNavigator
 import me.saket.wysiwyg.formatting.TextSelection
+import me.saket.wysiwyg.parser.MarkdownParser
 import kotlin.test.AfterTest
 import kotlin.test.Test
 
@@ -54,13 +57,19 @@ class EditorPresenterTest : BaseDatabaeTest() {
     deleteBlankNoteOnExit: Boolean = true
   ): EditorPresenter {
     return EditorPresenter(
-      args = Args(openMode, deleteBlankNoteOnExit, navigator),
+      args = Args(
+        openMode = openMode,
+        deleteBlankNewNoteOnExit = deleteBlankNoteOnExit,
+        navigator = navigator
+      ),
       database = database,
       clock = FakeClock(),
       schedulers = FakeSchedulers(computation = testScheduler),
       strings = ENGLISH_STRINGS,
       config = config,
-      syncConflicts = syncConflicts
+      syncConflicts = syncConflicts,
+      markdownParser = MarkdownParser(),
+      clipboard = FakeClipboard()
     )
   }
 

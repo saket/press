@@ -26,10 +26,20 @@ import com.badoo.reaktive.observable.wrap
 import me.saket.press.PressDatabase
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.editor.EditorEvent.ArchiveToggleClicked
+import me.saket.press.shared.editor.EditorEvent.CopyAsClicked
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
+import me.saket.press.shared.editor.EditorEvent.ShareAsClicked
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorUiEffect.BlockedDueToSyncConflict
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
+import me.saket.press.shared.editor.TextFormat.Html
+import me.saket.press.shared.editor.TextFormat.Markdown
+import me.saket.press.shared.editor.TextFormat.RichText
+import me.saket.press.shared.editor.ToolbarIconKind.Archive
+import me.saket.press.shared.editor.ToolbarIconKind.CopyAs
+import me.saket.press.shared.editor.ToolbarIconKind.DuplicateNote
+import me.saket.press.shared.editor.ToolbarIconKind.ShareAs
+import me.saket.press.shared.editor.ToolbarIconKind.Unarchive
 import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.rx.Schedulers
@@ -41,12 +51,16 @@ import me.saket.press.shared.rx.filterNull
 import me.saket.press.shared.rx.mapToOne
 import me.saket.press.shared.rx.mapToOneOrNull
 import me.saket.press.shared.rx.observableInterval
+import me.saket.press.shared.rx.withLatestFrom
 import me.saket.press.shared.sync.SyncMergeConflicts
 import me.saket.press.shared.sync.git.FolderPaths
 import me.saket.press.shared.time.Clock
+import me.saket.press.shared.ui.Clipboard
+import me.saket.press.shared.ui.IntentLauncher
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
 import me.saket.wysiwyg.formatting.TextSelection
+import me.saket.wysiwyg.parser.MarkdownParser
 
 class EditorPresenter(
   val args: Args,
@@ -55,31 +69,34 @@ class EditorPresenter(
   private val schedulers: Schedulers,
   private val strings: Strings,
   private val config: EditorConfig,
-  private val syncConflicts: SyncMergeConflicts
+  private val syncConflicts: SyncMergeConflicts,
+  private val markdownParser: MarkdownParser,
+  private val clipboard: Clipboard
 ) : Presenter<EditorEvent, EditorUiModel, EditorUiEffect>() {
 
   private val openMode = args.openMode
   private val noteQueries get() = database.noteQueries
   private val noteStream = createOrFetchNote().replay(1).refCount()
   private val folderPaths = FolderPaths(database)
+  private val intentLauncher get() = args.navigator.intentLauncher()
 
   override fun defaultUiModel() =
-    EditorUiModel(hintText = null, isArchived = false)
+    EditorUiModel(
+      hintText = null,
+      toolbarMenu = emptyList()
+    )
 
   override fun uiModels(): ObservableWrapper<EditorUiModel> {
     return viewEvents().publish { events ->
       val hintTexts = events.toggleHintText()
-      val uiModels = combineLatest(hintTexts, isNoteArchived()) { hintText, isArchived ->
-        EditorUiModel(
-          hintText = hintText,
-          isArchived = isArchived
-        )
-      }.distinctUntilChanged()
+      val uiModels = combineLatest(hintTexts, buildToolbarMenu(), ::EditorUiModel)
 
       return@publish merge(
-        uiModels,
+        uiModels.distinctUntilChanged(),
         events.autoSaveContent(),
-        handleArchiveClicks(events)
+        handleArchiveClicks(events),
+        handleShareClicks(events),
+        handleCopyClicks(events)
       )
     }.wrap()
   }
@@ -166,11 +183,70 @@ class EditorPresenter(
       }
   }
 
-  private fun isNoteArchived(): Observable<Boolean> {
-    return noteStream
-      .map { it.folderId }
+  private fun buildToolbarMenu(): Observable<List<ToolbarMenuItem>> {
+    val isNoteArchived = noteStream.map { it.folderId }
       .distinctUntilChanged()
       .map(folderPaths::isArchived)
+      .distinctUntilChanged()
+
+    return isNoteArchived.map { isArchived ->
+      listOf(
+        if (isArchived) {
+          ToolbarMenuAction(
+            label = strings.editor.menu_unarchive,
+            icon = Unarchive,
+            clickEvent = ArchiveToggleClicked(archive = false)
+          )
+        } else {
+          ToolbarMenuAction(
+            label = strings.editor.menu_archive,
+            icon = Archive,
+            clickEvent = ArchiveToggleClicked(archive = true)
+          )
+        },
+        ToolbarSubMenu(
+          label = strings.editor.menu_share_as,
+          icon = ShareAs,
+          children = listOf(
+            ToolbarMenuAction(
+              label = strings.editor.menu_share_as_markdown,
+              clickEvent = ShareAsClicked(format = Markdown)
+            ),
+            ToolbarMenuAction(
+              label = strings.editor.menu_share_as_html,
+              clickEvent = ShareAsClicked(format = Html)
+            ),
+            ToolbarMenuAction(
+              label = strings.editor.menu_share_as_richtext,
+              clickEvent = ShareAsClicked(format = RichText)
+            )
+          )
+        ),
+        ToolbarSubMenu(
+          label = strings.editor.menu_copy_as,
+          icon = CopyAs,
+          children = listOf(
+            ToolbarMenuAction(
+              label = strings.editor.menu_copy_as_markdown,
+              clickEvent = CopyAsClicked(format = Markdown)
+            ),
+            ToolbarMenuAction(
+              label = strings.editor.menu_copy_as_html,
+              clickEvent = CopyAsClicked(format = Html)
+            ),
+            ToolbarMenuAction(
+              label = strings.editor.menu_copy_as_richtext,
+              clickEvent = CopyAsClicked(format = RichText)
+            )
+          )
+        ),
+        ToolbarMenuAction(
+          label = strings.editor.menu_duplicate_note,
+          icon = DuplicateNote,
+          clickEvent = null
+        )
+      )
+    }
   }
 
   private fun handleArchiveClicks(
@@ -186,6 +262,47 @@ class EditorPresenter(
           args.navigator.goBack()
         }
       }
+  }
+
+  private fun handleCopyClicks(
+    events: Observable<EditorEvent>
+  ): Observable<EditorUiModel> {
+    val copyClicks = events.ofType<CopyAsClicked>().map { it.format }
+    val noteChanges = events.ofType<NoteTextChanged>().map { it.text }
+
+    return copyClicks.withLatestFrom(noteChanges)
+      .observeOn(schedulers.io)
+      .consumeOnNext { (format, note) ->
+        val formattedText = format.generateFrom(note)
+        val exhaustive = when (format) {
+          Html, RichText -> clipboard.copyRichText(formattedText)
+          Markdown -> clipboard.copyPlainText(formattedText)
+        }
+      }
+  }
+
+  private fun handleShareClicks(
+    events: Observable<EditorEvent>
+  ): Observable<EditorUiModel> {
+    val shareClicks = events.ofType<ShareAsClicked>().map { it.format }
+    val noteChanges = events.ofType<NoteTextChanged>().map { it.text }
+
+    return shareClicks.withLatestFrom(noteChanges)
+      .observeOn(schedulers.io)
+      .consumeOnNext { (format, note) ->
+        val formattedText = format.generateFrom(note)
+        val exhaustive = when (format) {
+          Html, RichText -> intentLauncher.shareRichText(formattedText)
+          Markdown -> intentLauncher.sharePlainText(formattedText)
+        }
+      }
+  }
+
+  private fun TextFormat.generateFrom(noteContent: String): String {
+    return when (this) {
+      Markdown -> noteContent
+      Html, RichText -> markdownParser.renderHtml(noteContent)
+    }
   }
 
   private fun Observable<EditorEvent>.autoSaveContent(): Observable<EditorUiModel> {

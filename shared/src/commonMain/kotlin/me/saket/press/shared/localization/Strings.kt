@@ -33,9 +33,11 @@ data class Strings(
     val menu_share_as: String,
     val menu_share_as_markdown: String,
     val menu_share_as_html: String,
+    val menu_share_as_richtext: String,
     val menu_copy_as: String,
     val menu_copy_as_markdown: String,
     val menu_copy_as_html: String,
+    val menu_copy_as_richtext: String,
     val menu_duplicate_note: String,
 
     val note_archived: String,
@@ -114,9 +116,11 @@ val ENGLISH_STRINGS = Strings(
     menu_share_as = "Share as",
     menu_share_as_markdown = "Markdown",
     menu_share_as_html = "HTML",
+    menu_share_as_richtext = "Rich Text",
     menu_copy_as = "Copy as",
     menu_copy_as_markdown = "Markdown",
     menu_copy_as_html = "HTML",
+    menu_copy_as_richtext = "Rich Text",
     menu_duplicate_note = "Duplicate note",
 
     note_archived = "Note archived",

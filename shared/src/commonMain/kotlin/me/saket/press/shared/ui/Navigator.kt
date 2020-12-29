@@ -7,6 +7,7 @@ interface Navigator {
   fun lfg(screen: ScreenKey)
   fun clearTopAndLfg(screen: ScreenKey)
   fun goBack(result: ScreenResult? = null)
+  fun intentLauncher(): IntentLauncher
 }
 
 interface ScreenKey : AndroidParcel

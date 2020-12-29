@@ -10,6 +10,7 @@ import com.squareup.sqldelight.db.SqlDriver
 import io.ktor.client.engine.okhttp.OkHttp
 import me.saket.press.shared.sync.git.DeviceInfo
 import me.saket.press.shared.sync.git.File
+import me.saket.press.shared.ui.RealClipboard
 
 actual object SharedComponent : BaseSharedComponent() {
   fun initialize(appContext: Application) {
@@ -18,7 +19,8 @@ actual object SharedComponent : BaseSharedComponent() {
         sqlDriver = { sqliteDriver(it, appContext) },
         settings = { settings(appContext) },
         deviceInfo = { deviceInfo(appContext) },
-        httpEngine = { okHttpEngine() }
+        httpEngine = { okHttpEngine() },
+        clipboard = { RealClipboard(appContext) }
       )
     )
   }

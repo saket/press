@@ -11,6 +11,7 @@ import flow.KeyChanger
 import flow.KeyDispatcher
 import flow.KeyParceler
 import kotlinx.android.parcel.Parcelize
+import me.saket.press.shared.ui.IntentLauncher
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.ScreenKey
 import me.saket.press.shared.ui.ScreenResult
@@ -78,6 +79,10 @@ class RealNavigator(
       // Must happen after the back traversal has finished and Views are ready.
       result?.let(screenResults::broadcast)
     }
+  }
+
+  override fun intentLauncher(): IntentLauncher {
+    return RealIntentLauncher(activity)
   }
 }
 

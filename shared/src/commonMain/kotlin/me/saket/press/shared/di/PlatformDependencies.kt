@@ -9,6 +9,8 @@ import me.saket.press.PressDatabase
 import me.saket.press.shared.db.createPressDatabase
 import me.saket.press.shared.note.PrePopulatedNotes
 import me.saket.press.shared.sync.git.DeviceInfo
+import me.saket.press.shared.ui.Clipboard
+import me.saket.press.shared.ui.IntentLauncher
 import org.koin.core.scope.Scope
 
 /**
@@ -19,7 +21,8 @@ data class PlatformDependencies(
   val settings: () -> ObservableSettings,
   val sqlDriver: (SqlDriver.Schema) -> SqlDriver,
   val deviceInfo: () -> DeviceInfo,
-  val httpEngine: () -> HttpClientEngine
+  val httpEngine: () -> HttpClientEngine,
+  val clipboard: () -> Clipboard
 ) {
 
   fun asKoinModule() = org.koin.dsl.module {
@@ -27,6 +30,7 @@ data class PlatformDependencies(
     single { settings() }
     factory { deviceInfo() }
     factory { httpEngine() }
+    factory { clipboard() }
   }
 
   private class SeededSchema(private val koin: Scope) : SqlDriver.Schema by PressDatabase.Schema {

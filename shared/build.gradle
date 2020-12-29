@@ -83,6 +83,7 @@ kotlin {
         implementation deps.androidx.preferences
         implementation deps.timber
         implementation deps.rx2.core
+        implementation deps.rx2.kotlin
         implementation deps.reaktive.interop.rxJava2
         implementation deps.sqlDelight.driver.android
         implementation deps.ktor.client.okHttp

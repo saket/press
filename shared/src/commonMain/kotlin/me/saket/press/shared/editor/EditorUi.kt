@@ -24,11 +24,13 @@ data class EditorScreenKey(val openMode: EditorOpenMode) : ScreenKey
 interface EditorEvent {
   data class NoteTextChanged(val text: String) : EditorEvent
   data class ArchiveToggleClicked(val archive: Boolean) : EditorEvent
+  data class ShareAsClicked(val format: TextFormat) : EditorEvent
+  data class CopyAsClicked(val format: TextFormat) : EditorEvent
 }
 
 data class EditorUiModel(
   val hintText: String?,
-  val isArchived: Boolean
+  val toolbarMenu: List<ToolbarMenuItem>
 )
 
 sealed class EditorUiEffect {
@@ -38,4 +40,29 @@ sealed class EditorUiEffect {
   ) : EditorUiEffect()
 
   object BlockedDueToSyncConflict : EditorUiEffect()
+}
+
+sealed class ToolbarMenuItem {
+  abstract val label: String
+  abstract val icon: ToolbarIconKind?
+}
+
+data class ToolbarMenuAction(
+  override val label: String,
+  override val icon: ToolbarIconKind? = null,
+  val clickEvent: EditorEvent?
+) : ToolbarMenuItem()
+
+data class ToolbarSubMenu(
+  override val label: String,
+  override val icon: ToolbarIconKind? = null,
+  val children: List<ToolbarMenuItem>
+) : ToolbarMenuItem()
+
+enum class ToolbarIconKind {
+  Archive,
+  Unarchive,
+  ShareAs,
+  CopyAs,
+  DuplicateNote
 }

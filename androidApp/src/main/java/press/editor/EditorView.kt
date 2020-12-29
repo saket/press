@@ -10,30 +10,34 @@ import android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
 import android.text.Layout.BREAK_STRATEGY_HIGH_QUALITY
 import android.util.AttributeSet
 import android.view.Gravity.TOP
+import android.view.Menu
+import android.view.MenuItem.SHOW_AS_ACTION_IF_ROOM
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN
 import android.widget.EditText
 import android.widget.Toast
+import android.widget.Toast.LENGTH_SHORT
 import androidx.core.text.buildSpannedString
 import androidx.core.text.inSpans
 import androidx.core.view.updatePaddingRelative
 import androidx.core.widget.NestedScrollView
-import app.cash.exhaustive.Exhaustive
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.inflation.InflationInject
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import io.reactivex.annotations.CheckReturnValue
+import io.reactivex.disposables.Disposable
+import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers
 import me.saket.cascade.CascadePopupMenu
-import me.saket.cascade.allChildren
 import me.saket.cascade.overrideAllPopupMenus
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.R
 import me.saket.press.shared.editor.AutoCorrectEnabled
 import me.saket.press.shared.editor.EditorEvent
-import me.saket.press.shared.editor.EditorEvent.ArchiveToggleClicked
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorPresenter
@@ -43,14 +47,25 @@ import me.saket.press.shared.editor.EditorUiEffect
 import me.saket.press.shared.editor.EditorUiEffect.BlockedDueToSyncConflict
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.editor.EditorUiModel
+import me.saket.press.shared.editor.ToolbarIconKind.Archive
+import me.saket.press.shared.editor.ToolbarIconKind.CopyAs
+import me.saket.press.shared.editor.ToolbarIconKind.DuplicateNote
+import me.saket.press.shared.editor.ToolbarIconKind.ShareAs
+import me.saket.press.shared.editor.ToolbarIconKind.Unarchive
+import me.saket.press.shared.editor.ToolbarMenuAction
+import me.saket.press.shared.editor.ToolbarMenuItem
+import me.saket.press.shared.editor.ToolbarSubMenu
 import me.saket.press.shared.editor.saveEditorContentOnClose
-import me.saket.press.shared.localization.strings
 import me.saket.press.shared.settings.Setting
+import me.saket.press.shared.theme.AppTheme
 import me.saket.press.shared.theme.DisplayUnits
 import me.saket.press.shared.theme.TextStyles.mainBody
 import me.saket.press.shared.theme.TextView
+import me.saket.press.shared.theme.ThemePalette
 import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.theme.from
+import me.saket.press.shared.theme.listenRx
+import me.saket.press.shared.ui.models
 import me.saket.press.shared.ui.subscribe
 import me.saket.press.shared.ui.uiUpdates
 import me.saket.wysiwyg.Wysiwyg
@@ -58,13 +73,10 @@ import me.saket.wysiwyg.formatting.TextSelection
 import me.saket.wysiwyg.parser.node.HeadingLevel.H1
 import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.widgets.addTextChangedListener
-import press.Clipboards
-import press.Intents
-import press.editor.TextFormat.Html
-import press.editor.TextFormat.Markdown
 import press.extensions.doOnTextChange
 import press.extensions.findParentOfType
 import press.extensions.fromOreo
+import press.extensions.getDrawable
 import press.extensions.interceptPullToCollapseOnView
 import press.extensions.showKeyboard
 import press.extensions.textColor
@@ -84,7 +96,8 @@ class EditorView @InflationInject constructor(
   @Assisted context: Context,
   @Assisted attrs: AttributeSet? = null,
   presenterFactory: EditorPresenter.Factory,
-  autoCorrectEnabled: Setting<AutoCorrectEnabled>
+  autoCorrectEnabled: Setting<AutoCorrectEnabled>,
+  private val appTheme: AppTheme
 ) : ContourLayout(context), BackPressInterceptor {
 
   private val toolbar = PressToolbar(context).apply {
@@ -154,10 +167,6 @@ class EditorView @InflationInject constructor(
     )
   }
 
-  private val toolbarArchiveItem by unsafeLazy { toolbar.menu.findItem(R.id.editortoolbar_archive) }
-  private val toolbarUnarchiveItem by unsafeLazy { toolbar.menu.findItem(R.id.editortoolbar_unarchive) }
-  private lateinit var toolbarMenuEvents: (EditorEvent) -> Unit
-
   init {
     id = R.id.editor_view
     scrollView.addView(editorEditText, MATCH_PARENT, WRAP_CONTENT)
@@ -165,8 +174,6 @@ class EditorView @InflationInject constructor(
     themeAware { palette ->
       setBackgroundColor(palette.window.editorBackgroundColor)
     }
-
-    populateToolbarMenu()
 
     // TODO: add support for changing WysiwygStyle.
     themePalette()
@@ -194,14 +201,28 @@ class EditorView @InflationInject constructor(
     editorEditText.doOnTextChange {
       presenter.dispatch(NoteTextChanged(it.toString()))
     }
-    toolbarMenuEvents = {
-      presenter.dispatch(it)
-    }
 
     presenter.uiUpdates()
-      .takeUntil(detaches())
       .observeOn(mainThread())
-      .subscribe(models = ::render, effects = ::render)
+      .publishAndConnect { updates ->
+        updates
+          .takeUntil(detaches())
+          .subscribe(models = ::render, effects = ::render)
+
+        updates.models()
+          .map { it.toolbarMenu }
+          .distinctUntilChanged()
+          .let { Observables.combineLatest(it, appTheme.listenRx()) }
+          .takeUntil(detaches())
+          .subscribe { (menu, palette) ->
+            renderToolbarMenu(menu, palette)
+          }
+      }
+  }
+
+  @CheckReturnValue
+  fun <T> Observable<T>.publishAndConnect(func: (Observable<T>) -> Unit): Disposable {
+    return publish().also { func.invoke(it) }.connect()
   }
 
   override fun onInterceptBackPress(): InterceptResult {
@@ -226,9 +247,6 @@ class EditorView @InflationInject constructor(
         }
       }
     }
-
-    toolbarArchiveItem.isVisible = !model.isArchived
-    toolbarUnarchiveItem.isVisible = model.isArchived
   }
 
   private fun render(uiUpdate: EditorUiEffect) {
@@ -238,87 +256,57 @@ class EditorView @InflationInject constructor(
     }
   }
 
-  private fun EditText.setText(newText: CharSequence, newSelection: TextSelection?) {
-    setText(newText)
-    newSelection?.let {
-      setSelection(it.start, it.end)
+  private fun renderToolbarMenu(items: List<ToolbarMenuItem>, palette: ThemePalette) {
+    toolbar.menu.clear()
+    for (item in items) {
+      item.addToMenu(toolbar.menu, palette)
+    }
+
+    toolbar.overflowIcon!!.setTint(palette.accentColor)
+    toolbar.overrideAllPopupMenus { context, anchor ->
+      CascadePopupMenu(context, anchor, styler = pressCascadeStyler(palette))
     }
   }
 
-  private fun populateToolbarMenu() {
-    toolbar.inflateMenu(R.menu.editor_toolbar)
-    val menuItems = toolbar.menu.allChildren
+  private fun ToolbarMenuItem.addToMenu(menu: Menu, palette: ThemePalette) {
+    val item: ToolbarMenuItem = this
+    val iconRes = when (item.icon) {
+      Archive -> R.drawable.ic_twotone_archive_24
+      Unarchive -> R.drawable.ic_twotone_unarchive_24
+      ShareAs -> R.drawable.ic_twotone_share_24
+      CopyAs -> R.drawable.ic_twotone_file_copy_24
+      DuplicateNote -> R.drawable.ic_twotone_note_add_24
+      null -> null
+    }
+    val icon = iconRes?.let { context.getDrawable(iconRes, palette.accentColor) }
 
-    val strings = context.strings().editor
-    menuItems.forEach { item ->
-      item.title = when (item.itemId) {
-        R.id.editortoolbar_archive -> strings.menu_archive
-        R.id.editortoolbar_unarchive -> strings.menu_unarchive
-        R.id.editortoolbar_share_as -> strings.menu_share_as
-        R.id.editortoolbar_share_as_markdown -> strings.menu_share_as_markdown
-        R.id.editortoolbar_share_as_html -> strings.menu_share_as_html
-        R.id.editortoolbar_copy_as -> strings.menu_copy_as
-        R.id.editortoolbar_copy_as_markdown -> strings.menu_copy_as_markdown
-        R.id.editortoolbar_copy_as_html -> strings.menu_copy_as_html
-        R.id.editortoolbar_duplicate -> strings.menu_duplicate_note
-        else -> error("No title for ${resources.getResourceEntryName(item.itemId)}")
+    val menuItem = when (item) {
+      is ToolbarMenuAction -> {
+        menu.add(item.label).setOnMenuItemClickListener {
+          if (item.clickEvent != null) presenter.dispatch(item.clickEvent!!)
+          else Toast.makeText(context, "Work in progress", LENGTH_SHORT).show()
+          true
+        }
+      }
+      is ToolbarSubMenu -> {
+        val subMenu = menu.addSubMenu(item.label)
+        item.children.forEach { it.addToMenu(subMenu, palette) }
+        subMenu.item
       }
     }
 
-    themeAware { palette ->
-      toolbar.overflowIcon!!.setTint(palette.accentColor)
-      menuItems.forEach { it.iconTintList = ColorStateList.valueOf(palette.accentColor) }
-
-      toolbar.overrideAllPopupMenus { context, anchor ->
-        CascadePopupMenu(context, anchor, styler = pressCascadeStyler(palette))
-      }
-    }
-
-    toolbar.setOnMenuItemClickListener { item ->
-      when (item.itemId) {
-        R.id.editortoolbar_archive -> {
-          Toast.makeText(context, strings.note_archived, Toast.LENGTH_SHORT).show()
-          toolbarMenuEvents(ArchiveToggleClicked(archive = true))
-        }
-        R.id.editortoolbar_unarchive -> {
-          Toast.makeText(context, strings.note_unarchived, Toast.LENGTH_SHORT).show()
-          toolbarMenuEvents(ArchiveToggleClicked(archive = false))
-        }
-        R.id.editortoolbar_share_as_markdown -> shareNoteAs(Markdown)
-        R.id.editortoolbar_share_as_html -> shareNoteAs(Html)
-        R.id.editortoolbar_copy_as_markdown -> copyNoteAs(Markdown)
-        R.id.editortoolbar_copy_as_html -> copyNoteAs(Html)
-        else -> {
-          if (!item.hasSubMenu()) {
-            Toast.makeText(context, "Work in progress", Toast.LENGTH_SHORT).show()
-          }
-        }
-      }
-      true
+    menuItem.let {
+      it.icon = icon
+      it.iconTintList = ColorStateList.valueOf(palette.accentColor)
+      it.setShowAsAction(SHOW_AS_ACTION_IF_ROOM)
+      it.setTitle(item.label)
     }
   }
+}
 
-  private fun shareNoteAs(format: TextFormat) {
-    format.generateFrom(editorEditText.text)
-      .observeOn(mainThread())
-      .subscribe { text ->
-        @Exhaustive
-        when (format) {
-          Markdown,
-          Html -> Intents.sharePlainText(context, text)
-        }
-      }
-  }
-
-  private fun copyNoteAs(format: TextFormat) {
-    format.generateFrom(editorEditText.text)
-      .observeOn(mainThread())
-      .subscribe { text ->
-        @Exhaustive
-        when (format) {
-          Markdown,
-          Html -> Clipboards.copyPlainText(context, text)
-        }
-      }
+private fun EditText.setText(newText: CharSequence, newSelection: TextSelection?) {
+  setText(newText)
+  newSelection?.let {
+    setSelection(it.start, it.end)
   }
 }
