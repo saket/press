@@ -42,9 +42,6 @@ import me.saket.press.shared.editor.EditorUiEffect
 import me.saket.press.shared.editor.EditorUiEffect.BlockedDueToSyncConflict
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.editor.EditorUiModel
-import me.saket.press.shared.editor.TextFormat
-import me.saket.press.shared.editor.TextFormat.Html
-import me.saket.press.shared.editor.TextFormat.Markdown
 import me.saket.press.shared.editor.saveEditorContentOnClose
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.settings.Setting
@@ -60,7 +57,10 @@ import me.saket.wysiwyg.formatting.TextSelection
 import me.saket.wysiwyg.parser.node.HeadingLevel.H1
 import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.widgets.addTextChangedListener
+import press.Clipboards
 import press.Intents
+import press.editor.TextFormat.Html
+import press.editor.TextFormat.Markdown
 import press.extensions.doOnTextChange
 import press.extensions.findParentOfType
 import press.extensions.fromOreo
@@ -155,7 +155,7 @@ class EditorView @InflationInject constructor(
 
   private val toolbarArchiveItem by unsafeLazy { toolbar.menu.findItem(R.id.editortoolbar_archive) }
   private val toolbarUnarchiveItem by unsafeLazy { toolbar.menu.findItem(R.id.editortoolbar_unarchive) }
-  private lateinit var toolbarMenuClicks: (EditorEvent) -> Unit
+  private lateinit var toolbarMenuEvents: (EditorEvent) -> Unit
 
   init {
     id = R.id.editor_view
@@ -193,7 +193,7 @@ class EditorView @InflationInject constructor(
     editorEditText.doOnTextChange {
       presenter.dispatch(NoteTextChanged(it.toString()))
     }
-    toolbarMenuClicks = {
+    toolbarMenuEvents = {
       presenter.dispatch(it)
     }
 
@@ -277,13 +277,14 @@ class EditorView @InflationInject constructor(
       when (item.itemId) {
         R.id.editortoolbar_archive -> {
           Toast.makeText(context, strings.note_archived, Toast.LENGTH_SHORT).show()
-          toolbarMenuClicks(ArchiveToggleClicked(archive = true))
+          toolbarMenuEvents(ArchiveToggleClicked(archive = true))
         }
         R.id.editortoolbar_unarchive -> {
           Toast.makeText(context, strings.note_unarchived, Toast.LENGTH_SHORT).show()
-          toolbarMenuClicks(ArchiveToggleClicked(archive = false))
+          toolbarMenuEvents(ArchiveToggleClicked(archive = false))
         }
         R.id.editortoolbar_share_as_markdown -> shareNoteAs(Markdown)
+        R.id.editortoolbar_copy_as_markdown -> copyNoteAs(Markdown)
         else -> {
           if (!item.hasSubMenu()) {
             Toast.makeText(context, "Work in progress", Toast.LENGTH_SHORT).show()
@@ -295,10 +296,20 @@ class EditorView @InflationInject constructor(
   }
 
   private fun shareNoteAs(format: TextFormat) {
-    val textToShare: CharSequence = when (format) {
-      Markdown -> editorEditText.text.toString()
+    when (format) {
+      Markdown -> {
+        Intents.sharePlainText(context, format.generateFrom(editorEditText.text))
+      }
       Html -> TODO("Convert markdown to HTML")
     }
-    Intents.sharePlainText(context, textToShare)
+  }
+
+  private fun copyNoteAs(format: TextFormat) {
+    when (format) {
+      Markdown -> {
+        Clipboards.copyPlainText(context, format.generateFrom(editorEditText.text).toString())
+      }
+      Html -> TODO("Convert markdown to HTML")
+    }
   }
 }

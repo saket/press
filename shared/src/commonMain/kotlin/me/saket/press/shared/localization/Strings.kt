@@ -39,7 +39,8 @@ data class Strings(
     val menu_duplicate_note: String,
 
     val note_archived: String,
-    val note_unarchived: String
+    val note_unarchived: String,
+    val note_copied: String
   )
 
   data class Sync(
@@ -120,6 +121,7 @@ val ENGLISH_STRINGS = Strings(
 
     note_archived = "Note archived",
     note_unarchived = "Note unarchived",
+    note_copied = "Ready to be pasted"
   ),
   sync = Sync(
     title = "Sync",

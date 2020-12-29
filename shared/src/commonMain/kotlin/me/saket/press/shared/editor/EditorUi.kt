@@ -26,11 +26,6 @@ interface EditorEvent {
   data class ArchiveToggleClicked(val archive: Boolean) : EditorEvent
 }
 
-enum class TextFormat {
-  Markdown,
-  Html
-}
-
 data class EditorUiModel(
   val hintText: String?,
   val isArchived: Boolean
