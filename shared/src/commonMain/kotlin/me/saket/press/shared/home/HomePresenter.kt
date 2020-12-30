@@ -45,7 +45,7 @@ class HomePresenter(
   override fun defaultUiModel() =
     HomeUiModel(rows = emptyList(), title = "")
 
-  override fun uiModels() =
+  override fun models() =
     merge(populateNotes(), openNewNoteScreen()).wrap()
 
   private fun openNewNoteScreen(): Observable<HomeUiModel> {

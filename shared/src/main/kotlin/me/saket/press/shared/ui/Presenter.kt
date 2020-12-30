@@ -1,6 +1,5 @@
 package me.saket.press.shared.ui
 
-import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.rxjavainterop.asRxJava2Observable
@@ -12,9 +11,13 @@ import io.reactivex.Observable as RxJavaObservable
 
 fun <EV : Any, M : Any, EF : Any> Presenter<EV, M, EF>.uiUpdates(): RxJavaObservable<UiUpdate<out M, out EF>> {
   return merge(
-    uiModels().map(::UiModel),
+    models().map(::UiModel),
     uiEffects().map(::UiEffect)
   ).asRxJava2Observable()
+}
+
+fun <EV : Any, M : Any, EF : Any> Presenter<EV, M, EF>.models(): RxJavaObservable<M> {
+  return this.models().asRxJava2Observable()
 }
 
 fun <M, EF> RxJavaObservable<UiUpdate<out M, out EF>>.subscribe(

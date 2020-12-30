@@ -31,8 +31,7 @@ import me.saket.press.shared.sync.git.GitHostIntegrationUiModel
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.SelectRepo
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowFailure
 import me.saket.press.shared.sync.git.GitHostIntegrationUiModel.ShowProgress
-import me.saket.press.shared.ui.subscribe
-import me.saket.press.shared.ui.uiUpdates
+import me.saket.press.shared.ui.models
 import press.extensions.doOnTextChange
 import press.extensions.findParentOfType
 import press.extensions.hideKeyboard
@@ -144,17 +143,17 @@ class GitHostIntegrationView @InflationInject constructor(
         }
       )
     }
-    searchView.editText!!.doOnTextChange {
+    searchView.editText.doOnTextChange {
       presenter.dispatch(SearchTextChanged(it.toString()))
     }
     newGitRepoFab.setOnClickListener {
       presenter.dispatch(CreateNewGitRepoClicked)
     }
 
-    presenter.uiUpdates()
+    presenter.models()
       .takeUntil(detaches())
       .observeOn(mainThread())
-      .subscribe(models = ::render)
+      .subscribe(::render)
 
     val page = findParentOfType<ExpandablePageLayout>()
     page?.pullToCollapseInterceptor = interceptPullToCollapseOnView(recyclerView)

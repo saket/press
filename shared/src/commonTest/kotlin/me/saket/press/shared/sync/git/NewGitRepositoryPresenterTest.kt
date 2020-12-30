@@ -53,7 +53,7 @@ class NewGitRepositoryPresenterTest : BaseDatabaeTest() {
     val presenter = presenter()
 
     val models = presenter
-      .uiModels()
+      .models()
       .map { it.submitEnabled }
       .distinctUntilChanged()
       .test(rxRule)
@@ -70,7 +70,7 @@ class NewGitRepositoryPresenterTest : BaseDatabaeTest() {
       dispatch(NameTextChanged(name = "N@me_w1th **sym.bols**"))
     }
 
-    presenter.uiModels()
+    presenter.models()
       .map { it.repoUrlPreview }
       .distinctUntilChanged()
       .test(rxRule)
@@ -79,7 +79,7 @@ class NewGitRepositoryPresenterTest : BaseDatabaeTest() {
 
   @Test fun `create repo on submit`() {
     val presenter = presenter(username = "cage")
-    val models = presenter.uiModels().test(rxRule)
+    val models = presenter.models().test(rxRule)
 
     presenter.run {
       dispatch(NameTextChanged(name = "national-treasure"))
@@ -103,7 +103,7 @@ class NewGitRepositoryPresenterTest : BaseDatabaeTest() {
 
   @Test fun `show failure if repo creation fails`() {
     val presenter = presenter(username = "cage")
-    val models = presenter.uiModels().test(rxRule)
+    val models = presenter.models().test(rxRule)
 
     presenter.run {
       dispatch(NameTextChanged(name = "national-treasure"))
@@ -126,7 +126,7 @@ class NewGitRepositoryPresenterTest : BaseDatabaeTest() {
 
   @Test fun `finish if repo creation succeeds`() {
     val presenter = presenter(username = "cage")
-    val models = presenter.uiModels().test(rxRule)
+    val models = presenter.models().test(rxRule)
 
     presenter.run {
       dispatch(NameTextChanged(name = "national-treasure"))

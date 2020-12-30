@@ -71,7 +71,7 @@ class GitHostIntegrationPresenter(
 
   override fun defaultUiModel() = ShowProgress
 
-  override fun uiModels(): ObservableWrapper<GitHostIntegrationUiModel> {
+  override fun models(): ObservableWrapper<GitHostIntegrationUiModel> {
     return viewEvents().publish { events ->
       merge(
         completeAuth(events),

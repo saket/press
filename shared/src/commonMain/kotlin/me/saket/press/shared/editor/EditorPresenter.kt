@@ -86,7 +86,7 @@ class EditorPresenter(
       toolbarMenu = emptyList()
     )
 
-  override fun uiModels(): ObservableWrapper<EditorUiModel> {
+  override fun models(): ObservableWrapper<EditorUiModel> {
     return viewEvents().publish { events ->
       val hintTexts = events.toggleHintText()
       val uiModels = combineLatest(hintTexts, buildToolbarMenu(), ::EditorUiModel)

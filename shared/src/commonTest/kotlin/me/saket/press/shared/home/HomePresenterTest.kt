@@ -79,7 +79,7 @@ class HomePresenterTest : BaseDatabaeTest() {
     )
     noteQueries.testInsert(nicolasCage, witcher3, uncharted)
 
-    val models = presenter().uiModels()
+    val models = presenter().models()
       .map { it.rows }
       .test(rxRule)
 
@@ -120,7 +120,7 @@ class HomePresenterTest : BaseDatabaeTest() {
     )
     noteQueries.testInsert(nicolasCage, witcher3, uncharted)
 
-    val models = presenter(folder = archive.id).uiModels()
+    val models = presenter(folder = archive.id).models()
       .map { it.rows }
       .test(rxRule)
 
@@ -145,7 +145,7 @@ class HomePresenterTest : BaseDatabaeTest() {
     )
 
     presenter(includeEmptyNotes = false)
-      .uiModels()
+      .models()
       .test()
       .apply {
         val titleAndBodies = values[0].notes.map { it.title to it.body }
@@ -161,7 +161,7 @@ class HomePresenterTest : BaseDatabaeTest() {
     )
 
     presenter(includeEmptyNotes = true)
-      .uiModels()
+      .models()
       .test()
       .apply {
         val titleAndBodies = values[0].notes.map { it.title to it.body }
@@ -175,7 +175,7 @@ class HomePresenterTest : BaseDatabaeTest() {
 
   @Test fun `open new note screen when new note is clicked`() {
     val presenter = presenter().also {
-      it.uiModels().test()
+      it.models().test()
     }
     assertThat(noteQueries.allNotes().executeAsList()).isEmpty()
 
@@ -189,7 +189,7 @@ class HomePresenterTest : BaseDatabaeTest() {
   }
 
   @Test fun `open new note screen on new-note keyboard shortcut`() {
-    presenter().uiModels().test()
+    presenter().models().test()
     assertThat(noteQueries.allNotes().executeAsList()).isEmpty()
 
     keyboardShortcuts.broadcast(KeyboardShortcuts.newNote)
@@ -204,7 +204,7 @@ class HomePresenterTest : BaseDatabaeTest() {
   @Test fun `create new note in the current folder`() {
     val folderId = FolderId.generate()
     val presenter = presenter(folder = folderId).also {
-      it.uiModels().test()
+      it.models().test()
     }
 
     presenter.dispatch(NewNoteClicked)

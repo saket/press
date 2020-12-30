@@ -3,7 +3,6 @@ package press.sync
 import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
-import android.view.Gravity
 import android.view.Gravity.CENTER
 import android.view.inputmethod.EditorInfo.IME_ACTION_GO
 import android.widget.FrameLayout
@@ -17,7 +16,6 @@ import androidx.transition.Fade
 import androidx.transition.TransitionManager
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
-import com.squareup.contour.SizeMode.AtMost
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.inflation.InflationInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
@@ -31,8 +29,7 @@ import me.saket.press.shared.sync.git.NewGitRepositoryScreenKey
 import me.saket.press.shared.sync.git.NewGitRepositoryUiModel
 import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.applyStyle
-import me.saket.press.shared.ui.subscribe
-import me.saket.press.shared.ui.uiUpdates
+import me.saket.press.shared.ui.models
 import press.extensions.doOnEditorAction
 import press.extensions.doOnTextChange
 import press.extensions.setTextAndCursor
@@ -109,7 +106,7 @@ class NewGitRepositoryView @InflationInject constructor(
       presenter.dispatch(NameTextChanged(it.toString()))
     }
 
-    presenter.uiUpdates()
+    presenter.models()
       .observeOn(mainThread())
       .takeUntil(detaches())
       .subscribe(::render)

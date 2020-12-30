@@ -20,6 +20,7 @@ import me.saket.press.shared.sync.git.GitSyncer
 class SyncMergeConflicts {
   private val conflictedNotes = BehaviorSubject<List<NoteId>>(emptyList())
 
+  // todo: rename to broadcast.
   fun add(noteId: NoteId) =
     conflictedNotes.onNext(conflictedNotes.value + noteId)
 

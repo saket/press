@@ -2,7 +2,6 @@ package me.saket.press.shared.sync.git
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isEqualToWithGivenProperties
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
@@ -66,7 +65,7 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
   @Test fun `retry auth`() {
     gitService.completeAuth.value = { error("boom!") }
 
-    val models = presenter.uiModels()
+    val models = presenter.models()
       .test(rxRule)
       .assertValue(ShowProgress)
       .assertValue(ShowFailure(kind = Authorization))
@@ -87,7 +86,7 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
     gitService.user.value = { error("user fetch failure") }
     presenter.dispatch(SearchTextChanged("")) // Initial event sent by the view.
 
-    val models = presenter.uiModels()
+    val models = presenter.models()
       .distinctUntilChanged()
       .test(rxRule)
       .assertValue(ShowProgress)
@@ -117,7 +116,7 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
     gitService.deployKeyResult.value = { error("key boom!") }
     presenter.dispatch(GitRepositoryClicked(repo))
 
-    val models = presenter.uiModels()
+    val models = presenter.models()
       .test(rxRule)
       .assertValue(ShowProgress)
       .assertValue(ShowFailure(kind = AddingDeployKey))
@@ -147,7 +146,7 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
     gitService.completeAuth.value = { GitHostAuthToken("nicolas.cage") }
     gitService.userRepos.value = { listOf(repo) }
 
-    presenter.uiModels()
+    presenter.models()
       .test(rxRule)
       .assertEmpty()
 
@@ -162,7 +161,7 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
     gitService.userRepos.value = { listOf(repo) }
     gitService.user.value = { user }
 
-    presenter.uiModels()
+    presenter.models()
       .test(rxRule)
       .assertValue(ShowProgress)
       .popAllValues()
@@ -175,7 +174,7 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
   @Test fun `show new git repo screen`() {
     userSetting.set(user)
 
-    val models = presenter.uiModels().test(rxRule)
+    val models = presenter.models().test(rxRule)
 
     presenter.run {
       dispatch(SearchTextChanged("cage"))

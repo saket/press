@@ -18,8 +18,7 @@ import me.saket.press.shared.sync.stats.SyncStatsForNerdsUiModel
 import me.saket.press.shared.theme.TextStyles.mainBody
 import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextView
-import me.saket.press.shared.ui.subscribe
-import me.saket.press.shared.ui.uiUpdates
+import me.saket.press.shared.ui.models
 import press.extensions.findParentOfType
 import press.extensions.interceptPullToCollapseOnView
 import press.extensions.textColor
@@ -99,7 +98,7 @@ class SyncStatsForNerdsView @InflationInject constructor(
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
 
-    presenter.uiUpdates()
+    presenter.models()
       .takeUntil(detaches())
       .observeOn(mainThread())
       .subscribe(::render)

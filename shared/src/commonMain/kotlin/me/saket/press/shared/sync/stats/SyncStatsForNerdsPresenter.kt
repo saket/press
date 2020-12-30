@@ -30,7 +30,7 @@ class SyncStatsForNerdsPresenter(
     )
   }
 
-  override fun uiModels(): ObservableWrapper<SyncStatsForNerdsUiModel> {
+  override fun models(): ObservableWrapper<SyncStatsForNerdsUiModel> {
     return observableInterval(startDelay = 0, period = 1.seconds, schedulers.computation)
       .map {
         SyncStatsForNerdsUiModel(

@@ -8,11 +8,9 @@ import android.view.Menu
 import android.view.MenuItem.SHOW_AS_ACTION_IF_ROOM
 import android.view.MotionEvent
 import android.view.View
-import androidx.appcompat.widget.Toolbar
 import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.ConcatAdapter
-import androidx.recyclerview.widget.ConcatAdapter.Config.StableIdMode.ISOLATED_STABLE_IDS
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.detaches
@@ -36,8 +34,7 @@ import me.saket.press.shared.home.HomeUiModel
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.sync.SyncPreferencesScreenKey
 import me.saket.press.shared.ui.ScreenKey
-import me.saket.press.shared.ui.subscribe
-import me.saket.press.shared.ui.uiUpdates
+import me.saket.press.shared.ui.models
 import press.extensions.attr
 import press.extensions.findParentOfType
 import press.extensions.getDrawable
@@ -121,7 +118,7 @@ class HomeView @InflationInject constructor(
       )
     )
 
-    presenter.uiUpdates()
+    presenter.models()
       .takeUntil(detaches())
       .observeOn(mainThread())
       .subscribe(::render)

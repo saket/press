@@ -48,7 +48,7 @@ class SyncPreferencesPresenter(
   }
 
   @Suppress("NAME_SHADOWING")
-  override fun uiModels(): ObservableWrapper<SyncPreferencesUiModel> {
+  override fun models(): ObservableWrapper<SyncPreferencesUiModel> {
     val models = syncer.status()
       .map { status ->
         when (status) {

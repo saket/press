@@ -30,11 +30,11 @@ abstract class Presenter<Event : Any, Model : Any, Effect : Any> {
   /**
    * todo: get rid of this and use null on SwiftUI.
    * Used only by SwiftUI right now. Rendering of Android
-   * layouts are delayed until [uiModels] emits a value.
+   * layouts are delayed until [models] emits a value.
    */
   abstract fun defaultUiModel(): Model
 
-  internal abstract fun uiModels(): ObservableWrapper<Model>
+  internal abstract fun models(): ObservableWrapper<Model>
 
   internal open fun uiEffects(): ObservableWrapper<Effect> = observableOfEmpty<Effect>().wrap()
 }

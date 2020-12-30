@@ -51,7 +51,7 @@ class NewGitRepositoryPresenter(
     submitEnabled = false
   )
 
-  override fun uiModels(): ObservableWrapper<Model> {
+  override fun models(): ObservableWrapper<Model> {
     return viewEvents().publish { events ->
       val repoUrls = events
         .ofType<NameTextChanged>()
