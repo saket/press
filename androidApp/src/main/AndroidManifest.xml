@@ -3,7 +3,6 @@
   package="me.saket.press">
 
   <uses-permission android:name="android.permission.INTERNET" />
-  <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
   <application
     android:name="press.ReleasePressApp"
@@ -18,17 +17,13 @@
     <activity
       android:name="press.navigation.TheActivity"
       android:windowSoftInputMode="adjustResize"
-      android:documentLaunchMode="intoExisting"
-      android:launchMode="standard">  <!-- singleTop tried at runtime. See TheActivity.intent(). -->
+      android:launchMode="singleTask">
 
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
-    </activity>
 
-    <activity android:name="press.navigation.IntentReceiverActivity"
-      >
       <!-- Share receiver. -->
       <intent-filter>
         <action android:name="android.intent.action.SEND" />
@@ -44,5 +39,10 @@
         <data android:scheme="intent" android:host="press" />
       </intent-filter>
     </activity>
+
+    <activity
+      android:name="press.navigation.NewTaskTheActivity"
+      android:windowSoftInputMode="adjustResize"
+      android:launchMode="standard" />
   </application>
 </manifest>

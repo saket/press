@@ -65,7 +65,7 @@ class RealNavigator(
 
   override fun splitScreenAndLfg(screen: ScreenKey) {
     activity.startActivity(
-      TheActivity.intent(activity, singleTop = false)
+      TheActivity.intent(activity, initialScreen = screen, newTask = true)
         .addFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT)
         .addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

@@ -6,7 +6,6 @@ import android.content.Intent.ACTION_SEND
 import android.content.Intent.ACTION_VIEW
 import android.content.Intent.EXTRA_SUBJECT
 import android.content.Intent.EXTRA_TEXT
-import android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
@@ -28,7 +27,7 @@ import press.navigation.transitions.ExpandableScreenTransition
 import press.navigation.transitions.MorphFromFabScreenTransition
 import press.widgets.ThemeAwareActivity
 
-class TheActivity : ThemeAwareActivity(), HasNavigator {
+open class TheActivity : ThemeAwareActivity(), HasNavigator {
   override lateinit var navigator: Navigator
   private val navHostView by unsafeLazy { FrameLayout(this) }
 
@@ -37,16 +36,11 @@ class TheActivity : ThemeAwareActivity(), HasNavigator {
 
     fun intent(
       context: Context,
-      singleTop: Boolean = true,
-      initialScreen: ScreenKey? = null
+      initialScreen: ScreenKey? = null,
+      newTask: Boolean = false
     ): Intent {
-      return Intent(context, TheActivity::class.java).apply {
-        if (singleTop) {
-          // TheActivity uses a "standard" launchMode in manifest so that
-          // it can be duplicated in split-screen mode, but Press otherwise
-          // always wants only one instance of TheActivity to be ever active.
-          addFlags(FLAG_ACTIVITY_SINGLE_TOP)
-        }
+      val targetActivity = if (newTask) NewTaskTheActivity::class.java else TheActivity::class.java
+      return Intent(context, targetActivity).apply {
         if (initialScreen != null) {
           putExtra(KEY_INITIAL_SCREEN, initialScreen)
         }
@@ -91,7 +85,7 @@ class TheActivity : ThemeAwareActivity(), HasNavigator {
 
   private fun readDeepLinkedScreen(intent: Intent): ScreenKey? {
     return if (intent.hasExtra(KEY_INITIAL_SCREEN)) {
-      intent.getParcelableExtra(KEY_INITIAL_SCREEN)
+      intent.getParcelableExtra(KEY_INITIAL_SCREEN)!!
 
     } else if (intent.action == ACTION_SEND) {
       EditorScreenKey(
