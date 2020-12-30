@@ -4,6 +4,7 @@ import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.ObservableWrapper
 import com.badoo.reaktive.observable.distinctUntilChanged
 import com.badoo.reaktive.observable.map
+import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observeOn
 import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.wrap
@@ -17,7 +18,6 @@ import me.saket.press.shared.rx.mergeWith
 import me.saket.press.shared.settings.Setting
 import me.saket.press.shared.sync.SyncPreferencesEvent.DisableSyncClicked
 import me.saket.press.shared.sync.SyncPreferencesEvent.SetupHostClicked
-import me.saket.press.shared.sync.SyncPreferencesUiEffect.OpenUrl
 import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncDisabled
 import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncEnabled
 import me.saket.press.shared.sync.Syncer.Status.Disabled
@@ -30,10 +30,12 @@ import me.saket.press.shared.sync.git.GitHostAuthToken
 import me.saket.press.shared.sync.git.GitRepositoryCache
 import me.saket.press.shared.sync.git.service.GitHostService
 import me.saket.press.shared.time.Clock
+import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.util.format
 
 class SyncPreferencesPresenter(
+  private val args: Args,
   private val syncer: Syncer,
   private val gitHostService: GitHostService.Factory,
   private val schedulers: Schedulers,
@@ -41,7 +43,7 @@ class SyncPreferencesPresenter(
   private val clock: Clock,
   private val strings: Strings,
   private val cachedRepos: GitRepositoryCache
-) : Presenter<SyncPreferencesEvent, SyncPreferencesUiModel, SyncPreferencesUiEffect>() {
+) : Presenter<SyncPreferencesEvent, SyncPreferencesUiModel, Nothing>() {
 
   override fun defaultUiModel(): SyncPreferencesUiModel {
     return SyncDisabled(availableGitHosts = emptyList())
@@ -80,9 +82,11 @@ class SyncPreferencesPresenter(
         }
       }.distinctUntilChanged()
 
-    return models
-      .mergeWith(handleDisableSyncClicks())
-      .wrap()
+    return merge(
+      models,
+      handleDisableSyncClicks(),
+      handleOpenAuthClicks()
+    ).wrap()
   }
 
   private fun LastSyncedAt.relativeTimestamp(): String {
@@ -98,20 +102,28 @@ class SyncPreferencesPresenter(
   }
 
   private fun handleDisableSyncClicks(): Observable<SyncPreferencesUiModel> {
-    return viewEvents().ofType<DisableSyncClicked>()
+    return viewEvents()
+      .ofType<DisableSyncClicked>()
       .observeOn(schedulers.io)
       .consumeOnNext { syncer.disable() }
   }
 
-  override fun uiEffects(): ObservableWrapper<SyncPreferencesUiEffect> {
+  private fun handleOpenAuthClicks(): Observable<SyncPreferencesUiModel> {
     return viewEvents()
       .ofType<SetupHostClicked>()
-      .map { (host) ->
+      .consumeOnNext { (host) ->
         cachedRepos.set(null)
         authToken(host).set(null)
         val service = gitHostService.create(host)
-        OpenUrl(service.generateAuthUrl(host.deepLink()))
+        args.navigator.intentLauncher().openUrl(service.generateAuthUrl(host.deepLink()))
       }
-      .wrap()
   }
+
+  fun interface Factory {
+    fun create(args: Args): SyncPreferencesPresenter
+  }
+
+  data class Args(
+    val navigator: Navigator
+  )
 }

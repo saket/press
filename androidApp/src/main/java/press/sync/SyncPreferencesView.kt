@@ -1,10 +1,8 @@
 package press.sync
 
 import android.content.Context
-import android.net.Uri
 import android.util.AttributeSet
 import android.widget.ViewFlipper
-import androidx.browser.customtabs.CustomTabsIntent
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
@@ -15,21 +13,20 @@ import me.saket.press.shared.localization.strings
 import me.saket.press.shared.sync.SyncPreferencesEvent.DisableSyncClicked
 import me.saket.press.shared.sync.SyncPreferencesEvent.SetupHostClicked
 import me.saket.press.shared.sync.SyncPreferencesPresenter
-import me.saket.press.shared.sync.SyncPreferencesUiEffect
-import me.saket.press.shared.sync.SyncPreferencesUiEffect.OpenUrl
 import me.saket.press.shared.sync.SyncPreferencesUiModel
 import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncDisabled
 import me.saket.press.shared.sync.SyncPreferencesUiModel.SyncEnabled
-import me.saket.press.shared.ui.subscribe
-import me.saket.press.shared.ui.uiUpdates
+import me.saket.press.shared.ui.models
 import press.extensions.setDisplayedChild
+import press.extensions.unsafeLazy
+import press.navigation.navigator
 import press.theme.themeAware
 import press.widgets.PressToolbar
 
 class SyncPreferencesView @InflationInject constructor(
   @Assisted context: Context,
   @Assisted attrs: AttributeSet? = null,
-  private val presenter: SyncPreferencesPresenter
+  presenterFactory: SyncPreferencesPresenter.Factory
 ) : ContourLayout(context) {
 
   private val toolbar = PressToolbar(context).apply {
@@ -55,6 +52,12 @@ class SyncPreferencesView @InflationInject constructor(
     )
   }
 
+  private val presenter by unsafeLazy {
+    presenterFactory.create(
+      SyncPreferencesPresenter.Args(navigator = navigator())
+    )
+  }
+
   init {
     id = R.id.syncpreferences_view
     themeAware {
@@ -69,10 +72,10 @@ class SyncPreferencesView @InflationInject constructor(
       presenter.dispatch(DisableSyncClicked)
     }
 
-    presenter.uiUpdates()
+    presenter.models()
       .takeUntil(detaches())
       .observeOn(mainThread())
-      .subscribe(models = ::render, effects = ::render)
+      .subscribe(::render)
   }
 
   private fun render(model: SyncPreferencesUiModel) {
@@ -87,16 +90,6 @@ class SyncPreferencesView @InflationInject constructor(
         contentFlipperView.setDisplayedChild(syncEnabledView)
         syncEnabledView.render(model)
       }
-    }
-  }
-
-  private fun render(effect: SyncPreferencesUiEffect) {
-    return when (effect) {
-      is OpenUrl -> CustomTabsIntent.Builder()
-        .setShowTitle(true)
-        .addDefaultShareMenuItem()
-        .build()
-        .launchUrl(context, Uri.parse(effect.url))
     }
   }
 }

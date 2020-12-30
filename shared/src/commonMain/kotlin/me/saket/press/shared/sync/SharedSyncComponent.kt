@@ -50,7 +50,18 @@ class SharedSyncComponent {
       }
     }
     single<GitRepositoryCache> { GitRepositoryCache.InMemory() }
-    factory { SyncPreferencesPresenter(get(), get(), get(), get(), get(), get(), get()) }
+    factory { (args: SyncPreferencesPresenter.Args) ->
+      SyncPreferencesPresenter(
+        args = args,
+        syncer = get(),
+        gitHostService = get(),
+        schedulers = get(),
+        authToken = get(),
+        clock = get(),
+        strings = get(),
+        cachedRepos = get()
+      )
+    }
     factory { (args: GitHostIntegrationPresenter.Args) ->
       GitHostIntegrationPresenter(
         args = args,
@@ -124,7 +135,9 @@ class SharedSyncComponent {
   }
 
   companion object {
-    fun preferencesPresenter(): SyncPreferencesPresenter = koin()
+    fun preferencesPresenter(args: SyncPreferencesPresenter.Args) =
+      koin<SyncPreferencesPresenter> { parametersOf(args) }
+
     fun statsForNerdsPresenter(): SyncStatsForNerdsPresenter = koin()
 
     fun integrationPresenter(args: GitHostIntegrationPresenter.Args) =

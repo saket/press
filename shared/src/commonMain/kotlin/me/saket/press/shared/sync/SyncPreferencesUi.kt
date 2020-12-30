@@ -24,7 +24,3 @@ sealed class SyncPreferencesUiModel {
     val status: String
   ) : SyncPreferencesUiModel()
 }
-
-sealed class SyncPreferencesUiEffect {
-  data class OpenUrl(val url: String) : SyncPreferencesUiEffect()
-}
