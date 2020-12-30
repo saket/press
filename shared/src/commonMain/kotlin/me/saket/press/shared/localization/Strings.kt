@@ -77,7 +77,9 @@ data class Strings(
 
     val nerd_stats_title: String,
     val nerd_stats_git_size: String,
+    val nerd_stats_git_size_unavailable: String,
     val nerd_stats_logs_label: String,
+    val nerd_stats_emptystate: String,
 
     val newgitrepo_title: String,
     val newgitrepo_name_hint: String,
@@ -163,7 +165,9 @@ val ENGLISH_STRINGS = Strings(
 
     nerd_stats_title = "Stats for nerds",
     nerd_stats_git_size = "Git directory size: %s",
+    nerd_stats_git_size_unavailable = "N / A",
     nerd_stats_logs_label = "Logs: ",
+    nerd_stats_emptystate = "Logs will be shown here after the first sync",
 
     newgitrepo_title = "New private repository",
     newgitrepo_name_hint = "Enter a name…",
