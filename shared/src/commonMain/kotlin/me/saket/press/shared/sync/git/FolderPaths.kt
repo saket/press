@@ -97,12 +97,11 @@ internal class FolderPaths(private val database: PressDatabase) {
 
   fun isArchived(folderId: FolderId?): Boolean {
     val path = createPath(folderId)
-    println("Path: '${path.flatten()}'")
     return path.head() == "archive"
   }
 }
 
-internal class FolderPath(val paths: List<String>) {
+internal class FolderPath(private val paths: List<String>) {
   fun flatten(): String =
     paths.joinToString(separator = "/")
 
