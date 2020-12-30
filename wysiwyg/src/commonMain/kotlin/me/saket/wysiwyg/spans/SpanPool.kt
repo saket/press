@@ -43,19 +43,9 @@ class SpanPool {
   }
 }
 
-interface Stack<T> {
-  fun pop(): T
-  fun push(t: T)
-  fun isEmpty(): Boolean
-
-  companion object {
-    operator fun <T> invoke(): Stack<T> {
-      return object : Stack<T> {
-        private val list = mutableListOf<T>()
-        override fun pop(): T = list.removeLast()
-        override fun push(t: T) = list.add(list.lastIndex + 1, t)
-        override fun isEmpty(): Boolean = list.isEmpty()
-      }
-    }
-  }
+private class Stack<T> {
+  private val list = mutableListOf<T>()
+  fun pop(): T = list.removeLast()
+  fun push(t: T) = list.add(list.lastIndex + 1, t)
+  fun isEmpty(): Boolean = list.isEmpty()
 }

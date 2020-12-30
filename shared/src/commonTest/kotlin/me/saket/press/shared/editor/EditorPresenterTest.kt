@@ -8,7 +8,6 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
-import co.touchlab.stately.collections.IsoMutableList
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.test.base.assertNotError
 import com.badoo.reaktive.test.observable.test
@@ -16,6 +15,7 @@ import com.badoo.reaktive.test.scheduler.TestScheduler
 import com.soywiz.klock.TimeSpan
 import com.soywiz.klock.seconds
 import me.saket.press.shared.FakeSchedulers
+import me.saket.press.shared.IsoStack
 import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorEvent.ArchiveToggleClicked
@@ -57,7 +57,7 @@ class EditorPresenterTest : BaseDatabaeTest() {
   private val navigator = FakeNavigator()
   private val syncConflicts = SyncMergeConflicts()
 
-  private val uiEffects = Stack<EditorUiEffect>()
+  private val uiEffects = IsoStack<EditorUiEffect>()
 
   private fun presenter(
     openMode: EditorOpenMode,
@@ -343,10 +343,4 @@ private fun NewNote(id: NoteId) = NewNote(PlaceholderNoteId(id), preFilledNote =
 
 private fun TestScheduler.Timer.advanceBy(timeSpan: TimeSpan) {
   advanceBy(timeSpan.millisecondsLong)
-}
-
-private class Stack<T> {
-  private val list = IsoMutableList<T>()
-  fun pop(): T = list.removeLast()
-  fun push(t: T) = list.add(list.lastIndex + 1, t)
 }

@@ -1,11 +1,13 @@
 package me.saket.press.shared.ui
 
+import me.saket.press.shared.IsoStack
+
 class FakeNavigator : Navigator {
-  private val backstack = ArrayDeque<Any>()
+  private val backstack = IsoStack<Any>()
   private val intentLauncher = FakeIntentLauncher()
 
   override fun lfg(screen: ScreenKey) {
-    backstack.addFirst(screen)
+    backstack.push(screen)
   }
 
   override fun clearTopAndLfg(screen: ScreenKey) {
@@ -14,10 +16,15 @@ class FakeNavigator : Navigator {
   }
 
   override fun goBack(result: ScreenResult?) {
-    backstack.addFirst(Back(result))
+    backstack.push(Back(result))
   }
 
-  fun pop(): Any? = backstack.removeFirstOrNull()
+  fun pop(): Any? {
+    return when {
+      backstack.isEmpty() -> null
+      else -> backstack.pop()
+    }
+  }
 
   override fun intentLauncher() = intentLauncher
 }
