@@ -6,9 +6,6 @@ import android.content.Intent.ACTION_SEND
 import android.content.Intent.ACTION_VIEW
 import android.content.Intent.EXTRA_SUBJECT
 import android.content.Intent.EXTRA_TEXT
-import android.content.Intent.FLAG_ACTIVITY_FORWARD_RESULT
-import android.content.Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
-import android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
 import android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
 import android.os.Bundle
 import android.view.View
@@ -36,13 +33,22 @@ class TheActivity : ThemeAwareActivity(), HasNavigator {
   private val navHostView by unsafeLazy { FrameLayout(this) }
 
   companion object {
-    fun intent(context: Context, singleTop: Boolean = true): Intent {
+    private const val KEY_INITIAL_SCREEN = "initial_screen"
+
+    fun intent(
+      context: Context,
+      singleTop: Boolean = true,
+      initialScreen: ScreenKey? = null
+    ): Intent {
       return Intent(context, TheActivity::class.java).apply {
         if (singleTop) {
           // TheActivity uses a "standard" launchMode in manifest so that
           // it can be duplicated in split-screen mode, but Press otherwise
           // always wants only one instance of TheActivity to be ever active.
           addFlags(FLAG_ACTIVITY_SINGLE_TOP)
+        }
+        if (initialScreen != null) {
+          putExtra(KEY_INITIAL_SCREEN, initialScreen)
         }
       }
     }
@@ -84,7 +90,10 @@ class TheActivity : ThemeAwareActivity(), HasNavigator {
   }
 
   private fun readDeepLinkedScreen(intent: Intent): ScreenKey? {
-    return if (intent.action == ACTION_SEND) {
+    return if (intent.hasExtra(KEY_INITIAL_SCREEN)) {
+      intent.getParcelableExtra(KEY_INITIAL_SCREEN)
+
+    } else if (intent.action == ACTION_SEND) {
       EditorScreenKey(
         NewNote(
           noteId = PlaceholderNoteId(NoteId.generate()),

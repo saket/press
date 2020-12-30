@@ -26,6 +26,7 @@ interface EditorEvent {
   data class ArchiveToggleClicked(val archive: Boolean) : EditorEvent
   data class ShareAsClicked(val format: TextFormat) : EditorEvent
   data class CopyAsClicked(val format: TextFormat) : EditorEvent
+  object SplitScreenClicked : EditorEvent
 }
 
 data class EditorUiModel(

@@ -15,6 +15,10 @@ class FakeNavigator : Navigator {
     lfg(screen)
   }
 
+  override fun splitScreenAndLfg(screen: ScreenKey) {
+    backstack.push(screen)
+  }
+
   override fun goBack(result: ScreenResult?) {
     backstack.push(Back(result))
   }

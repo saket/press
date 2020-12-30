@@ -2,6 +2,7 @@ package press.navigation
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Parcelable
 import android.view.View
 import flow.Direction.REPLACE
@@ -60,6 +61,15 @@ class RealNavigator(
         )
       }
     }
+  }
+
+  override fun splitScreenAndLfg(screen: ScreenKey) {
+    activity.startActivity(
+      TheActivity.intent(activity, singleTop = false)
+        .addFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT)
+        .addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    )
   }
 
   @Suppress("NAME_SHADOWING")

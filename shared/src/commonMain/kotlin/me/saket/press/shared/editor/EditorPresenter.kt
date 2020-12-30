@@ -27,6 +27,8 @@ import me.saket.press.shared.editor.EditorEvent.ArchiveToggleClicked
 import me.saket.press.shared.editor.EditorEvent.CopyAsClicked
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorEvent.ShareAsClicked
+import me.saket.press.shared.editor.EditorEvent.SplitScreenClicked
+import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorUiEffect.BlockedDueToSyncConflict
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
@@ -98,6 +100,7 @@ class EditorPresenter(
           events.autoSaveContent(noteStream),
           handleArchiveClicks(events, noteStream),
           handleShareClicks(events),
+          handleSplitScreenClicks(events, noteStream),
           handleCopyClicks(events),
           populateExistingNoteOnStart(noteStream),
           blockEditingOnSyncConflict(noteStream)
@@ -250,7 +253,7 @@ class EditorPresenter(
           ToolbarMenuAction(
             label = strings.editor.menu_open_in_split_screen,
             icon = OpenInSplitScreen,
-            clickEvent = null
+            clickEvent = SplitScreenClicked
           )
         } else null,
       )
@@ -304,6 +307,17 @@ class EditorPresenter(
           Html, RichText -> intentLauncher.shareRichText(formattedText)
           Markdown -> intentLauncher.sharePlainText(formattedText)
         }
+      }
+  }
+
+  private fun handleSplitScreenClicks(
+    events: Observable<EditorEvent>,
+    noteStream: Observable<Note>
+  ): Observable<EditorUiModel> {
+    return events.ofType<SplitScreenClicked>()
+      .withLatestFrom(noteStream)
+      .consumeOnNext { (_, note) ->
+        args.navigator.splitScreenAndLfg(EditorScreenKey(ExistingNote(PreSavedNoteId(note.id))))
       }
   }
 

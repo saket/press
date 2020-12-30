@@ -11,7 +11,6 @@ import android.text.Layout.BREAK_STRATEGY_HIGH_QUALITY
 import android.util.AttributeSet
 import android.view.Gravity.TOP
 import android.view.Menu
-import android.view.MenuItem
 import android.view.MenuItem.SHOW_AS_ACTION_IF_ROOM
 import android.view.MenuItem.SHOW_AS_ACTION_NEVER
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
