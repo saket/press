@@ -6,6 +6,10 @@ import android.content.Intent.ACTION_SEND
 import android.content.Intent.ACTION_VIEW
 import android.content.Intent.EXTRA_SUBJECT
 import android.content.Intent.EXTRA_TEXT
+import android.content.Intent.FLAG_ACTIVITY_FORWARD_RESULT
+import android.content.Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
+import android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+import android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
@@ -30,6 +34,19 @@ import press.widgets.ThemeAwareActivity
 class TheActivity : ThemeAwareActivity(), HasNavigator {
   override lateinit var navigator: Navigator
   private val navHostView by unsafeLazy { FrameLayout(this) }
+
+  companion object {
+    fun intent(context: Context, singleTop: Boolean = true): Intent {
+      return Intent(context, TheActivity::class.java).apply {
+        if (singleTop) {
+          // TheActivity uses a "standard" launchMode in manifest so that
+          // it can be duplicated in split-screen mode, but Press otherwise
+          // always wants only one instance of TheActivity to be ever active.
+          addFlags(FLAG_ACTIVITY_SINGLE_TOP)
+        }
+      }
+    }
+  }
 
   override fun attachBaseContext(newBase: Context) {
     val screenChanger = ScreenKeyChanger(

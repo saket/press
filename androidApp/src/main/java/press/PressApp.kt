@@ -51,7 +51,7 @@ abstract class PressApp : Application(), LifecycleObserver {
     val newNote = ShortcutInfo.Builder(this, "new_note")
       .setShortLabel(getString(R.string.shortcut_new_note_label))
       .setIcon(Icon.createWithResource(this, R.drawable.ic_note_add_black_24dp))
-      .setIntent(Intent(this, TheActivity::class.java).setAction(Intent.ACTION_SEND))
+      .setIntent(TheActivity.intent(this).setAction(Intent.ACTION_SEND))
       .build()
 
     getSystemService<ShortcutManager>()!!.dynamicShortcuts = listOf(newNote)
