@@ -11,7 +11,9 @@ import android.text.Layout.BREAK_STRATEGY_HIGH_QUALITY
 import android.util.AttributeSet
 import android.view.Gravity.TOP
 import android.view.Menu
+import android.view.MenuItem
 import android.view.MenuItem.SHOW_AS_ACTION_IF_ROOM
+import android.view.MenuItem.SHOW_AS_ACTION_NEVER
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN
@@ -296,11 +298,11 @@ class EditorView @InflationInject constructor(
       }
     }
 
-    menuItem.let {
+    menuItem.also {
       it.icon = icon
       it.iconTintList = ColorStateList.valueOf(palette.accentColor)
-      it.setShowAsAction(SHOW_AS_ACTION_IF_ROOM)
-      it.setTitle(item.label)
+      it.title = item.label
+      it.setShowAsAction(if (menu.size() <= 2) SHOW_AS_ACTION_IF_ROOM else SHOW_AS_ACTION_NEVER)
     }
   }
 }
