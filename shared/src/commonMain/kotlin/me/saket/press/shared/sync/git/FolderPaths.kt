@@ -80,9 +80,9 @@ internal class FolderPaths(private val database: PressDatabase) {
     val currentPath = createPath(note.folderId)
 
     if (archive) {
-      check(currentPath.head() != "archive")
+      check(currentPath.head() != "archive") { "Note is already archived" }
     } else {
-      check(currentPath.head() == "archive")
+      check(currentPath.head() == "archive") { "Note is already unarchived" }
     }
 
     val newPath = when {
@@ -91,12 +91,14 @@ internal class FolderPaths(private val database: PressDatabase) {
     }
     noteQueries.updateFolder(
       id = note.id,
-      folderId = mkdirs(newPath.flatten())
+      folderId = mkdirs(newPath.flatten()).also { println("Updating folderId to $it") }
     )
   }
 
   fun isArchived(folderId: FolderId?): Boolean {
-    return createPath(folderId).head() == "archive"
+    val path = createPath(folderId)
+    println("Path: '${path.flatten()}'")
+    return path.head() == "archive"
   }
 }
 

@@ -17,8 +17,6 @@ import com.badoo.reaktive.observable.observableOfEmpty
 import com.badoo.reaktive.observable.observeOn
 import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.publish
-import com.badoo.reaktive.observable.refCount
-import com.badoo.reaktive.observable.replay
 import com.badoo.reaktive.observable.take
 import com.badoo.reaktive.observable.takeUntil
 import com.badoo.reaktive.observable.withLatestFrom
@@ -48,7 +46,6 @@ import me.saket.press.shared.rx.combineLatestWith
 import me.saket.press.shared.rx.consumeOnNext
 import me.saket.press.shared.rx.filterNotNull
 import me.saket.press.shared.rx.filterNull
-import me.saket.press.shared.rx.mapToOne
 import me.saket.press.shared.rx.mapToOneOrNull
 import me.saket.press.shared.rx.observableInterval
 import me.saket.press.shared.rx.withLatestFrom
@@ -56,7 +53,6 @@ import me.saket.press.shared.sync.SyncMergeConflicts
 import me.saket.press.shared.sync.git.FolderPaths
 import me.saket.press.shared.time.Clock
 import me.saket.press.shared.ui.Clipboard
-import me.saket.press.shared.ui.IntentLauncher
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
 import me.saket.wysiwyg.formatting.TextSelection
@@ -76,7 +72,6 @@ class EditorPresenter(
 
   private val openMode = args.openMode
   private val noteQueries get() = database.noteQueries
-  private val noteStream = createOrFetchNote().replay(1).refCount()
   private val folderPaths = FolderPaths(database)
   private val intentLauncher get() = args.navigator.intentLauncher()
 
@@ -88,24 +83,24 @@ class EditorPresenter(
 
   override fun models(): ObservableWrapper<EditorUiModel> {
     return viewEvents().publish { events ->
-      val hintTexts = events.toggleHintText()
-      val uiModels = combineLatest(hintTexts, buildToolbarMenu(), ::EditorUiModel)
+      createOrFetchNote().publish { noteStream ->
+        val models = combineLatest(
+          events.toggleHintText(),
+          buildToolbarMenu(noteStream),
+          ::EditorUiModel
+        )
 
-      return@publish merge(
-        uiModels.distinctUntilChanged(),
-        events.autoSaveContent(),
-        handleArchiveClicks(events),
-        handleShareClicks(events),
-        handleCopyClicks(events)
-      )
+        merge(
+          models.distinctUntilChanged(),
+          events.autoSaveContent(noteStream),
+          handleArchiveClicks(events, noteStream),
+          handleShareClicks(events),
+          handleCopyClicks(events),
+          populateExistingNoteOnStart(noteStream),
+          blockEditingOnSyncConflict(noteStream)
+        )
+      }
     }.wrap()
-  }
-
-  override fun uiEffects(): ObservableWrapper<EditorUiEffect> {
-    return merge(
-      populateExistingNoteOnStart(),
-      blockEditingOnSyncConflict()
-    ).wrap()
   }
 
   private fun createOrFetchNote(): Observable<Note> {
@@ -117,7 +112,7 @@ class EditorPresenter(
     val createIfNeeded = if (openMode is NewNote) {
       // This function can get called multiple times if it's re-subscribed.
       // Create a new note only if one doesn't exist already.
-      noteQueries.note(newOrExistingId)
+      noteQueries.note(newOrExistingId) // todo: use a single insert statement that ignores if the note already exists.
         .asObservable(schedulers.io)
         .mapToOneOrNull()
         .take(1)
@@ -134,35 +129,38 @@ class EditorPresenter(
           }
         }
     } else {
-      // If the note gets deleted on another device (that is, deletedAt != null),
-      // Press will continue updating the same note.
       completableOfEmpty()
     }
 
     return createIfNeeded.andThen(
       noteQueries.note(newOrExistingId)
         .asObservable(schedulers.io)
-        .mapToOne()
+        .mapToOneOrNull()
+        .filterNotNull()
     )
   }
 
-  private fun populateExistingNoteOnStart(): Observable<EditorUiEffect> {
+  private fun populateExistingNoteOnStart(noteStream: Observable<Note>): Observable<EditorUiModel> {
     return noteStream
       .take(1)
-      .map {
+      .consumeOnNext {
         val isNewNote = it.content == NEW_NOTE_PLACEHOLDER
-        UpdateNoteText(
-          newText = it.content,
-          newSelection = if (isNewNote) TextSelection.cursor(it.content.length) else null
+        args.onEffect(
+          UpdateNoteText(
+            newText = it.content,
+            newSelection = if (isNewNote) TextSelection.cursor(it.content.length) else null
+          )
         )
       }
   }
 
-  private fun blockEditingOnSyncConflict(): Observable<EditorUiEffect> {
-    return noteConflicts().map { BlockedDueToSyncConflict }
+  private fun blockEditingOnSyncConflict(noteStream: Observable<Note>): Observable<EditorUiModel> {
+    return noteConflicts(noteStream).consumeOnNext {
+      args.onEffect(BlockedDueToSyncConflict)
+    }
   }
 
-  private fun noteConflicts(): Observable<Unit> {
+  private fun noteConflicts(noteStream: Observable<Note>): Observable<Unit> {
     return noteStream
       .take(1)
       .flatMap { syncConflicts.isConflicted(it.id) }
@@ -183,7 +181,7 @@ class EditorPresenter(
       }
   }
 
-  private fun buildToolbarMenu(): Observable<List<ToolbarMenuItem>> {
+  private fun buildToolbarMenu(noteStream: Observable<Note>): Observable<List<ToolbarMenuItem>> {
     val isNoteArchived = noteStream.map { it.folderId }
       .distinctUntilChanged()
       .map(folderPaths::isArchived)
@@ -250,7 +248,8 @@ class EditorPresenter(
   }
 
   private fun handleArchiveClicks(
-    events: Observable<EditorEvent>
+    events: Observable<EditorEvent>,
+    noteStream: Observable<Note>
   ): Observable<EditorUiModel> {
     return events.ofType<ArchiveToggleClicked>()
       .withLatestFrom(noteStream, ::Pair)
@@ -305,7 +304,7 @@ class EditorPresenter(
     }
   }
 
-  private fun Observable<EditorEvent>.autoSaveContent(): Observable<EditorUiModel> {
+  private fun Observable<EditorEvent>.autoSaveContent(noteStream: Observable<Note>): Observable<EditorUiModel> {
     val textChanges = ofType<NoteTextChanged>().map { it.text }
 
     return noteStream
@@ -314,7 +313,7 @@ class EditorPresenter(
         observableInterval(config.autoSaveEvery, schedulers.computation)
           .withLatestFrom(textChanges) { _, text -> text }
           .distinctUntilChanged()
-          .takeUntil(noteConflicts())
+          .takeUntil(noteConflicts(noteStream))
           .flatMapCompletable { text ->
             completableFromFunction {
               noteQueries.updateContent(
@@ -338,9 +337,6 @@ class EditorPresenter(
       is PreSavedNoteId -> it.id
     }
 
-    // For reasons I don't understand, noteStream doesn't get re-subscribed
-    // when this function is called after EditorView gets detached. Fetching
-    // the note again here.
     return noteQueries.note(noteId)
       .asObservable(schedulers.io)
       .mapToOneOrNull()
@@ -349,18 +345,16 @@ class EditorPresenter(
       .filter { (_, isConflicted) -> !isConflicted }
       .take(1)
       .flatMapCompletable { (note) ->
-        val maybeDelete = when {
-          shouldDelete -> completableFromFunction { noteQueries.markAsPendingDeletion(note.id) }
-          else -> completableOfEmpty()
-        }
-        val update = completableFromFunction {
+        completableFromFunction {
+          if (shouldDelete) {
+            noteQueries.markAsPendingDeletion(note.id)
+          }
           noteQueries.updateContent(
             id = note.id,
             content = content,
             updatedAt = clock.nowUtc()
           )
         }
-        return@flatMapCompletable update.andThen(maybeDelete)
       }
   }
 
@@ -372,7 +366,8 @@ class EditorPresenter(
     val openMode: EditorOpenMode,
     /** Should be kept in sync with [HomePresenter.Args.includeBlankNotes]. */
     val deleteBlankNewNoteOnExit: Boolean,
-    val navigator: Navigator
+    val navigator: Navigator,
+    val onEffect: (EditorUiEffect) -> Unit
   )
 
   companion object {

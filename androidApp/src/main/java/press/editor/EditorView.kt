@@ -37,7 +37,6 @@ import me.saket.cascade.overrideAllPopupMenus
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.R
 import me.saket.press.shared.editor.AutoCorrectEnabled
-import me.saket.press.shared.editor.EditorEvent
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorPresenter
@@ -66,8 +65,6 @@ import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.theme.from
 import me.saket.press.shared.theme.listenRx
 import me.saket.press.shared.ui.models
-import me.saket.press.shared.ui.subscribe
-import me.saket.press.shared.ui.uiUpdates
 import me.saket.wysiwyg.Wysiwyg
 import me.saket.wysiwyg.formatting.TextSelection
 import me.saket.wysiwyg.parser.node.HeadingLevel.H1
@@ -162,7 +159,8 @@ class EditorView @InflationInject constructor(
       Args(
         openMode = screenKey<EditorScreenKey>().openMode,
         deleteBlankNewNoteOnExit = true,
-        navigator = navigator()
+        navigator = navigator(),
+        onEffect = ::render
       )
     )
   }
@@ -202,15 +200,14 @@ class EditorView @InflationInject constructor(
       presenter.dispatch(NoteTextChanged(it.toString()))
     }
 
-    presenter.uiUpdates()
+    presenter.models()
       .observeOn(mainThread())
-      .publishAndConnect { updates ->
-        updates
+      .publishAndConnect { models ->
+        models
           .takeUntil(detaches())
-          .subscribe(models = ::render, effects = ::render)
+          .subscribe(::render)
 
-        updates.models()
-          .map { it.toolbarMenu }
+        models.map { it.toolbarMenu }
           .distinctUntilChanged()
           .let { Observables.combineLatest(it, appTheme.listenRx()) }
           .takeUntil(detaches())
