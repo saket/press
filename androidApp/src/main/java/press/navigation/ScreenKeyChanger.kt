@@ -86,6 +86,7 @@ class ScreenKeyChanger(
       oldForegroundView?.bringToFront()
     }
     dispatchFocusChangeCallback()
+    assignElevationAsPerZIndex()
 
     val leftOverViews = hostView().children.filter { it !== newBackgroundView && it !== newForegroundView }
     val removeLeftOverViews = {
@@ -138,6 +139,13 @@ class ScreenKeyChanger(
     }
 
     callback.onTraversalCompleted()
+  }
+
+  private fun assignElevationAsPerZIndex() {
+    val baseElevation = hostView().dp(40f)
+    hostView().children.forEachIndexed { index, view ->
+      view.elevation = baseElevation + index
+    }
   }
 
   private fun <T> List<T>.secondLast(): T? {

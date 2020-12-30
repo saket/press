@@ -21,14 +21,10 @@ interface FormFactor {
  * Shows all screens as pull-collapsible.
  */
 class PhoneFormFactor(private val viewFactories: ViewFactories) : FormFactor {
-  companion object {
-    const val SCREEN_ELEVATION_DP = 40f
-  }
-
   override fun createView(context: Context, screen: ScreenKey): View {
     val view = viewFactories.createView(context, screen).let {
       if (HomeScreenKey.isRoot(screen) || it is NotPullCollapsible) {
-        it.apply { elevation = dp(SCREEN_ELEVATION_DP) }
+        it
       } else {
         makeScreenPullCollapsible(it)
       }
@@ -44,7 +40,6 @@ class PhoneFormFactor(private val viewFactories: ViewFactories) : FormFactor {
       id = view.id
       view.id = View.NO_ID
 
-      elevation = dp(SCREEN_ELEVATION_DP)
       animationInterpolator = PathInterpolator(0.5f, 0f, 0f, 1f)
       animationDurationMillis = 350
       contentOpacityWhenCollapsed = 0f
