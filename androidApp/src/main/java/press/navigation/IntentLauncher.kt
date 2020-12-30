@@ -1,10 +1,9 @@
 package press.navigation
 
 import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_SYSTEM
 import androidx.core.app.ShareCompat
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.ui.IntentLauncher
@@ -30,8 +29,9 @@ class RealIntentLauncher(val context: Activity) : IntentLauncher {
     CustomTabsIntent.Builder()
       .setShowTitle(true)
       .addDefaultShareMenuItem()
+      .enableUrlBarHiding()
+      .setColorScheme(COLOR_SCHEME_SYSTEM)
       .build()
       .launchUrl(context, Uri.parse(url))
   }
 }
-
