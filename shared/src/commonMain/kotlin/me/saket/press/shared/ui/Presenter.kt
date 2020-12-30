@@ -35,11 +35,4 @@ abstract class Presenter<Event : Any, Model : Any, Effect : Any> {
   abstract fun defaultUiModel(): Model
 
   internal abstract fun models(): ObservableWrapper<Model>
-
-  internal open fun uiEffects(): ObservableWrapper<Effect> = observableOfEmpty<Effect>().wrap()
-}
-
-sealed class UiUpdate<Model, Effect> {
-  data class UiModel<T>(val model: T) : UiUpdate<T, Nothing>()
-  data class UiEffect<T>(val effect: T) : UiUpdate<Nothing, T>()
 }

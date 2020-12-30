@@ -25,7 +25,7 @@ struct HomeView: View {
     let editorWidth = Dimensions.editorWidth
 
     return NavigationView {
-      Subscribe($presenter) { (model: HomeUiModel, effects) in
+      Subscribe($presenter) { (model: HomeUiModel) in
         Group {
           /// SwiftUI doesn't offer a way to skip animation when showing
           /// Views *for the first time* so skip laying the Views altogether

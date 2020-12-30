@@ -15,7 +15,7 @@ struct EditorView: View {
   private let openMode: EditorOpenMode
 
   var body: some View {
-    Subscribe($presenter) { (model: EditorUiModel, effects) in
+    Subscribe($presenter) { (model: EditorUiModel) in
       ZStack(alignment: .topLeading) {
         // Hint text for the heading.
         if (model.hintText != nil) {
@@ -32,10 +32,10 @@ struct EditorView: View {
           view.setPaddings(horizontal: 25, vertical: 35)
         })
       }
-        .onReceive(effects.updateNoteText()) {
-          // TODO: consume effect.newSelection.
-          editorText.value = $0.newText
-        }
+        //.onReceive(effects.updateNoteText()) {
+        //  // TODO: consume effect.newSelection.
+        //  editorText.value = $0.newText
+        //}
         // TODO: consume BlockedDueToSyncConflict
         .onDisappear {
           /// TODO: this is dangerous. Saving the editor content before it's
