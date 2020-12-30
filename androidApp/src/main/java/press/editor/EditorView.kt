@@ -22,6 +22,7 @@ import androidx.core.text.buildSpannedString
 import androidx.core.text.inSpans
 import androidx.core.view.updatePaddingRelative
 import androidx.core.widget.NestedScrollView
+import app.cash.exhaustive.Exhaustive
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
@@ -247,9 +248,12 @@ class EditorView @InflationInject constructor(
   }
 
   private fun render(uiUpdate: EditorUiEffect) {
-    return when (uiUpdate) {
-      is UpdateNoteText -> editorEditText.setText(uiUpdate.newText, uiUpdate.newSelection)
-      is BlockedDueToSyncConflict -> EditingBlockedDueToConflictDialog.show(context, onDismiss = navigator()::goBack)
+    post {
+      @Exhaustive
+      when (uiUpdate) {
+        is UpdateNoteText -> editorEditText.setText(uiUpdate.newText, uiUpdate.newSelection)
+        is BlockedDueToSyncConflict -> EditingBlockedDueToConflictDialog.show(context, onDismiss = navigator()::goBack)
+      }
     }
   }
 
