@@ -36,6 +36,7 @@ import me.saket.press.shared.sync.SyncMergeConflicts
 import me.saket.press.shared.sync.SyncState.IN_FLIGHT
 import me.saket.press.shared.sync.git.DelegatingPressDatabase
 import me.saket.press.shared.sync.git.FolderPaths
+import me.saket.press.shared.testDeviceInfo
 import me.saket.press.shared.time.FakeClock
 import me.saket.press.shared.ui.FakeClipboard
 import me.saket.press.shared.ui.FakeNavigator
@@ -76,7 +77,8 @@ class EditorPresenterTest : BaseDatabaeTest() {
       config = config,
       syncConflicts = syncConflicts,
       markdownParser = MarkdownParser(),
-      clipboard = FakeClipboard()
+      clipboard = FakeClipboard(),
+      deviceInfo = testDeviceInfo()
     )
   }
 

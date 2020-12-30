@@ -14,4 +14,6 @@ actual fun testDeviceInfo() = object : DeviceInfo {
   }
 
   override fun deviceName() = "Test"
+
+  override fun supportsSplitScreen(): Boolean = false
 }

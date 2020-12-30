@@ -64,5 +64,6 @@ enum class ToolbarIconKind {
   Unarchive,
   ShareAs,
   CopyAs,
-  DuplicateNote
+  DuplicateNote,
+  OpenInSplitScreen
 }

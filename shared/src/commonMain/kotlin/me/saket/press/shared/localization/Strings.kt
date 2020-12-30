@@ -39,6 +39,7 @@ data class Strings(
     val menu_copy_as_html: String,
     val menu_copy_as_richtext: String,
     val menu_duplicate_note: String,
+    val menu_open_in_split_screen: String,
 
     val note_archived: String,
     val note_unarchived: String,
@@ -124,6 +125,7 @@ val ENGLISH_STRINGS = Strings(
     menu_copy_as_html = "HTML",
     menu_copy_as_richtext = "Rich Text",
     menu_duplicate_note = "Duplicate note",
+    menu_open_in_split_screen = "Split screen",
 
     note_archived = "Note archived",
     note_unarchived = "Note unarchived",

@@ -21,7 +21,8 @@ class SharedEditorComponent {
         config = editorConfig(),
         syncConflicts = get(),
         markdownParser = MarkdownParser(),
-        clipboard = get()
+        clipboard = get(),
+        deviceInfo = get()
       )
     }
     factory(named("autocorrect")) {

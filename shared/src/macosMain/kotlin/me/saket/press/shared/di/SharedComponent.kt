@@ -6,6 +6,7 @@ import com.squareup.sqldelight.drivers.native.NativeSqliteDriver
 import io.ktor.client.engine.cio.CIO
 import me.saket.press.shared.sync.git.DeviceInfo
 import me.saket.press.shared.sync.git.File
+import me.saket.press.shared.ui.Clipboard
 import platform.Foundation.NSUserDefaults
 
 actual object SharedComponent : BaseSharedComponent() {
@@ -15,7 +16,8 @@ actual object SharedComponent : BaseSharedComponent() {
         sqlDriver = { sqliteDriver(it) },
         settings = { settings() },
         deviceInfo = { deviceInfo() },
-        httpEngine = { CIO.create() }
+        httpEngine = { CIO.create() },
+        clipboard = { stubClipboard() }
       )
     )
   }
@@ -29,5 +31,11 @@ actual object SharedComponent : BaseSharedComponent() {
   private fun deviceInfo() = object : DeviceInfo {
     override val appStorage get() = File("todo")
     override fun deviceName() = TODO()
+    override fun supportsSplitScreen(): Boolean = false
+  }
+
+  private fun stubClipboard() = object : Clipboard {
+    override fun copyPlainText(text: String): Unit = TODO()
+    override fun copyRichText(htmlText: String): Unit = TODO()
   }
 }

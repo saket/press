@@ -40,6 +40,12 @@ actual object SharedComponent : BaseSharedComponent() {
         val bluetoothName = Settings.Secure.getString(context.contentResolver, "bluetooth_name")
         return bluetoothName ?: android.os.Build.MODEL
       }
+
+      override fun supportsSplitScreen(): Boolean {
+        // TODO: It may be a better idea to check the display
+        //  size instead of default to true for all devices.
+        return true
+      }
     }
   }
 

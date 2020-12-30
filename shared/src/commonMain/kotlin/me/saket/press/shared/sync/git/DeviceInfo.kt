@@ -12,4 +12,6 @@ interface DeviceInfo {
    * this device when setting up syncing.
    */
   fun deviceName(): String
+
+  fun supportsSplitScreen(): Boolean
 }

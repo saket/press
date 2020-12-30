@@ -36,6 +36,7 @@ import me.saket.press.shared.editor.TextFormat.RichText
 import me.saket.press.shared.editor.ToolbarIconKind.Archive
 import me.saket.press.shared.editor.ToolbarIconKind.CopyAs
 import me.saket.press.shared.editor.ToolbarIconKind.DuplicateNote
+import me.saket.press.shared.editor.ToolbarIconKind.OpenInSplitScreen
 import me.saket.press.shared.editor.ToolbarIconKind.ShareAs
 import me.saket.press.shared.editor.ToolbarIconKind.Unarchive
 import me.saket.press.shared.home.HomePresenter
@@ -50,6 +51,7 @@ import me.saket.press.shared.rx.mapToOneOrNull
 import me.saket.press.shared.rx.observableInterval
 import me.saket.press.shared.rx.withLatestFrom
 import me.saket.press.shared.sync.SyncMergeConflicts
+import me.saket.press.shared.sync.git.DeviceInfo
 import me.saket.press.shared.sync.git.FolderPaths
 import me.saket.press.shared.time.Clock
 import me.saket.press.shared.ui.Clipboard
@@ -67,7 +69,8 @@ class EditorPresenter(
   private val config: EditorConfig,
   private val syncConflicts: SyncMergeConflicts,
   private val markdownParser: MarkdownParser,
-  private val clipboard: Clipboard
+  private val clipboard: Clipboard,
+  private val deviceInfo: DeviceInfo
 ) : Presenter<EditorEvent, EditorUiModel, EditorUiEffect>() {
 
   private val openMode = args.openMode
@@ -188,7 +191,7 @@ class EditorPresenter(
       .distinctUntilChanged()
 
     return isNoteArchived.map { isArchived ->
-      listOf(
+      listOfNotNull(
         if (isArchived) {
           ToolbarMenuAction(
             label = strings.editor.menu_unarchive,
@@ -242,7 +245,14 @@ class EditorPresenter(
           label = strings.editor.menu_duplicate_note,
           icon = DuplicateNote,
           clickEvent = null
-        )
+        ),
+        if (deviceInfo.supportsSplitScreen()) {
+          ToolbarMenuAction(
+            label = strings.editor.menu_open_in_split_screen,
+            icon = OpenInSplitScreen,
+            clickEvent = null
+          )
+        } else null,
       )
     }
   }
