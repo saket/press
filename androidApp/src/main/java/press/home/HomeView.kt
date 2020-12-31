@@ -32,6 +32,7 @@ import me.saket.press.shared.home.HomePresenter.Args
 import me.saket.press.shared.home.HomeScreenKey
 import me.saket.press.shared.home.HomeUiModel
 import me.saket.press.shared.localization.strings
+import me.saket.press.shared.preferences.PreferencesScreenKey
 import me.saket.press.shared.sync.SyncPreferencesScreenKey
 import me.saket.press.shared.ui.ScreenKey
 import me.saket.press.shared.ui.models
@@ -62,10 +63,10 @@ class HomeView @InflationInject constructor(
   private val folderAdapter = FolderListAdapter()
   private val screenKey = screenKey<HomeScreenKey>()
 
-  private val toolbar = PressToolbar(context, showNavIcon = screenKey.folder != null).apply {
+  private val toolbar = PressToolbar(context, showNavIcon = !HomeScreenKey.isRoot(screenKey)).apply {
     applyLayout(
       x = leftTo { parent.left() }.rightTo { parent.right() },
-      y = topTo { parent.top() }.heightOf(attr(android.R.attr.actionBarSize))
+      y = topTo { parent.top() }
     )
   }
 
@@ -102,7 +103,7 @@ class HomeView @InflationInject constructor(
       toolbar.menu.add(
         icon = context.getDrawable(R.drawable.ic_preferences_24dp, palette.accentColor),
         title = context.strings().home.preferences,
-        onClick = { navigator().lfg(SyncPreferencesScreenKey) }
+        onClick = { navigator().lfg(PreferencesScreenKey) }
       )
     }
   }
@@ -138,7 +139,7 @@ class HomeView @InflationInject constructor(
     page?.pullToCollapseInterceptor = interceptPullToCollapseOnView(notesList)
   }
 
-  override fun identifyExpandingItem(): ExpandedItemFinder? {
+  override fun identifyExpandingItem(): ExpandedItemFinder {
     return ExpandedItemFinder { parent, id ->
       when (id) {
         is EditorScreenKey -> {

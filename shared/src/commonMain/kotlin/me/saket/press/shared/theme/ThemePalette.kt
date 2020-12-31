@@ -44,8 +44,10 @@ abstract class ThemePalette(
 
 data class WindowPalette(
   val backgroundColor: Int,
-  val editorBackgroundColor: Int
-)
+  val editorBackgroundColor: Int  // todo: migrate to elevatedBackgroundColor
+) {
+  val elevatedBackgroundColor: Int get() = editorBackgroundColor
+}
 
 data class MarkdownPalette(
   val blockQuoteVerticalRuleColor: Int,

@@ -5,6 +5,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import me.saket.inboxrecyclerview.ExpandedItemFinder.FindResult
 import me.saket.press.shared.db.FolderId
+import press.extensions.findExpandedItem
 import press.home.FolderListAdapter.FolderVH
 import me.saket.press.shared.home.HomeUiModel.Folder as Model
 

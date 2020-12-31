@@ -1,6 +1,10 @@
 package press.extensions
 
 import android.view.View
+import androidx.core.view.children
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import me.saket.inboxrecyclerview.ExpandedItemFinder.FindResult
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.InterceptResult.IGNORED
 import me.saket.inboxrecyclerview.page.InterceptResult.INTERCEPTED
@@ -47,4 +51,20 @@ inline fun ExpandablePageLayout.doOnCollapse(crossinline block: () -> Unit) {
       }
     })
   }
+}
+
+inline fun <reified V : ViewHolder> RecyclerView.Adapter<*>.findExpandedItem(
+  parent: RecyclerView,
+  crossinline predicate: (V) -> Boolean
+): FindResult? {
+  return parent.children.map(parent::getChildViewHolder)
+    .filterIsInstance(V::class.java)
+    .filter { predicate(it) }
+    .firstOrNull()
+    ?.let {
+      FindResult(
+        itemAdapterPosition = it.absoluteAdapterPosition,
+        itemView = it.itemView
+      )
+    }
 }

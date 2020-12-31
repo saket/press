@@ -27,7 +27,7 @@ abstract class Presenter<Event : Any, Model : Any> {
    * Used only by SwiftUI right now. Rendering of Android
    * layouts are delayed until [models] emits a value.
    */
-  abstract fun defaultUiModel(): Model
+  open fun defaultUiModel(): Model = TODO()
 
   internal abstract fun models(): ObservableWrapper<Model>
 }

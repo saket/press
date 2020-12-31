@@ -33,6 +33,10 @@ internal fun <T, O> Observable<T>.withLatestFrom(other: Observable<O>): Observab
   return withLatestFrom(other, ::Pair)
 }
 
+internal fun <T, O1, O2> Observable<T>.withLatestFrom(other1: Observable<O1>, other2: Observable<O2>): Observable<Triple<T, O1, O2>> {
+  return withLatestFrom(other1, other2, ::Triple)
+}
+
 internal fun <T> Observable<T>.mergeWith(other: Observable<T>): Observable<T> {
   return merge(this, other)
 }

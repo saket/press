@@ -5,6 +5,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import me.saket.inboxrecyclerview.ExpandedItemFinder.FindResult
 import me.saket.press.shared.db.NoteId
+import press.extensions.findExpandedItem
 import press.home.NoteAdapter.NoteVH
 import me.saket.press.shared.home.HomeUiModel.Note as Model
 

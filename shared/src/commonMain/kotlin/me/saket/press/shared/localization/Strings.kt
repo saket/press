@@ -3,15 +3,17 @@ package me.saket.press.shared.localization
 import me.saket.press.shared.localization.Strings.Common
 import me.saket.press.shared.localization.Strings.Editor
 import me.saket.press.shared.localization.Strings.Home
+import me.saket.press.shared.localization.Strings.Preferences
 import me.saket.press.shared.localization.Strings.Sync
 
-data class Strings(
+class Strings(
   val common: Common,
   val home: Home,
   val editor: Editor,
-  val sync: Sync
+  val sync: Sync,
+  val prefs: Preferences,
 ) {
-  data class Common(
+  class Common(
     val app_name: String,
     val close_nav_icon_description: String,
     val generic_error: String,
@@ -19,11 +21,11 @@ data class Strings(
     val share_picker_title: String
   )
 
-  data class Home(
+  class Home(
     val preferences: String
   )
 
-  data class Editor(
+  class Editor(
     val new_note_hints: List<String>,
     val open_url: String,
     val edit_url: String,
@@ -46,7 +48,7 @@ data class Strings(
     val note_copied: String
   )
 
-  data class Sync(
+  class Sync(
     val title: String,
     val confirm_repo_message: String,
     val confirm_repo_confirm_button: String,
@@ -67,7 +69,6 @@ data class Strings(
     val timestamp_now: String,
     val timestamp_minutes: String,
     val timestamp_hours: String,
-    val timestamp_days: String,
     val timestamp_a_while_ago: String,
     val search_git_repos: String,
 
@@ -86,6 +87,18 @@ data class Strings(
     val newgitrepo_name_hint: String,
     val newgitrepo_submit: String,
     val newgitrepo_cancel: String,
+  )
+
+  class Preferences(
+    val screen_title: String,
+    val category_title_look_and_feel: String,
+    val category_subtitle_look_and_feel: String,
+    val category_title_editor: String,
+    val category_subtitle_editor: String,
+    val category_title_sync: String,
+    val category_subtitle_sync: String,
+    val category_title_about_press: String,
+    val category_subtitle_about_press: String,
   )
 }
 
@@ -152,7 +165,6 @@ val ENGLISH_STRINGS = Strings(
     timestamp_now = "just now",
     timestamp_minutes = "%sm ago",
     timestamp_hours = "%sh ago",
-    timestamp_days = "%sd ago",
     timestamp_a_while_ago = "a while ago",
     cd_sync_repository_options = "Show options for %s git repository",
     search_git_repos = "Search your repositories…",
@@ -175,5 +187,16 @@ val ENGLISH_STRINGS = Strings(
     newgitrepo_name_hint = "Enter a name…",
     newgitrepo_submit = "Create",
     newgitrepo_cancel = "Cancel"
+  ),
+  prefs = Preferences(
+    screen_title = "Preferences",
+    category_title_look_and_feel = "Look & feel",
+    category_subtitle_look_and_feel = "Color palette, typeface, et al",
+    category_title_editor = "Editor",
+    category_subtitle_editor = "Tailor your typing experience",
+    category_title_sync = "Sync",
+    category_subtitle_sync = "Your notes, available anywhere",
+    category_title_about_press = "About Press",
+    category_subtitle_about_press = "Where to send <strikethrough>complaints</strikethrough> kudos",
   )
 )
