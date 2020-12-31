@@ -27,7 +27,7 @@ class SyncStatsForNerdsPresenter(
   private val syncer: Syncer,
   private val strings: Strings,
   private val schedulers: Schedulers,
-) : Presenter<Nothing, SyncStatsForNerdsUiModel, Nothing>() {
+) : Presenter<Nothing, SyncStatsForNerdsUiModel>() {
 
   override fun defaultUiModel(): SyncStatsForNerdsUiModel {
     return SyncStatsForNerdsUiModel(

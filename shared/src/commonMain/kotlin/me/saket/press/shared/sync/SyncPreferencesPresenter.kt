@@ -43,7 +43,7 @@ class SyncPreferencesPresenter(
   private val clock: Clock,
   private val strings: Strings,
   private val cachedRepos: GitRepositoryCache
-) : Presenter<SyncPreferencesEvent, SyncPreferencesUiModel, Nothing>() {
+) : Presenter<SyncPreferencesEvent, SyncPreferencesUiModel>() {
 
   override fun defaultUiModel(): SyncPreferencesUiModel {
     return SyncDisabled(availableGitHosts = emptyList())

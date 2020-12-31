@@ -37,7 +37,7 @@ class NewGitRepositoryPresenter(
   private val strings: Strings,
   gitHostService: GitHostService.Factory,
   authToken: (GitHost) -> Setting<GitHostAuthToken>,
-) : Presenter<Event, Model, Nothing>() {
+) : Presenter<Event, Model>() {
 
   private val screenKey: NewGitRepositoryScreenKey get() = args.screenKey
   private val gitHost: GitHost get() = screenKey.gitHost

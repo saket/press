@@ -9,6 +9,7 @@ import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observableOf
 import com.badoo.reaktive.observable.observableOfEmpty
+import com.badoo.reaktive.observable.observeOn
 import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.wrap
 import me.saket.press.PressDatabase
@@ -39,7 +40,7 @@ class HomePresenter(
   private val strings: Strings,
   private val clock: Clock,
   private val keyboardShortcuts: KeyboardShortcuts
-) : Presenter<HomeEvent, HomeUiModel, Nothing>() {
+) : Presenter<HomeEvent, HomeUiModel>() {
   private val noteQueries get() = database.noteQueries
 
   override fun defaultUiModel() =
@@ -51,6 +52,7 @@ class HomePresenter(
   private fun openNewNoteScreen(): Observable<HomeUiModel> {
     return viewEvents().ofType<NewNoteClicked>()
       .mergeWith(keyboardShortcuts.listen(newNote))
+      .observeOn(schedulers.io)
       .flatMapCompletable {
         completableFromFunction {
           // Inserting a new note before-hand makes it possible for

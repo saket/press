@@ -73,7 +73,7 @@ class EditorPresenter(
   private val markdownParser: MarkdownParser,
   private val clipboard: Clipboard,
   private val deviceInfo: DeviceInfo
-) : Presenter<EditorEvent, EditorUiModel, EditorUiEffect>() {
+) : Presenter<EditorEvent, EditorUiModel>() {
 
   private val openMode = args.openMode
   private val noteQueries get() = database.noteQueries

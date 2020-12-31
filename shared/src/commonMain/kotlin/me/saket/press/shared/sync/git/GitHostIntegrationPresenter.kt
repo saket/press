@@ -63,7 +63,7 @@ class GitHostIntegrationPresenter(
   private val syncCoordinator: SyncCoordinator,
   private val sshKeygen: SshKeygen,
   private val screenResults: ScreenResults
-) : Presenter<GitHostIntegrationEvent, GitHostIntegrationUiModel, Nothing>() {
+) : Presenter<GitHostIntegrationEvent, GitHostIntegrationUiModel>() {
 
   private val gitHost = GitHost.readHostFromDeepLink(args.deepLink)
   private val authToken: Setting<GitHostAuthToken> = authToken(gitHost)

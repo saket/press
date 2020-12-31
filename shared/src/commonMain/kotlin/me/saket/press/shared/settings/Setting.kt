@@ -11,6 +11,8 @@ import com.russhwolf.settings.set
  * Inspired from RxPreferences, a `Setting` abstracts a single row in the key/value
  * store, letting usages fetch and save its value without requiring to know about
  * the setting key.
+ *
+ * todo: move to /preferences
  */
 @OptIn(ExperimentalListener::class)
 interface Setting<T : Any> {
