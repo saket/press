@@ -15,7 +15,7 @@ import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.editor.PlaceholderNoteId
 import me.saket.press.shared.home.HomeScreenKey
-import me.saket.press.shared.sync.git.GitHostIntegrationScreenKey
+import me.saket.press.shared.preferences.sync.setup.GitHostIntegrationScreenKey
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.ScreenKey
 import press.PressApp

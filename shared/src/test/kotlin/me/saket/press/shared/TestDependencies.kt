@@ -1,7 +1,7 @@
 package me.saket.press.shared
 
-import me.saket.press.shared.sync.git.DeviceInfo
-import me.saket.press.shared.sync.git.File
+import me.saket.press.shared.syncer.git.DeviceInfo
+import me.saket.press.shared.syncer.git.File
 import java.nio.file.Files
 
 actual fun testDeviceInfo() = object : DeviceInfo {

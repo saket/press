@@ -32,10 +32,10 @@ import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.localization.ENGLISH_STRINGS
 import me.saket.press.shared.rx.RxRule
 import me.saket.press.shared.rx.test
-import me.saket.press.shared.sync.SyncMergeConflicts
-import me.saket.press.shared.sync.SyncState.IN_FLIGHT
-import me.saket.press.shared.sync.git.DelegatingPressDatabase
-import me.saket.press.shared.sync.git.FolderPaths
+import me.saket.press.shared.syncer.SyncMergeConflicts
+import me.saket.press.shared.syncer.SyncState.IN_FLIGHT
+import me.saket.press.shared.syncer.git.DelegatingPressDatabase
+import me.saket.press.shared.syncer.git.FolderPaths
 import me.saket.press.shared.testDeviceInfo
 import me.saket.press.shared.time.FakeClock
 import me.saket.press.shared.ui.FakeClipboard

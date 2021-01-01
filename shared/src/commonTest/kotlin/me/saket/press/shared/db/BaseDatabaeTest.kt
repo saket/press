@@ -2,7 +2,7 @@ package me.saket.press.shared.db
 
 import com.squareup.sqldelight.db.SqlDriver
 import me.saket.press.PressDatabase
-import me.saket.press.shared.sync.createJson
+import me.saket.press.shared.syncer.createJson
 import kotlin.test.AfterTest
 
 expect fun inMemorySqlDriver(): SqlDriver

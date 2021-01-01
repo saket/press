@@ -1,6 +1,6 @@
 import com.soywiz.klock.DateTime;
 import me.saket.press.shared.note.NoteFolder;
-import me.saket.press.shared.sync.git.GitRemoteAndAuth;
+import me.saket.press.shared.syncer.git.GitRemoteAndAuth;
 
 CREATE TABLE folderSyncConfig (
   remote TEXT AS GitRemoteAndAuth NOT NULL,

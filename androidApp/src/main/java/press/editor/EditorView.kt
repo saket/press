@@ -58,7 +58,7 @@ import me.saket.press.shared.editor.ToolbarMenuAction
 import me.saket.press.shared.editor.ToolbarMenuItem
 import me.saket.press.shared.editor.ToolbarSubMenu
 import me.saket.press.shared.editor.saveEditorContentOnClose
-import me.saket.press.shared.settings.Setting
+import me.saket.press.shared.preferences.Setting
 import me.saket.press.shared.theme.AppTheme
 import me.saket.press.shared.theme.DisplayUnits
 import me.saket.press.shared.theme.TextStyles.mainBody

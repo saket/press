@@ -1,6 +1,7 @@
 package me.saket.press.shared.settings
 
 import com.badoo.reaktive.subject.behavior.BehaviorSubject
+import me.saket.press.shared.preferences.Setting
 
 data class FakeSetting<T : Any>(private val defaultValue: T?) : Setting<T> {
   private val value = BehaviorSubject(defaultValue)

@@ -9,7 +9,7 @@ import me.saket.press.PressDatabase
 import me.saket.press.data.shared.Folder
 import me.saket.press.data.shared.FolderSyncConfig
 import me.saket.press.data.shared.Note
-import me.saket.press.shared.sync.git.GitRemoteAndAuth
+import me.saket.press.shared.syncer.git.GitRemoteAndAuth
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 

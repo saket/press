@@ -6,18 +6,18 @@ import com.squareup.inject.inflation.ViewFactory
 import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.home.HomeScreenKey
 import me.saket.press.shared.preferences.PreferencesScreenKey
-import me.saket.press.shared.sync.SyncPreferencesScreenKey
-import me.saket.press.shared.sync.git.GitHostIntegrationScreenKey
-import me.saket.press.shared.sync.git.NewGitRepositoryScreenKey
-import me.saket.press.shared.sync.stats.SyncStatsForNerdsScreenKey
+import me.saket.press.shared.preferences.sync.SyncPreferencesScreenKey
+import me.saket.press.shared.preferences.sync.setup.GitHostIntegrationScreenKey
+import me.saket.press.shared.preferences.sync.setup.NewGitRepositoryScreenKey
+import me.saket.press.shared.preferences.sync.stats.SyncStatsForNerdsScreenKey
 import me.saket.press.shared.ui.ScreenKey
 import press.editor.EditorView
 import press.home.HomeView
 import press.preferences.PreferencesView
-import press.sync.GitHostIntegrationView
-import press.sync.NewGitRepositoryView
-import press.sync.SyncPreferencesView
-import press.sync.stats.SyncStatsForNerdsView
+import press.preferences.sync.setup.GitHostIntegrationView
+import press.preferences.sync.setup.NewGitRepositoryView
+import press.preferences.sync.SyncPreferencesView
+import press.preferences.sync.stats.SyncStatsForNerdsView
 import javax.inject.Inject
 
 /**

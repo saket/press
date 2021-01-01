@@ -5,13 +5,12 @@ import me.saket.press.data.shared.Folder
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.FolderId
 import me.saket.press.shared.db.NoteId
-import me.saket.press.shared.sync.SyncState
-import me.saket.press.shared.sync.SyncState.PENDING
-import me.saket.press.shared.sync.git.GitHost.GITHUB
-import me.saket.press.shared.sync.git.service.GitRepositoryInfo
+import me.saket.press.shared.syncer.SyncState
+import me.saket.press.shared.syncer.SyncState.PENDING
+import me.saket.press.shared.syncer.git.GitHost.GITHUB
+import me.saket.press.shared.syncer.git.service.GitRepositoryInfo
 import me.saket.press.shared.time.Clock
 import me.saket.press.shared.time.FakeClock
-import kotlin.random.Random
 
 fun fakeNote(
   content: String,

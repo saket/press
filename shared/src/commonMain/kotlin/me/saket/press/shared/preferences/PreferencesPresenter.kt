@@ -8,7 +8,7 @@ import me.saket.press.shared.preferences.PreferenceCategory.About
 import me.saket.press.shared.preferences.PreferenceCategory.Editor
 import me.saket.press.shared.preferences.PreferenceCategory.LookAndFeel
 import me.saket.press.shared.preferences.PreferenceCategory.Sync
-import me.saket.press.shared.sync.SyncPreferencesScreenKey
+import me.saket.press.shared.preferences.sync.SyncPreferencesScreenKey
 import me.saket.press.shared.ui.Presenter
 
 class PreferencesPresenter(

@@ -4,8 +4,9 @@ import me.saket.press.shared.SharedAppComponent
 import me.saket.press.shared.db.SharedDatabaseComponent
 import me.saket.press.shared.editor.SharedEditorComponent
 import me.saket.press.shared.home.SharedHomeComponent
-import me.saket.press.shared.sync.SharedSyncComponent
-import me.saket.press.shared.sync.SyncCoordinator
+import me.saket.press.shared.preferences.SharedPreferencesComponent
+import me.saket.press.shared.syncer.SharedSyncComponent
+import me.saket.press.shared.syncer.SyncCoordinator
 import org.koin.core.context.startKoin
 
 expect object SharedComponent : BaseSharedComponent
@@ -20,6 +21,7 @@ abstract class BaseSharedComponent {
           SharedEditorComponent().module,
           SharedDatabaseComponent().module,
           SharedSyncComponent().module,
+          SharedPreferencesComponent().module,
           platform.asKoinModule()
         )
       )

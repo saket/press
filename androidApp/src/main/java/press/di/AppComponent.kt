@@ -2,7 +2,7 @@ package press.di
 
 import dagger.Component
 import me.saket.press.shared.localization.Strings
-import me.saket.press.shared.sync.SyncCoordinator
+import me.saket.press.shared.syncer.SyncCoordinator
 import me.saket.press.shared.theme.AppTheme
 import me.saket.press.shared.ui.ScreenResults
 import press.navigation.ViewFactories

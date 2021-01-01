@@ -8,7 +8,7 @@ import me.saket.press.shared.keyboard.RealKeyboardShortcuts
 import me.saket.press.shared.localization.ENGLISH_STRINGS
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.rx.Schedulers
-import me.saket.press.shared.sync.SyncCoordinator
+import me.saket.press.shared.syncer.SyncCoordinator
 import me.saket.press.shared.time.Clock
 import me.saket.press.shared.time.RealClock
 import me.saket.press.shared.ui.ScreenResults

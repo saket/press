@@ -4,8 +4,8 @@ import com.russhwolf.settings.AppleSettings
 import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.drivers.native.NativeSqliteDriver
 import io.ktor.client.engine.cio.CIO
-import me.saket.press.shared.sync.git.DeviceInfo
-import me.saket.press.shared.sync.git.File
+import me.saket.press.shared.syncer.git.DeviceInfo
+import me.saket.press.shared.syncer.git.File
 import me.saket.press.shared.ui.Clipboard
 import platform.Foundation.NSUserDefaults
 

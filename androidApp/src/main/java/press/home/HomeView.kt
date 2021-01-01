@@ -33,13 +33,10 @@ import me.saket.press.shared.home.HomeScreenKey
 import me.saket.press.shared.home.HomeUiModel
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.preferences.PreferencesScreenKey
-import me.saket.press.shared.sync.SyncPreferencesScreenKey
 import me.saket.press.shared.ui.ScreenKey
 import me.saket.press.shared.ui.models
-import press.extensions.attr
 import press.extensions.findParentOfType
 import press.extensions.getDrawable
-import press.extensions.heightOf
 import press.extensions.interceptPullToCollapseOnView
 import press.extensions.second
 import press.extensions.throttleFirst

@@ -52,9 +52,9 @@ import me.saket.press.shared.rx.filterNull
 import me.saket.press.shared.rx.mapToOneOrNull
 import me.saket.press.shared.rx.observableInterval
 import me.saket.press.shared.rx.withLatestFrom
-import me.saket.press.shared.sync.SyncMergeConflicts
-import me.saket.press.shared.sync.git.DeviceInfo
-import me.saket.press.shared.sync.git.FolderPaths
+import me.saket.press.shared.syncer.SyncMergeConflicts
+import me.saket.press.shared.syncer.git.DeviceInfo
+import me.saket.press.shared.syncer.git.FolderPaths
 import me.saket.press.shared.time.Clock
 import me.saket.press.shared.ui.Clipboard
 import me.saket.press.shared.ui.Navigator

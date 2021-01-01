@@ -1,7 +1,7 @@
 import com.soywiz.klock.DateTime;
 import me.saket.press.shared.db.FolderId;
 import me.saket.press.shared.db.NoteId;
-import me.saket.press.shared.sync.SyncState;
+import me.saket.press.shared.syncer.SyncState;
 
 CREATE TABLE note (
   id TEXT AS NoteId NOT NULL,

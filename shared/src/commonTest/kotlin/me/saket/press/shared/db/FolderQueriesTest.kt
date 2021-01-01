@@ -4,8 +4,8 @@ import assertk.assertThat
 import me.saket.press.shared.containsOnly
 import me.saket.press.shared.fakedata.fakeFolder
 import me.saket.press.shared.fakedata.fakeNote
-import me.saket.press.shared.sync.git.insert
-import me.saket.press.shared.sync.git.testInsert
+import me.saket.press.shared.syncer.git.insert
+import me.saket.press.shared.syncer.git.testInsert
 import kotlin.test.Test
 
 class FolderQueriesTest : BaseDatabaeTest() {

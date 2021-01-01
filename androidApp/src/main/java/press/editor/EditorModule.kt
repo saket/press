@@ -5,7 +5,7 @@ import dagger.Provides
 import me.saket.press.shared.editor.AutoCorrectEnabled
 import me.saket.press.shared.editor.EditorPresenter
 import me.saket.press.shared.editor.SharedEditorComponent
-import me.saket.press.shared.settings.Setting
+import me.saket.press.shared.preferences.Setting
 
 @Module
 object EditorModule {

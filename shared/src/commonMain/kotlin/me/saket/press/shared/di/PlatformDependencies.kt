@@ -4,13 +4,11 @@ import com.russhwolf.settings.ExperimentalListener
 import com.russhwolf.settings.ObservableSettings
 import com.squareup.sqldelight.db.SqlDriver
 import io.ktor.client.engine.HttpClientEngine
-import io.ktor.client.engine.HttpClientEngineFactory
 import me.saket.press.PressDatabase
 import me.saket.press.shared.db.createPressDatabase
 import me.saket.press.shared.note.PrePopulatedNotes
-import me.saket.press.shared.sync.git.DeviceInfo
+import me.saket.press.shared.syncer.git.DeviceInfo
 import me.saket.press.shared.ui.Clipboard
-import me.saket.press.shared.ui.IntentLauncher
 import org.koin.core.scope.Scope
 
 /**

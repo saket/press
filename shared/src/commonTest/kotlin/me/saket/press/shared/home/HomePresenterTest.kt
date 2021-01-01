@@ -25,8 +25,8 @@ import me.saket.press.shared.keyboard.RealKeyboardShortcuts
 import me.saket.press.shared.localization.ENGLISH_STRINGS
 import me.saket.press.shared.rx.RxRule
 import me.saket.press.shared.rx.test
-import me.saket.press.shared.sync.git.insert
-import me.saket.press.shared.sync.git.testInsert
+import me.saket.press.shared.syncer.git.insert
+import me.saket.press.shared.syncer.git.testInsert
 import me.saket.press.shared.time.FakeClock
 import me.saket.press.shared.ui.FakeNavigator
 import kotlin.test.AfterTest

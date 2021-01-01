@@ -8,8 +8,8 @@ import com.russhwolf.settings.AndroidSettings
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import com.squareup.sqldelight.db.SqlDriver
 import io.ktor.client.engine.okhttp.OkHttp
-import me.saket.press.shared.sync.git.DeviceInfo
-import me.saket.press.shared.sync.git.File
+import me.saket.press.shared.syncer.git.DeviceInfo
+import me.saket.press.shared.syncer.git.File
 import me.saket.press.shared.ui.RealClipboard
 
 actual object SharedComponent : BaseSharedComponent() {

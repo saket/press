@@ -2,7 +2,7 @@ package me.saket.press.shared.editor
 
 import com.soywiz.klock.seconds
 import me.saket.press.shared.di.koin
-import me.saket.press.shared.settings.Setting
+import me.saket.press.shared.preferences.Setting
 import me.saket.wysiwyg.parser.MarkdownParser
 import org.koin.core.parameter.parametersOf
 import org.koin.core.qualifier.named

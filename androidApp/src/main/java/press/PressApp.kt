@@ -19,7 +19,6 @@ import me.saket.press.R
 import me.saket.press.shared.di.SharedComponent
 import press.di.AppComponent
 import press.navigation.TheActivity
-import press.sync.BackgroundSyncWorker
 
 abstract class PressApp : Application(), LifecycleObserver {
   companion object {
