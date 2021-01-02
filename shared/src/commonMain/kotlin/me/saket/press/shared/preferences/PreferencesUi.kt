@@ -4,9 +4,16 @@ import me.saket.press.shared.AndroidParcelize
 import me.saket.press.shared.ui.ScreenKey
 
 @AndroidParcelize
-data class PreferencesScreenKey(
+object PreferencesScreenKey : ScreenKey
+
+@AndroidParcelize
+data class PreferenceCategoryScreenKey(
   val category: PreferenceCategory
 ) : ScreenKey
+
+data class PreferencesModel(
+  val categories: List<PreferenceCategoryItemModel>
+)
 
 data class PreferenceCategoryItemModel(
   val title: String,
@@ -15,7 +22,6 @@ data class PreferenceCategoryItemModel(
 )
 
 enum class PreferenceCategory {
-  Root,
   LookAndFeel,
   Sync,
   AboutApp

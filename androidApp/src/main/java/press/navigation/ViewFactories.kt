@@ -7,8 +7,8 @@ import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.home.HomeScreenKey
 import me.saket.press.shared.preferences.PreferenceCategory.AboutApp
 import me.saket.press.shared.preferences.PreferenceCategory.LookAndFeel
-import me.saket.press.shared.preferences.PreferenceCategory.Root
 import me.saket.press.shared.preferences.PreferenceCategory.Sync
+import me.saket.press.shared.preferences.PreferenceCategoryScreenKey
 import me.saket.press.shared.preferences.PreferencesScreenKey
 import me.saket.press.shared.preferences.sync.setup.GitHostIntegrationScreenKey
 import me.saket.press.shared.preferences.sync.setup.NewGitRepositoryScreenKey
@@ -39,9 +39,9 @@ class ViewFactories @Inject constructor(
     // These screen keys are defined in a shared multiplatform module, which
     // is unaware of Android Views so they must be manually mapped here.
     return when (screen) {
-      is PreferencesScreenKey -> {
+      is PreferencesScreenKey -> PreferencesView(context)
+      is PreferenceCategoryScreenKey -> {
         when (screen.category) {
-          Root -> PreferencesView(context)
           LookAndFeel -> LookAndFeelPreferencesView(context)
           Sync -> generate(context, SyncPreferencesView::class)
           AboutApp -> AboutAppPreferencesView(context)

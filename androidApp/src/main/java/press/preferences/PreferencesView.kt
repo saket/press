@@ -18,7 +18,7 @@ import me.saket.press.shared.preferences.PreferenceCategory.AboutApp
 import me.saket.press.shared.preferences.PreferenceCategory.LookAndFeel
 import me.saket.press.shared.preferences.PreferenceCategory.Sync
 import me.saket.press.shared.preferences.PreferenceCategoryItemModel
-import me.saket.press.shared.preferences.PreferencesScreenKey
+import me.saket.press.shared.preferences.PreferenceCategoryScreenKey
 import press.extensions.findParentOfType
 import press.extensions.interceptPullToCollapseOnView
 import press.navigation.navigator
@@ -43,7 +43,7 @@ class PreferencesView(context: Context) : ContourLayout(context), ExpandableScre
   private val categoryAdapter = PreferenceCategoryListAdapter(
     categories = preferenceCategories(),
     onClick = { item ->
-      navigator().lfg(PreferencesScreenKey(item.category))
+      navigator().lfg(PreferenceCategoryScreenKey(item.category))
     }
   )
 
@@ -101,7 +101,7 @@ class PreferencesView(context: Context) : ContourLayout(context), ExpandableScre
 
   override fun identifyExpandingItem(): ExpandedItemFinder {
     return ExpandedItemFinder { parent, id ->
-      if (id is PreferencesScreenKey) {
+      if (id is PreferenceCategoryScreenKey) {
         categoryAdapter.findExpandedItem(parent, id.category)
       } else {
         null

@@ -32,7 +32,6 @@ import me.saket.press.shared.home.HomePresenter.Args
 import me.saket.press.shared.home.HomeScreenKey
 import me.saket.press.shared.home.HomeUiModel
 import me.saket.press.shared.localization.strings
-import me.saket.press.shared.preferences.PreferenceCategory.Root
 import me.saket.press.shared.preferences.PreferencesScreenKey
 import me.saket.press.shared.ui.ScreenKey
 import me.saket.press.shared.ui.models
@@ -101,7 +100,7 @@ class HomeView @InflationInject constructor(
       toolbar.menu.add(
         icon = context.getDrawable(R.drawable.ic_preferences_24dp, palette.accentColor),
         title = context.strings().home.preferences,
-        onClick = { navigator().lfg(PreferencesScreenKey(Root)) }
+        onClick = { navigator().lfg(PreferencesScreenKey) }
       )
     }
   }
