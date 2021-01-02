@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.Color.BLACK
 import android.text.Html
 import android.text.Html.FROM_HTML_MODE_LEGACY
+import androidx.core.view.doOnLayout
+import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.squareup.contour.ContourLayout
 import me.saket.inboxrecyclerview.ExpandedItemFinder
@@ -57,10 +59,16 @@ class PreferencesView(context: Context) : ContourLayout(context), ExpandableScre
     )
     categoryList.layoutBy(
       x = matchParentX(),
-      y = topTo { toolbar.bottom() }.bottomTo { parent.bottom() }
+      y = matchParentY()
     )
 
     categoryList.adapter = categoryAdapter
+
+    // Draw InboxRecyclerView's dimming over toolbar.
+    toolbar.doOnLayout {
+      categoryList.clipToPadding = true
+      categoryList.updatePadding(top = toolbar.bottom)
+    }
   }
 
   private fun preferenceCategories(): List<PreferenceCategoryItemModel> {
