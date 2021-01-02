@@ -1,9 +1,6 @@
 package me.saket.press.shared.preferences
 
 import me.saket.press.shared.AndroidParcelize
-import me.saket.press.shared.preferences.PreferenceCategory.AboutApp
-import me.saket.press.shared.preferences.PreferenceCategory.Editor
-import me.saket.press.shared.preferences.PreferenceCategory.LookAndFeel
 import me.saket.press.shared.ui.ScreenKey
 
 @AndroidParcelize
@@ -26,7 +23,6 @@ data class PreferenceCategoryItemModel(
 
 enum class PreferenceCategory {
   LookAndFeel,
-  Editor,
   Sync,
   AboutApp
 }

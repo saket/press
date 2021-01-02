@@ -13,7 +13,6 @@ import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.preferences.PreferenceCategory.AboutApp
-import me.saket.press.shared.preferences.PreferenceCategory.Editor
 import me.saket.press.shared.preferences.PreferenceCategory.LookAndFeel
 import me.saket.press.shared.preferences.PreferenceCategory.Sync
 import me.saket.press.shared.preferences.PreferenceCategoryItemModel
@@ -71,11 +70,6 @@ class PreferencesView(context: Context) : ContourLayout(context), ExpandableScre
         title = strings.category_title_look_and_feel,
         subtitle = strings.category_subtitle_look_and_feel,
         category = LookAndFeel
-      ),
-      PreferenceCategoryItemModel(
-        title = strings.category_title_editor,
-        subtitle = strings.category_subtitle_editor,
-        category = Editor
       ),
       PreferenceCategoryItemModel(
         title = strings.category_title_sync,

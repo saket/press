@@ -6,7 +6,6 @@ import com.squareup.inject.inflation.ViewFactory
 import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.home.HomeScreenKey
 import me.saket.press.shared.preferences.PreferenceCategory.AboutApp
-import me.saket.press.shared.preferences.PreferenceCategory.Editor
 import me.saket.press.shared.preferences.PreferenceCategory.LookAndFeel
 import me.saket.press.shared.preferences.PreferenceCategory.Sync
 import me.saket.press.shared.preferences.PreferenceCategoryScreenKey
@@ -19,7 +18,6 @@ import press.editor.EditorView
 import press.home.HomeView
 import press.preferences.PreferencesView
 import press.preferences.about.AboutAppPreferencesView
-import press.preferences.editor.EditorPreferencesView
 import press.preferences.lookandfeel.LookAndFeelPreferencesView
 import press.preferences.sync.SyncPreferencesView
 import press.preferences.sync.setup.GitHostIntegrationView
@@ -45,7 +43,6 @@ class ViewFactories @Inject constructor(
       is PreferenceCategoryScreenKey -> {
         when (screen.category) {
           LookAndFeel -> LookAndFeelPreferencesView(context)
-          Editor -> EditorPreferencesView(context)
           Sync -> generate(context, SyncPreferencesView::class)
           AboutApp -> AboutAppPreferencesView(context)
         }
