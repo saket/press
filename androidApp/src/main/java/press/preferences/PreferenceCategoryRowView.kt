@@ -55,7 +55,7 @@ class PreferenceCategoryRowView(context: Context) : ContourLayout(context) {
       when(model.category) {
         LookAndFeel -> R.drawable.ic_twotone_format_24dp
         Editor -> R.drawable.ic_twotone_format_shapes_24
-        Sync -> R.drawable.ic_twotone_format_24dp
+        Sync -> R.drawable.ic_twotone_phonelink_24
         AboutApp -> R.drawable.ic_twotone_adb_24
       }
     )

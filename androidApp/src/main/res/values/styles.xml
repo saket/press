@@ -16,6 +16,7 @@
     <item name="android:horizontalScrollViewStyle">@style/DefaultScrollViewStyle</item>
     <item name="recyclerViewStyle">@style/DefaultRecyclerViewStyle</item>
     <item name="alertDialogTheme">@style/AlertDialogStyle</item>
+    <item name="toolbarNavigationButtonStyle">@style/ToolbarNaviButtonStyle</item>
   </style>
 
   <style name="AppTheme.TransparentWindow">
@@ -41,5 +42,9 @@
   <style name="AlertDialogStyle" parent="Theme.MaterialComponents.Dialog">
     <item name="windowMinWidthMajor">0dp</item>
     <item name="windowMinWidthMinor">0dp</item>
+  </style>
+
+  <style name="ToolbarNaviButtonStyle" parent="@style/Widget.AppCompat.Toolbar.Button.Navigation">
+    <item name="android:minWidth">52dp</item> <!-- See PressToolbar. -->
   </style>
 </resources>
