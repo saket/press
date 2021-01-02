@@ -1,12 +1,6 @@
 package me.saket.press.shared.preferences.sync
 
-import me.saket.press.shared.AndroidParcelize
-import me.saket.press.shared.preferences.PreferenceCategory
-import me.saket.press.shared.preferences.PreferenceCategoryScreenKey
 import me.saket.press.shared.syncer.git.GitHost
-
-@AndroidParcelize
-object SyncPreferencesScreenKey : PreferenceCategoryScreenKey(PreferenceCategory.Sync)
 
 interface SyncPreferencesEvent {
   data class SetupHostClicked(val host: GitHost) : SyncPreferencesEvent

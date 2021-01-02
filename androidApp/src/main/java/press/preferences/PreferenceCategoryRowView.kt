@@ -1,49 +1,64 @@
 package press.preferences
 
-import android.animation.AnimatorInflater
 import android.content.Context
+import android.widget.ImageView
+import androidx.appcompat.widget.AppCompatImageView
 import com.squareup.contour.ContourLayout
-import me.saket.press.R.animator
+import me.saket.press.R
 import me.saket.press.shared.home.HomeUiStyles
+import me.saket.press.shared.preferences.PreferenceCategory.AboutApp
+import me.saket.press.shared.preferences.PreferenceCategory.Editor
+import me.saket.press.shared.preferences.PreferenceCategory.LookAndFeel
+import me.saket.press.shared.preferences.PreferenceCategory.Sync
 import me.saket.press.shared.preferences.PreferenceCategoryItemModel
+import me.saket.press.shared.theme.TextStyles
+import me.saket.press.shared.theme.TextStyles.mainTitle
+import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextView
+import press.extensions.createRippleDrawable
 import press.extensions.textColor
 import press.theme.themeAware
 
 class PreferenceCategoryRowView(context: Context) : ContourLayout(context) {
-  private val titleView = TextView(context, HomeUiStyles.noteTitle).apply {
-    themeAware {
-      textColor = it.textColorHeading
-    }
-  }
-
-  private val subtitleView = TextView(context, HomeUiStyles.noteBody).apply {
-    themeAware {
-      textColor = it.textColorSecondary
-    }
-  }
+  private val iconView = AppCompatImageView(context)
+  private val titleView = TextView(context, mainTitle)
+  private val subtitleView = TextView(context, smallBody)
 
   lateinit var model: PreferenceCategoryItemModel
 
   init {
+    iconView.layoutBy(
+      x = leftTo { parent.left() + 16.dip }.widthOf { 24.xdip },
+      y = centerVerticallyTo { parent.centerY() }.heightOf { 24.ydip }
+    )
     titleView.layoutBy(
-      x = leftTo { parent.left() + 16.dip }.rightTo { parent.right() - 16.dip },
+      x = leftTo { iconView.right() + 16.dip }.rightTo { parent.right() - 16.dip },
       y = topTo { parent.top() + 16.dip }
     )
     subtitleView.layoutBy(
-      x = leftTo { titleView.left() }.rightTo { titleView.right() },
-      y = topTo { titleView.bottom() + 8.dip }
+      x = matchXTo(titleView),
+      y = topTo { titleView.bottom() }
     )
-
-    stateListAnimator = AnimatorInflater.loadStateListAnimator(context, animator.thread_elevation_stateanimator)
     contourHeightOf { subtitleView.bottom() + 16.dip }
+
     themeAware {
-      setBackgroundColor(it.window.elevatedBackgroundColor)
+      iconView.setColorFilter(it.accentColor)
+      titleView.textColor = it.textColorPrimary
+      subtitleView.textColor = it.textColorSecondary
+      background = createRippleDrawable(it)
     }
   }
 
   fun render(model: PreferenceCategoryItemModel) {
     this.model = model
+    iconView.setImageResource(
+      when(model.category) {
+        LookAndFeel -> R.drawable.ic_twotone_format_24dp
+        Editor -> R.drawable.ic_twotone_format_shapes_24
+        Sync -> R.drawable.ic_twotone_format_24dp
+        AboutApp -> R.drawable.ic_twotone_adb_24
+      }
+    )
     titleView.text = model.title
     subtitleView.text = model.subtitle
   }

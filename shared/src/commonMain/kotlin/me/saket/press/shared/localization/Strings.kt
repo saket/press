@@ -97,8 +97,8 @@ class Strings(
     val category_subtitle_editor: String,
     val category_title_sync: String,
     val category_subtitle_sync: String,
-    val category_title_about_press: String,
-    val category_subtitle_about_press: String,
+    val category_title_about_app: String,
+    val category_subtitle_about_app: String,
   )
 }
 
@@ -191,12 +191,12 @@ val ENGLISH_STRINGS = Strings(
   prefs = Preferences(
     screen_title = "Preferences",
     category_title_look_and_feel = "Look & feel",
-    category_subtitle_look_and_feel = "Color palette, typeface, et al",
+    category_subtitle_look_and_feel = "Colors, typeface and other shiny things",
     category_title_editor = "Editor",
     category_subtitle_editor = "Tailor your typing experience",
     category_title_sync = "Sync",
-    category_subtitle_sync = "Your notes, available anywhere",
-    category_title_about_press = "About Press",
-    category_subtitle_about_press = "Where to send <strikethrough>complaints</strikethrough> kudos",
+    category_subtitle_sync = "Your notes, available anywhere through git",
+    category_title_about_app = "About Press",
+    category_subtitle_about_app = "Send <strike>complaints</strike> kudos here",
   )
 )
