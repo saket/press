@@ -26,6 +26,7 @@ import press.navigation.ScreenTransition
 import press.navigation.ScreenTransition.TransitionResult
 import press.navigation.ScreenTransition.TransitionResult.Handled
 import press.navigation.ScreenTransition.TransitionResult.Ignored
+import press.navigation.hideKeyboardAndRun
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -87,19 +88,6 @@ class MorphFromFabScreenTransition : ScreenTransition {
     dimDrawable?.alpha = 0
   }
 
-  private inline fun View.hideKeyboardAndRun(crossinline action: () -> Unit) {
-    val insets = ViewCompat.getRootWindowInsets(this)?.getInsets(ime())
-    val isKeyboardVisible = if (insets == null) false else insets.bottom > 0
-
-    if (isKeyboardVisible) {
-      doOnHeightChange(action)
-      hideKeyboard()
-
-    } else {
-      action()
-    }
-  }
-
   private fun fabMorphTransition(from: View, to: View, onComplete: () -> Unit): Transition {
     return MaterialContainerTransform().apply {
       startView = from
@@ -120,25 +108,4 @@ class MorphFromFabScreenTransition : ScreenTransition {
       })
     }
   }
-}
-
-private inline fun View.doOnHeightChange(crossinline action: () -> Unit) {
-  addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
-    override fun onLayoutChange(
-      view: View,
-      left: Int,
-      top: Int,
-      right: Int,
-      bottom: Int,
-      oldLeft: Int,
-      oldTop: Int,
-      oldRight: Int,
-      oldBottom: Int
-    ) {
-      if ((oldBottom - oldTop) != (bottom - top)) {
-        view.removeOnLayoutChangeListener(this)
-        action()
-      }
-    }
-  })
 }

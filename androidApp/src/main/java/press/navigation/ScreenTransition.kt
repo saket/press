@@ -1,7 +1,10 @@
 package press.navigation
 
 import android.view.View
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat.Type
 import me.saket.press.shared.ui.ScreenKey
+import press.extensions.hideKeyboard
 
 interface ScreenTransition {
   fun transition(
@@ -29,4 +32,38 @@ interface ScreenTransition {
     Handled,
     Ignored
   }
+}
+
+inline fun View.hideKeyboardAndRun(crossinline action: () -> Unit) {
+  val insets = ViewCompat.getRootWindowInsets(this)?.getInsets(Type.ime())
+  val isKeyboardVisible = if (insets == null) false else insets.bottom > 0
+
+  if (isKeyboardVisible) {
+    doOnHeightChange(action)
+    hideKeyboard()
+
+  } else {
+    action()
+  }
+}
+
+inline fun View.doOnHeightChange(crossinline action: () -> Unit) {
+  addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
+    override fun onLayoutChange(
+      view: View,
+      left: Int,
+      top: Int,
+      right: Int,
+      bottom: Int,
+      oldLeft: Int,
+      oldTop: Int,
+      oldRight: Int,
+      oldBottom: Int
+    ) {
+      if ((oldBottom - oldTop) != (bottom - top)) {
+        view.removeOnLayoutChangeListener(this)
+        action()
+      }
+    }
+  })
 }

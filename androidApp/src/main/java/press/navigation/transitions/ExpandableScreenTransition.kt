@@ -14,6 +14,7 @@ import press.navigation.ScreenTransition
 import press.navigation.ScreenTransition.TransitionResult
 import press.navigation.ScreenTransition.TransitionResult.Handled
 import press.navigation.ScreenTransition.TransitionResult.Ignored
+import press.navigation.hideKeyboardAndRun
 
 /**
  * Implemented by screens that support expansion of
@@ -50,7 +51,9 @@ class ExpandableScreenTransition : ScreenTransition {
       val toList = toView.findChild<InboxRecyclerView>()!!
       toList.attachPage(fromView, expandableHost, parent = toView)
 
-      toList.collapse()
+      toList.hideKeyboardAndRun {
+        toList.collapse()
+      }
       fromView.doOnCollapse {
         toList.detachPage(fromView)
         onComplete()

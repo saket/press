@@ -60,8 +60,7 @@ inline fun <reified V : ViewHolder> RecyclerView.Adapter<*>.findExpandedItem(
 ): FindResult? {
   return parent.children.map(parent::getChildViewHolder)
     .filterIsInstance(V::class.java)
-    .filter { predicate(it) }
-    .firstOrNull()
+    .firstOrNull { predicate(it) }
     ?.let {
       FindResult(
         itemAdapterPosition = it.absoluteAdapterPosition,
