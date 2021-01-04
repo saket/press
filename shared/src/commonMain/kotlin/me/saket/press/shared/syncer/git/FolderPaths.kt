@@ -90,7 +90,7 @@ internal class FolderPaths(private val database: PressDatabase) {
     }
     noteQueries.updateFolder(
       id = note.id,
-      folderId = mkdirs(newPath.flatten()).also { println("Updating folderId to $it") }
+      folderId = mkdirs(newPath.flatten())
     )
   }
 

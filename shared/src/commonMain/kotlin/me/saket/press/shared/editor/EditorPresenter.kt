@@ -23,8 +23,10 @@ import com.badoo.reaktive.observable.withLatestFrom
 import com.badoo.reaktive.observable.wrap
 import me.saket.press.PressDatabase
 import me.saket.press.data.shared.Note
+import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorEvent.ArchiveToggleClicked
 import me.saket.press.shared.editor.EditorEvent.CopyAsClicked
+import me.saket.press.shared.editor.EditorEvent.DuplicateNoteClicked
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorEvent.ShareAsClicked
 import me.saket.press.shared.editor.EditorEvent.SplitScreenClicked
@@ -42,6 +44,7 @@ import me.saket.press.shared.editor.ToolbarIconKind.OpenInSplitScreen
 import me.saket.press.shared.editor.ToolbarIconKind.ShareAs
 import me.saket.press.shared.editor.ToolbarIconKind.Unarchive
 import me.saket.press.shared.home.HomePresenter
+import me.saket.press.shared.home.HomeScreenKey
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.rx.Schedulers
 import me.saket.press.shared.rx.asObservable
@@ -100,6 +103,7 @@ class EditorPresenter(
           events.autoSaveContent(noteStream),
           handleArchiveClicks(events, noteStream),
           handleShareClicks(events),
+          handleDuplicateNoteClicks(events, noteStream),
           handleSplitScreenClicks(events, noteStream),
           handleCopyClicks(events),
           populateExistingNoteOnStart(noteStream),
@@ -247,7 +251,7 @@ class EditorPresenter(
         ToolbarMenuAction(
           label = strings.editor.menu_duplicate_note,
           icon = DuplicateNote,
-          clickEvent = null
+          clickEvent = DuplicateNoteClicked
         ),
         if (deviceInfo.supportsSplitScreen()) {
           ToolbarMenuAction(
@@ -317,7 +321,36 @@ class EditorPresenter(
     return events.ofType<SplitScreenClicked>()
       .withLatestFrom(noteStream)
       .consumeOnNext { (_, note) ->
-        args.navigator.splitScreenAndLfg(EditorScreenKey(ExistingNote(PreSavedNoteId(note.id))))
+        args.navigator.splitScreenAndLfg(
+          EditorScreenKey(ExistingNote(PreSavedNoteId(note.id)))
+        )
+      }
+  }
+
+  private fun handleDuplicateNoteClicks(
+    events: Observable<EditorEvent>,
+    noteStream: Observable<Note>
+  ): Observable<EditorUiModel> {
+    // It is important to use the text on the UI instead of the
+    // one in the DB because it may have not been saved yet.
+    val noteContent = events.ofType<NoteTextChanged>().map { it.text }
+
+    return events.ofType<DuplicateNoteClicked>()
+      .withLatestFrom(noteStream, noteContent)
+      .observeOn(schedulers.io)
+      .consumeOnNext { (_, note, content) ->
+        val newNoteId = NoteId.generate()
+        noteQueries.insert(
+          id = newNoteId,
+          folderId = note.folderId,
+          content = content,
+          createdAt = clock.nowUtc(),
+          updatedAt = clock.nowUtc()
+        )
+        args.navigator.goBack()
+        args.navigator.lfg(
+          EditorScreenKey(NewNote(PreSavedNoteId(newNoteId)))
+        )
       }
   }
 
