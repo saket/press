@@ -8,9 +8,7 @@ import androidx.core.view.children
 import androidx.core.view.doOnLayout
 import flow.Direction
 import flow.Direction.BACKWARD
-import flow.Direction.FORWARD
 import flow.Direction.REPLACE
-import flow.KeyChanger
 import flow.State
 import flow.TraversalCallback
 import me.saket.inboxrecyclerview.page.StandaloneExpandablePageLayout
@@ -34,7 +32,7 @@ class ScreenKeyChanger(
   private val hostView: () -> ViewGroup,
   private val formFactor: FormFactor,
   transitions: List<ScreenTransition>
-) : KeyChanger {
+) : EnqueuingKeyChanger() {
   private val transitions = transitions + BasicTransition()
   private var previousKey: ScreenKey? = null
 
@@ -43,7 +41,8 @@ class ScreenKeyChanger(
     incomingState: State,
     direction: Direction,
     incomingContexts: Map<Any, Context>,
-    callback: TraversalCallback
+    traversalCallback: TraversalCallback,
+    transitionCallback: TransitionCallback
   ) {
     val incomingKey = incomingState.getKey<ScreenKey>()
 
@@ -52,7 +51,8 @@ class ScreenKeyChanger(
       // intentionally calls changeKey() again on onResume() with the same values.
       // See: https://github.com/square/flow/issues/173.
       if (previousKey == incomingKey) {
-        callback.onTraversalCompleted()
+        traversalCallback.onTraversalCompleted()
+        transitionCallback.onTransitionCompleted()
         return
       }
     }
@@ -60,7 +60,8 @@ class ScreenKeyChanger(
 
     if (incomingKey !is CompositeScreenKey) {
       // FYI PlaceholderScreenKey gets discarded here.
-      callback.onTraversalCompleted()
+      traversalCallback.onTraversalCompleted()
+      transitionCallback.onTransitionCompleted()
       return
     }
 
@@ -99,19 +100,23 @@ class ScreenKeyChanger(
 
     // When animating forward, the background View can be discarded immediately.
     // When animating backward, the foreground View is discarded after the transition.
-    var onTransitionEnd = {}
-    when (direction) {
-      FORWARD, REPLACE -> removeLeftOverViews()
-      BACKWARD -> onTransitionEnd = removeLeftOverViews
-    }.javaClass
+    val isForwardTransition = direction != BACKWARD
+    val onTransitionEnd = {
+      if (isForwardTransition.not()) {
+        removeLeftOverViews()
+      }
+      transitionCallback.onTransitionCompleted()  // Note to self: this must be called at the *end*.
+    }
+    if (isForwardTransition) {
+      removeLeftOverViews()
+    }
 
     val children = hostView().children.toList()
-    val forwardTransition = direction != BACKWARD
-    val fromView: View? = if (forwardTransition) children.secondLast() else children.last()
-    val toView: View = if (forwardTransition) children.last() else children.secondLast()!!
+    val fromView: View? = if (isForwardTransition) children.secondLast() else children.last()
+    val toView: View = if (isForwardTransition) children.last() else children.secondLast()!!
 
     if (fromView != null) {
-      if (!forwardTransition && newBackgroundView != null) {
+      if (!isForwardTransition && newBackgroundView != null) {
         // The transition that handles this transition may not be the same class
         // that handles the background View, so all transitions must be called.
         transitions.forEach {
@@ -130,7 +135,7 @@ class ScreenKeyChanger(
           toView = toView,
           toKey = toView.screenKey(),
           newBackground = newBackgroundView,
-          goingForward = forwardTransition,
+          goingForward = isForwardTransition,
           onComplete = onTransitionEnd
         ) == Handled
       }
@@ -138,7 +143,7 @@ class ScreenKeyChanger(
       onTransitionEnd()
     }
 
-    callback.onTraversalCompleted()
+    traversalCallback.onTraversalCompleted()
   }
 
   private fun assignElevationAsPerZIndex() {
