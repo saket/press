@@ -10,6 +10,7 @@ import com.badoo.reaktive.observable.doOnBeforeNext
 import com.badoo.reaktive.observable.filter
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.observable.merge
+import com.badoo.reaktive.observable.notNull
 import com.badoo.reaktive.observable.observableInterval
 import com.badoo.reaktive.observable.startWithValue
 import com.badoo.reaktive.observable.switchMap
@@ -55,9 +56,8 @@ internal fun <T> Observable<T?>.filterNull(): Observable<T?> =
   filter { it == null }
     .map { null }
 
-internal fun <T> Observable<T?>.filterNotNull(): Observable<T> =
-  filter { it != null }
-    .map { it!! }
+internal fun <T : Any> Observable<T?>.filterNotNull(): Observable<T> =
+  notNull()
 
 internal fun <T> Observable<T>.repeatItemWhen(other: Observable<*>): Observable<T> {
   return switchMap { item ->
