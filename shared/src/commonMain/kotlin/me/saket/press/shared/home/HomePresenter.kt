@@ -6,6 +6,7 @@ import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.combineLatest
 import com.badoo.reaktive.observable.flatMapCompletable
 import com.badoo.reaktive.observable.map
+import com.badoo.reaktive.observable.mapIterable
 import com.badoo.reaktive.observable.merge
 import com.badoo.reaktive.observable.observableOf
 import com.badoo.reaktive.observable.observableOfEmpty
@@ -89,13 +90,11 @@ class HomePresenter(
     val folderModels = database.folderQueries.nonEmptyFoldersUnder(folderId)
       .asObservable(schedulers.io)
       .mapToList()
-      .map { folders ->
-        folders.map {
-          HomeUiModel.Folder(
-            id = it.id,
-            title = it.name
-          )
-        }
+      .mapIterable { folder ->
+        HomeUiModel.Folder(
+          id = folder.id,
+          title = folder.name
+        )
       }
 
     val noteModels = when {
@@ -103,15 +102,13 @@ class HomePresenter(
       else -> noteQueries.visibleNonEmptyNotesInFolder(folderId)
     }.asObservable(schedulers.io)
       .mapToList()
-      .map {
-        it.map { note ->
-          val (heading, body) = HeadingAndBody.parse(note.content)
-          HomeUiModel.Note(
-            id = note.id,
-            title = heading,
-            body = body
-          )
-        }
+      .mapIterable { note ->
+        val (heading, body) = HeadingAndBody.parse(note.content)
+        HomeUiModel.Note(
+          id = note.id,
+          title = heading,
+          body = body
+        )
       }
 
     return combineLatest(screenTitle, folderModels, noteModels) { title, folders, notes ->
