@@ -11,6 +11,7 @@
 
     <item name="android:windowBackground">@color/default_window_background</item>
     <item name="android:statusBarColor">@color/default_window_background</item>
+    <item name="android:navigationBarColor">@android:color/black</item> <!-- For phones with white nav bars (ew). -->
 
     <item name="android:scrollViewStyle">@style/DefaultScrollViewStyle</item>
     <item name="android:horizontalScrollViewStyle">@style/DefaultScrollViewStyle</item>
