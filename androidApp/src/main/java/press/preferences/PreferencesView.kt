@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color.BLACK
 import android.text.Html
 import android.text.Html.FROM_HTML_MODE_LEGACY
+import android.view.MotionEvent
 import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -97,6 +98,17 @@ class PreferencesView(context: Context) : ContourLayout(context), ExpandableScre
 
     val page = findParentOfType<ExpandablePageLayout>()
     page?.pullToCollapseInterceptor = interceptPullToCollapseOnView(categoryList)
+  }
+
+  override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+    // The note list is positioned in front of the toolbar so that its items can go
+    // over it, but RV steals all touch events even if there isn't a child under to
+    // receive the event.
+    return if (ev.y > toolbar.y && ev.y < (toolbar.y + toolbar.height)) {
+      toolbar.dispatchTouchEvent(ev)
+    } else {
+      super.dispatchTouchEvent(ev)
+    }
   }
 
   override fun identifyExpandingItem(): ExpandedItemFinder {

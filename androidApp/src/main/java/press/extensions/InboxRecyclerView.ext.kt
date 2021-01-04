@@ -53,6 +53,7 @@ inline fun ExpandablePageLayout.doOnCollapse(crossinline block: () -> Unit) {
   }
 }
 
+@Suppress("unused")
 inline fun <reified V : ViewHolder> RecyclerView.Adapter<*>.findExpandedItem(
   parent: RecyclerView,
   crossinline predicate: (V) -> Boolean
