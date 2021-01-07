@@ -12,7 +12,7 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.util.TypedValue.COMPLEX_UNIT_DIP
 import com.jakewharton.rx.replayingShare
-import me.saket.press.shared.theme.listenRx
+import me.saket.press.shared.listenRx
 import org.xmlpull.v1.XmlPullParser
 import press.PressApp
 

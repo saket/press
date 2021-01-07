@@ -7,7 +7,7 @@ import com.jakewharton.rxbinding3.view.detaches
 import io.reactivex.Observable
 import me.saket.press.shared.theme.AppTheme
 import me.saket.press.shared.theme.ThemePalette
-import me.saket.press.shared.theme.listenRx
+import me.saket.press.shared.listenRx
 import press.PressApp
 import press.extensions.onDestroys
 

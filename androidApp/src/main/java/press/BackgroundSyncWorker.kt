@@ -7,7 +7,7 @@ import androidx.work.RxWorker
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import io.reactivex.Single
-import me.saket.press.shared.syncer.git.syncWithResultRx2
+import me.saket.press.shared.syncWithResultRx2
 import java.time.Duration
 
 class BackgroundSyncWorker(

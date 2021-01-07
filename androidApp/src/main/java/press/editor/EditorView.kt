@@ -56,7 +56,7 @@ import me.saket.press.shared.editor.ToolbarIconKind.Unarchive
 import me.saket.press.shared.editor.ToolbarMenuAction
 import me.saket.press.shared.editor.ToolbarMenuItem
 import me.saket.press.shared.editor.ToolbarSubMenu
-import me.saket.press.shared.editor.saveEditorContentOnClose
+import me.saket.press.shared.saveEditorContentOnClose
 import me.saket.press.shared.preferences.UserPreferences
 import me.saket.press.shared.theme.AppTheme
 import me.saket.press.shared.theme.DisplayUnits
@@ -65,7 +65,7 @@ import me.saket.press.shared.theme.TextView
 import me.saket.press.shared.theme.ThemePalette
 import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.theme.from
-import me.saket.press.shared.theme.listenRx
+import me.saket.press.shared.listenRx
 import me.saket.press.shared.ui.models
 import me.saket.wysiwyg.Wysiwyg
 import me.saket.wysiwyg.formatting.TextSelection
