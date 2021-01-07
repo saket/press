@@ -1,13 +1,11 @@
 package me.saket.press.shared.util
 
-import kotlin.jvm.JvmStatic
 import kotlin.jvm.JvmSynthetic
 
 /**
  * Copied from https://github.com/gojuno/koptional
  */
 sealed class Optional<out T : Any> {
-
   /**
    * Converts [Optional] to either its non-null value if it's [Some] or `null` if it's [None].
    */
@@ -18,26 +16,6 @@ sealed class Optional<out T : Any> {
    */
   @JvmSynthetic
   abstract operator fun component1(): T?
-
-  companion object {
-
-    /**
-     * Wraps an instance of T (or null) into an [Optional]:
-     *
-     * ```java
-     * String a = "str";
-     * String b = null;
-     *
-     * Optional<String> optionalA = Optional.toOptional(a); // Some("str")
-     * Optional<String> optionalB = Optional.toOptional(b); // None
-     * ```
-     *
-     * This is the preferred method of obtaining an instance of [Optional] in Java. In Kotlin,
-     * prefer using the [toOptional][com.gojuno.koptional.toOptional] extension function.
-     */
-    @JvmStatic
-    fun <T : Any> toOptional(value: T?): Optional<T> = if (value == null) None else Some(value)
-  }
 }
 
 data class Some<out T : Any>(val value: T) : Optional<T>() {

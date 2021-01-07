@@ -97,6 +97,7 @@ class Strings(
     val category_subtitle_sync: String,
     val category_title_about_app: String,
     val category_subtitle_about_app: String,
+    val lookandfeel_fontfamily: String,
   )
 }
 
@@ -194,5 +195,6 @@ val ENGLISH_STRINGS = Strings(
     category_subtitle_sync = "Your notes, available anywhere through git",
     category_title_about_app = "About Press",
     category_subtitle_about_app = "Send <strike>complaints</strike> kudos here",
+    lookandfeel_fontfamily = "Font family"
   )
 )

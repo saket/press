@@ -16,8 +16,9 @@ object UiStyles {
     val variant: FontVariant
   )
 
-  enum class FontFamily {
-    WORK_SANS;
+  // Note to self: Roboto Mono is a font family. Roboto is a typeface.
+  enum class FontFamily(val displayName: String) {
+    WORK_SANS("Work Sans");
 
     /** e.g., WORK_SANS * REGULAR */
     operator fun times(variant: FontVariant) = Font(this, variant)

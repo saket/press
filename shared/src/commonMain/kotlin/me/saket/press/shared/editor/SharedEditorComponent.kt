@@ -9,7 +9,6 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 class SharedEditorComponent {
-
   val module = module {
     factory { (args: EditorPresenter.Args) ->
       EditorPresenter(
@@ -25,15 +24,6 @@ class SharedEditorComponent {
         deviceInfo = get()
       )
     }
-    factory(named("autocorrect")) {
-      Setting.create(
-        settings = get(),
-        key = "autocorrect",
-        from = { AutoCorrectEnabled(it.toBoolean()) },
-        to = { it.enabled.toString() },
-        defaultValue = AutoCorrectEnabled(true)
-      )
-    }
   }
 
   companion object {
@@ -42,8 +32,5 @@ class SharedEditorComponent {
 
     fun presenter(args: EditorPresenter.Args): EditorPresenter =
       koin { parametersOf(args) }
-
-    fun autoCorrectEnabled(): Setting<AutoCorrectEnabled> =
-      koin(named("autocorrect"))
   }
 }

@@ -38,7 +38,6 @@ import me.saket.cascade.CascadePopupMenu
 import me.saket.cascade.overrideAllPopupMenus
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.R
-import me.saket.press.shared.editor.AutoCorrectEnabled
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorPresenter
@@ -58,7 +57,7 @@ import me.saket.press.shared.editor.ToolbarMenuAction
 import me.saket.press.shared.editor.ToolbarMenuItem
 import me.saket.press.shared.editor.ToolbarSubMenu
 import me.saket.press.shared.editor.saveEditorContentOnClose
-import me.saket.press.shared.preferences.Setting
+import me.saket.press.shared.preferences.UserPreferences
 import me.saket.press.shared.theme.AppTheme
 import me.saket.press.shared.theme.DisplayUnits
 import me.saket.press.shared.theme.TextStyles.mainBody
@@ -96,7 +95,7 @@ class EditorView @InflationInject constructor(
   @Assisted context: Context,
   @Assisted attrs: AttributeSet? = null,
   presenterFactory: EditorPresenter.Factory,
-  autoCorrectEnabled: Setting<AutoCorrectEnabled>,
+  preferences: UserPreferences,
   private val appTheme: AppTheme
 ) : ContourLayout(context), BackPressInterceptor {
 
@@ -129,7 +128,7 @@ class EditorView @InflationInject constructor(
       TYPE_TEXT_FLAG_CAP_SENTENCES or
       TYPE_TEXT_FLAG_MULTI_LINE or
       TYPE_TEXT_FLAG_NO_SUGGESTIONS
-    if (autoCorrectEnabled.get()!!.enabled) {
+    if (preferences.autoCorrectEnabled.get()!!.enabled) {
       inputType = inputType or TYPE_TEXT_FLAG_AUTO_CORRECT
     }
     imeOptions = IME_FLAG_NO_FULLSCREEN

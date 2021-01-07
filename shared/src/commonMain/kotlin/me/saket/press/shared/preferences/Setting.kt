@@ -13,10 +13,10 @@ import com.russhwolf.settings.set
  * the setting key.
  */
 @OptIn(ExperimentalListener::class)
-interface Setting<T : Any> {
-  fun get(): T?
-  fun set(value: T?)
-  fun listen(): Observable<T?>
+abstract class Setting<T : Any> {
+  abstract fun get(): T?
+  abstract fun set(value: T?)
+  internal abstract fun listen(): Observable<T?>
 
   companion object {
     fun <T : Any> create(
@@ -26,7 +26,7 @@ interface Setting<T : Any> {
       to: (T) -> String,
       defaultValue: T?
     ): Setting<T> {
-      return object : Setting<T> {
+      return object : Setting<T>() {
         override fun get(): T? {
           val saved = settings.getStringOrNull(key)
           return if (saved != null) from(saved) else defaultValue

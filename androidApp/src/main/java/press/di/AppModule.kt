@@ -6,6 +6,7 @@ import dagger.Module
 import dagger.Provides
 import me.saket.press.shared.SharedAppComponent
 import me.saket.press.shared.localization.Strings
+import me.saket.press.shared.preferences.UserPreferences
 import me.saket.press.shared.syncer.SyncCoordinator
 import me.saket.press.shared.ui.ScreenResults
 import press.editor.EditorModule
@@ -34,4 +35,7 @@ object AppModule {
 
   @Provides
   fun screenResults(): ScreenResults = SharedAppComponent.screenResults()
+
+  @Provides
+  fun userPreferences(): UserPreferences = SharedAppComponent.userPreferences()
 }

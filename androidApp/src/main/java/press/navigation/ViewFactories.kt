@@ -42,7 +42,7 @@ class ViewFactories @Inject constructor(
       is PreferencesScreenKey -> PreferencesView(context)
       is PreferenceCategoryScreenKey -> {
         when (screen.category) {
-          LookAndFeel -> LookAndFeelPreferencesView(context)
+          LookAndFeel -> generate(context, LookAndFeelPreferencesView::class)
           Sync -> generate(context, SyncPreferencesView::class)
           AboutApp -> AboutAppPreferencesView(context)
         }
