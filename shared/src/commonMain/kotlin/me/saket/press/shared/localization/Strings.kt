@@ -98,6 +98,11 @@ class Strings(
     val category_title_about_app: String,
     val category_subtitle_about_app: String,
     val lookandfeel_fontfamily: String,
+    val about_playstore_link_title: String,
+    val about_header_html: String,
+    val about_playstore_link_subtitle: String,
+    val about_github_link_title: String,
+    val about_credits_title: String,
   )
 }
 
@@ -195,6 +200,14 @@ val ENGLISH_STRINGS = Strings(
     category_subtitle_sync = "Your notes, available anywhere through git",
     category_title_about_app = "About Press",
     category_subtitle_about_app = "Send <strike>complaints</strike> kudos here",
-    lookandfeel_fontfamily = "Font family"
+    lookandfeel_fontfamily = "Font family",
+
+    about_header_html = "Press is maintained by <a href=\"https://saket.me\">Saket Narayan</a>. It was created" +
+      " as a result of their frustration for lack of a minimal & cross-platform markdown note taking app for " +
+      "Android. Follow them <a href=\"https://twitter.com/saketme\">@Saketme</a> on twitter for progress updates!",
+    about_playstore_link_title = "Rate on Play Store ❤️",
+    about_playstore_link_subtitle = "<3",
+    about_github_link_title = "View source on GitHub",
+    about_credits_title = "Licenses & Attributes",
   )
 )

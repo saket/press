@@ -37,24 +37,26 @@ class PreferenceRowView(context: Context) : ContourLayout(context) {
     }
   }
 
-  fun render(title: String, subtitle: String? = null) {
+  fun render(title: String, subtitle: String? = null, onClick: () -> Unit) {
     titleView.text = title
     subtitleView.text = subtitle
     subtitleView.isVisible = subtitle != null
+    setOnClickListener { onClick() }
   }
 
   fun <T : Any> render(
     setting: Setting<T>,
     title: String,
-    subtitle: (T?) -> String?
+    subtitle: (T?) -> String?,
+    onClick: () -> Unit
   ) {
-    render(title, subtitle = "")
+    render(title, subtitle = "", onClick)
 
     attaches()
       .switchMap { setting.listen() }
       .takeUntil(detaches())
       .subscribe { (preference) ->
-        render(title, subtitle(preference))
+        render(title, subtitle(preference), onClick)
       }
   }
 }

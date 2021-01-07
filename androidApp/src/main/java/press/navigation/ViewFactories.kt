@@ -44,7 +44,7 @@ class ViewFactories @Inject constructor(
         when (screen.category) {
           LookAndFeel -> generate(context, LookAndFeelPreferencesView::class)
           Sync -> generate(context, SyncPreferencesView::class)
-          AboutApp -> AboutAppPreferencesView(context)
+          AboutApp -> generate(context, AboutAppPreferencesView::class)
         }
       }
       else -> {

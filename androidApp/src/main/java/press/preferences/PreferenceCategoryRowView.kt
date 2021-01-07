@@ -28,7 +28,7 @@ class PreferenceCategoryRowView(context: Context) : ContourLayout(context) {
       y = centerVerticallyTo { parent.centerY() }.heightOf { 24.ydip }
     )
     titleView.layoutBy(
-      x = leftTo { iconView.right() + 16.dip }.rightTo { parent.right() - 16.dip },
+      x = leftTo { iconView.right() + 16.dip }.rightTo { parent.right() - 32.dip },
       y = topTo { parent.top() + 16.dip }
     )
     subtitleView.layoutBy(
