@@ -43,6 +43,9 @@ class AboutAppPreferencesView @InflationInject constructor(
     text = Html.fromHtml(strings.about_header_html, FROM_HTML_MODE_LEGACY)
     movementMethod = BetterLinkMovementMethod.getInstance()
     updatePaddingRelative(start = 16.dip, end = 16.dip, top = 0, bottom = 24.dip)
+    themeAware {
+      textColor = it.textColorPrimary
+    }
   }
 
   private val playStoreView = PreferenceRowView(context)
@@ -52,6 +55,7 @@ class AboutAppPreferencesView @InflationInject constructor(
   private val preferenceList = LinearLayout(context).apply {
     orientation = VERTICAL
     showDividers = SHOW_DIVIDER_MIDDLE or SHOW_DIVIDER_END
+    themeAware { dividerDrawable = DividerDrawable(it.separator) }
     addView(headerTextView)
     addView(playStoreView)
     addView(githubView)
@@ -60,6 +64,10 @@ class AboutAppPreferencesView @InflationInject constructor(
 
   init {
     id = R.id.aboutapp_preferences_view
+    themeAware {
+      setBackgroundColor(it.window.backgroundColor)
+    }
+
     toolbar.layoutBy(
       x = matchParentX(),
       y = topTo { parent.top() }
@@ -70,12 +78,6 @@ class AboutAppPreferencesView @InflationInject constructor(
         x = matchParentX(),
         y = topTo { toolbar.bottom() }.bottomTo { parent.bottom() }
       )
-    }
-
-    themeAware {
-      setBackgroundColor(it.window.backgroundColor)
-      preferenceList.dividerDrawable = DividerDrawable(it.separator)
-      headerTextView.textColor = it.textColorPrimary
     }
 
     playStoreView.render(
