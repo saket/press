@@ -1,6 +1,6 @@
 package press.navigation
 
-import android.view.View
+import me.saket.press.shared.ui.ScreenKey
 
 fun interface BackPressInterceptor {
   fun onInterceptBackPress(): InterceptResult
@@ -13,5 +13,5 @@ fun interface BackPressInterceptor {
 
 interface ScreenFocusChangeListener {
   /** True when a View is present at the foreground of [TheActivity]. False otherwise. */
-  fun onScreenFocusChanged(focusedScreen: View?)
+  fun onScreenFocusChanged(focusedScreen: ScreenKey?)
 }

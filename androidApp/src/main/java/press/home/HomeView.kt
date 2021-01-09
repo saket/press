@@ -7,7 +7,6 @@ import android.util.AttributeSet
 import android.view.Menu
 import android.view.MenuItem.SHOW_AS_ACTION_IF_ROOM
 import android.view.MotionEvent
-import android.view.View
 import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.ConcatAdapter
@@ -154,14 +153,13 @@ class HomeView @InflationInject constructor(
     }
   }
 
-  override fun onScreenFocusChanged(focusedScreen: View?) {
-    if (this === focusedScreen) {
-      newNoteFab.show()
+  override fun onScreenFocusChanged(focusedScreen: ScreenKey?) {
+    if (focusedScreen is EditorScreenKey && focusedScreen.openMode is ExistingNote) {
+      // Hide the FAB only if an existing note is being opened.
+      // If it's a new note, the FAB will morph into the new screen.
+      newNoteFab.hide()
     } else {
-      val focusedKey = focusedScreen?.screenKey<ScreenKey>()
-      if ((focusedKey as? EditorScreenKey)?.openMode is ExistingNote) {
-        newNoteFab.hide()
-      }
+      newNoteFab.show()
     }
   }
 

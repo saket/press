@@ -15,6 +15,9 @@ import press.widgets.dp
  */
 interface FormFactor {
   fun createView(context: Context, screen: ScreenKey): View
+
+  // Hack hack :/
+  fun findDecoratedScreenView(view: View): View
 }
 
 /**
@@ -31,6 +34,13 @@ class PhoneFormFactor(private val viewFactories: ViewFactories) : FormFactor {
     }
     maybeSetThemeBackground(view)
     return view
+  }
+
+  override fun findDecoratedScreenView(view: View): View {
+    return when (view) {
+      is StandaloneExpandablePageLayout -> view.getChildAt(0)
+      else -> view
+    }
   }
 
   private fun makeScreenPullCollapsible(view: View): View {

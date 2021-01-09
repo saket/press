@@ -15,7 +15,6 @@ import me.saket.inboxrecyclerview.page.StandaloneExpandablePageLayout
 import me.saket.press.shared.ui.ScreenKey
 import press.extensions.doOnCollapse
 import press.extensions.doOnExpand
-import press.extensions.findChild
 import press.navigation.BackPressInterceptor.InterceptResult.Ignored
 import press.navigation.ScreenTransition.TransitionResult
 import press.navigation.ScreenTransition.TransitionResult.Handled
@@ -164,19 +163,24 @@ class ScreenKeyChanger(
   }
 
   private fun dispatchFocusChangeCallback() {
-    val children = hostView().children.toList()
+    val children = hostView().children
+      .map { formFactor.findDecoratedScreenView(it) }
+      .toList()
     val foregroundView = children.lastOrNull()
 
     children
       .filterIsInstance<ScreenFocusChangeListener>()
       .forEach {
-        it.onScreenFocusChanged(focusedScreen = foregroundView)
+        it.onScreenFocusChanged(focusedScreen = foregroundView?.screenKey())
       }
   }
 
   fun onInterceptBackPress(): BackPressInterceptor.InterceptResult {
-    val foreground = hostView().children.lastOrNull()
-    val interceptor = (foreground as? ViewGroup)?.findChild<BackPressInterceptor>()
+    val foreground = hostView().children
+      .map { formFactor.findDecoratedScreenView(it) }
+      .lastOrNull()
+
+    val interceptor = foreground as? BackPressInterceptor
     return interceptor?.onInterceptBackPress() ?: return Ignored
   }
 }
