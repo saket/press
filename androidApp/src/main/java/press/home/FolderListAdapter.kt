@@ -1,11 +1,8 @@
 package press.home
 
 import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import me.saket.inboxrecyclerview.ExpandedItemFinder.FindResult
 import me.saket.press.shared.db.FolderId
-import press.extensions.findExpandedItem
 import press.home.FolderListAdapter.FolderVH
 import me.saket.press.shared.home.HomeUiModel.Folder as Model
 
@@ -21,10 +18,8 @@ class FolderListAdapter : BaseHomeRowAdapter<Model, FolderVH>() {
     holder.view.render(getItem(position))
   }
 
-  fun findExpandedItem(parent: RecyclerView, folderId: FolderId): FindResult? {
-    return findExpandedItem<FolderVH>(parent) { holder ->
-      holder.view.model.id == folderId
-    }
+  fun viewHolderFor(folderId: FolderId, viewHolders: Sequence<ViewHolder>): ViewHolder? {
+    return viewHolders.firstOrNull { it is FolderVH && it.view.model.id == folderId }
   }
 
   class FolderVH(val view: FolderRowView) : ViewHolder(view)

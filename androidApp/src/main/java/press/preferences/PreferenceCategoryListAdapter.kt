@@ -2,10 +2,10 @@ package press.preferences
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import me.saket.inboxrecyclerview.ExpandedItemFinder.FindResult
-import me.saket.press.shared.preferences.PreferenceCategory
+import me.saket.inboxrecyclerview.expander.InboxItemExpander
 import me.saket.press.shared.preferences.PreferenceCategoryItemModel
-import press.extensions.findExpandedItem
+import me.saket.press.shared.preferences.PreferenceCategoryScreenKey
+import me.saket.press.shared.ui.ScreenKey
 import press.preferences.PreferenceCategoryListAdapter.CategoryVH
 
 class PreferenceCategoryListAdapter(
@@ -29,9 +29,13 @@ class PreferenceCategoryListAdapter(
     return categories.size
   }
 
-  fun findExpandedItem(parent: RecyclerView, category: PreferenceCategory): FindResult? {
-    return findExpandedItem<CategoryVH>(parent) { holder ->
-      holder.view.model.category == category
+  fun createScreenExpander(): InboxItemExpander<ScreenKey> {
+    return InboxItemExpander { screen, viewHolders ->
+      if (screen is PreferenceCategoryScreenKey) {
+        viewHolders.firstOrNull { it is CategoryVH && it.view.model.category == screen.category }
+      } else {
+        null
+      }
     }
   }
 

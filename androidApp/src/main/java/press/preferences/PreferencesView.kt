@@ -9,9 +9,9 @@ import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.squareup.contour.ContourLayout
-import me.saket.inboxrecyclerview.ExpandedItemFinder
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.dimming.DimPainter
+import me.saket.inboxrecyclerview.expander.InboxItemExpander
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.R
 import me.saket.press.shared.localization.strings
@@ -20,6 +20,7 @@ import me.saket.press.shared.preferences.PreferenceCategory.LookAndFeel
 import me.saket.press.shared.preferences.PreferenceCategory.Sync
 import me.saket.press.shared.preferences.PreferenceCategoryItemModel
 import me.saket.press.shared.preferences.PreferenceCategoryScreenKey
+import me.saket.press.shared.ui.ScreenKey
 import press.extensions.findParentOfType
 import press.extensions.interceptPullToCollapseOnView
 import press.navigation.navigator
@@ -44,7 +45,9 @@ class PreferencesView(context: Context) : ContourLayout(context), ExpandableScre
   private val categoryAdapter = PreferenceCategoryListAdapter(
     categories = preferenceCategories(),
     onClick = { item ->
-      navigator().lfg(PreferenceCategoryScreenKey(item.category))
+      post {
+        navigator().lfg(PreferenceCategoryScreenKey(item.category))
+      }
     }
   )
 
@@ -111,13 +114,7 @@ class PreferencesView(context: Context) : ContourLayout(context), ExpandableScre
     }
   }
 
-  override fun identifyExpandingItem(): ExpandedItemFinder {
-    return ExpandedItemFinder { parent, id ->
-      if (id is PreferenceCategoryScreenKey) {
-        categoryAdapter.findExpandedItem(parent, id.category)
-      } else {
-        null
-      }
-    }
+  override fun createScreenExpander(): InboxItemExpander<ScreenKey> {
+    return categoryAdapter.createScreenExpander()
   }
 }

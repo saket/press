@@ -2,9 +2,9 @@ package press.navigation.transitions
 
 import android.view.View
 import androidx.appcompat.widget.Toolbar
-import me.saket.inboxrecyclerview.ExpandedItemFinder
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.animation.ItemExpandAnimator
+import me.saket.inboxrecyclerview.expander.InboxItemExpander
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.shared.ui.ScreenKey
 import press.extensions.doOnCollapse
@@ -21,7 +21,7 @@ import press.navigation.hideKeyboardAndRun
  * incoming screens from their [InboxRecyclerView] list.
  */
 interface ExpandableScreenHost {
-  fun identifyExpandingItem(): ExpandedItemFinder?
+  fun createScreenExpander(): InboxItemExpander<ScreenKey>
 }
 
 /**
@@ -39,20 +39,25 @@ class ExpandableScreenTransition : ScreenTransition {
     onComplete: () -> Unit
   ): TransitionResult {
     val expandableHost = (if (goingForward) fromView else toView).findChild<ExpandableScreenHost>()
+    val itemExpander = expandableHost?.createScreenExpander()
 
-    if (goingForward && toView is ExpandablePageLayout && expandableHost != null) {
+    if (goingForward && toView is ExpandablePageLayout && itemExpander != null) {
       val fromList = fromView.findChild<InboxRecyclerView>()!!
-      fromList.attachPage(toView, expandableHost, parent = fromView)
-      fromList.expandItem(toKey, immediate = !fromView.isLaidOut)
+      fromList.attachPage(toView, itemExpander, parent = fromView)
+      itemExpander.expandItem(toKey, immediate = !fromView.isLaidOut)
       toView.doOnExpand(onComplete)
       return Handled
 
-    } else if (!goingForward && fromView is ExpandablePageLayout && expandableHost != null) {
+    } else if (!goingForward && fromView is ExpandablePageLayout && itemExpander != null) {
       val toList = toView.findChild<InboxRecyclerView>()!!
-      toList.attachPage(fromView, expandableHost, parent = toView)
+      toList.attachPage(fromView, itemExpander, parent = toView)
 
+      // This screen may have expanded from a list item that is no longer visible
+      // because the keyboard caused the list to resize. Hide the keyboard before
+      // collapsing so that the list item's View is added back.
       toList.hideKeyboardAndRun {
-        toList.collapse()
+        itemExpander.setItem(fromKey)
+        itemExpander.collapse()
       }
       fromView.doOnCollapse {
         toList.detachPage(fromView)
@@ -70,18 +75,19 @@ class ExpandableScreenTransition : ScreenTransition {
     if (foreground is ExpandablePageLayout) {
       background.findChild<ExpandableScreenHost>()?.let { bgHost ->
         val bgList = (bgHost as View).findChild<InboxRecyclerView>()!!
-        bgList.attachPage(foreground, bgHost, background)  // Will be detached on collapse during transition.
-        bgList.forceUpdateExpandedItem(foregroundKey)
+        val itemExpander = bgHost.createScreenExpander()
+        bgList.attachPage(foreground, itemExpander, background)
+        itemExpander.setItem(foregroundKey)
       }
     }
   }
 
   private fun InboxRecyclerView.attachPage(
     page: ExpandablePageLayout,
-    expandableHost: ExpandableScreenHost,
+    itemExpander: InboxItemExpander<ScreenKey>,
     parent: View
   ) {
-    this.expandedItemFinder = expandableHost.identifyExpandingItem()
+    this.itemExpander = itemExpander
     this.expandablePage = page
     this.itemExpandAnimator = ItemExpandAnimator.split()
     page.pushParentToolbarOnExpand(toolbar = parent.findChild<Toolbar>()!!)

@@ -19,9 +19,9 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.inflation.InflationInject
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
-import me.saket.inboxrecyclerview.ExpandedItemFinder
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.dimming.DimPainter
+import me.saket.inboxrecyclerview.expander.InboxItemExpander
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.R
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
@@ -136,17 +136,17 @@ class HomeView @InflationInject constructor(
     page?.pullToCollapseInterceptor = interceptPullToCollapseOnView(notesList)
   }
 
-  override fun identifyExpandingItem(): ExpandedItemFinder {
-    return ExpandedItemFinder { parent, id ->
-      when (id) {
+  override fun createScreenExpander(): InboxItemExpander<ScreenKey> {
+    return InboxItemExpander { screen, viewHolders ->
+      when (screen) {
         is EditorScreenKey -> {
-          (id.openMode as? ExistingNote)?.let {
-            noteAdapter.findExpandedItem(parent, it.noteId.id)
+          (screen.openMode as? ExistingNote)?.let { mode ->
+            noteAdapter.viewHolderFor(mode.noteId.id, viewHolders)
           }
         }
         is HomeScreenKey -> {
-          id.folder?.let {
-            folderAdapter.findExpandedItem(parent, it)
+          screen.folder?.let { folder ->
+            folderAdapter.viewHolderFor(folder, viewHolders)
           }
         }
         else -> null
