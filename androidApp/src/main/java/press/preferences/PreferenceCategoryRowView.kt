@@ -1,5 +1,6 @@
 package press.preferences
 
+import android.animation.AnimatorInflater
 import android.content.Context
 import androidx.appcompat.widget.AppCompatImageView
 import com.squareup.contour.ContourLayout
@@ -11,7 +12,6 @@ import me.saket.press.shared.preferences.PreferenceCategoryItemModel
 import me.saket.press.shared.theme.TextStyles.mainTitle
 import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextView
-import press.extensions.createRippleDrawable
 import press.extensions.textColor
 import press.theme.themeAware
 
@@ -41,8 +41,9 @@ class PreferenceCategoryRowView(context: Context) : ContourLayout(context) {
       iconView.setColorFilter(it.accentColor)
       titleView.textColor = it.textColorPrimary
       subtitleView.textColor = it.textColorSecondary
-      background = createRippleDrawable(it)
+      setBackgroundColor(it.window.backgroundColor)
     }
+    stateListAnimator = AnimatorInflater.loadStateListAnimator(context, R.animator.thread_elevation_stateanimator)
   }
 
   fun render(model: PreferenceCategoryItemModel) {

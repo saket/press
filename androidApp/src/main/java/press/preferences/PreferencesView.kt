@@ -45,9 +45,7 @@ class PreferencesView(context: Context) : ContourLayout(context), ExpandableScre
   private val categoryAdapter = PreferenceCategoryListAdapter(
     categories = preferenceCategories(),
     onClick = { item ->
-      post {
-        navigator().lfg(PreferenceCategoryScreenKey(item.category))
-      }
+      navigator().lfg(PreferenceCategoryScreenKey(item.category))
     }
   )
 
