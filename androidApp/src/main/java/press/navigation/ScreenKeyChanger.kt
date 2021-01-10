@@ -197,11 +197,13 @@ private class BasicTransition : ScreenTransition {
   ): TransitionResult {
     if (goingForward && toView is StandaloneExpandablePageLayout) {
       toView.doOnLayout {
-        toView.expandFrom(Rect(0, fromView.dp(56), toView.width, fromView.dp(56)))
+        val toLocation = toView.locationOnScreen()
+        toView.expandFrom(Rect(toLocation.left, fromView.dp(56), toLocation.right, fromView.dp(56)))
         toView.doOnExpand(onComplete)
       }
     } else if (!goingForward && fromView is StandaloneExpandablePageLayout) {
-      fromView.collapseTo(Rect(0, fromView.dp(56), toView.width, fromView.dp(56)))
+      val fromLocation = fromView.locationOnScreen()
+      fromView.collapseTo(Rect(fromLocation.left, fromView.dp(56), fromLocation.right, fromView.dp(56)))
       fromView.doOnCollapse(onComplete)
     } else {
       onComplete()
