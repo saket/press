@@ -24,8 +24,8 @@ import press.widgets.dp
  * Inflates screen Views in response to backstack changes.
  *
  * Keeps multiple screen Views stacked on top of each other so that they can interact
- * together. For screens of type [ExpandableScreenKey], pulling a foreground screen will
- * reveal its background screen.
+ * together. For screens of type [ExpandableScreenKey], dragging the foreground screen
+ * will cause its background screen to move in sync.
  */
 class ScreenKeyChanger(
   private val hostView: () -> ViewGroup,
