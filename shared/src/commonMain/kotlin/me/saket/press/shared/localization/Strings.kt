@@ -204,7 +204,7 @@ val ENGLISH_STRINGS = Strings(
 
     about_header_html = "Press is maintained by <a href=\"https://saket.me\">Saket Narayan</a>. It was created" +
       " as a result of their frustration for lack of a minimal & cross-platform markdown note taking app for " +
-      "Android. Follow them <a href=\"https://twitter.com/saketme\">@Saketme</a> on twitter for progress updates!",
+      "Android. Follow them <a href=\"https://twitter.com/saketme\">@saketme</a> on twitter for progress updates!",
     about_playstore_link_title = "Rate on Play Store ❤️",
     about_playstore_link_subtitle = "<3",
     about_github_link_title = "View source on GitHub",
