@@ -3,7 +3,6 @@
 package me.saket.press.shared.util
 
 import kotlin.text.format as kotlinFormat
-import kotlin.text.isLetterOrDigit as kotlinIsLetterOrDigit
 
 actual inline fun String.toLowerCase(locale: Locale): String {
   return toLowerCase(
@@ -11,10 +10,6 @@ actual inline fun String.toLowerCase(locale: Locale): String {
       Locale.US -> java.util.Locale.US
     }
   )
-}
-
-actual inline fun Char.isLetterOrDigit(): Boolean {
-  return this.kotlinIsLetterOrDigit()
 }
 
 actual fun String.format(vararg args: Any): String =
