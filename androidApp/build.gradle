@@ -10,8 +10,8 @@ android {
     applicationId "me.saket.press"
     minSdkVersion versions.minSdk
     targetSdkVersion versions.compileSdk
-    versionCode 11
-    versionName "1.7.0"
+    versionCode 12
+    versionName "1.8.0"
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     archivesBaseName = "press_v${versionName}_(${versionCode})"
   }
