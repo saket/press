@@ -104,6 +104,7 @@ class EditorPresenter(
           handleArchiveClicks(events, noteStream),
           handleShareClicks(events),
           handleDuplicateNoteClicks(events, noteStream),
+          handleDeleteNoteClicks(events, noteStream),
           handleSplitScreenClicks(events, noteStream),
           handleCopyClicks(events),
           populateExistingNoteOnStart(noteStream),
@@ -359,6 +360,20 @@ class EditorPresenter(
         args.navigator.lfg(
           EditorScreenKey(NewNote(PreSavedNoteId(newNoteId)))
         )
+      }
+  }
+
+  private fun handleDeleteNoteClicks(
+    events: Observable<EditorEvent>,
+    noteStream: Observable<Note>
+  ): Observable<EditorUiModel> {
+
+    return events.ofType<DeleteNoteClicked>()
+      .withLatestFrom(noteStream)
+      .observeOn(schedulers.io)
+      .consumeOnNext { (_, note) ->
+        noteQueries.markAsPendingDeletion(note.id)
+        args.navigator.goBack()
       }
   }
 
