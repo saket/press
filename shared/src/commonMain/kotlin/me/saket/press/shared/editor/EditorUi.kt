@@ -72,5 +72,6 @@ enum class ToolbarIconKind {
   ShareAs,
   CopyAs,
   DuplicateNote,
-  OpenInSplitScreen
+  OpenInSplitScreen,
+  DeleteNote
 }
