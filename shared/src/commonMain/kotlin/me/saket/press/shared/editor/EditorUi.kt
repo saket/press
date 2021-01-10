@@ -28,6 +28,7 @@ interface EditorEvent {
   data class CopyAsClicked(val format: TextFormat) : EditorEvent
   object DuplicateNoteClicked : EditorEvent
   object SplitScreenClicked : EditorEvent
+  object DeleteNoteClicked : EditorEvent
 }
 
 data class EditorUiModel(
