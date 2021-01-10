@@ -3,13 +3,11 @@ package press.home
 import android.animation.AnimatorInflater.loadStateListAnimator
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.view.Gravity
 import android.view.Gravity.CENTER_VERTICAL
 import android.widget.TextView
 import com.squareup.contour.ContourLayout
 import me.saket.press.R
 import me.saket.press.shared.home.HomeUiModel
-import me.saket.press.shared.home.HomeUiStyles.noteBody
 import me.saket.press.shared.home.HomeUiStyles.noteTitle
 import me.saket.press.shared.theme.TextView
 import press.extensions.getDrawable

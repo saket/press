@@ -1,8 +1,6 @@
 package press.widgets
 
-import android.app.Dialog
 import android.content.Context
-import android.graphics.Color
 import android.graphics.drawable.PaintDrawable
 import android.view.Gravity.CENTER
 import android.view.Gravity.CENTER_HORIZONTAL
@@ -10,12 +8,9 @@ import android.view.KeyEvent
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.FrameLayout.LayoutParams
-import android.widget.FrameLayout.LayoutParams.WRAP_CONTENT
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
-import androidx.core.view.setMargins
 import androidx.core.view.updateLayoutParams
-import androidx.core.view.updatePadding
 import androidx.core.view.updatePaddingRelative
 import com.squareup.contour.ContourLayout
 import me.saket.press.shared.theme.TextStyles.mainTitle
@@ -23,7 +18,6 @@ import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextView
 import press.extensions.padding
 import press.extensions.textColor
-import press.extensions.updatePadding
 import press.theme.themeAware
 
 /**

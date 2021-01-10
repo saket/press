@@ -159,7 +159,7 @@ class FileNameRegisterTest : BaseDatabaeTest() {
     val file = register.fileFor(note)
 
     assertThat(file.relativePathIn(directory)).isEqualTo("games/the_witcher_3.md")
-    with (register.recordFor("games/the_witcher_3.md")!!) {
+    with(register.recordFor("games/the_witcher_3.md")!!) {
       assertThat(noteId).isEqualTo(note.id)
       assertThat(noteFolder).isEqualTo("games")
     }
@@ -177,7 +177,7 @@ class FileNameRegisterTest : BaseDatabaeTest() {
     val file = register.fileFor(note)
 
     assertThat(file.relativePathIn(directory)).isEqualTo("archive/Games/the_witcher_3.md")
-    with (register.recordFor("archive/Games/the_witcher_3.md")!!) {
+    with(register.recordFor("archive/Games/the_witcher_3.md")!!) {
       assertThat(noteId).isEqualTo(note.id)
       assertThat(noteFolder).isEqualTo("archive/Games")
     }
@@ -195,7 +195,7 @@ class FileNameRegisterTest : BaseDatabaeTest() {
     val file = register.fileFor(note)
 
     assertThat(file.relativePathIn(directory)).isEqualTo("Games/The Witcher 3/hearts_of_stone.md")
-    with (register.recordFor("Games/The Witcher 3/hearts_of_stone.md")!!) {
+    with(register.recordFor("Games/The Witcher 3/hearts_of_stone.md")!!) {
       assertThat(noteId).isEqualTo(note.id)
       assertThat(noteFolder).isEqualTo("Games/The Witcher 3")
     }
@@ -214,7 +214,7 @@ class FileNameRegisterTest : BaseDatabaeTest() {
     val file = register.fileFor(note)
 
     assertThat(file.relativePathIn(directory)).isEqualTo("archive/Games/The Witcher 3/hearts_of_stone.md")
-    with (register.recordFor("archive/Games/The Witcher 3/hearts_of_stone.md")!!) {
+    with(register.recordFor("archive/Games/The Witcher 3/hearts_of_stone.md")!!) {
       assertThat(noteId).isEqualTo(note.id)
       assertThat(noteFolder).isEqualTo("archive/Games/The Witcher 3")
     }

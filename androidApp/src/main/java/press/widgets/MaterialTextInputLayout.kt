@@ -7,8 +7,6 @@ import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import androidx.core.view.updatePadding
 import com.google.android.material.textfield.TextInputLayout
-import me.saket.press.shared.theme.TextStyles
-import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.theme.blendWith
 import press.theme.themeAware
 

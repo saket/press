@@ -19,8 +19,6 @@ import com.badoo.reaktive.observable.withLatestFrom
 import com.badoo.reaktive.observable.zip
 import com.badoo.reaktive.scheduler.Scheduler
 import com.soywiz.klock.TimeSpan
-import me.saket.press.shared.util.Optional
-import me.saket.press.shared.util.toOptional
 
 internal fun observableInterval(interval: TimeSpan, scheduler: Scheduler): Observable<Long> {
   return observableInterval(interval.milliseconds.toLong(), scheduler)
@@ -34,7 +32,10 @@ internal fun <T, O> Observable<T>.withLatestFrom(other: Observable<O>): Observab
   return withLatestFrom(other, ::Pair)
 }
 
-internal fun <T, O1, O2> Observable<T>.withLatestFrom(other1: Observable<O1>, other2: Observable<O2>): Observable<Triple<T, O1, O2>> {
+internal fun <T, O1, O2> Observable<T>.withLatestFrom(
+  other1: Observable<O1>,
+  other2: Observable<O2>
+): Observable<Triple<T, O1, O2>> {
   return withLatestFrom(other1, other2, ::Triple)
 }
 

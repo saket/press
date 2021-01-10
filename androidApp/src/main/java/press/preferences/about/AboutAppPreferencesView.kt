@@ -10,8 +10,6 @@ import android.widget.LinearLayout.SHOW_DIVIDER_MIDDLE
 import android.widget.LinearLayout.VERTICAL
 import android.widget.ScrollView
 import android.widget.Toast
-import androidx.core.view.setPadding
-import androidx.core.view.updatePadding
 import androidx.core.view.updatePaddingRelative
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted

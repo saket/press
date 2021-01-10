@@ -9,8 +9,6 @@ import com.badoo.reaktive.observable.observable
 import com.badoo.reaktive.observable.observeOn
 import com.badoo.reaktive.scheduler.Scheduler
 import com.squareup.sqldelight.Query
-import me.saket.press.shared.util.Optional
-import me.saket.press.shared.util.toOptional
 
 // Copied from
 // https://github.com/touchlab/DroidconKotlin/blob/kpg/reaktive/sessionize/lib/src/commonMain/kotlin/co/touchlab/sessionize/reaktive/ReaktiveExtensions.kt

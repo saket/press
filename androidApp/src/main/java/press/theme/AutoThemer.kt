@@ -103,7 +103,7 @@ private fun <T : EditText> themed(view: T): T = view.apply {
   }
 }
 
-private fun <T: CheckBox> themed(view: T): T = view.apply {
+private fun <T : CheckBox> themed(view: T): T = view.apply {
   themeAware {
     background = createRippleDrawable(it, borderless = true)
     buttonTintList = ColorStateList.valueOf(it.accentColor)
