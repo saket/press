@@ -41,6 +41,10 @@ sealed class EditorUiEffect {
     val newSelection: TextSelection?
   ) : EditorUiEffect()
 
+  data class ShowToast(
+    val message: String
+  ) : EditorUiEffect()
+
   object BlockedDueToSyncConflict : EditorUiEffect()
 }
 

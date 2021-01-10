@@ -33,6 +33,7 @@ import me.saket.press.shared.editor.EditorEvent.SplitScreenClicked
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorUiEffect.BlockedDueToSyncConflict
+import me.saket.press.shared.editor.EditorUiEffect.ShowToast
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.editor.TextFormat.Html
 import me.saket.press.shared.editor.TextFormat.Markdown
@@ -275,6 +276,12 @@ class EditorPresenter(
         folderPaths.setArchived(note.id, archive = event.archive)
 
         if (event.archive) {
+          args.onEffect(ShowToast(strings.editor.note_archived))
+        } else {
+          args.onEffect(ShowToast(strings.editor.note_unarchived))
+        }
+
+        if (event.archive) {
           args.navigator.goBack()
         }
       }
@@ -294,6 +301,8 @@ class EditorPresenter(
           Html, RichText -> clipboard.copyRichText(formattedText)
           Markdown -> clipboard.copyPlainText(formattedText)
         }
+
+        args.onEffect(ShowToast(strings.editor.note_copied))
       }
   }
 

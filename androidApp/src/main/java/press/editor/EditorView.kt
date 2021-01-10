@@ -45,6 +45,7 @@ import me.saket.press.shared.editor.EditorPresenter.Args
 import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.editor.EditorUiEffect
 import me.saket.press.shared.editor.EditorUiEffect.BlockedDueToSyncConflict
+import me.saket.press.shared.editor.EditorUiEffect.ShowToast
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.editor.EditorUiModel
 import me.saket.press.shared.editor.ToolbarIconKind.Archive
@@ -249,11 +250,12 @@ class EditorView @InflationInject constructor(
   }
 
   private fun render(uiUpdate: EditorUiEffect) {
-    post {
+    post {  // On the Ui thread.
       @Exhaustive
       when (uiUpdate) {
         is UpdateNoteText -> editorEditText.setText(uiUpdate.newText, uiUpdate.newSelection)
         is BlockedDueToSyncConflict -> EditingBlockedDueToConflictDialog.show(context, onDismiss = navigator()::goBack)
+        is ShowToast -> Toast.makeText(context, uiUpdate.message, LENGTH_SHORT).show()
       }
     }
   }
