@@ -50,6 +50,7 @@ import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.editor.EditorUiModel
 import me.saket.press.shared.editor.ToolbarIconKind.Archive
 import me.saket.press.shared.editor.ToolbarIconKind.CopyAs
+import me.saket.press.shared.editor.ToolbarIconKind.DeleteNote
 import me.saket.press.shared.editor.ToolbarIconKind.DuplicateNote
 import me.saket.press.shared.editor.ToolbarIconKind.OpenInSplitScreen
 import me.saket.press.shared.editor.ToolbarIconKind.ShareAs
@@ -281,6 +282,7 @@ class EditorView @InflationInject constructor(
       CopyAs -> R.drawable.ic_twotone_file_copy_24
       DuplicateNote -> R.drawable.ic_twotone_note_add_24
       OpenInSplitScreen -> R.drawable.ic_twotone_vertical_split_24
+      DeleteNote -> R.drawable.ic_twotone_delete_24
       null -> null
     }
     val icon = iconRes?.let { context.getDrawable(iconRes, palette.accentColor) }

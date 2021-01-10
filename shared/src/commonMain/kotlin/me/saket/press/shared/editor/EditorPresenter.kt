@@ -26,6 +26,7 @@ import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorEvent.ArchiveToggleClicked
 import me.saket.press.shared.editor.EditorEvent.CopyAsClicked
+import me.saket.press.shared.editor.EditorEvent.DeleteNoteClicked
 import me.saket.press.shared.editor.EditorEvent.DuplicateNoteClicked
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorEvent.ShareAsClicked
@@ -40,6 +41,7 @@ import me.saket.press.shared.editor.TextFormat.Markdown
 import me.saket.press.shared.editor.TextFormat.RichText
 import me.saket.press.shared.editor.ToolbarIconKind.Archive
 import me.saket.press.shared.editor.ToolbarIconKind.CopyAs
+import me.saket.press.shared.editor.ToolbarIconKind.DeleteNote
 import me.saket.press.shared.editor.ToolbarIconKind.DuplicateNote
 import me.saket.press.shared.editor.ToolbarIconKind.OpenInSplitScreen
 import me.saket.press.shared.editor.ToolbarIconKind.ShareAs
@@ -261,6 +263,11 @@ class EditorPresenter(
             clickEvent = SplitScreenClicked
           )
         } else null,
+        ToolbarMenuAction(
+          label = strings.editor.menu_delete_note,
+          icon = DeleteNote,
+          clickEvent = DeleteNoteClicked
+        ),
       )
     }
   }
