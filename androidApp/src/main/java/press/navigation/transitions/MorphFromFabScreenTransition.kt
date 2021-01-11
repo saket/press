@@ -43,8 +43,8 @@ class MorphFromFabScreenTransition : ScreenTransition {
       toView.expandImmediately()
 
       val fab = fromView.findChild<FloatingActionButton>()!!
-      val transform = fabMorphTransition(from = fab, to = toView, onComplete = onComplete)
-      TransitionManager.beginDelayedTransition(fromView.parent as ViewGroup, transform)
+      val transform = fabMorphTransition(from = fab, to = toView)
+      beginOrCompleteTransition(fromView.parent as ViewGroup, transform, onComplete = onComplete)
       return Handled
 
     } else if (isNewNoteScreen(fromView, fromKey) && toKey is HomeScreenKey) {
@@ -52,17 +52,30 @@ class MorphFromFabScreenTransition : ScreenTransition {
       toList.stopPageDimming()
 
       val fab = toView.findChild<FloatingActionButton>()!!
-      val transform = fabMorphTransition(from = fromView, to = fab, onComplete = onComplete)
+      val transform = fabMorphTransition(from = fromView, to = fab)
       fromView.hideKeyboardAndRun {
         // If the keyboard is visible, the screen will morph into the FAB
         // above the keyboard and then immediately jump to the bottom. Avoid
         // this by hiding the keyboard and before starting the transition.
-        TransitionManager.beginDelayedTransition(fromView.parent as ViewGroup, transform)
+        beginOrCompleteTransition(fromView.parent as ViewGroup, transform, onComplete = onComplete)
       }
       return Handled
 
     } else {
       return Ignored
+    }
+  }
+
+  private fun beginOrCompleteTransition(parent: ViewGroup, transition: Transition, onComplete: () -> Unit) {
+    // Transitions are only run if Views are laid out.
+    if (parent.isLaidOut) {
+      transition.addListener(object : TransitionListenerAdapter() {
+        override fun onTransitionEnd(transition: Transition) = onComplete()
+      })
+      TransitionManager.beginDelayedTransition(parent, transition)
+
+    } else {
+      onComplete()
     }
   }
 
@@ -85,7 +98,7 @@ class MorphFromFabScreenTransition : ScreenTransition {
     dimDrawable?.alpha = 0
   }
 
-  private fun fabMorphTransition(from: View, to: View, onComplete: () -> Unit): Transition {
+  private fun fabMorphTransition(from: View, to: View): Transition {
     return MaterialContainerTransform().apply {
       startView = from
       endView = to
@@ -99,10 +112,6 @@ class MorphFromFabScreenTransition : ScreenTransition {
       shapeMaskProgressThresholds = ProgressThresholds(0.3f, 0.9f)
       scaleProgressThresholds = ProgressThresholds(0.2f, 0.9f)
       scaleMaskProgressThresholds = ProgressThresholds(0.2f, 0.9f)
-
-      addListener(object : TransitionListenerAdapter() {
-        override fun onTransitionEnd(transition: Transition) = onComplete()
-      })
     }
   }
 }

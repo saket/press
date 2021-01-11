@@ -7,6 +7,10 @@ import flow.State
 import flow.TraversalCallback
 import java.util.Stack
 
+/**
+ * Plays key changes sequentially once each screen has finished their transition.
+ * Useful when navigating to/from multiple screens with short time gaps.
+ */
 abstract class EnqueuingKeyChanger : KeyChanger, TransitionCallback {
   private val queue = Stack<() -> Unit>()
 
