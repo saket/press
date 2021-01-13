@@ -12,6 +12,7 @@ class SharedEditorComponent {
       EditorPresenter(
         args = args,
         database = get(),
+        syncer = get(),
         clock = get(),
         schedulers = get(),
         strings = get(),
