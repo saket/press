@@ -19,6 +19,7 @@ import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.publish
 import com.badoo.reaktive.observable.take
 import com.badoo.reaktive.observable.takeUntil
+import com.badoo.reaktive.observable.takeWhile
 import com.badoo.reaktive.observable.withLatestFrom
 import com.badoo.reaktive.observable.wrap
 import me.saket.press.PressDatabase
@@ -58,6 +59,8 @@ import me.saket.press.shared.rx.mapToOneOrNull
 import me.saket.press.shared.rx.observableInterval
 import me.saket.press.shared.rx.withLatestFrom
 import me.saket.press.shared.syncer.SyncMergeConflicts
+import me.saket.press.shared.syncer.Syncer
+import me.saket.press.shared.syncer.Syncer.Status.Enabled
 import me.saket.press.shared.syncer.git.DeviceInfo
 import me.saket.press.shared.syncer.git.FolderPaths
 import me.saket.press.shared.time.Clock
@@ -71,6 +74,7 @@ class EditorPresenter(
   val args: Args,
   private val clock: Clock,
   private val database: PressDatabase,
+  private val syncer: Syncer,
   private val schedulers: Schedulers,
   private val strings: Strings,
   private val config: EditorConfig,
@@ -199,8 +203,10 @@ class EditorPresenter(
       .distinctUntilChanged()
       .map(folderPaths::isArchived)
       .distinctUntilChanged()
+      .combineLatestWith(syncer.status())
+      .distinctUntilChanged()
 
-    return isNoteArchived.map { isArchived ->
+    return isNoteArchived.map { (isArchived, status) ->
       listOfNotNull(
         if (isArchived) {
           ToolbarMenuAction(
@@ -263,11 +269,13 @@ class EditorPresenter(
             clickEvent = SplitScreenClicked
           )
         } else null,
-        ToolbarMenuAction(
-          label = strings.editor.menu_delete_note,
-          icon = DeleteNote,
-          clickEvent = DeleteNoteClicked
-        ),
+        if (status is Enabled) {
+          ToolbarMenuAction(
+            label = strings.editor.menu_delete_note,
+            icon = DeleteNote,
+            clickEvent = DeleteNoteClicked
+          )
+        } else null,
       )
     }
   }
