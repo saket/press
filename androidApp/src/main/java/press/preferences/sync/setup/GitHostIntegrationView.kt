@@ -16,10 +16,8 @@ import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.inflation.InflationInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
-import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.R
 import me.saket.press.shared.localization.strings
-import me.saket.press.shared.syncer.git.GitHost
 import me.saket.press.shared.preferences.sync.setup.GitHostIntegrationEvent.CreateNewGitRepoClicked
 import me.saket.press.shared.preferences.sync.setup.GitHostIntegrationEvent.GitRepositoryClicked
 import me.saket.press.shared.preferences.sync.setup.GitHostIntegrationEvent.RetryClicked
@@ -31,11 +29,10 @@ import me.saket.press.shared.preferences.sync.setup.GitHostIntegrationUiModel
 import me.saket.press.shared.preferences.sync.setup.GitHostIntegrationUiModel.SelectRepo
 import me.saket.press.shared.preferences.sync.setup.GitHostIntegrationUiModel.ShowFailure
 import me.saket.press.shared.preferences.sync.setup.GitHostIntegrationUiModel.ShowProgress
+import me.saket.press.shared.syncer.git.GitHost
 import me.saket.press.shared.ui.models
 import press.extensions.doOnTextChange
-import press.extensions.findParentOfType
 import press.extensions.hideKeyboard
-import press.extensions.interceptPullToCollapseOnView
 import press.navigation.navigator
 import press.navigation.screenKey
 import press.theme.themeAware
@@ -154,9 +151,6 @@ class GitHostIntegrationView @InflationInject constructor(
       .takeUntil(detaches())
       .observeOn(mainThread())
       .subscribe(::render)
-
-    val page = findParentOfType<ExpandablePageLayout>()
-    page?.pullToCollapseInterceptor = interceptPullToCollapseOnView(recyclerView)
   }
 
   private fun render(model: GitHostIntegrationUiModel) {

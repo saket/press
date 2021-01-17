@@ -21,7 +21,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.dimming.DimPainter
 import me.saket.inboxrecyclerview.expander.InboxItemExpander
-import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.R
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorScreenKey
@@ -34,9 +33,7 @@ import me.saket.press.shared.localization.strings
 import me.saket.press.shared.preferences.PreferencesScreenKey
 import me.saket.press.shared.ui.ScreenKey
 import me.saket.press.shared.ui.models
-import press.extensions.findParentOfType
 import press.extensions.getDrawable
-import press.extensions.interceptPullToCollapseOnView
 import press.extensions.second
 import press.extensions.throttleFirst
 import press.navigation.ScreenFocusChangeListener
@@ -130,9 +127,6 @@ class HomeView @InflationInject constructor(
       .subscribe { row ->
         navigator().lfg(row.screenKey())
       }
-
-    val page = findParentOfType<ExpandablePageLayout>()
-    page?.pullToCollapseInterceptor = interceptPullToCollapseOnView(notesList)
   }
 
   override fun createScreenExpander(): InboxItemExpander<ScreenKey> {

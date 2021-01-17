@@ -12,7 +12,6 @@ import com.squareup.contour.ContourLayout
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.dimming.DimPainter
 import me.saket.inboxrecyclerview.expander.InboxItemExpander
-import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.preferences.PreferenceCategory.AboutApp
@@ -21,8 +20,6 @@ import me.saket.press.shared.preferences.PreferenceCategory.Sync
 import me.saket.press.shared.preferences.PreferenceCategoryItemModel
 import me.saket.press.shared.preferences.PreferenceCategoryScreenKey
 import me.saket.press.shared.ui.ScreenKey
-import press.extensions.findParentOfType
-import press.extensions.interceptPullToCollapseOnView
 import press.navigation.navigator
 import press.navigation.transitions.ExpandableScreenHost
 import press.theme.themeAware
@@ -92,13 +89,6 @@ class PreferencesView(context: Context) : ContourLayout(context), ExpandableScre
         category = AboutApp
       )
     )
-  }
-
-  override fun onAttachedToWindow() {
-    super.onAttachedToWindow()
-
-    val page = findParentOfType<ExpandablePageLayout>()
-    page?.pullToCollapseInterceptor = interceptPullToCollapseOnView(categoryList)
   }
 
   override fun dispatchTouchEvent(ev: MotionEvent): Boolean {

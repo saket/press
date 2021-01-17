@@ -36,7 +36,6 @@ import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers
 import me.saket.cascade.CascadePopupMenu
 import me.saket.cascade.overrideAllPopupMenus
-import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.R
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
@@ -58,8 +57,9 @@ import me.saket.press.shared.editor.ToolbarIconKind.Unarchive
 import me.saket.press.shared.editor.ToolbarMenuAction
 import me.saket.press.shared.editor.ToolbarMenuItem
 import me.saket.press.shared.editor.ToolbarSubMenu
-import me.saket.press.shared.saveEditorContentOnClose
+import me.saket.press.shared.listenRx
 import me.saket.press.shared.preferences.UserPreferences
+import me.saket.press.shared.saveEditorContentOnClose
 import me.saket.press.shared.theme.AppTheme
 import me.saket.press.shared.theme.DisplayUnits
 import me.saket.press.shared.theme.TextStyles.mainBody
@@ -67,7 +67,6 @@ import me.saket.press.shared.theme.TextView
 import me.saket.press.shared.theme.ThemePalette
 import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.theme.from
-import me.saket.press.shared.listenRx
 import me.saket.press.shared.ui.models
 import me.saket.wysiwyg.Wysiwyg
 import me.saket.wysiwyg.formatting.TextSelection
@@ -75,10 +74,8 @@ import me.saket.wysiwyg.parser.node.HeadingLevel.H1
 import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.widgets.addTextChangedListener
 import press.extensions.doOnTextChange
-import press.extensions.findParentOfType
 import press.extensions.fromOreo
 import press.extensions.getDrawable
-import press.extensions.interceptPullToCollapseOnView
 import press.extensions.showKeyboard
 import press.extensions.textColor
 import press.extensions.textSizePx
@@ -196,9 +193,6 @@ class EditorView @InflationInject constructor(
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
-
-    val page = findParentOfType<ExpandablePageLayout>()
-    page?.pullToCollapseInterceptor = interceptPullToCollapseOnView(scrollView)
 
     editorEditText.doOnTextChange {
       presenter.dispatch(NoteTextChanged(it.toString()))

@@ -9,9 +9,6 @@
         <option name="TAB_SIZE" value="2" />
       </value>
     </option>
-    <AndroidXmlCodeStyleSettings>
-      <option name="USE_CUSTOM_SETTINGS" value="true" />
-    </AndroidXmlCodeStyleSettings>
     <GroovyCodeStyleSettings>
       <option name="ALIGN_MULTILINE_LIST_OR_MAP" value="false" />
       <option name="ALIGN_NAMED_ARGS_IN_MAP" value="false" />
@@ -48,9 +45,6 @@
       <option name="IF_RPAREN_ON_NEW_LINE" value="true" />
     </JetCodeStyleSettings>
     <XML>
-      <option name="XML_KEEP_LINE_BREAKS" value="false" />
-      <option name="XML_ALIGN_ATTRIBUTES" value="false" />
-      <option name="XML_SPACE_INSIDE_EMPTY_TAG" value="true" />
       <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
     </XML>
     <ADDITIONAL_INDENT_OPTIONS fileType="php">

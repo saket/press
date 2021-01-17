@@ -10,7 +10,6 @@ import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.inflation.InflationInject
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
-import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.preferences.sync.stats.SyncStatsForNerdsPresenter
@@ -19,8 +18,6 @@ import me.saket.press.shared.theme.TextStyles.mainBody
 import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextView
 import me.saket.press.shared.ui.models
-import press.extensions.findParentOfType
-import press.extensions.interceptPullToCollapseOnView
 import press.extensions.textColor
 import press.theme.themeAware
 import press.widgets.PressToolbar
@@ -102,9 +99,6 @@ class SyncStatsForNerdsView @InflationInject constructor(
       .takeUntil(detaches())
       .observeOn(mainThread())
       .subscribe(::render)
-
-    val page = findParentOfType<ExpandablePageLayout>()
-    page?.pullToCollapseInterceptor = interceptPullToCollapseOnView(logsScrollView)
   }
 
   private fun render(model: SyncStatsForNerdsUiModel) {
