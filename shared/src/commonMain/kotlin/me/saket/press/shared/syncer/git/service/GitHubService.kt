@@ -5,17 +5,18 @@ import com.badoo.reaktive.coroutinesinterop.completableFromCoroutine
 import com.badoo.reaktive.coroutinesinterop.singleFromCoroutine
 import com.badoo.reaktive.single.Single
 import io.ktor.client.call.receive
+import io.ktor.client.features.ResponseException
 import io.ktor.client.request.accept
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.readText
 import io.ktor.http.ContentType.Application
 import io.ktor.http.URLBuilder
 import io.ktor.http.Url
 import io.ktor.http.contentType
-import io.ktor.utils.io.readUTF8Line
 import kotlinx.serialization.Serializable
 import me.saket.kgit.GitIdentity
 import me.saket.press.shared.BuildKonfig
@@ -123,22 +124,22 @@ class GitHubService(private val args: GitHostServiceArgs) : GitHostService {
         if (response.isSuccessful()) {
           ApiResult.Success(response.receive<GitHubRepo>().toRepoInfo())
         } else {
-          ApiResult.Failure(readErrorMessage(response))
+          ApiResult.Failure(response.readErrorMessage())
         }
       } catch (e: Throwable) {
-        ApiResult.Failure(errorMessage = null)
+        val errorResponse = (e as? ResponseException)?.response
+        ApiResult.Failure(errorResponse?.readErrorMessage())
       }
     }
   }
 
-  private suspend fun readErrorMessage(response: HttpResponse): String? {
+  private suspend fun HttpResponse.readErrorMessage(): String? {
     return try {
-      response.content.readUTF8Line()?.let { errorJson ->
+      this.readText().let { errorJson ->
         json.decodeFromString(GithubError.serializer(), errorJson).errorMessage
       }
     } catch (e: Throwable) {
-      // Unexpected error json.
-      null
+      null  // Unexpected error json.
     }
   }
 }
