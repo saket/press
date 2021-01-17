@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.widget.HorizontalScrollView
 import android.widget.ScrollView
 import androidx.core.view.setPadding
+import androidx.core.widget.NestedScrollView
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
@@ -52,7 +53,7 @@ class SyncStatsForNerdsView @InflationInject constructor(
     }
   }
 
-  private val logsScrollView = ScrollView(context).apply {
+  private val logsScrollView = NestedScrollView(context).apply {
     isFillViewport = true
     themeAware {
       setBackgroundColor(it.window.editorBackgroundColor)

@@ -8,9 +8,9 @@ import android.widget.LinearLayout
 import android.widget.LinearLayout.SHOW_DIVIDER_END
 import android.widget.LinearLayout.SHOW_DIVIDER_MIDDLE
 import android.widget.LinearLayout.VERTICAL
-import android.widget.ScrollView
 import android.widget.Toast
 import androidx.core.view.updatePaddingRelative
+import androidx.core.widget.NestedScrollView
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.inflation.InflationInject
@@ -70,7 +70,7 @@ class AboutAppPreferencesView @InflationInject constructor(
       x = matchParentX(),
       y = topTo { parent.top() }
     )
-    ScrollView(context).apply {
+    NestedScrollView(context).apply {
       addView(preferenceList)
       layoutBy(
         x = matchParentX(),
