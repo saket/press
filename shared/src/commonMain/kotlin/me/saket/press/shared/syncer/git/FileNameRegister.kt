@@ -28,7 +28,7 @@ internal class FileNameRegister(
     private const val MAX_NAME_LENGTH = 240
   }
 
-  private val registerDirectory = File(notesDirectory, ".press/registers").also {
+  internal val registerDirectory = File(notesDirectory, ".press/registers").also {
     it.makeDirectories()
   }
 
@@ -184,12 +184,20 @@ internal class FileNameRegister(
     }
   }
 
-  fun pruneDuplicateRecords() {
+  fun migrateRecords() {
     if (!registerDirectory.exists) return
 
+    for (file in allRegisterFiles()) {
+      if (file.extension.isEmpty()) {
+        file.renameTo(file.name + Record.extension)
+      }
+    }
+
+    // Remove duplicate records. This ideally shouldn't be needed, but a bug
+    // in the past caused duplicate records to be created. Notes with discarded
+    // records will be given a new identity.
     val records = allRegisterFiles().map { Record.from(registerDirectory, it) }
     val uniqueIds = records.associateBy { it.noteIdString }
-
     for (record in records.reversed()) {
       val unique = uniqueIds[record.noteIdString]!!
       if (record.noteFilePath != unique.noteFilePath) {
@@ -203,10 +211,13 @@ internal class FileNameRegister(
     internal val registerFile: File
   ) {
     companion object {
+      const val extension = ".meta"
+
       fun from(registerDirectory: File, relativePath: String): Record? {
         require(relativePath.endsWith("md")) { "Not a note: $relativePath" }
 
-        val registerFile = File(registerDirectory, relativePath.dropLast(".md".length))
+        // Note to self: don't forget to write a migration for old records!
+        val registerFile = File(registerDirectory, relativePath.replaceSuffix(".md", with = extension))
           .existsOrNull() ?: return null
         return from(registerDirectory, registerFile)
       }
@@ -219,7 +230,8 @@ internal class FileNameRegister(
         val relativePath = noteFile.relativePathIn(notesDirectory)
         check(relativePath.endsWith(".md"))
 
-        return File(registerDirectory, relativePath.dropLast(".md".length)).also {
+        // Note to self: don't forget to write a migration for old records!
+        return File(registerDirectory, relativePath.replaceSuffix(".md", with = extension)).also {
           if (!it.parent.exists) it.parent.makeDirectories()
           it.write(id.value.toString())
         }
@@ -227,7 +239,7 @@ internal class FileNameRegister(
     }
 
     internal val noteFilePath: String
-      get() = "${registerFile.relativePathIn(registersDirectory)}.md"
+      get() = registerFile.relativePathIn(registersDirectory).replaceSuffix(extension, with = ".md")
 
     internal val noteId: NoteId
       get() = NoteId.from(noteIdString)
@@ -257,4 +269,9 @@ private inline fun <T> File?.hideAndRun(crossinline run: () -> T): T {
     renamedFile.renameTo(File(origPath))
     value
   }
+}
+
+internal fun String.replaceSuffix(old: String, with: String): String {
+  check(this.endsWith(old)) { "'$this' doesn't end with $old" } // todo: don't print log
+  return "${this.removeSuffix(old)}$with"
 }

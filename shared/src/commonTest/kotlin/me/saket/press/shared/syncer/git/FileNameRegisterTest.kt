@@ -9,6 +9,7 @@ import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import me.saket.press.data.shared.Note
+import me.saket.press.shared.containsOnly
 import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakedata.fakeFolder
@@ -40,7 +41,7 @@ class FileNameRegisterTest : BaseDatabaeTest() {
     assertThat(record.noteId).isEqualTo(noteId)
 
     assertThat(record.noteFileIn(directory).relativePathIn(directory)).isEqualTo("archive/games/uncharted.md")
-    assertThat(record.registerFile.path).endsWith(".press/registers/archive/games/uncharted")
+    assertThat(record.registerFile.path).endsWith(".press/registers/archive/games/uncharted.meta")
   }
 
   @Test fun `generates unique file names to avoid conflicts`() {
@@ -102,19 +103,46 @@ class FileNameRegisterTest : BaseDatabaeTest() {
     assertThat(register.noteIdFor(note2File.name)).isNull()
   }
 
-  @Test fun `recover from invalid records`() {
+  @Test fun `migrate from invalid records that point to the same ID`() {
     val note1 = fakeNote("# ")
     val record1 = register.createNewRecordFor(register.fileFor(note1), note1.id)
 
-    // Scenario: two records with different file names point to the same ID.
     val note2 = fakeNote("# ")
     val record2 = register.createNewRecordFor(register.fileFor(note2), note2.id)
     record2.registerFile.write("${note1.id.value}")
 
     assertThat(register.noteIdFor(record1.noteFilePath)).isEqualTo(register.noteIdFor(record2.noteFilePath))
-
-    register.pruneDuplicateRecords()
+    register.migrateRecords()
     assertThat(register.noteIdFor(record1.noteFilePath)).isNotEqualTo(register.noteIdFor(record2.noteFilePath))
+  }
+
+  @Test fun `migrate from old record file names`() {
+    val gamesFolder = fakeFolder("games", parent = null)
+    val witcherNote = fakeNote("# witcher 3", folderId = gamesFolder.id)
+    database.folderQueries.insert(gamesFolder)
+    register.createNewRecordFor(register.fileFor(witcherNote), witcherNote.id)
+
+    val finNote = fakeNote("# finances")
+    val finRecord = register.createNewRecordFor(register.fileFor(finNote), finNote.id)
+    val finRecordName = finRecord.registerFile.name
+
+    // Old record names didn't have any extension.
+    check(finRecordName.endsWith(".meta"))
+    finRecord.registerFile.renameTo(finRecordName.replaceSuffix(".meta", with = ""))
+
+    // Folder names don't have any extension either, so make sure they don't get migrated as well.
+    File(finRecord.registerFile.parent, "games").makeDirectories()
+
+    register.migrateRecords()
+
+    val resultingPaths = register.registerDirectory
+      .children(recursively = true)
+      .map { it.relativePathIn(register.registerDirectory) }
+
+    assertThat(resultingPaths).containsOnly(
+      "games/witcher_3.meta",
+      "finances.meta",
+    )
   }
 
   @Test fun `detect updates to note's folder`() {
@@ -218,6 +246,20 @@ class FileNameRegisterTest : BaseDatabaeTest() {
       assertThat(noteId).isEqualTo(note.id)
       assertThat(noteFolder).isEqualTo("archive/Games/The Witcher 3")
     }
+  }
+
+  @Test fun `regression test - note with the same name as a folder shouldn't cause an error`() {
+    val financesFolder = fakeFolder("finances")
+    database.folderQueries.insert(financesFolder)
+
+    val randomNote = fakeNote("# Random", folderId = financesFolder.id)
+    register.fileFor(randomNote)
+
+    val financesNote = fakeNote(
+      content = "# Finances",
+      folderId = null
+    )
+    register.fileFor(financesNote)
   }
 
   private fun FileNameRegister.fileFor(note: Note): File {

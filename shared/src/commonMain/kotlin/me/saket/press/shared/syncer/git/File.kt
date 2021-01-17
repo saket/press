@@ -70,6 +70,11 @@ fun File.delete(recursively: Boolean) {
   delete()
 }
 
+fun File.renameTo(newName: String) {
+  val newFile = File(this.parent, newName)
+  renameTo(newFile)
+}
+
 fun File.relativePathIn(ancestor: File): String {
   check(path.contains(ancestor.path)) { "$ancestor does not contain $this" }
   return path.drop(ancestor.path.length + 1)  // +1 for the trailing "/".

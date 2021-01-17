@@ -282,10 +282,7 @@ class GitSyncer(
       log("\nNothing to pull.")
     }
 
-    // This ideally shouldn't be needed, but bugs have crept up in the
-    // past and invalid records will need to be thrown away. Notes with
-    // discarded records will be given a new identity.
-    register.pruneDuplicateRecords()
+    register.migrateRecords()
     if (git.isStagingAreaDirty()) {
       log("\nPruned invalid file name records")
       git.commitAll(

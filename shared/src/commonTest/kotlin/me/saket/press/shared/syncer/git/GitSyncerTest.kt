@@ -288,7 +288,8 @@ class GitSyncerTest : BaseDatabaeTest() {
     noteQueries.testInsert(
       fakeNote("# Unravel", folderId = gamesFolder.id),
       fakeNote("# Hearts of Stone", folderId = witcherFolder.id),
-      fakeNote("# Blood and Wine", folderId = witcherFolder.id)
+      fakeNote("# Blood and Wine", folderId = witcherFolder.id),
+      fakeNote("# Games", folderId = null)  // Same note name as a folder.
     )
 
     syncer.sync()
@@ -297,7 +298,8 @@ class GitSyncerTest : BaseDatabaeTest() {
     assertThat(remote.fetchNoteFiles()).containsOnly(
       "games/unravel.md" to "# Unravel",
       "games/witcher 3/hearts_of_stone.md" to "# Hearts of Stone",
-      "games/witcher 3/blood_and_wine.md" to "# Blood and Wine"
+      "games/witcher 3/blood_and_wine.md" to "# Blood and Wine",
+      "games.md" to "# Games"
     )
   }
 
