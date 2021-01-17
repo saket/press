@@ -1,5 +1,6 @@
 package press.navigation
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_SEND
@@ -120,6 +121,7 @@ private class HideKeyboardOnScreenChange : ScreenTransition {
     goingForward: Boolean,
     onComplete: () -> Unit
   ): TransitionResult {
+    @SuppressLint("WrongConstant")
     if (toView.focusSearch(View.FOCUS_FORWARD) !is EditText) {
       toView.hideKeyboard()
     }
