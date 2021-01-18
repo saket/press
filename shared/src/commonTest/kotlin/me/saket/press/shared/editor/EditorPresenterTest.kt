@@ -349,7 +349,7 @@ class EditorPresenterTest : BaseDatabaeTest() {
   }
 
   @Test fun `show delete menu item only if sync is enabled`() {
-    syncer.status.onNext(Status.Disabled)
+    noteQueries.testInsert(fakeNote("# Witcher 3", id = noteId))
 
     val presenter = presenter(ExistingNote(PreSavedNoteId(noteId)))
     presenter.dispatch(NoteTextChanged(""))
@@ -373,6 +373,7 @@ class EditorPresenterTest : BaseDatabaeTest() {
         )
       )
     )
+    syncer.status.onNext(Status.Disabled)
     assertThat(models.popValue()).doesNotContain(deleteMenuItem)
 
     syncer.status.onNext(
