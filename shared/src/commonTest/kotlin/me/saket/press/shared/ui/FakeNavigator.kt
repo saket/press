@@ -33,4 +33,4 @@ class FakeNavigator : Navigator {
   override fun intentLauncher() = intentLauncher
 }
 
-data class Back(val result: ScreenResult?)
+data class Back(val result: ScreenResult? = null)

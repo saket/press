@@ -7,6 +7,7 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import co.touchlab.stately.concurrency.value
 import com.badoo.reaktive.observable.distinctUntilChanged
+import com.badoo.reaktive.observable.filter
 import me.saket.kgit.GitIdentity
 import me.saket.kgit.SshKeyPair
 import me.saket.kgit.SshPrivateKey
@@ -32,6 +33,7 @@ import me.saket.press.shared.preferences.sync.setup.GitHostIntegrationUiModel.Sh
 import me.saket.press.shared.preferences.sync.setup.GitHostIntegrationUiModel.ShowProgress
 import me.saket.press.shared.syncer.git.service.GitHostService.DeployKey
 import me.saket.press.shared.testDeviceInfo
+import me.saket.press.shared.ui.Back
 import me.saket.press.shared.ui.FakeNavigator
 import me.saket.press.shared.ui.ScreenResults
 import kotlin.test.AfterTest
@@ -137,7 +139,7 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
 
     assertThat(authToken.get()).isNull()
     assertThat(syncCoordinator.triggered.value).isTrue()
-    assertThat(navigator.pop()).isNull()
+    assertThat(navigator.pop()).isEqualTo(Back())
 
     val syncConfig = database.folderSyncConfigQueries.select().executeAsOne()
     assertThat(syncConfig.remote.remote).isEqualTo(repo)
@@ -196,6 +198,21 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
 
   // TODO.
   @Test fun `show empty view if user doesn't have any repository`() {
+  }
+
+  @Test fun `delete auth token when a deploy key is added`() {
+    cachedRepos.set(emptyList())
+    userSetting.set(user)
+    gitService.deployKeyResult.value = { }
+
+    authToken.set(GitHostAuthToken("Nicolas Cage's super secret token"))
+
+    presenter.models()
+      .filter { false }
+      .test(rxRule)
+    presenter.dispatch(GitRepositoryClicked(fakeRepository()))
+
+    assertThat(authToken.get()).isNull()
   }
 
   companion object {
