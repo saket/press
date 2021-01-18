@@ -32,6 +32,7 @@ import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.localization.ENGLISH_STRINGS
 import me.saket.press.shared.rx.RxRule
 import me.saket.press.shared.rx.test
+import me.saket.press.shared.syncer.FakeSyncer
 import me.saket.press.shared.syncer.SyncMergeConflicts
 import me.saket.press.shared.syncer.SyncState.IN_FLIGHT
 import me.saket.press.shared.syncer.git.DelegatingPressDatabase
@@ -78,7 +79,8 @@ class EditorPresenterTest : BaseDatabaeTest() {
       syncConflicts = syncConflicts,
       markdownParser = MarkdownParser(),
       clipboard = FakeClipboard(),
-      deviceInfo = testDeviceInfo()
+      deviceInfo = testDeviceInfo(),
+      syncer = FakeSyncer()
     )
   }
 

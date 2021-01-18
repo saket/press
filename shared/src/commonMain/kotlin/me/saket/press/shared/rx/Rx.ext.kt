@@ -2,6 +2,7 @@ package me.saket.press.shared.rx
 
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.asObservable
+import com.badoo.reaktive.completable.completableTimer
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.asCompletable
 import com.badoo.reaktive.observable.combineLatest
@@ -18,6 +19,8 @@ import com.badoo.reaktive.observable.takeUntil
 import com.badoo.reaktive.observable.withLatestFrom
 import com.badoo.reaktive.observable.zip
 import com.badoo.reaktive.scheduler.Scheduler
+import com.badoo.reaktive.single.Single
+import com.badoo.reaktive.single.singleTimer
 import com.soywiz.klock.TimeSpan
 
 internal fun observableInterval(interval: TimeSpan, scheduler: Scheduler): Observable<Long> {
@@ -26,6 +29,10 @@ internal fun observableInterval(interval: TimeSpan, scheduler: Scheduler): Obser
 
 internal fun observableInterval(startDelay: Long, period: TimeSpan, scheduler: Scheduler): Observable<Long> {
   return observableInterval(startDelay, period.millisecondsLong, scheduler)
+}
+
+internal fun completableTimer(period: TimeSpan, scheduler: Scheduler): Completable {
+  return completableTimer(period.millisecondsLong, scheduler)
 }
 
 internal fun <T, O> Observable<T>.withLatestFrom(other: Observable<O>): Observable<Pair<T, O>> {

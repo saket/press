@@ -1,5 +1,7 @@
 package me.saket.press.shared.syncer
 
+import com.badoo.reaktive.completable.Completable
+import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.observable.Observable
 import com.soywiz.klock.DateTime
 import me.saket.press.shared.syncer.git.File
@@ -24,6 +26,9 @@ abstract class Syncer {
   abstract fun disable()
 
   internal abstract fun status(): Observable<Status>
+
+  internal open fun syncCompletable(): Completable =
+    completableFromFunction { sync() }
 
   sealed class Status {
     object Disabled : Status()

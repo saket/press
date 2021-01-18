@@ -1,16 +1,17 @@
 package me.saket.press.shared.syncer
 
 import com.badoo.reaktive.completable.Completable
+import com.badoo.reaktive.completable.andThen
 import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.completable.onErrorComplete
 import com.badoo.reaktive.completable.subscribe
-import com.badoo.reaktive.observable.flatMapCompletable
 import com.badoo.reaktive.observable.ofType
-import com.badoo.reaktive.observable.switchMap
+import com.badoo.reaktive.observable.switchMapCompletable
 import com.badoo.reaktive.subject.publish.PublishSubject
+import com.soywiz.klock.TimeSpan
 import com.soywiz.klock.seconds
 import me.saket.press.shared.rx.Schedulers
-import me.saket.press.shared.rx.observableInterval
+import me.saket.press.shared.rx.completableTimer
 import me.saket.press.shared.rx.takeUntil
 import me.saket.press.shared.syncer.Syncer.Status.Disabled
 
@@ -26,14 +27,17 @@ interface SyncCoordinator {
 
 class RealSyncCoordinator(
   private val syncer: Syncer,
-  private val schedulers: Schedulers
+  private val schedulers: Schedulers,
+  private val syncEvery: TimeSpan = 30.seconds
 ) : SyncCoordinator {
   private val triggers = PublishSubject<Unit>()
 
   override fun start() {
-    triggers.switchMap { observableInterval(0, 30.seconds, schedulers.computation) }
-      .flatMapCompletable { syncWithResult() }
-      .subscribe()
+    triggers.switchMapCompletable {
+      syncWithResult()
+        .andThen(completableTimer(syncEvery, schedulers.computation))
+        .andThen(completableFromFunction { trigger() })
+    }.subscribe()
   }
 
   override fun trigger() {
@@ -41,7 +45,7 @@ class RealSyncCoordinator(
   }
 
   override fun syncWithResult(): Completable {
-    return completableFromFunction { syncer.sync() }
+    return syncer.syncCompletable()
       .takeUntil(syncer.status().ofType<Disabled>())
       .onErrorComplete()
   }
