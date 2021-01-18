@@ -21,6 +21,8 @@ data class EditorScreenKey(val openMode: EditorOpenMode) : ScreenKey
 //   span, which we don't want.
 //
 // - Call `AutoFormatOnEnterPress` when enter key is pressed for formatting markdown.
+//
+// - Render menu items.
 interface EditorEvent {
   data class NoteTextChanged(val text: String) : EditorEvent
   data class ArchiveToggleClicked(val archive: Boolean) : EditorEvent
@@ -29,6 +31,9 @@ interface EditorEvent {
   object DuplicateNoteClicked : EditorEvent
   object SplitScreenClicked : EditorEvent
   object DeleteNoteClicked : EditorEvent
+
+  /** Navigate back to parent from a [ToolbarSubMenu]. */
+  object CloseSubMenu : EditorEvent
 }
 
 data class EditorUiModel(
@@ -57,11 +62,12 @@ sealed class ToolbarMenuItem {
 data class ToolbarMenuAction(
   override val label: String,
   override val icon: ToolbarIconKind? = null,
-  val clickEvent: EditorEvent?
+  val clickEvent: EditorEvent
 ) : ToolbarMenuItem()
 
 data class ToolbarSubMenu(
   override val label: String,
+  val subMenuTitle: String = label,
   override val icon: ToolbarIconKind? = null,
   val children: List<ToolbarMenuItem>
 ) : ToolbarMenuItem()

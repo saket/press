@@ -11,18 +11,18 @@ import me.saket.press.shared.syncer.git.File
 class FakeSyncer : Syncer() {
   private var sync = PublishSubject<Unit>()
   var syncRequestCount = AtomicInt(0)
+  val status = PublishSubject<Status>()
 
   override fun syncCompletable(): Completable {
     syncRequestCount.incrementAndGet()
     return sync.firstOrError().asCompletable()
   }
 
-  fun finishSync() {
-    sync.onNext(Unit)
-  }
+  fun finishSync() = sync.onNext(Unit)
+
+  override fun status() = status
 
   override val directory: File get() = TODO()
   override fun sync() = error("syncCompletable() should be used")
-  override fun status() = observableOfNever<Status>()
   override fun disable() = Unit
 }

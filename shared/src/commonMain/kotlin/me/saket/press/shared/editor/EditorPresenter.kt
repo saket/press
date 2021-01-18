@@ -26,6 +26,7 @@ import me.saket.press.PressDatabase
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorEvent.ArchiveToggleClicked
+import me.saket.press.shared.editor.EditorEvent.CloseSubMenu
 import me.saket.press.shared.editor.EditorEvent.CopyAsClicked
 import me.saket.press.shared.editor.EditorEvent.DeleteNoteClicked
 import me.saket.press.shared.editor.EditorEvent.DuplicateNoteClicked
@@ -202,11 +203,10 @@ class EditorPresenter(
     val isNoteArchived = noteStream.map { it.folderId }
       .distinctUntilChanged()
       .map(folderPaths::isArchived)
-      .distinctUntilChanged()
       .combineLatestWith(syncer.status())
       .distinctUntilChanged()
 
-    return isNoteArchived.map { (isArchived, status) ->
+    return isNoteArchived.map { (isArchived, syncStatus) ->
       listOfNotNull(
         if (isArchived) {
           ToolbarMenuAction(
@@ -269,11 +269,23 @@ class EditorPresenter(
             clickEvent = SplitScreenClicked
           )
         } else null,
-        if (status is Enabled) {
-          ToolbarMenuAction(
+        if (syncStatus is Enabled) {
+          ToolbarSubMenu(
             label = strings.editor.menu_delete_note,
+            subMenuTitle = strings.editor.menu_delete_note_confirmation_title,
             icon = DeleteNote,
-            clickEvent = DeleteNoteClicked
+            children = listOf(
+              ToolbarMenuAction(
+                label = strings.editor.menu_delete_note_confirm,
+                icon = DeleteNote,
+                clickEvent = CloseSubMenu,
+              ),
+              ToolbarMenuAction(
+                label = strings.editor.menu_delete_note_cancel,
+                icon = DeleteNote,
+                clickEvent = DeleteNoteClicked,
+              )
+            )
           )
         } else null,
       )
@@ -387,7 +399,7 @@ class EditorPresenter(
       .withLatestFrom(noteStream)
       .observeOn(schedulers.io)
       .consumeOnNext { (_, note) ->
-        noteQueries.markAsPendingDeletion(note.id)
+        noteQueries.markAsPendingDeletion(note.id)  // Will get deleted on next sync.
         args.navigator.goBack()
       }
   }

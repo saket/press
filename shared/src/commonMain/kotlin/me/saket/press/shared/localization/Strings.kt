@@ -43,6 +43,9 @@ class Strings(
     val menu_duplicate_note: String,
     val menu_open_in_split_screen: String,
     val menu_delete_note: String,
+    val menu_delete_note_confirmation_title: String,
+    val menu_delete_note_confirm: String,
+    val menu_delete_note_cancel: String,
 
     val note_archived: String,
     val note_unarchived: String,
@@ -145,6 +148,9 @@ val ENGLISH_STRINGS = Strings(
     menu_duplicate_note = "Duplicate note",
     menu_open_in_split_screen = "Split screen",
     menu_delete_note = "Delete note",
+    menu_delete_note_confirmation_title = "Are you sure?",
+    menu_delete_note_confirm = "Confirm delete",
+    menu_delete_note_cancel = "Wait no",
 
     note_archived = "Note archived",
     note_unarchived = "Note unarchived",

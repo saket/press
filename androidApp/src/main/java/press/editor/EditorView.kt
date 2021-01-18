@@ -37,6 +37,7 @@ import io.reactivex.schedulers.Schedulers
 import me.saket.cascade.CascadePopupMenu
 import me.saket.cascade.overrideAllPopupMenus
 import me.saket.press.R
+import me.saket.press.shared.editor.EditorEvent.CloseSubMenu
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorPresenter
@@ -256,18 +257,18 @@ class EditorView @InflationInject constructor(
   }
 
   private fun renderToolbarMenu(items: List<ToolbarMenuItem>, palette: ThemePalette) {
-    toolbar.menu.clear()
-    for (item in items) {
-      item.addToMenu(toolbar.menu, palette)
-    }
-
     toolbar.overflowIcon!!.setTint(palette.accentColor)
     toolbar.overrideAllPopupMenus { context, anchor ->
-      CascadePopupMenu(context, anchor, styler = pressCascadeStyler(palette))
+      CascadePopupMenu(context, anchor, styler = pressCascadeStyler(palette)).also {
+        toolbar.menu.clear()
+        for (item in items) {
+          item.addToMenu(toolbar.menu, palette, cascade = it)
+        }
+      }
     }
   }
 
-  private fun ToolbarMenuItem.addToMenu(menu: Menu, palette: ThemePalette) {
+  private fun ToolbarMenuItem.addToMenu(menu: Menu, palette: ThemePalette, cascade: CascadePopupMenu) {
     val item: ToolbarMenuItem = this
     val iconRes = when (item.icon) {
       Archive -> R.drawable.ic_twotone_archive_24
@@ -284,14 +285,17 @@ class EditorView @InflationInject constructor(
     val menuItem = when (item) {
       is ToolbarMenuAction -> {
         menu.add(item.label).setOnMenuItemClickListener {
-          if (item.clickEvent != null) presenter.dispatch(item.clickEvent!!)
-          else Toast.makeText(context, "Work in progress", LENGTH_SHORT).show()
+          when (item.clickEvent) {
+            is CloseSubMenu -> cascade.navigateBack()
+            else -> presenter.dispatch(item.clickEvent)
+          }
           true
         }
       }
       is ToolbarSubMenu -> {
         val subMenu = menu.addSubMenu(item.label)
-        item.children.forEach { it.addToMenu(subMenu, palette) }
+        subMenu.setHeaderTitle(item.subMenuTitle)
+        item.children.forEach { it.addToMenu(subMenu, palette, cascade) }
         subMenu.item
       }
     }

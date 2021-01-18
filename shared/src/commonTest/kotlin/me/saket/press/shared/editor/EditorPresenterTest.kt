@@ -2,6 +2,8 @@ package me.saket.press.shared.editor
 
 import assertk.assertThat
 import assertk.assertions.contains
+import assertk.assertions.doesNotContain
+import assertk.assertions.doesNotCorrespond
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
@@ -19,6 +21,8 @@ import me.saket.press.shared.IsoStack
 import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorEvent.ArchiveToggleClicked
+import me.saket.press.shared.editor.EditorEvent.CloseSubMenu
+import me.saket.press.shared.editor.EditorEvent.DeleteNoteClicked
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
@@ -27,14 +31,18 @@ import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLD
 import me.saket.press.shared.editor.EditorUiEffect.BlockedDueToSyncConflict
 import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
 import me.saket.press.shared.editor.ToolbarIconKind.Archive
+import me.saket.press.shared.editor.ToolbarIconKind.DeleteNote
 import me.saket.press.shared.editor.ToolbarIconKind.Unarchive
 import me.saket.press.shared.fakedata.fakeNote
+import me.saket.press.shared.fakedata.fakeRepository
 import me.saket.press.shared.localization.ENGLISH_STRINGS
 import me.saket.press.shared.rx.RxRule
 import me.saket.press.shared.rx.test
 import me.saket.press.shared.syncer.FakeSyncer
 import me.saket.press.shared.syncer.SyncMergeConflicts
 import me.saket.press.shared.syncer.SyncState.IN_FLIGHT
+import me.saket.press.shared.syncer.Syncer.Status
+import me.saket.press.shared.syncer.Syncer.Status.LastOp.Idle
 import me.saket.press.shared.syncer.git.DelegatingPressDatabase
 import me.saket.press.shared.syncer.git.FolderPaths
 import me.saket.press.shared.testDeviceInfo
@@ -57,6 +65,7 @@ class EditorPresenterTest : BaseDatabaeTest() {
   private val config = EditorConfig(autoSaveEvery = 5.seconds)
   private val navigator = FakeNavigator()
   private val syncConflicts = SyncMergeConflicts()
+  private val syncer = FakeSyncer()
 
   private val uiEffects = IsoStack<EditorUiEffect>()
 
@@ -80,7 +89,7 @@ class EditorPresenterTest : BaseDatabaeTest() {
       markdownParser = MarkdownParser(),
       clipboard = FakeClipboard(),
       deviceInfo = testDeviceInfo(),
-      syncer = FakeSyncer()
+      syncer = syncer
     )
   }
 
@@ -337,6 +346,43 @@ class EditorPresenterTest : BaseDatabaeTest() {
         clickEvent = ArchiveToggleClicked(archive = false)
       )
     )
+  }
+
+  @Test fun `show delete menu item only if sync is enabled`() {
+    syncer.status.onNext(Status.Disabled)
+
+    val presenter = presenter(ExistingNote(PreSavedNoteId(noteId)))
+    presenter.dispatch(NoteTextChanged(""))
+
+    val models = presenter.models()
+      .map { it.toolbarMenu }
+      .test(rxRule)
+
+    val deleteMenuItem = ToolbarSubMenu(
+      label = "Delete note",
+      subMenuTitle = "Are you sure?",
+      icon = DeleteNote,
+      children = listOf(
+        ToolbarMenuAction(
+          label = "Confirm delete",
+          clickEvent = DeleteNoteClicked
+        ),
+        ToolbarMenuAction(
+          label = "Wait no",
+          clickEvent = CloseSubMenu
+        )
+      )
+    )
+    assertThat(models.popValue()).doesNotContain(deleteMenuItem)
+
+    syncer.status.onNext(
+      Status.Enabled(
+        lastOp = Idle,
+        syncingWith = fakeRepository(),
+        lastSyncedAt = null
+      )
+    )
+    assertThat(models.popValue()).doesNotContain(deleteMenuItem)
   }
 }
 
