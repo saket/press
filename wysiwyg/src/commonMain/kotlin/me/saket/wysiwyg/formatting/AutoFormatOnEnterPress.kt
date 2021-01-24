@@ -6,7 +6,6 @@ import me.saket.wysiwyg.formatting.ReplaceNewLineWith.InsertLetters
 import me.saket.wysiwyg.util.isDigit
 
 object AutoFormatOnEnterPress {
-
   private val formatters = listOf(StartFencedCodeBlock, ListContinuation)
 
   /**

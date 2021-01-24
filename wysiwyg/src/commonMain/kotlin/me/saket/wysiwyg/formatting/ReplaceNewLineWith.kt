@@ -1,7 +1,6 @@
 package me.saket.wysiwyg.formatting
 
 sealed class ReplaceNewLineWith {
-
   data class InsertLetters(
     val replacement: CharSequence,
     val newSelection: TextSelection

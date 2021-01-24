@@ -14,8 +14,7 @@ import me.saket.wysiwyg.formatting.ReplaceNewLineWith.InsertLetters
 import me.saket.wysiwyg.formatting.TextSelection
 
 class FormatMarkdownOnEnterPress(private val view: EditText) : EnterKeyDetector() {
-
-  override fun onEnterPress(textBeforeEnter: Spanned): CharSequence? {
+  override fun replaceTextOnEnterPress(textBeforeEnter: Spanned): CharSequence? {
     val replacement = AutoFormatOnEnterPress.onEnter(
       textBeforeEnter = textBeforeEnter,
       cursorBeforeEnter = TextSelection.cursor(Selection.getSelectionStart(textBeforeEnter))
@@ -48,10 +47,10 @@ abstract class EnterKeyDetector : InputFilter {
   ): CharSequence? {
     val enterPressed = source == "\n" && end - start == 1
     return when {
-      enterPressed -> onEnterPress(textBeforeEnter = dest)
+      enterPressed -> replaceTextOnEnterPress(textBeforeEnter = dest)
       else -> null  // Accept the original change.
     }
   }
 
-  abstract fun onEnterPress(textBeforeEnter: Spanned): CharSequence?
+  abstract fun replaceTextOnEnterPress(textBeforeEnter: Spanned): CharSequence?
 }
