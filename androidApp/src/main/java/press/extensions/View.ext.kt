@@ -33,15 +33,6 @@ import kotlin.DeprecationLevel.ERROR
 
 inline fun View.string(@StringRes stringRes: Int) = resources.getString(stringRes)
 
-inline fun View.attr(@AttrRes resId: Int) = Attr(resId, context)
-
-@get:Deprecated(message = "Impossible", level = ERROR)
-var EditText.hintRes: Int
-  get() = throw UnsupportedOperationException()
-  set(resId) {
-    hint = string(resId)
-  }
-
 @get:Deprecated(message = "Impossible", level = ERROR)
 var View.padding: Int
   get() = throw UnsupportedOperationException()
@@ -134,17 +125,6 @@ inline fun ViewGroup.onViewAdds(crossinline action: (View) -> Unit) {
     override fun onChildViewAdded(parent: View, child: View) = action(child)
     override fun onChildViewRemoved(parent: View, child: View) = Unit
   })
-}
-
-inline fun <reified T> View.findParentOfType(): T? {
-  var parent = this.parent
-  while (parent !is T) {
-    parent = parent.parent
-    if (parent !is ViewGroup) {
-      return null
-    }
-  }
-  return parent
 }
 
 inline fun <reified T> View.findChild(): T? {
