@@ -30,7 +30,7 @@ import press.widgets.ThemeAwareActivity
 
 open class TheActivity : ThemeAwareActivity(), HasNavigator {
   override lateinit var navigator: Navigator
-  private val navHostView by unsafeLazy { FrameLayout(this) }
+  private val navHostView by unsafeLazy { NavigationHostLayout(this) }
 
   companion object {
     private const val KEY_INITIAL_SCREEN = "initial_screen"
