@@ -257,18 +257,6 @@ class EditorPresenter(
             )
           )
         ),
-        ToolbarMenuAction(
-          label = strings.editor.menu_duplicate_note,
-          icon = DuplicateNote,
-          clickEvent = DuplicateNoteClicked
-        ),
-        if (deviceInfo.supportsSplitScreen()) {
-          ToolbarMenuAction(
-            label = strings.editor.menu_open_in_split_screen,
-            icon = OpenInSplitScreen,
-            clickEvent = SplitScreenClicked
-          )
-        } else null,
         if (syncStatus is Enabled) {
           ToolbarSubMenu(
             label = strings.editor.menu_delete_note,
@@ -284,6 +272,18 @@ class EditorPresenter(
                 clickEvent = CloseSubMenu,
               )
             )
+          )
+        } else null,
+        ToolbarMenuAction(
+          label = strings.editor.menu_duplicate_note,
+          icon = DuplicateNote,
+          clickEvent = DuplicateNoteClicked
+        ),
+        if (deviceInfo.supportsSplitScreen()) {
+          ToolbarMenuAction(
+            label = strings.editor.menu_open_in_split_screen,
+            icon = OpenInSplitScreen,
+            clickEvent = SplitScreenClicked
           )
         } else null,
       )
