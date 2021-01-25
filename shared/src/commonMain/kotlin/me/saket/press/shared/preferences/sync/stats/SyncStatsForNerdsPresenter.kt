@@ -5,11 +5,13 @@ import com.badoo.reaktive.observable.combineLatest
 import com.badoo.reaktive.observable.distinctUntilChanged
 import com.badoo.reaktive.observable.flatMap
 import com.badoo.reaktive.observable.startWithValue
+import com.badoo.reaktive.observable.switchMap
 import com.badoo.reaktive.observable.wrap
 import com.badoo.reaktive.single.Single
 import com.badoo.reaktive.single.asObservable
 import com.badoo.reaktive.single.observeOn
 import com.badoo.reaktive.single.singleFromFunction
+import com.badoo.reaktive.single.subscribeOn
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.rx.Schedulers
 import me.saket.press.shared.syncer.Syncer
@@ -35,13 +37,13 @@ class SyncStatsForNerdsPresenter(
 
   override fun models(): ObservableWrapper<SyncStatsForNerdsUiModel> {
     return syncer.status()
-      .flatMap {
+      .switchMap {
         val formattedSize = syncer.directory.formatSize()
-          .observeOn(schedulers.computation)
+          .subscribeOn(schedulers.computation)
           .asObservable()
           .startWithValue(strings.sync.nerd_stats_git_size.format("..."))
         val logs = readSyncLogs()
-          .observeOn(schedulers.io)
+          .subscribeOn(schedulers.io)
           .asObservable()
           .startWithValue("")
         combineLatest(formattedSize, logs, ::SyncStatsForNerdsUiModel)
