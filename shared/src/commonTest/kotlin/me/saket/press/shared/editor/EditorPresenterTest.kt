@@ -359,17 +359,17 @@ class EditorPresenterTest : BaseDatabaeTest() {
       .test(rxRule)
 
     val deleteMenuItem = ToolbarSubMenu(
-      label = "Delete note",
-      subMenuTitle = "Are you sure?",
+      label = ENGLISH_STRINGS.editor.menu_delete_note,
+      subMenuTitle = ENGLISH_STRINGS.editor.menu_delete_note_confirmation_title,
       icon = DeleteNote,
       children = listOf(
         ToolbarMenuAction(
-          label = "Confirm delete",
-          clickEvent = DeleteNoteClicked
+          label = ENGLISH_STRINGS.editor.menu_delete_note_confirm,
+          clickEvent = DeleteNoteClicked,
         ),
         ToolbarMenuAction(
-          label = "Wait no",
-          clickEvent = CloseSubMenu
+          label = ENGLISH_STRINGS.editor.menu_delete_note_cancel,
+          clickEvent = CloseSubMenu,
         )
       )
     )
@@ -383,7 +383,7 @@ class EditorPresenterTest : BaseDatabaeTest() {
         lastSyncedAt = null
       )
     )
-    assertThat(models.popValue()).doesNotContain(deleteMenuItem)
+    assertThat(models.popValue()).contains(deleteMenuItem)
   }
 }
 

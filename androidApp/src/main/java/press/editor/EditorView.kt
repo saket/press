@@ -34,6 +34,7 @@ import io.reactivex.annotations.CheckReturnValue
 import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers
+import me.saket.cascade.CascadeBackNavigator
 import me.saket.cascade.CascadePopupMenu
 import me.saket.cascade.overrideAllPopupMenus
 import me.saket.press.R
@@ -258,17 +259,24 @@ class EditorView @InflationInject constructor(
 
   private fun renderToolbarMenu(items: List<ToolbarMenuItem>, palette: ThemePalette) {
     toolbar.overflowIcon!!.setTint(palette.accentColor)
+
+    val backNavigator = CascadeBackNavigator()
+    toolbar.menu.clear()
+    for (item in items) {
+      item.addToMenu(toolbar.menu, palette, backNavigator)
+    }
+
     toolbar.overrideAllPopupMenus { context, anchor ->
-      CascadePopupMenu(context, anchor, styler = pressCascadeStyler(palette)).also {
-        toolbar.menu.clear()
-        for (item in items) {
-          item.addToMenu(toolbar.menu, palette, cascade = it)
-        }
-      }
+      CascadePopupMenu(
+        context = context,
+        anchor = anchor,
+        styler = pressCascadeStyler(palette),
+        backNavigator = backNavigator
+      )
     }
   }
 
-  private fun ToolbarMenuItem.addToMenu(menu: Menu, palette: ThemePalette, cascade: CascadePopupMenu) {
+  private fun ToolbarMenuItem.addToMenu(menu: Menu, palette: ThemePalette, backNavigator: CascadeBackNavigator) {
     val item: ToolbarMenuItem = this
     val iconRes = when (item.icon) {
       Archive -> R.drawable.ic_twotone_archive_24
@@ -286,24 +294,25 @@ class EditorView @InflationInject constructor(
       is ToolbarMenuAction -> {
         menu.add(item.label).setOnMenuItemClickListener {
           when (item.clickEvent) {
-            is CloseSubMenu -> cascade.navigateBack()
+            is CloseSubMenu -> backNavigator.navigateBack()
             else -> presenter.dispatch(item.clickEvent)
           }
           true
         }
       }
       is ToolbarSubMenu -> {
-        val subMenu = menu.addSubMenu(item.label)
-        subMenu.setHeaderTitle(item.subMenuTitle)
-        item.children.forEach { it.addToMenu(subMenu, palette, cascade) }
-        subMenu.item
+        menu.addSubMenu(item.label)
+          .setHeaderTitle(item.subMenuTitle)
+          .also { subMenu ->
+            item.children.forEach { it.addToMenu(subMenu, palette, backNavigator) }
+          }
+          .item
       }
     }
 
     menuItem.also {
       it.icon = icon
       it.iconTintList = ColorStateList.valueOf(palette.accentColor)
-      it.title = item.label
       it.setShowAsAction(if (menu.size() <= 2) SHOW_AS_ACTION_IF_ROOM else SHOW_AS_ACTION_NEVER)
     }
   }

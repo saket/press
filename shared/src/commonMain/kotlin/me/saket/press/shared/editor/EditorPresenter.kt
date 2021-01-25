@@ -277,13 +277,11 @@ class EditorPresenter(
             children = listOf(
               ToolbarMenuAction(
                 label = strings.editor.menu_delete_note_confirm,
-                icon = DeleteNote,
-                clickEvent = CloseSubMenu,
+                clickEvent = DeleteNoteClicked,
               ),
               ToolbarMenuAction(
                 label = strings.editor.menu_delete_note_cancel,
-                icon = DeleteNote,
-                clickEvent = DeleteNoteClicked,
+                clickEvent = CloseSubMenu,
               )
             )
           )
