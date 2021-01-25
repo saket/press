@@ -1,7 +1,6 @@
 package press.preferences
 
 import android.content.Context
-import android.graphics.Color.BLACK
 import android.text.Html
 import android.text.Html.FROM_HTML_MODE_LEGACY
 import android.view.MotionEvent
@@ -11,7 +10,6 @@ import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.squareup.contour.ContourLayout
 import me.saket.inboxrecyclerview.InboxRecyclerView
-import me.saket.inboxrecyclerview.dimming.DimPainter
 import me.saket.inboxrecyclerview.expander.InboxItemExpander
 import me.saket.press.R
 import me.saket.press.shared.localization.strings
@@ -35,7 +33,6 @@ class PreferencesView(context: Context) : ContourLayout(context), ExpandableScre
 
   private val categoryList = InboxRecyclerView(context).apply {
     layoutManager = LinearLayoutManager(context)
-    dimPainter = DimPainter.listAndPage(color = BLACK, alpha = 0.25f)
     itemAnimator = SlideDownItemAnimator()
     addItemDecoration(DividerItemDecoration())
   }

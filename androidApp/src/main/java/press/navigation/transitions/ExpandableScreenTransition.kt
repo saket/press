@@ -1,9 +1,11 @@
 package press.navigation.transitions
 
+import android.graphics.Color.BLACK
 import android.view.View
 import androidx.appcompat.widget.Toolbar
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.animation.ItemExpandAnimator
+import me.saket.inboxrecyclerview.dimming.DimPainter
 import me.saket.inboxrecyclerview.expander.InboxItemExpander
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.press.shared.ui.ScreenKey
@@ -90,6 +92,7 @@ class ExpandableScreenTransition : ScreenTransition {
     this.itemExpander = itemExpander
     this.expandablePage = page
     this.itemExpandAnimator = ItemExpandAnimator.split()
+    this.dimPainter = DimPainter.listAndPage(color = BLACK, alpha = 0.25f)
     page.pushParentToolbarOnExpand(toolbar = parent.findChild<Toolbar>()!!)
   }
 

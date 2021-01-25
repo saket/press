@@ -1,7 +1,6 @@
 package press.home
 
 import android.content.Context
-import android.graphics.Color.BLACK
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.Menu
@@ -20,7 +19,6 @@ import com.squareup.inject.inflation.InflationInject
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.inboxrecyclerview.InboxRecyclerView
-import me.saket.inboxrecyclerview.dimming.DimPainter
 import me.saket.inboxrecyclerview.expander.InboxItemExpander
 import me.saket.press.R
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
@@ -67,7 +65,6 @@ class HomeView @InflationInject constructor(
   private val notesList = InboxRecyclerView(context).apply {
     id = R.id.home_notes
     layoutManager = LinearLayoutManager(context)
-    dimPainter = DimPainter.listAndPage(color = BLACK, alpha = 0.25f)
     toolbar.doOnLayout {
       clipToPadding = true  // for dimming to be drawn over the toolbar.
       updatePadding(top = toolbar.bottom)
