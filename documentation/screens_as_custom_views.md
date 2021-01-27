@@ -1,7 +1,7 @@
 ## Screens as custom Views
 Press uses custom Views for designing screens instead of Fragments because Fragments are terrible and Views are great. They offer a simpler, synchronous lifecycle that is easy to use and carry none of the implicit gotchas that Fragments bring.
 
-Screen navigation is done using the standard stack of intents and multiple Activities .
+A single Activity is used for navigating between these Views. The navigation stack is built on top of [square/flow](https://github.com/square/flow) and can be seen [here](https://github.com/saket/press/tree/trunk/androidApp/src/main/java/press/navigation).
 
 ### Graduating from XML
 Press uses custom Views are written in Kotlin code with minimal dependency on Xml because of multiple reasons:
