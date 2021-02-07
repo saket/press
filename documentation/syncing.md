@@ -1,6 +1,6 @@
 # Syncing
 
-Press can sync notes users through a git repository. Instead of locking them into a proprietary system, their notes are theirs to own. The notes are saved as standard markdown (`.md`) files so that they can be accessed on devices where using Press isn't possible or desired. By using git as the underlying sync mechanism, Press is also able to offer users a version history that can be used for recovering accidental edits or deletions by the user as well as Press (because syncing is hard).
+Press can sync users notes through a git repository. Instead of locking them into a proprietary system, their notes are theirs to own. The notes are saved as standard markdown (`.md`) files so that they can be accessed on devices where using Press isn't possible or desired. By using git as the underlying sync mechanism, Press is also able to offer users a version history that can be used for recovering accidental edits or deletions by the user as well as Press (because syncing is hard).
 
 GitHub is currently the only available git host, but contributions for adding new hosts are welcome. If you're interested, [add a new enum here](https://github.com/saket/press/blob/trunk/shared/src/commonMain/kotlin/me/saket/press/shared/syncer/git/GitHost.kt) and let the compilation errors guide you.
 
