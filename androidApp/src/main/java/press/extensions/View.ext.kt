@@ -2,6 +2,8 @@
 
 package press.extensions
 
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Rect
@@ -18,8 +20,8 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.ViewFlipper
-import androidx.annotation.AttrRes
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
 import androidx.core.view.forEach
@@ -27,7 +29,6 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import me.saket.press.shared.theme.ThemePalette
 import me.saket.wysiwyg.widgets.SimpleTextWatcher
-import press.widgets.Attr
 import java.util.ArrayDeque
 import kotlin.DeprecationLevel.ERROR
 
@@ -51,12 +52,6 @@ var TextView.textSizePx: Float
   set(size) {
     setTextSize(COMPLEX_UNIT_PX, size)
   }
-
-inline fun fromOreo(crossinline block: () -> Unit) {
-  if (SDK_INT >= 26) {
-    block()
-  }
-}
 
 inline fun Toolbar.findTitleView(): TextView {
   if (subtitle != null && subtitle.isNotBlank()) {
@@ -101,6 +96,10 @@ inline fun View.updateMargins(bottom: Int) {
 
 inline fun View.updatePadding(horizontal: Int, vertical: Int) {
   updatePadding(left = horizontal, right = horizontal, top = vertical, bottom = vertical)
+}
+
+inline fun View.updatePadding(horizontal: Int) {
+  updatePadding(left = horizontal, right = horizontal)
 }
 
 fun ViewFlipper.setDisplayedChild(child: View) {

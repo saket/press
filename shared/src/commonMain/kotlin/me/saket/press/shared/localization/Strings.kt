@@ -49,7 +49,12 @@ class Strings(
 
     val note_archived: String,
     val note_unarchived: String,
-    val note_copied: String
+    val note_copied: String,
+
+    val formattingtoolbar_undo: String,
+    val formattingtoolbar_redo: String,
+    val formattingtoolbar_strong_emphasis: String,
+    val formattingtoolbar_emphasis: String,
   )
 
   class Sync(
@@ -154,7 +159,12 @@ val ENGLISH_STRINGS = Strings(
 
     note_archived = "Note archived",
     note_unarchived = "Note unarchived",
-    note_copied = "Ready to be pasted"
+    note_copied = "Ready to be pasted",
+
+    formattingtoolbar_undo = "Undo",
+    formattingtoolbar_redo = "Redo",
+    formattingtoolbar_strong_emphasis = "Bold",
+    formattingtoolbar_emphasis = "Italic",
   ),
   sync = Sync(
     title = "Sync",

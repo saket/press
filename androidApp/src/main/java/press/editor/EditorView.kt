@@ -2,17 +2,21 @@ package press.editor
 
 import android.content.Context
 import android.content.res.ColorStateList
+import android.os.Build.VERSION.SDK_INT
+import android.text.Editable
 import android.text.InputType.TYPE_CLASS_TEXT
 import android.text.InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
 import android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
 import android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
 import android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
 import android.text.Layout.BREAK_STRATEGY_HIGH_QUALITY
+import android.text.SpannableStringBuilder
 import android.util.AttributeSet
 import android.view.Gravity.TOP
 import android.view.Menu
 import android.view.MenuItem.SHOW_AS_ACTION_IF_ROOM
 import android.view.MenuItem.SHOW_AS_ACTION_NEVER
+import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN
@@ -74,9 +78,9 @@ import me.saket.wysiwyg.Wysiwyg
 import me.saket.wysiwyg.formatting.TextSelection
 import me.saket.wysiwyg.parser.node.HeadingLevel.H1
 import me.saket.wysiwyg.style.WysiwygStyle
+import me.saket.wysiwyg.style.parseColor
 import me.saket.wysiwyg.widgets.addTextChangedListener
 import press.extensions.doOnTextChange
-import press.extensions.fromOreo
 import press.extensions.getDrawable
 import press.extensions.showKeyboard
 import press.extensions.textColor
@@ -85,6 +89,7 @@ import press.extensions.unsafeLazy
 import press.navigation.BackPressInterceptor
 import press.navigation.BackPressInterceptor.InterceptResult
 import press.navigation.BackPressInterceptor.InterceptResult.Ignored
+import press.navigation.doOnHeightChange
 import press.navigation.navigator
 import press.navigation.screenKey
 import press.theme.pressCascadeStyler
@@ -104,19 +109,11 @@ class EditorView @InflationInject constructor(
     themeAware {
       setBackgroundColor(it.window.editorBackgroundColor)
     }
-    applyLayout(
-      x = leftTo { parent.left() }.rightTo { parent.right() },
-      y = topTo { parent.top() }
-    )
   }
 
-  private val scrollView = NestedScrollView(context).apply {
+  private val scrollView = FadingEdgeNestedScrollView(context).apply {
     id = R.id.editor_scrollable_container
     isFillViewport = true
-    applyLayout(
-      x = leftTo { parent.left() }.rightTo { parent.right() },
-      y = topTo { toolbar.bottom() }.bottomTo { parent.bottom() }
-    )
   }
 
   private val editorEditText = PlainTextPasteEditText(context).apply {
@@ -134,10 +131,18 @@ class EditorView @InflationInject constructor(
     }
     imeOptions = IME_FLAG_NO_FULLSCREEN
     movementMethod = EditorLinkMovementMethod(scrollView)
-    filters += FormatMarkdownOnEnterPress(this)
+    FormatMarkdownOnEnterPress.attachTo(this)
     CapitalizeOnHeadingStart.capitalize(this)
-    updatePaddingRelative(start = 20.dip, end = 20.dip, bottom = 80.dip)
-    fromOreo {
+    updatePaddingRelative(start = 20.dip, end = 20.dip, bottom = 32.dip)
+    setEditableFactory(object : Editable.Factory() {
+      override fun newEditable(source: CharSequence): Editable {
+        return when (source) {
+          is Editable -> source // Avoid creating a new object on every external text change.
+          else -> SpannableStringBuilder(source)
+        }
+      }
+    })
+    if (SDK_INT >= 26) {
       importantForAutofill = IMPORTANT_FOR_AUTOFILL_NO
     }
     themeAware {
@@ -150,12 +155,9 @@ class EditorView @InflationInject constructor(
     themeAware {
       textColor = it.textColorHint
     }
-    applyLayout(
-      x = leftTo { scrollView.left() + editorEditText.paddingStart }
-        .rightTo { scrollView.right() - editorEditText.paddingStart },
-      y = topTo { scrollView.top() + editorEditText.paddingTop }
-    )
   }
+
+  private val formattingToolbar = EditorFormattingToolbar(editorEditText)
 
   private val presenter by unsafeLazy {
     presenterFactory.create(
@@ -170,8 +172,31 @@ class EditorView @InflationInject constructor(
 
   init {
     id = R.id.editor_view
+
+    toolbar.layoutBy(
+      x = matchParentX(),
+      y = topTo { parent.top() }
+    )
+    scrollView.layoutBy(
+      x = matchParentX(),
+      y = topTo { toolbar.bottom() }.bottomTo { formattingToolbar.top() }
+    )
+    headingHintTextView.layoutBy(
+      x = leftTo { scrollView.left() + editorEditText.paddingStart }
+        .rightTo { scrollView.right() - editorEditText.paddingStart },
+      y = topTo { scrollView.top() + editorEditText.paddingTop }
+    )
+    formattingToolbar.layoutBy(
+      x = matchParentX(),
+      y = bottomTo { parent.bottom() }
+    )
+
+    formattingToolbar.doOnHeightChange {
+      scrollView.setFadingEdgeLength(formattingToolbar.height * 3/4)
+    }
+
     scrollView.addView(editorEditText, MATCH_PARENT, WRAP_CONTENT)
-    bringChildToFront(scrollView)
+
     themeAware { palette ->
       setBackgroundColor(palette.window.editorBackgroundColor)
     }
