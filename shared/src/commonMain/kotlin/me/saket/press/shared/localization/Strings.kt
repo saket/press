@@ -55,6 +55,9 @@ class Strings(
     val formattingtoolbar_redo: String,
     val formattingtoolbar_strong_emphasis: String,
     val formattingtoolbar_emphasis: String,
+    val formattingtoolbar_strikethrough: String,
+    val formattingtoolbar_heading: String,
+    val formattingtoolbar_blockquote: String,
   )
 
   class Sync(
@@ -165,6 +168,9 @@ val ENGLISH_STRINGS = Strings(
     formattingtoolbar_redo = "Redo",
     formattingtoolbar_strong_emphasis = "Bold",
     formattingtoolbar_emphasis = "Italic",
+    formattingtoolbar_strikethrough = "Strikethrough",
+    formattingtoolbar_heading = "Heading",
+    formattingtoolbar_blockquote = "Blockquote",
   ),
   sync = Sync(
     title = "Sync",

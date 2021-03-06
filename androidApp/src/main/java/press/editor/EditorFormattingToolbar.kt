@@ -2,6 +2,7 @@ package press.editor
 
 import android.text.SpannableStringBuilder
 import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.EditText
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
@@ -10,8 +11,11 @@ import androidx.core.view.plusAssign
 import androidx.core.view.setPadding
 import me.saket.press.R
 import me.saket.press.shared.localization.strings
+import me.saket.wysiwyg.formatting.BlockQuoteSyntaxApplier
 import me.saket.wysiwyg.formatting.EmphasisSyntaxApplier
+import me.saket.wysiwyg.formatting.HeadingSyntaxApplier
 import me.saket.wysiwyg.formatting.MarkdownSyntaxApplier
+import me.saket.wysiwyg.formatting.StrikethroughSyntaxApplier
 import me.saket.wysiwyg.formatting.StrongEmphasisSyntaxApplier
 import me.saket.wysiwyg.formatting.TextSelection
 import me.saket.wysiwyg.formatting.from
@@ -68,6 +72,28 @@ class EditorFormattingToolbar(
         onClick = { applyMarkdownSyntax(EmphasisSyntaxApplier) }
       )
     )
+    actionListView += createButton(
+      FormatAction(
+        iconRes = R.drawable.ic_twotone_format_strikethrough_24,
+        label = context.strings().editor.formattingtoolbar_strikethrough,
+        onClick = { applyMarkdownSyntax(StrikethroughSyntaxApplier) }
+      )
+    )
+    actionListView += createSeparator()
+    actionListView += createButton(
+      FormatAction(
+        iconRes = R.drawable.ic_format_heading_24,
+        label = context.strings().editor.formattingtoolbar_heading,
+        onClick = { applyMarkdownSyntax(HeadingSyntaxApplier) }
+      )
+    )
+    actionListView += createButton(
+      FormatAction(
+        iconRes = R.drawable.ic_twotone_format_quote_24,
+        label = context.strings().editor.formattingtoolbar_blockquote,
+        onClick = { applyMarkdownSyntax(BlockQuoteSyntaxApplier) }
+      )
+    )
   }
 
   private fun createButton(action: FormatAction): View {
@@ -82,6 +108,7 @@ class EditorFormattingToolbar(
 
   private fun createSeparator(): View {
     return View(context).also {
+      it.layoutParams = LayoutParams(dp(1), MATCH_PARENT)
       it.themeAware { palette ->
         it.background = DividerDrawable(palette.separator)
       }
