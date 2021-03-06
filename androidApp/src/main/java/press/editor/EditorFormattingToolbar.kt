@@ -60,6 +60,13 @@ class EditorFormattingToolbar(
     actionListView += createSeparator()
     actionListView += createButton(
       FormatAction(
+        iconRes = R.drawable.ic_format_heading_24,
+        label = context.strings().editor.formattingtoolbar_heading,
+        onClick = { applyMarkdownSyntax(HeadingSyntaxApplier) }
+      )
+    )
+    actionListView += createButton(
+      FormatAction(
         iconRes = R.drawable.ic_twotone_format_strong_emphasis_24,
         label = context.strings().editor.formattingtoolbar_strong_emphasis,
         onClick = { applyMarkdownSyntax(StrongEmphasisSyntaxApplier) }
@@ -82,14 +89,7 @@ class EditorFormattingToolbar(
     actionListView += createSeparator()
     actionListView += createButton(
       FormatAction(
-        iconRes = R.drawable.ic_format_heading_24,
-        label = context.strings().editor.formattingtoolbar_heading,
-        onClick = { applyMarkdownSyntax(HeadingSyntaxApplier) }
-      )
-    )
-    actionListView += createButton(
-      FormatAction(
-        iconRes = R.drawable.ic_twotone_format_quote_24,
+        iconRes = R.drawable.ic_baseline_format_quote_24,
         label = context.strings().editor.formattingtoolbar_blockquote,
         onClick = { applyMarkdownSyntax(BlockQuoteSyntaxApplier) }
       )
