@@ -58,6 +58,7 @@ class Strings(
     val formattingtoolbar_strikethrough: String,
     val formattingtoolbar_heading: String,
     val formattingtoolbar_blockquote: String,
+    val formattingtoolbar_inline_code: String,
   )
 
   class Sync(
@@ -171,6 +172,7 @@ val ENGLISH_STRINGS = Strings(
     formattingtoolbar_strikethrough = "Strikethrough",
     formattingtoolbar_heading = "Heading",
     formattingtoolbar_blockquote = "Blockquote",
+    formattingtoolbar_inline_code = "Inline code"
   ),
   sync = Sync(
     title = "Sync",

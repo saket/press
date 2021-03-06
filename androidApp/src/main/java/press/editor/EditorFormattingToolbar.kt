@@ -14,6 +14,7 @@ import me.saket.press.shared.localization.strings
 import me.saket.wysiwyg.formatting.BlockQuoteSyntaxApplier
 import me.saket.wysiwyg.formatting.EmphasisSyntaxApplier
 import me.saket.wysiwyg.formatting.HeadingSyntaxApplier
+import me.saket.wysiwyg.formatting.InlineCodeSyntaxApplier
 import me.saket.wysiwyg.formatting.MarkdownSyntaxApplier
 import me.saket.wysiwyg.formatting.StrikethroughSyntaxApplier
 import me.saket.wysiwyg.formatting.StrongEmphasisSyntaxApplier
@@ -87,6 +88,13 @@ class EditorFormattingToolbar(
       )
     )
     actionListView += createSeparator()
+    actionListView += createButton(
+      FormatAction(
+        iconRes = R.drawable.ic_format_inline_code,
+        label = context.strings().editor.formattingtoolbar_inline_code,
+        onClick = { applyMarkdownSyntax(InlineCodeSyntaxApplier) }
+      )
+    )
     actionListView += createButton(
       FormatAction(
         iconRes = R.drawable.ic_baseline_format_quote_24,
