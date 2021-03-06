@@ -7,5 +7,5 @@ package me.saket.wysiwyg.formatting
  * TODO: Link, Thematic break
  */
 interface MarkdownSyntaxApplier {
-  fun apply(text: String, selection: TextSelection): ApplyMarkdownSyntax
+  fun apply(text: CharSequence, selection: TextSelection): ReplaceTextWith
 }

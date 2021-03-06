@@ -9,6 +9,8 @@ data class ParagraphBounds(
   val endExclusive: Int
 ) {
 
+  val length get() = endExclusive - start
+
   companion object {
     /**
      * Finds the beginning/ending of paragraph(s) under a cursor position or

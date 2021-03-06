@@ -2,8 +2,6 @@ package me.saket.wysiwyg.formatting
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import me.saket.wysiwyg.formatting.ReplaceNewLineWith.DeleteLetters
-import me.saket.wysiwyg.formatting.ReplaceNewLineWith.InsertLetters
 
 abstract class BaseApplyMarkdownSyntaxTest : BaseTextSelectionTest() {
 
@@ -12,21 +10,23 @@ abstract class BaseApplyMarkdownSyntaxTest : BaseTextSelectionTest() {
     expect: String
   ) {
     val (inputText, inputSelection) = decodeSelection(input)
-    val outputFormat: ApplyMarkdownSyntax = apply(inputText, inputSelection)
+    val outputFormat: ReplaceTextWith = apply(inputText, inputSelection).let {
+      it.copy(replacement = it.replacement.toString())
+    }
 
     val expectedFormat = decodeSelection(expect)
     val expectedText = expectedFormat.first
     val expectedSelection = expectedFormat.second
 
-    if (outputFormat.newText != expectedText || outputFormat.newSelection != expectedSelection) {
+    if (outputFormat.replacement != expectedText || outputFormat.newSelection != expectedSelection) {
       printDifference(
         expectedText = expectedText,
         expectedSelection = expectedSelection,
-        actualText = outputFormat.newText,
+        actualText = outputFormat.replacement.toString(),
         actualSelection = outputFormat.newSelection
       )
     }
-    assertThat(outputFormat.newText).isEqualTo(expectedText)
+    assertThat(outputFormat.replacement).isEqualTo(expectedText)
     assertThat(outputFormat.newSelection).isEqualTo(expectedSelection)
   }
 
@@ -35,42 +35,24 @@ abstract class BaseApplyMarkdownSyntaxTest : BaseTextSelectionTest() {
     expect: String?
   ) {
     val (inputText, inputSelection) = decodeSelection(input)
-    val enterReplacement = onEnter(inputText, inputSelection)
-
-    val outputTextAfterFormatting = when (enterReplacement) {
-      is InsertLetters -> inputText.replaceRange(
-        startIndex = inputSelection.cursorPosition,
-        endIndex = inputSelection.cursorPosition,
-        replacement = enterReplacement.replacement
-      )
-      is DeleteLetters -> inputText.replaceRange(
-        startIndex = inputSelection.cursorPosition - enterReplacement.deleteCount,
-        endIndex = inputSelection.cursorPosition,
-        replacement = ""
-      )
-      null -> null
+    val textReplacement = onEnter(inputText, inputSelection)?.let {
+      it.copy(replacement = it.replacement.toString())
     }
-
-    val outputSelectionAfterFormatting = when (enterReplacement) {
-      is InsertLetters -> enterReplacement.newSelection
-      is DeleteLetters -> inputSelection.offsetBy(-enterReplacement.deleteCount)
-      null -> null
-    }
+    val outputTextAfterFormatting = textReplacement?.replacement?.toString()
+    val outputSelectionAfterFormatting = textReplacement?.newSelection
 
     val expectedFormat = expect?.let(::decodeSelection)
     val expectedText = expectedFormat?.first
     val expectedSelection = expectedFormat?.second
 
     if (outputTextAfterFormatting != expectedText || outputSelectionAfterFormatting != expectedSelection) {
-      printDifference(
+      error(printDifference(
         expectedText = expectedText,
         expectedSelection = expectedSelection,
-        actualText = outputTextAfterFormatting?.toString(),
+        actualText = outputTextAfterFormatting,
         actualSelection = outputSelectionAfterFormatting
-      )
+      ))
     }
-    assertThat(outputTextAfterFormatting).isEqualTo(expectedText)
-    assertThat(outputSelectionAfterFormatting).isEqualTo(expectedSelection)
   }
 
   private fun printDifference(
@@ -78,18 +60,18 @@ abstract class BaseApplyMarkdownSyntaxTest : BaseTextSelectionTest() {
     expectedSelection: TextSelection?,
     actualText: String?,
     actualSelection: TextSelection?
-  ) {
-    println("--------------------------------------")
-    println("Text doesn't match.")
-    if (expectedText != null && expectedSelection != null) {
-      println("Expected:\n\"\"\"\n${encodeSelection(expectedText, expectedSelection)}\n\"\"\"")
+  ) = buildString {
+    appendLine("--------------------------------------")
+    appendLine("Text doesn't match.")
+    if (expectedText != null) {
+      appendLine("Expected:\n\"\"\"\n${encodeSelection(expectedText, expectedSelection)}\n\"\"\"")
     } else {
-      println("Expected: \nnull")
+      appendLine("Expected: \nnull")
     }
-    if (actualText != null && actualSelection != null) {
-      println("\nActual: \n\"\"\"\n${encodeSelection(actualText, actualSelection)}\n\"\"\"")
+    if (actualText != null) {
+      appendLine("\nActual: \n\"\"\"\n${encodeSelection(actualText, actualSelection)}\n\"\"\"")
     } else {
-      println("\nActual: \nnull")
+      appendLine("\nActual: \nnull")
     }
   }
 }

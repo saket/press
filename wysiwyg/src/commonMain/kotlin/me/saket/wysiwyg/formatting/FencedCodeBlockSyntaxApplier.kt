@@ -8,14 +8,16 @@ object FencedCodeBlockSyntaxApplier : MarkdownSyntaxApplier {
   private const val leftSyntax = "```\n"
   private const val rightSyntax = "\n```"
 
-  override fun apply(text: String, selection: TextSelection): ApplyMarkdownSyntax {
+  override fun apply(text: CharSequence, selection: TextSelection): ReplaceTextWith {
     val paraBounds = ParagraphBounds.find(text, selection)
     val paragraphUnderSelection = text.substring(paraBounds.start, paraBounds.endExclusive)
 
-    return ApplyMarkdownSyntax(
-      newText = text.substring(0, paraBounds.start)
-        + leftSyntax + paragraphUnderSelection + rightSyntax
-        + text.substring(paraBounds.endExclusive, text.length),
+    return ReplaceTextWith(
+      replacement = text.replaceRange(
+        startIndex = paraBounds.start,
+        endIndex = paraBounds.endExclusive,
+        replacement = "$leftSyntax$paragraphUnderSelection$rightSyntax"
+      ),
       newSelection = selection.copy(
         start = selection.start + leftSyntax.length,
         end = selection.end + leftSyntax.length

@@ -1,7 +1,6 @@
 package me.saket.wysiwyg.formatting
 
 abstract class BaseTextSelectionTest {
-
   protected fun decodeSelection(text: String): Pair<String, TextSelection> {
     val markerCount = text.count { it == '▮' }
     require(markerCount in 1..2) {
@@ -23,13 +22,17 @@ abstract class BaseTextSelectionTest {
     return text.replace("▮", "") to selection
   }
 
-  protected fun encodeSelection(text: String, selection: TextSelection): String {
-    return if (selection.isCursor) {
-      text.substring(0, selection.cursorPosition) + "▮" + text.substring(selection.cursorPosition, text.length)
-    } else {
-      text.substring(0, selection.start) +
-        "▮" + text.substring(selection.start, selection.end) + "▮" +
-        text.substring(selection.end, text.length)
+  protected fun encodeSelection(text: String, selection: TextSelection?): String {
+    return when {
+      selection == null -> text
+      selection.isCursor -> {
+        text.substring(0, selection.cursorPosition) + "▮" + text.substring(selection.cursorPosition, text.length)
+      }
+      else -> {
+        text.substring(0, selection.start) +
+          "▮" + text.substring(selection.start, selection.end) + "▮" +
+          text.substring(selection.end, text.length)
+      }
     }
   }
 }

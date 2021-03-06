@@ -1,8 +1,6 @@
 package me.saket.wysiwyg.formatting
 
 import me.saket.wysiwyg.atomicLazy
-import me.saket.wysiwyg.formatting.ReplaceNewLineWith.DeleteLetters
-import me.saket.wysiwyg.formatting.ReplaceNewLineWith.InsertLetters
 import me.saket.wysiwyg.util.isDigit
 
 object AutoFormatOnEnterPress {
@@ -16,7 +14,7 @@ object AutoFormatOnEnterPress {
    * @return New text for the note's content and a new cursor position.
    * Null if the text doesn't need to be formatted.
    */
-  fun onEnter(textBeforeEnter: CharSequence, cursorBeforeEnter: TextSelection): ReplaceNewLineWith? {
+  fun onEnter(textBeforeEnter: CharSequence, cursorBeforeEnter: TextSelection): ReplaceTextWith? {
     if (cursorBeforeEnter.isCursor.not()) {
       return null
     }
@@ -32,10 +30,10 @@ object AutoFormatOnEnterPress {
     return formatters
       .mapNotNull {
         it.onEnter(
-          textBeforeEnter,
-          paragraph,
-          paragraphBounds,
-          cursorBeforeEnter
+          text = textBeforeEnter,
+          paragraph = paragraph,
+          paragraphBounds = paragraphBounds,
+          cursorBeforeEnter = cursorBeforeEnter
         )
       }
       .firstOrNull()
@@ -43,6 +41,9 @@ object AutoFormatOnEnterPress {
 
   private interface OnEnterAutoFormatter {
     /**
+     * [text] is mutable so and shouldn't be modified. I decided against converting it to an immutable
+     * String because it would discard all existing spans. Doing so on every key stroke may also be expensive.
+     *
      * @param paragraph Paragraph on which enter key was pressed.
      */
     fun onEnter(
@@ -50,7 +51,7 @@ object AutoFormatOnEnterPress {
       paragraph: CharSequence,
       paragraphBounds: ParagraphBounds,
       cursorBeforeEnter: TextSelection
-    ): ReplaceNewLineWith?
+    ): ReplaceTextWith?
   }
 
   private object StartFencedCodeBlock : OnEnterAutoFormatter {
@@ -61,7 +62,7 @@ object AutoFormatOnEnterPress {
       paragraph: CharSequence,
       paragraphBounds: ParagraphBounds,
       cursorBeforeEnter: TextSelection
-    ): ReplaceNewLineWith? {
+    ): ReplaceTextWith? {
       if (!paragraph.startsWith("```")) {
         return null
       }
@@ -86,8 +87,8 @@ object AutoFormatOnEnterPress {
         }
       }
 
-      return InsertLetters(
-        replacement = "\n\n```",
+      return ReplaceTextWith(
+        replacement = text.insertAt(cursorBeforeEnter, "\n\n```"),
         newSelection = cursorBeforeEnter.offsetBy(1)
       )
     }
@@ -102,7 +103,7 @@ object AutoFormatOnEnterPress {
       paragraph: CharSequence,
       paragraphBounds: ParagraphBounds,
       cursorBeforeEnter: TextSelection
-    ): ReplaceNewLineWith? {
+    ): ReplaceTextWith? {
       val paragraphMargin = paragraph.takeWhile { it.isWhitespace() }
       val paragraph = paragraph.trimStart()
 
@@ -110,9 +111,9 @@ object AutoFormatOnEnterPress {
       if (paragraph.length >= 2 && paragraph[0] in "*+-" && paragraph[1].isWhitespace()) {
         val isItemEmpty = paragraph.length == 2
         return if (isItemEmpty) {
-          endListSyntax(paragraphBounds)
+          endListSyntax(text, cursorBeforeEnter, paragraphBounds)
         } else {
-          continueListSyntax(cursorBeforeEnter, paragraphMargin, syntax = "${paragraph[0]} ")
+          continueListSyntax(text, cursorBeforeEnter, paragraphMargin, syntax = "${paragraph[0]} ")
         }
       }
 
@@ -124,10 +125,10 @@ object AutoFormatOnEnterPress {
           val isItemEmpty = paragraph.length == syntax.length
 
           return if (isItemEmpty) {
-            endListSyntax(paragraphBounds)
+            endListSyntax(text, cursorBeforeEnter, paragraphBounds)
           } else {
             val nextNumber = number.toInt().inc()
-            continueListSyntax(cursorBeforeEnter, paragraphMargin, syntax = "$nextNumber. ")
+            continueListSyntax(text, cursorBeforeEnter, paragraphMargin, syntax = "$nextNumber. ")
           }
         }
       }
@@ -136,19 +137,28 @@ object AutoFormatOnEnterPress {
     }
 
     private fun continueListSyntax(
-      cursorBeforeEnter: TextSelection,
+      text: CharSequence,
+      cursor: TextSelection,
       paragraphMargin: CharSequence,
       syntax: String
-    ): ReplaceNewLineWith {
+    ): ReplaceTextWith {
       val syntaxWithLineBreak = "\n$paragraphMargin$syntax"
-      return InsertLetters(
-        replacement = syntaxWithLineBreak,
-        newSelection = cursorBeforeEnter.offsetBy(syntaxWithLineBreak.length)
+      return ReplaceTextWith(
+        replacement = text.insertAt(cursor, syntaxWithLineBreak),
+        newSelection = cursor.offsetBy(syntaxWithLineBreak.length)
       )
     }
 
-    private fun endListSyntax(lastItemBounds: ParagraphBounds): ReplaceNewLineWith {
-      return DeleteLetters(deleteCount = lastItemBounds.endExclusive - lastItemBounds.start)
+    private fun endListSyntax(text: CharSequence, cursor: TextSelection, lastItemBounds: ParagraphBounds): ReplaceTextWith {
+      return ReplaceTextWith(
+        replacement = text.removeRange(startIndex = lastItemBounds.start, endIndex = lastItemBounds.endExclusive),
+        newSelection = cursor.offsetBy(-lastItemBounds.length)
+      )
     }
   }
+}
+
+private fun CharSequence.insertAt(cursor: TextSelection, replacement: CharSequence): CharSequence {
+  check(cursor.isCursor)
+  return replaceRange(startIndex = cursor.cursorPosition, endIndex = cursor.cursorPosition, replacement)
 }

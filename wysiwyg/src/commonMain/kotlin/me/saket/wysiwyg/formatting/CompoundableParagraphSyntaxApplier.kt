@@ -10,7 +10,7 @@ abstract class CompoundableParagraphSyntaxApplier(
   private val addSurroundingLineBreaks: Boolean
 ) : MarkdownSyntaxApplier {
 
-  override fun apply(text: String, selection: TextSelection): ApplyMarkdownSyntax {
+  override fun apply(text: CharSequence, selection: TextSelection): ReplaceTextWith {
     val paraBounds = ParagraphBounds.find(text, selection)
     val paragraphUnderSelection = text.substring(paraBounds.start, paraBounds.endExclusive)
 
@@ -34,12 +34,12 @@ abstract class CompoundableParagraphSyntaxApplier(
     }
     val followingNewLine = if (addSurroundingLineBreaks && needsFollowingNewLine()) "\n" else ""
 
-    return ApplyMarkdownSyntax(
-      newText = text.substring(0, paraBounds.start)
-        + leadingNewLine
-        + compoundedLeftSyntax + paragraphUnderSelection
-        + followingNewLine
-        + text.substring(paraBounds.endExclusive, text.length),
+    return ReplaceTextWith(
+      replacement = text.replaceRange(
+        startIndex = paraBounds.start,
+        endIndex = paraBounds.endExclusive,
+        replacement = "$leadingNewLine$compoundedLeftSyntax$paragraphUnderSelection$followingNewLine"
+      ),
       newSelection = selection.copy(
         start = selection.start + leadingNewLine.length + compoundedLeftSyntax.length,
         end = selection.end + leadingNewLine.length + compoundedLeftSyntax.length
