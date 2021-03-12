@@ -16,7 +16,6 @@ import android.view.Gravity.TOP
 import android.view.Menu
 import android.view.MenuItem.SHOW_AS_ACTION_IF_ROOM
 import android.view.MenuItem.SHOW_AS_ACTION_NEVER
-import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN
@@ -26,7 +25,6 @@ import android.widget.Toast.LENGTH_SHORT
 import androidx.core.text.buildSpannedString
 import androidx.core.text.inSpans
 import androidx.core.view.updatePaddingRelative
-import androidx.core.widget.NestedScrollView
 import app.cash.exhaustive.Exhaustive
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
@@ -78,8 +76,8 @@ import me.saket.wysiwyg.Wysiwyg
 import me.saket.wysiwyg.formatting.TextSelection
 import me.saket.wysiwyg.parser.node.HeadingLevel.H1
 import me.saket.wysiwyg.style.WysiwygStyle
-import me.saket.wysiwyg.style.parseColor
 import me.saket.wysiwyg.widgets.addTextChangedListener
+import press.editor.format.EditorFormattingToolbar
 import press.extensions.doOnTextChange
 import press.extensions.getDrawable
 import press.extensions.showKeyboard
@@ -177,14 +175,14 @@ class EditorView @InflationInject constructor(
       x = matchParentX(),
       y = topTo { parent.top() }
     )
-    scrollView.layoutBy(
-      x = matchParentX(),
-      y = topTo { toolbar.bottom() }.bottomTo { formattingToolbar.top() }
-    )
     headingHintTextView.layoutBy(
       x = leftTo { scrollView.left() + editorEditText.paddingStart }
         .rightTo { scrollView.right() - editorEditText.paddingStart },
       y = topTo { scrollView.top() + editorEditText.paddingTop }
+    )
+    scrollView.layoutBy(
+      x = matchParentX(),
+      y = topTo { toolbar.bottom() }.bottomTo { formattingToolbar.top() }
     )
     formattingToolbar.layoutBy(
       x = matchParentX(),
@@ -192,7 +190,7 @@ class EditorView @InflationInject constructor(
     )
 
     formattingToolbar.doOnHeightChange {
-      scrollView.setFadingEdgeLength(formattingToolbar.height * 3/4)
+      scrollView.setFadingEdgeLength(formattingToolbar.height * 3 / 4)
     }
 
     scrollView.addView(editorEditText, MATCH_PARENT, WRAP_CONTENT)

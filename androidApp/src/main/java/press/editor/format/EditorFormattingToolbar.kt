@@ -1,4 +1,4 @@
-package press.editor
+package press.editor.format
 
 import android.text.SpannableStringBuilder
 import android.view.View
@@ -16,10 +16,12 @@ import me.saket.wysiwyg.formatting.EmphasisSyntaxApplier
 import me.saket.wysiwyg.formatting.HeadingSyntaxApplier
 import me.saket.wysiwyg.formatting.InlineCodeSyntaxApplier
 import me.saket.wysiwyg.formatting.MarkdownSyntaxApplier
+import me.saket.wysiwyg.formatting.ReplaceTextWith
 import me.saket.wysiwyg.formatting.StrikethroughSyntaxApplier
 import me.saket.wysiwyg.formatting.StrongEmphasisSyntaxApplier
 import me.saket.wysiwyg.formatting.TextSelection
 import me.saket.wysiwyg.formatting.from
+import press.editor.copyWysiwygSpansTo
 import press.extensions.updatePadding
 import press.theme.themeAware
 import press.widgets.DividerDrawable
@@ -124,20 +126,24 @@ class EditorFormattingToolbar(
   }
 
   private fun applyMarkdownSyntax(applier: MarkdownSyntaxApplier) {
-    val replacement = applier.apply(
-      text = editorEditText.text,
-      selection = TextSelection.from(editorEditText)
+    updateText(
+      applier.apply(
+        text = editorEditText.text,
+        selection = TextSelection.from(editorEditText)
+      )
     )
+  }
 
+  private fun updateText(text: ReplaceTextWith) {
     // Retain all spans. Without this, all styling are lost until the next parsing of
     // markdown is complete. This results in a flicker everytime a formatting button is clicked.
-    editorEditText.text = SpannableStringBuilder(replacement.replacement).apply {
-      editorEditText.text.copySpansTo(this)
+    editorEditText.text = SpannableStringBuilder(text.replacement).apply {
+      editorEditText.text.copyWysiwygSpansTo(this)
     }
 
     //editorEditText.text.replace(0, editorEditText.text.length, newText)
 
-    replacement.newSelection?.let {
+    text.newSelection?.let {
       editorEditText.setSelection(it.start, it.end)
     }
   }
