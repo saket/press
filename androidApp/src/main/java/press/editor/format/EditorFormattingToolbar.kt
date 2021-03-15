@@ -1,9 +1,11 @@
 package press.editor.format
 
 import android.text.SpannableStringBuilder
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.LinearLayout.HORIZONTAL
@@ -34,9 +36,11 @@ class EditorFormattingToolbar(
 
   private val actionListView = LinearLayout(context).apply {
     orientation = HORIZONTAL
+    gravity = Gravity.CENTER
   }
 
   init {
+    isFillViewport = true
     clipToPadding = false
     updatePadding(horizontal = dp(12))
     themeAware {
