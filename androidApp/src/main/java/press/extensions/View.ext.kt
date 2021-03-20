@@ -126,6 +126,17 @@ inline fun ViewGroup.onViewAdds(crossinline action: (View) -> Unit) {
   })
 }
 
+inline fun <reified T> View.findParent(): T {
+  var parent = this.parent
+  while (parent !is T) {
+    parent = parent.parent
+    if (parent !is ViewGroup) {
+      error("Couldn't find ${T::class.simpleName}")
+    }
+  }
+  return parent
+}
+
 inline fun <reified T> View.findChild(): T? {
   val queue = ArrayDeque<View>()
   queue.addFirst(this)
