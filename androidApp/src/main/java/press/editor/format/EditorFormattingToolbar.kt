@@ -17,12 +17,14 @@ import me.saket.wysiwyg.formatting.EmphasisSyntaxApplier
 import me.saket.wysiwyg.formatting.HeadingSyntaxApplier
 import me.saket.wysiwyg.formatting.InlineCodeSyntaxApplier
 import me.saket.wysiwyg.formatting.MarkdownSyntaxApplier
+import me.saket.wysiwyg.formatting.ParagraphBounds
 import me.saket.wysiwyg.formatting.ReplaceTextWith
 import me.saket.wysiwyg.formatting.StrikethroughSyntaxApplier
 import me.saket.wysiwyg.formatting.StrongEmphasisSyntaxApplier
 import me.saket.wysiwyg.formatting.TextSelection
 import me.saket.wysiwyg.formatting.from
 import press.editor.copyWysiwygSpansTo
+import press.extensions.showKeyboard
 import press.extensions.updatePadding
 import press.theme.themeAware
 import press.widgets.DividerDrawable
@@ -130,8 +132,19 @@ class EditorFormattingToolbar(
 
   private fun applyMarkdownSyntax(applier: MarkdownSyntaxApplier) {
     val selection = TextSelection.from(editorEditText)
-    if (selection.isNotEmpty)
+    if (selection != null) {
       updateText(applier.apply(editorEditText.text, selection))
+
+    } else {
+      editorEditText.let {
+        // If the cursor isn't visible, show the keyboard at the end
+        // of the first paragraph (this will usually be the heading).
+        val firstParagraph = ParagraphBounds.find(editorEditText.text, TextSelection.cursor(0))
+        it.setSelection(firstParagraph.endExclusive)
+        it.requestFocus()
+        it.showKeyboard()
+      }
+    }
   }
 
   private fun updateText(text: ReplaceTextWith) {
