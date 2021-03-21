@@ -25,7 +25,6 @@ import android.widget.Toast.LENGTH_SHORT
 import androidx.core.text.buildSpannedString
 import androidx.core.text.inSpans
 import androidx.core.view.ViewCompat
-import androidx.core.view.isVisible
 import androidx.core.view.updatePaddingRelative
 import app.cash.exhaustive.Exhaustive
 import com.jakewharton.rxbinding3.view.detaches
@@ -116,35 +115,14 @@ class EditorView @InflationInject constructor(
     isFillViewport = true
   }
 
-  private val editorEditText = PlainTextPasteEditText(context).apply {
+  private val editorEditText = MarkdownEditText(context).apply {
     applyStyle(mainBody)
     id = R.id.editor_textfield
-    background = null
-    breakStrategy = BREAK_STRATEGY_HIGH_QUALITY
-    gravity = TOP
-    inputType = TYPE_CLASS_TEXT or  // Multiline doesn't work without this.
-      TYPE_TEXT_FLAG_CAP_SENTENCES or
-      TYPE_TEXT_FLAG_MULTI_LINE or
-      TYPE_TEXT_FLAG_NO_SUGGESTIONS
     if (preferences.autoCorrectEnabled.get()!!.enabled) {
       inputType = inputType or TYPE_TEXT_FLAG_AUTO_CORRECT
     }
-    imeOptions = IME_FLAG_NO_FULLSCREEN
     movementMethod = EditorLinkMovementMethod(scrollView)
-    FormatMarkdownOnEnterPress.attachTo(this)
-    CapitalizeOnHeadingStart.capitalize(this)
     updatePaddingRelative(start = 20.dip, end = 20.dip, bottom = 52.dip)
-    setEditableFactory(object : Editable.Factory() {
-      override fun newEditable(source: CharSequence): Editable {
-        return when (source) {
-          is Editable -> source // Avoid creating a new object on every external text change.
-          else -> SpannableStringBuilder(source)
-        }
-      }
-    })
-    if (SDK_INT >= 26) {
-      importantForAutofill = IMPORTANT_FOR_AUTOFILL_NO
-    }
     themeAware {
       textColor = it.textColorPrimary
     }
