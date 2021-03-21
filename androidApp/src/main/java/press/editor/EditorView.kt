@@ -24,6 +24,8 @@ import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.core.text.buildSpannedString
 import androidx.core.text.inSpans
+import androidx.core.view.ViewCompat
+import androidx.core.view.isVisible
 import androidx.core.view.updatePaddingRelative
 import app.cash.exhaustive.Exhaustive
 import com.jakewharton.rxbinding3.view.detaches
@@ -131,7 +133,7 @@ class EditorView @InflationInject constructor(
     movementMethod = EditorLinkMovementMethod(scrollView)
     FormatMarkdownOnEnterPress.attachTo(this)
     CapitalizeOnHeadingStart.capitalize(this)
-    updatePaddingRelative(start = 20.dip, end = 20.dip, bottom = 32.dip)
+    updatePaddingRelative(start = 20.dip, end = 20.dip, bottom = 52.dip)
     setEditableFactory(object : Editable.Factory() {
       override fun newEditable(source: CharSequence): Editable {
         return when (source) {
@@ -189,11 +191,14 @@ class EditorView @InflationInject constructor(
       y = bottomTo { parent.bottom() }
     )
 
+    scrollView.addView(editorEditText, MATCH_PARENT, WRAP_CONTENT)
     formattingToolbar.doOnHeightChange {
       scrollView.setFadingEdgeLength(formattingToolbar.height * 3 / 4)
     }
-
-    scrollView.addView(editorEditText, MATCH_PARENT, WRAP_CONTENT)
+    ViewCompat.setWindowInsetsAnimationCallback(
+      scrollView,
+      KeepCursorVisibleOnKeyboardShow(scrollView, editorEditText)
+    )
 
     themeAware { palette ->
       setBackgroundColor(palette.window.editorBackgroundColor)
