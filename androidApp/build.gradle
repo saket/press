@@ -54,6 +54,7 @@ dependencies {
   implementation project(':wysiwyg')
   implementation project(':shared')
 
+  implementation deps.androidx.core
   implementation deps.androidx.appCompat
   implementation deps.androidx.recyclerView
   implementation deps.androidx.browser
