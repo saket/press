@@ -56,28 +56,10 @@ class MarkdownEditText(context: Context) : EditText(context) {
   override fun onTextContextMenuItem(id: Int): Boolean {
     // Remove rich text formatting for pasted content. For example, pasting a URL from
     // another app may implicitly also copy its underline span, which we don't want.
-    if (id == android.R.id.paste) {
-      if (SDK_INT >= 23) {
-        return super.onTextContextMenuItem(android.R.id.pasteAsPlainText)
-      } else {
-        replaceClipboardWithPlainText()
-      }
+    return if (id == android.R.id.paste) {
+      super.onTextContextMenuItem(android.R.id.pasteAsPlainText)
+    } else {
+      super.onTextContextMenuItem(id)
     }
-    return super.onTextContextMenuItem(id)
-  }
-
-  private fun replaceClipboardWithPlainText() {
-    val clipboard = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-    val primaryClip = clipboard.primaryClip
-
-    // Not sure if Android let's the user copy multiple items. Assume it to always be 1.
-    val primaryClipItem = primaryClip?.getItemAt(0)
-    require(primaryClipItem != null) { "Why would we get a paste event with null clip data?" }
-
-    val text = primaryClipItem.coerceToText(context)
-    val plainText = if (text is Spanned) text.toString() else text
-
-    val clipData = ClipData.newPlainText(primaryClip.description.label, plainText)
-    clipboard.setPrimaryClip(clipData)
   }
 }
