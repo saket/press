@@ -5,7 +5,6 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.EditText
-import android.widget.FrameLayout
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.LinearLayout.HORIZONTAL
@@ -130,12 +129,9 @@ class EditorFormattingToolbar(
   }
 
   private fun applyMarkdownSyntax(applier: MarkdownSyntaxApplier) {
-    updateText(
-      applier.apply(
-        text = editorEditText.text,
-        selection = TextSelection.from(editorEditText)
-      )
-    )
+    val selection = TextSelection.from(editorEditText)
+    if (selection.isNotEmpty)
+      updateText(applier.apply(editorEditText.text, selection))
   }
 
   private fun updateText(text: ReplaceTextWith) {
