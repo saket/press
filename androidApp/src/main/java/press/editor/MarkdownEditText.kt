@@ -7,9 +7,9 @@ import android.text.InputType.TYPE_CLASS_TEXT
 import android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
 import android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
 import android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-import android.text.Layout
+import android.text.Layout.BREAK_STRATEGY_HIGH_QUALITY
 import android.text.SpannableStringBuilder
-import android.view.Gravity
+import android.view.Gravity.TOP
 import android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN
 import androidx.appcompat.widget.AppCompatEditText
 
@@ -20,8 +20,8 @@ import androidx.appcompat.widget.AppCompatEditText
 class MarkdownEditText(context: Context) : AppCompatEditText(context) {
   init {
     background = null
-    breakStrategy = Layout.BREAK_STRATEGY_HIGH_QUALITY
-    gravity = Gravity.TOP
+    breakStrategy = BREAK_STRATEGY_HIGH_QUALITY
+    gravity = TOP
     inputType = TYPE_CLASS_TEXT or  // Multiline doesn't work without this.
       TYPE_TEXT_FLAG_CAP_SENTENCES or
       TYPE_TEXT_FLAG_MULTI_LINE or
@@ -32,7 +32,7 @@ class MarkdownEditText(context: Context) : AppCompatEditText(context) {
     }
 
     filters += FormatMarkdownOnEnterPress(this)
-    CapitalizeOnHeadingStart.capitalize(this)   // todo: inline for consistency.
+    addTextChangedListener(CapitalizeOnHeadingStart(this))
 
     setEditableFactory(object : Editable.Factory() {
       override fun newEditable(source: CharSequence): Editable {
