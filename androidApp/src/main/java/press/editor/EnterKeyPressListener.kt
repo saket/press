@@ -8,6 +8,11 @@ import android.widget.EditText
 import me.saket.wysiwyg.formatting.AutoFormatOnEnterPress
 import me.saket.wysiwyg.formatting.TextSelection
 
+/**
+ * Detects presence of a new line character when the text is changed. This isn't ideal and it'd be great if Press
+ * could simply rely on ACTION_ENTER ime events, but the keyboard world on Android is strange place where there are
+ * no contracts and they can do whatever they feel like.
+ */
 class FormatMarkdownOnEnterPress(private val view: EditText) : InputFilter {
   var ignoreNextFilter = false
 
