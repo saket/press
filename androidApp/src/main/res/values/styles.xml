@@ -7,6 +7,7 @@
     <item name="colorAccent">#f00</item>
 
     <item name="android:editTextStyle">@style/DefaultEditTextStyle</item>
+    <item name="editTextStyle">@style/DefaultEditTextStyle</item>
     <item name="android:colorEdgeEffect">@color/overscroll_canary</item>
 
     <item name="android:windowBackground">@color/default_window_background</item>

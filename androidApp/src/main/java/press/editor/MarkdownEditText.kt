@@ -1,6 +1,5 @@
 package press.editor
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build.VERSION.SDK_INT
 import android.text.Editable
@@ -12,14 +11,13 @@ import android.text.Layout
 import android.text.SpannableStringBuilder
 import android.view.Gravity
 import android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN
-import android.widget.EditText
+import androidx.appcompat.widget.AppCompatEditText
 
 /**
  * Removes rich text formatting for pasted content. On Android, copying a
  * URL will implicitly also copy its underline span, which we don't want.
  */
-@SuppressLint("AppCompatCustomView")  // Cursor tinting doesn't work for some reason.
-class MarkdownEditText(context: Context) : EditText(context) {
+class MarkdownEditText(context: Context) : AppCompatEditText(context) {
   init {
     background = null
     breakStrategy = Layout.BREAK_STRATEGY_HIGH_QUALITY
