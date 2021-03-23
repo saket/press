@@ -2,55 +2,58 @@ package press.editor
 
 import android.text.InputFilter
 import android.text.Selection
+import android.text.SpannableStringBuilder
 import android.text.Spanned
-import android.view.KeyEvent
-import android.view.KeyEvent.ACTION_DOWN
-import android.view.KeyEvent.ACTION_UP
-import android.view.KeyEvent.KEYCODE_DEL
 import android.widget.EditText
 import me.saket.wysiwyg.formatting.AutoFormatOnEnterPress
-import me.saket.wysiwyg.formatting.ReplaceNewLineWith.DeleteLetters
-import me.saket.wysiwyg.formatting.ReplaceNewLineWith.InsertLetters
 import me.saket.wysiwyg.formatting.TextSelection
 
-class FormatMarkdownOnEnterPress(private val view: EditText) : EnterKeyDetector() {
-  override fun replaceTextOnEnterPress(textBeforeEnter: Spanned): CharSequence? {
-    val replacement = AutoFormatOnEnterPress.onEnter(
-      textBeforeEnter = textBeforeEnter,
-      cursorBeforeEnter = TextSelection.cursor(Selection.getSelectionStart(textBeforeEnter))
-    ) ?: return null
+class FormatMarkdownOnEnterPress(private val view: EditText) : InputFilter {
+  var ignoreNextFilter = false
 
-    return when (replacement) {
-      is InsertLetters -> {
-        view.post { view.setSelection(replacement.newSelection.start, replacement.newSelection.end) }
-        replacement.replacement
-      }
-      is DeleteLetters -> {
-        repeat(replacement.deleteCount) {
-          view.dispatchKeyEvent(KeyEvent(ACTION_DOWN, KEYCODE_DEL))
-          view.dispatchKeyEvent(KeyEvent(ACTION_UP, KEYCODE_DEL))
-        }
-        ""
-      }
-    }
-  }
-}
-
-abstract class EnterKeyDetector : InputFilter {
   override fun filter(
-    source: CharSequence,
+    source: CharSequence?,
     start: Int,
     end: Int,
     dest: Spanned,
     dstart: Int,
     dend: Int
   ): CharSequence? {
-    val enterPressed = source == "\n" && end - start == 1
-    return when {
-      enterPressed -> replaceTextOnEnterPress(textBeforeEnter = dest)
-      else -> null  // Accept the original change.
+    if (ignoreNextFilter || source == null) {
+      ignoreNextFilter = false
+      return null
+    }
+
+    // Try to detect changes where only one new character was added, and it
+    // was a new line. This is to ignore cases where some text was pasted.
+    val sourceLength = end - start
+    val destLength = dend - dstart
+    val wasNewLineEntered = sourceLength - destLength == 1 && source.endsWith("\n")
+
+    return if (wasNewLineEntered) {
+      val minusNewLine = source.removeRange(end - 1, end)
+      minusNewLine.also {
+        view.post {
+          ignoreNextFilter = true
+          replaceTextOnEnterPress(view, dest)
+        }
+      }
+    } else {
+      null
     }
   }
 
-  abstract fun replaceTextOnEnterPress(textBeforeEnter: Spanned): CharSequence?
+  fun replaceTextOnEnterPress(view: EditText, textBeforeEnter: Spanned) {
+    val replacement = AutoFormatOnEnterPress.onEnter(
+      textBeforeEnter = textBeforeEnter,
+      cursorBeforeEnter = TextSelection.cursor(Selection.getSelectionStart(textBeforeEnter))
+    ) ?: return
+
+    view.text = SpannableStringBuilder(replacement.replacement).apply {
+      view.text.copyWysiwygSpansTo(this)
+    }
+    replacement.newSelection?.let {
+      view.setSelection(it.start, it.end)
+    }
+  }
 }

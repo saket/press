@@ -32,6 +32,7 @@ abstract class ThemePalette(
   val fabIcon: Int
     get() = fabColor.blendWith(if (isLightTheme) WHITE else BLACK, ratio = 0.65f)
 
+  // todo: rename to divider
   val separator: Int
     get() = window.backgroundColor.blendWith(BLACK, ratio = 0.2f)
 
