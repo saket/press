@@ -36,8 +36,7 @@ class FormatMarkdownOnEnterPress(private val view: EditText) : InputFilter {
     val wasNewLineEntered = sourceLength - destLength == 1 && source.endsWith("\n")
 
     return if (wasNewLineEntered) {
-      val minusNewLine = source.removeRange(end - 1, end)
-      minusNewLine.also {
+      source.removeSuffix("\n").also {
         view.post {
           ignoreNextFilter = true
           replaceTextOnEnterPress(view, dest)
