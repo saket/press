@@ -42,6 +42,7 @@ data class EditorUiModel(
 )
 
 sealed class EditorUiEffect {
+  // todo: rename to PopulateNoteBody
   data class UpdateNoteText(
     val newText: String,
     val newSelection: TextSelection?

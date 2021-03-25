@@ -2,23 +2,13 @@ package press.editor
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.os.Build.VERSION.SDK_INT
-import android.text.Editable
-import android.text.InputType.TYPE_CLASS_TEXT
 import android.text.InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
-import android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
-import android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
-import android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-import android.text.Layout.BREAK_STRATEGY_HIGH_QUALITY
-import android.text.SpannableStringBuilder
 import android.util.AttributeSet
-import android.view.Gravity.TOP
 import android.view.Menu
 import android.view.MenuItem.SHOW_AS_ACTION_IF_ROOM
 import android.view.MenuItem.SHOW_AS_ACTION_NEVER
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN
 import android.widget.EditText
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT

@@ -12,6 +12,9 @@ import android.text.SpannableStringBuilder
 import android.view.Gravity.TOP
 import android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN
 import androidx.appcompat.widget.AppCompatEditText
+import androidx.core.text.getSpans
+import me.saket.wysiwyg.formatting.TextSelection
+import me.saket.wysiwyg.spans.WysiwygSpan
 
 class MarkdownEditText(context: Context) : AppCompatEditText(context) {
   init {
@@ -47,6 +50,36 @@ class MarkdownEditText(context: Context) : AppCompatEditText(context) {
       super.onTextContextMenuItem(android.R.id.pasteAsPlainText)
     } else {
       super.onTextContextMenuItem(id)
+    }
+  }
+
+  override fun getText(): Editable {
+    return super.getText()!!
+  }
+
+  @Suppress("NAME_SHADOWING")
+  fun setTextWithoutBustingUndoHistory(newText: CharSequence, newSelection: TextSelection?) {
+    // Retain all spans. Without this, all styling are lost until the next parsing of
+    // markdown is complete. This results in a flicker everytime a formatting button is clicked.
+    val oldText = this.text
+    val newText = SpannableStringBuilder(newText)
+    oldText.copyWysiwygSpansTo(newText)
+    oldText.replace(0, oldText.length, newText)
+
+    newSelection?.let {
+      setSelection(it.start, it.end)
+    }
+  }
+
+  private fun Editable.copyWysiwygSpansTo(other: Editable) {
+    val allSpans = this.getSpans<WysiwygSpan>(0, this.length)
+    for (span in allSpans) {
+      val spanStart = this.getSpanStart(span)
+      val spanEnd = this.getSpanEnd(span)
+      val spanFlags = this.getSpanFlags(span)
+      if (spanEnd < other.length) {
+        other.setSpan(span, spanStart, spanEnd, spanFlags)
+      }
     }
   }
 }

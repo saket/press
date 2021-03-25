@@ -1,10 +1,8 @@
 package press.editor.format
 
-import android.text.SpannableStringBuilder
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.widget.EditText
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.LinearLayout.HORIZONTAL
@@ -18,12 +16,11 @@ import me.saket.wysiwyg.formatting.HeadingSyntaxApplier
 import me.saket.wysiwyg.formatting.InlineCodeSyntaxApplier
 import me.saket.wysiwyg.formatting.MarkdownSyntaxApplier
 import me.saket.wysiwyg.formatting.ParagraphBounds
-import me.saket.wysiwyg.formatting.ReplaceTextWith
 import me.saket.wysiwyg.formatting.StrikethroughSyntaxApplier
 import me.saket.wysiwyg.formatting.StrongEmphasisSyntaxApplier
 import me.saket.wysiwyg.formatting.TextSelection
 import me.saket.wysiwyg.formatting.from
-import press.editor.copyWysiwygSpansTo
+import press.editor.MarkdownEditText
 import press.extensions.showKeyboard
 import press.extensions.updatePadding
 import press.theme.themeAware
@@ -32,7 +29,7 @@ import press.widgets.PressBorderlessImageButton
 import press.widgets.dp
 
 class EditorFormattingToolbar(
-  private val editorEditText: EditText
+  private val editorEditText: MarkdownEditText
 ) : HorizontalScrollView(editorEditText.context) {
 
   private val actionListView = LinearLayout(context).apply {
@@ -133,7 +130,8 @@ class EditorFormattingToolbar(
   private fun applyMarkdownSyntax(applier: MarkdownSyntaxApplier) {
     val selection = TextSelection.from(editorEditText)
     if (selection != null) {
-      updateText(applier.apply(editorEditText.text, selection))
+      val replacement = applier.apply(editorEditText.text, selection)
+      editorEditText.setTextWithoutBustingUndoHistory(replacement.replacement, replacement.newSelection)
 
     } else {
       editorEditText.let {
@@ -147,19 +145,6 @@ class EditorFormattingToolbar(
     }
   }
 
-  private fun updateText(text: ReplaceTextWith) {
-    // Retain all spans. Without this, all styling are lost until the next parsing of
-    // markdown is complete. This results in a flicker everytime a formatting button is clicked.
-    editorEditText.text = SpannableStringBuilder(text.replacement).apply {
-      editorEditText.text.copyWysiwygSpansTo(this)
-    }
-
-    //editorEditText.text.replace(0, editorEditText.text.length, newText)
-
-    text.newSelection?.let {
-      editorEditText.setSelection(it.start, it.end)
-    }
-  }
 }
 
 private data class FormatAction(

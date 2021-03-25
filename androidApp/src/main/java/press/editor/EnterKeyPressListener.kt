@@ -13,7 +13,7 @@ import me.saket.wysiwyg.formatting.TextSelection
  * could simply rely on ACTION_ENTER ime events, but the keyboard world on Android is strange place where there are
  * no contracts and they can do whatever they feel like.
  */
-class FormatMarkdownOnEnterPress(private val view: EditText) : InputFilter {
+class FormatMarkdownOnEnterPress(private val view: MarkdownEditText) : InputFilter {
   var ignoreNextFilter = false
 
   override fun filter(
@@ -46,17 +46,12 @@ class FormatMarkdownOnEnterPress(private val view: EditText) : InputFilter {
     }
   }
 
-  fun replaceTextOnEnterPress(view: EditText, textBeforeEnter: Spanned) {
+  private fun replaceTextOnEnterPress(view: MarkdownEditText, textBeforeEnter: Spanned) {
     val replacement = AutoFormatOnEnterPress.onEnter(
       textBeforeEnter = textBeforeEnter,
       cursorBeforeEnter = TextSelection.cursor(Selection.getSelectionStart(textBeforeEnter))
     ) ?: return
 
-    view.text = SpannableStringBuilder(replacement.replacement).apply {
-      view.text.copyWysiwygSpansTo(this)
-    }
-    replacement.newSelection?.let {
-      view.setSelection(it.start, it.end)
-    }
+    view.setTextWithoutBustingUndoHistory(replacement.replacement, replacement.newSelection)
   }
 }
