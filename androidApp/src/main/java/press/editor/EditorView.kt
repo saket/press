@@ -243,7 +243,7 @@ class EditorView @InflationInject constructor(
   }
 
   private fun render(uiUpdate: EditorUiEffect) {
-    post {  // On the Ui thread.
+    mainThread().scheduleDirect {
       @Exhaustive
       when (uiUpdate) {
         is UpdateNoteText -> editorEditText.setText(uiUpdate.newText, uiUpdate.newSelection)
