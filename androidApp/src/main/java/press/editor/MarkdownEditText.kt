@@ -13,10 +13,6 @@ import android.view.Gravity.TOP
 import android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN
 import androidx.appcompat.widget.AppCompatEditText
 
-/**
- * Removes rich text formatting for pasted content. On Android, copying a
- * URL will implicitly also copy its underline span, which we don't want.
- */
 class MarkdownEditText(context: Context) : AppCompatEditText(context) {
   init {
     background = null
