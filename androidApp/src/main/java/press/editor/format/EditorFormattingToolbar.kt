@@ -1,5 +1,7 @@
 package press.editor.format
 
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM
 import android.view.Gravity.CENTER
 import android.view.View
 import android.widget.FrameLayout.LayoutParams.MATCH_PARENT
@@ -27,13 +29,12 @@ import me.saket.wysiwyg.formatting.StrongEmphasisSyntaxApplier
 import me.saket.wysiwyg.formatting.TextSelection
 import me.saket.wysiwyg.formatting.from
 import me.saket.wysiwyg.spans.MonospaceTypefaceSpan
-import me.saket.wysiwyg.style.parseColor
+import me.saket.wysiwyg.style.withOpacity
 import press.editor.MarkdownEditText
 import press.extensions.createRippleDrawable
 import press.extensions.showKeyboard
 import press.extensions.updatePadding
 import press.theme.themeAware
-import press.widgets.DividerDrawable
 import press.widgets.PressBorderlessImageButton
 import press.widgets.PressButton
 import press.widgets.dp
@@ -72,7 +73,7 @@ class EditorFormattingToolbar(
         onClick = { editorEditText.onTextContextMenuItem(android.R.id.redo) }
       )
     )
-    actionListView += createSeparator()
+    actionListView += createDivider()
     actionListView += createButton(
       FormatActionIcon(
         iconRes = R.drawable.ic_format_heading_24,
@@ -101,7 +102,7 @@ class EditorFormattingToolbar(
         onClick = { applyMarkdownSyntax(StrikethroughSyntaxApplier) }
       )
     )
-    actionListView += createSeparator()
+    actionListView += createDivider()
     actionListView += createButton(
       FormatActionText(
         label = { palette ->
@@ -116,7 +117,7 @@ class EditorFormattingToolbar(
         onClick = { applyMarkdownSyntax(InlineCodeSyntaxApplier) }
       )
     )
-    actionListView += createSeparator()
+    actionListView += createDivider()
     actionListView += createButton(
       FormatActionText(
         label = { palette ->
@@ -139,7 +140,7 @@ class EditorFormattingToolbar(
           it.gravity = CENTER
           it.compoundDrawablePadding = dp(4)
           it.layoutParams = LayoutParams(WRAP_CONTENT, MATCH_PARENT)
-          it.updatePadding(horizontal = dp(8), vertical = dp(4))
+          it.updatePadding(horizontal = dp(12), vertical = dp(4))
           it.themeAware { palette ->
             it.text = action.label(palette.markdown)
           }
@@ -169,11 +170,14 @@ class EditorFormattingToolbar(
     return button
   }
 
-  private fun createSeparator(): View {
+  private fun createDivider(): View {
     return View(context).also {
       it.layoutParams = LayoutParams(dp(1), MATCH_PARENT)
       it.themeAware { palette ->
-        it.background = DividerDrawable(palette.separator)
+        it.background = GradientDrawable(
+          TOP_BOTTOM,
+          intArrayOf(palette.separator.withOpacity(0f), palette.separator)
+        )
       }
     }
   }
