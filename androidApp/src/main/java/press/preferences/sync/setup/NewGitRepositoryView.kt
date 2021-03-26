@@ -51,11 +51,6 @@ class NewGitRepositoryView @InflationInject constructor(
 
   private val dialogView = PressDialogView(context)
   private val contentView = ContentView(context)
-  private val dialogPanTransition = ChangeBounds()
-    .addTarget(dialogView)
-    .setDuration(200)
-    .setInterpolator(FastOutSlowInInterpolator())
-    .excludeChildren(dialogView, true)
 
   private val presenter = presenterFactory.create(
     Args(
@@ -110,13 +105,6 @@ class NewGitRepositoryView @InflationInject constructor(
       .observeOn(mainThread())
       .takeUntil(detaches())
       .subscribe(::render)
-  }
-
-  override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-    if (changed) {
-      TransitionManager.beginDelayedTransition(this, dialogPanTransition)
-    }
-    super.onLayout(changed, l, t, r, b)
   }
 
   private fun render(model: NewGitRepositoryUiModel) {
