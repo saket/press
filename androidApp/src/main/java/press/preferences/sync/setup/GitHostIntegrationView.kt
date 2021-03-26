@@ -10,6 +10,7 @@ import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
+import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_DRAGGING
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
@@ -122,8 +123,10 @@ class GitHostIntegrationView @InflationInject constructor(
     }
 
     recyclerView.addOnScrollListener(object : OnScrollListener() {
-      override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-        if (abs(dy) > 0) hideKeyboard()
+      override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+        if (newState == SCROLL_STATE_DRAGGING) {
+          hideKeyboard()
+        }
       }
     })
   }
