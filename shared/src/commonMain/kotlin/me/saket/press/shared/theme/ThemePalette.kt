@@ -35,7 +35,7 @@ abstract class ThemePalette(
 
   // todo: rename to divider
   val separator: Int
-    get() = BLACK.withOpacity(0.15f)
+    get() = BLACK.withOpacity(0.2f)
 
   val buttonNormal: Int
     get() = window.backgroundColor.blendWith(if (isLightTheme) WHITE else BLACK, ratio = 0.2f)
