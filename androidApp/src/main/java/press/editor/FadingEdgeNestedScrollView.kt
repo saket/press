@@ -35,7 +35,8 @@ class FadingEdgeNestedScrollView(context: Context) : NestedScrollView(context) {
     }
 
     // Copied from NestedScrollView. Copying this code would have not
-    // been needed if NestedScrollView#smoothScrollBy wasn't final :/
+    // been needed if NestedScrollView#smoothScrollBy wasn't final.
+    // https://issuetracker.google.com/issues/183218283
     rectangle.offset(child.left - child.scrollX, child.top - child.scrollY)
     val delta = computeScrollDeltaToGetChildRectOnScreen(rectangle)
     return (delta != 0).also {

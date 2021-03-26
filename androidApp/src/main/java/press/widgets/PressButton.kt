@@ -21,6 +21,8 @@ open class PressButton(context: Context, style: UiStyles.Text) : AppCompatButton
   init {
     minHeight = 0
     minimumHeight = 0
+    minWidth = 0
+    minimumWidth = 0
     isAllCaps = false
     applyStyle(style)
     updatePadding(horizontal = dp(16), vertical = dp(8))

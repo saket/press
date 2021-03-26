@@ -2,14 +2,11 @@
 
 package press.extensions
 
-import android.content.Context
-import android.content.ContextWrapper
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.PaintDrawable
 import android.graphics.drawable.RippleDrawable
-import android.os.Build.VERSION.SDK_INT
 import android.text.Editable
 import android.util.TypedValue.COMPLEX_UNIT_PX
 import android.view.View
@@ -20,8 +17,8 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.ViewFlipper
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
 import androidx.core.view.forEach
@@ -164,4 +161,8 @@ inline fun EditText.doOnEditorAction(imeAction: Int, crossinline action: () -> U
 inline fun EditText.setTextAndCursor(newText: String) {
   setText(newText)
   setSelection(this.text.length)  // EditText's input-filters may change the set text.
+}
+
+inline fun TextView.setDrawableLeft(@DrawableRes drawableRes: Int) {
+  setCompoundDrawablesWithIntrinsicBounds(drawableRes, 0, 0, 0)
 }

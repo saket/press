@@ -171,8 +171,8 @@ val ENGLISH_STRINGS = Strings(
     formattingtoolbar_emphasis = "Italic",
     formattingtoolbar_strikethrough = "Strikethrough",
     formattingtoolbar_heading = "Heading",
-    formattingtoolbar_blockquote = "Blockquote",
-    formattingtoolbar_inline_code = "Inline code"
+    formattingtoolbar_blockquote = "Quote",
+    formattingtoolbar_inline_code = "Code"
   ),
   sync = Sync(
     title = "Sync",

@@ -1,15 +1,21 @@
 package press.editor.format
 
-import android.view.Gravity
+import android.view.Gravity.CENTER
 import android.view.View
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.widget.FrameLayout.LayoutParams.MATCH_PARENT
+import android.widget.FrameLayout.LayoutParams.WRAP_CONTENT
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.LinearLayout.HORIZONTAL
+import androidx.core.text.buildSpannedString
+import androidx.core.text.color
+import androidx.core.text.inSpans
 import androidx.core.view.plusAssign
 import androidx.core.view.setPadding
 import me.saket.press.R
 import me.saket.press.shared.localization.strings
+import me.saket.press.shared.theme.MarkdownPalette
+import me.saket.press.shared.theme.TextStyles.smallTitle
 import me.saket.wysiwyg.formatting.BlockQuoteSyntaxApplier
 import me.saket.wysiwyg.formatting.EmphasisSyntaxApplier
 import me.saket.wysiwyg.formatting.HeadingSyntaxApplier
@@ -20,12 +26,16 @@ import me.saket.wysiwyg.formatting.StrikethroughSyntaxApplier
 import me.saket.wysiwyg.formatting.StrongEmphasisSyntaxApplier
 import me.saket.wysiwyg.formatting.TextSelection
 import me.saket.wysiwyg.formatting.from
+import me.saket.wysiwyg.spans.MonospaceTypefaceSpan
+import me.saket.wysiwyg.style.parseColor
 import press.editor.MarkdownEditText
+import press.extensions.createRippleDrawable
 import press.extensions.showKeyboard
 import press.extensions.updatePadding
 import press.theme.themeAware
 import press.widgets.DividerDrawable
 import press.widgets.PressBorderlessImageButton
+import press.widgets.PressButton
 import press.widgets.dp
 
 class EditorFormattingToolbar(
@@ -34,7 +44,7 @@ class EditorFormattingToolbar(
 
   private val actionListView = LinearLayout(context).apply {
     orientation = HORIZONTAL
-    gravity = Gravity.CENTER
+    gravity = CENTER
   }
 
   init {
@@ -49,14 +59,14 @@ class EditorFormattingToolbar(
     addView(actionListView)
 
     actionListView += createButton(
-      FormatAction(
+      FormatActionIcon(
         iconRes = R.drawable.ic_twotone_undo_24,
         label = context.strings().editor.formattingtoolbar_undo,
         onClick = { editorEditText.onTextContextMenuItem(android.R.id.undo) }
       )
     )
     actionListView += createButton(
-      FormatAction(
+      FormatActionIcon(
         iconRes = R.drawable.ic_twotone_redo_24,
         label = context.strings().editor.formattingtoolbar_redo,
         onClick = { editorEditText.onTextContextMenuItem(android.R.id.redo) }
@@ -64,28 +74,28 @@ class EditorFormattingToolbar(
     )
     actionListView += createSeparator()
     actionListView += createButton(
-      FormatAction(
+      FormatActionIcon(
         iconRes = R.drawable.ic_format_heading_24,
         label = context.strings().editor.formattingtoolbar_heading,
         onClick = { applyMarkdownSyntax(HeadingSyntaxApplier) }
       )
     )
     actionListView += createButton(
-      FormatAction(
+      FormatActionIcon(
         iconRes = R.drawable.ic_twotone_format_strong_emphasis_24,
         label = context.strings().editor.formattingtoolbar_strong_emphasis,
         onClick = { applyMarkdownSyntax(StrongEmphasisSyntaxApplier) }
       )
     )
     actionListView += createButton(
-      FormatAction(
+      FormatActionIcon(
         iconRes = R.drawable.ic_twotone_format_emphasis_24,
         label = context.strings().editor.formattingtoolbar_emphasis,
         onClick = { applyMarkdownSyntax(EmphasisSyntaxApplier) }
       )
     )
     actionListView += createButton(
-      FormatAction(
+      FormatActionIcon(
         iconRes = R.drawable.ic_twotone_format_strikethrough_24,
         label = context.strings().editor.formattingtoolbar_strikethrough,
         onClick = { applyMarkdownSyntax(StrikethroughSyntaxApplier) }
@@ -93,29 +103,70 @@ class EditorFormattingToolbar(
     )
     actionListView += createSeparator()
     actionListView += createButton(
-      FormatAction(
-        iconRes = R.drawable.ic_format_inline_code,
-        label = context.strings().editor.formattingtoolbar_inline_code,
+      FormatActionText(
+        label = { palette ->
+          buildSpannedString {
+            color(palette.syntaxColor) { append('`') }
+            inSpans(MonospaceTypefaceSpan {}) {
+              append(context.strings().editor.formattingtoolbar_inline_code)
+            }
+            color(palette.syntaxColor) { append('`') }
+          }
+        },
         onClick = { applyMarkdownSyntax(InlineCodeSyntaxApplier) }
       )
     )
+    actionListView += createSeparator()
     actionListView += createButton(
-      FormatAction(
-        iconRes = R.drawable.ic_baseline_format_quote_24,
-        label = context.strings().editor.formattingtoolbar_blockquote,
+      FormatActionText(
+        label = { palette ->
+          buildSpannedString {
+            color(palette.blockQuoteVerticalRuleColor) { append("> ") }
+            append(context.strings().editor.formattingtoolbar_blockquote)
+          }
+        },
         onClick = { applyMarkdownSyntax(BlockQuoteSyntaxApplier) }
       )
     )
   }
 
   private fun createButton(action: FormatAction): View {
-    return PressBorderlessImageButton(context).also {
-      it.contentDescription = action.label
-      it.tooltipText = action.label
-      it.setPadding(dp(12))
-      it.setOnClickListener { action.onClick(it) }
-      it.setImageResource(action.iconRes)
+    val button = when (action) {
+      is FormatActionText -> {
+        PressButton(context, smallTitle).also {
+          it.elevation = 0f
+          it.stateListAnimator = null
+          it.gravity = CENTER
+          it.compoundDrawablePadding = dp(4)
+          it.layoutParams = LayoutParams(WRAP_CONTENT, MATCH_PARENT)
+          it.updatePadding(horizontal = dp(8), vertical = dp(4))
+          it.themeAware { palette ->
+            it.text = action.label(palette.markdown)
+          }
+        }
+      }
+      is FormatActionIcon -> {
+        PressBorderlessImageButton(context).also {
+          it.contentDescription = action.label
+          it.tooltipText = action.label
+          it.layoutParams = LayoutParams(WRAP_CONTENT, MATCH_PARENT)
+          it.setPadding(dp(12))
+          it.setImageResource(action.iconRes)
+        }
+      }
     }
+
+    button.setOnClickListener {
+      action.onClick(button)
+    }
+    button.themeAware { palette ->
+      button.background = createRippleDrawable(
+        palette = palette,
+        background = palette.buttonPressed,
+        borderless = true
+      )
+    }
+    return button
   }
 
   private fun createSeparator(): View {
@@ -147,8 +198,17 @@ class EditorFormattingToolbar(
 
 }
 
-private data class FormatAction(
+private sealed class FormatAction {
+  abstract val onClick: (View) -> Unit
+}
+
+private data class FormatActionIcon(
   val iconRes: Int,
   val label: String,
-  val onClick: (View) -> Unit
-)
+  override val onClick: (View) -> Unit
+) : FormatAction()
+
+private data class FormatActionText(
+  val label: (palette: MarkdownPalette) -> CharSequence,
+  override val onClick: (View) -> Unit
+) : FormatAction()
