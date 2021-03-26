@@ -21,6 +21,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
+import androidx.core.view.doOnLayout
 import androidx.core.view.forEach
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
@@ -165,4 +166,10 @@ inline fun EditText.setTextAndCursor(newText: String) {
 
 inline fun TextView.setDrawableLeft(@DrawableRes drawableRes: Int) {
   setCompoundDrawablesWithIntrinsicBounds(drawableRes, 0, 0, 0)
+}
+
+inline fun View.doOnEveryLayout(crossinline action: () -> Unit) {
+  addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+    action()
+  }
 }

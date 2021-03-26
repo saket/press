@@ -69,6 +69,7 @@ import me.saket.wysiwyg.parser.node.HeadingLevel.H1
 import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.widgets.addTextChangedListener
 import press.editor.format.EditorFormattingToolbar
+import press.extensions.doOnEveryLayout
 import press.extensions.doOnTextChange
 import press.extensions.getDrawable
 import press.extensions.showKeyboard
@@ -78,7 +79,6 @@ import press.extensions.unsafeLazy
 import press.navigation.BackPressInterceptor
 import press.navigation.BackPressInterceptor.InterceptResult
 import press.navigation.BackPressInterceptor.InterceptResult.Ignored
-import press.navigation.doOnHeightChange
 import press.navigation.navigator
 import press.navigation.screenKey
 import press.theme.pressCascadeStyler
@@ -160,7 +160,7 @@ class EditorView @InflationInject constructor(
     )
 
     scrollView.addView(editorEditText, MATCH_PARENT, WRAP_CONTENT)
-    formattingToolbar.doOnHeightChange {
+    formattingToolbar.doOnEveryLayout {
       scrollView.setFadingEdgeLength(formattingToolbar.height * 3 / 4)
     }
     ViewCompat.setWindowInsetsAnimationCallback(
