@@ -30,12 +30,12 @@ import me.saket.press.shared.preferences.sync.setup.NewGitRepositoryUiModel
 import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.ui.models
+import me.saket.wysiwyg.style.withOpacity
 import press.extensions.doOnEditorAction
 import press.extensions.doOnTextChange
 import press.extensions.setTextAndCursor
 import press.extensions.showKeyboard
 import press.extensions.textColor
-import press.extensions.withOpacity
 import press.navigation.NotPullCollapsible
 import press.navigation.navigator
 import press.navigation.screenKey

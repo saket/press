@@ -6,6 +6,7 @@ import me.saket.wysiwyg.style.WysiwygStyle.Code
 import me.saket.wysiwyg.style.WysiwygStyle.Heading
 import me.saket.wysiwyg.style.WysiwygStyle.Link
 import me.saket.wysiwyg.style.WysiwygStyle.ThematicBreak
+import me.saket.wysiwyg.style.withOpacity
 import kotlin.DeprecationLevel.ERROR
 import kotlin.math.roundToInt
 
@@ -34,7 +35,7 @@ abstract class ThemePalette(
 
   // todo: rename to divider
   val separator: Int
-    get() = window.backgroundColor.blendWith(BLACK, ratio = 0.2f)
+    get() = BLACK.withOpacity(0.15f)
 
   val buttonNormal: Int
     get() = window.backgroundColor.blendWith(if (isLightTheme) WHITE else BLACK, ratio = 0.2f)

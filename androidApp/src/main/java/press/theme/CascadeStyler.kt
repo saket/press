@@ -7,9 +7,9 @@ import me.saket.cascade.CascadePopupMenu
 import me.saket.press.shared.theme.TextStyles
 import me.saket.press.shared.theme.ThemePalette
 import me.saket.press.shared.theme.applyStyle
+import me.saket.wysiwyg.style.withOpacity
 import press.extensions.createRippleDrawable
 import press.extensions.textColor
-import press.extensions.withOpacity
 import press.widgets.dp
 
 fun View.pressCascadeStyler(palette: ThemePalette): CascadePopupMenu.Styler {
