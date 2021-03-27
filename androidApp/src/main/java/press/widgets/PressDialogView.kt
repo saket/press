@@ -163,6 +163,7 @@ class PressDialogView(context: Context) : ContourLayout(context) {
             }
           }
           window!!.setBackgroundDrawable(null)
+          window!!.setLayout(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
         }
 
       dialogView.render(
