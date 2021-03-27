@@ -10,8 +10,6 @@ import android.widget.ProgressBar
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator
-import androidx.transition.ChangeBounds
 import androidx.transition.Fade
 import androidx.transition.TransitionManager
 import com.jakewharton.rxbinding3.view.detaches
