@@ -16,7 +16,6 @@ import press.navigation.ScreenTransition
 import press.navigation.ScreenTransition.TransitionResult
 import press.navigation.ScreenTransition.TransitionResult.Handled
 import press.navigation.ScreenTransition.TransitionResult.Ignored
-import press.navigation.hideKeyboardAndRun
 
 /**
  * Implemented by screens that support expansion of

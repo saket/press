@@ -8,13 +8,18 @@ import androidx.core.view.WindowCompat
 import press.widgets.insets.KeyboardInsetsChangeAnimator
 
 class NavigationHostLayout(activity: Activity) : FrameLayout(activity) {
+  private val insetAnimator = KeyboardInsetsChangeAnimator(this)
+
   init {
     // Press is going to handle insets on its own from this point.
     WindowCompat.setDecorFitsSystemWindows(activity.window, false)
 
-    val insetAnimator = KeyboardInsetsChangeAnimator(this)
     ViewCompat.setWindowInsetsAnimationCallback(this, insetAnimator)
     ViewCompat.setOnApplyWindowInsetsListener(this, insetAnimator)
+  }
+
+  fun applyNextInsetChangeImmediately() {
+    insetAnimator.isTemporarilyDisabled = true
   }
 
   override fun dispatchTouchEvent(ev: MotionEvent): Boolean {

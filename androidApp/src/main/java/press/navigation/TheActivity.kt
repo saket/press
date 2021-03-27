@@ -121,6 +121,7 @@ private class HideKeyboardOnScreenChange : ScreenTransition {
     goingForward: Boolean,
     onComplete: () -> Unit
   ): TransitionResult {
+    // Retain the keyboard only if the incoming screen needs it to.
     @SuppressLint("WrongConstant")
     if (toView.focusSearch(View.FOCUS_FORWARD) !is EditText) {
       toView.hideKeyboard()

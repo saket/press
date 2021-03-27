@@ -25,8 +25,13 @@ class KeyboardInsetsChangeAnimator(
   private lateinit var lastWindowInsets: WindowInsetsCompat
   private var isKeyboardAnimating = false
 
+  // Press defers applying of keyboard insets so that they can be smoothly animated.
+  // This flag is used when the insets need to be applied immediately, for example,
+  // during screen transitions.
+  var isTemporarilyDisabled = false
+
   override fun onPrepare(animation: WindowInsetsAnimationCompat) {
-    if (animation.typeMask and ime() != 0) {
+    if (!isTemporarilyDisabled && animation.typeMask and ime() != 0) {
       isKeyboardAnimating = true
     }
   }
@@ -48,7 +53,9 @@ class KeyboardInsetsChangeAnimator(
     insets: WindowInsetsCompat,
     runningAnimations: List<WindowInsetsAnimationCompat>
   ): WindowInsetsCompat {
-    layout.setPadding(insets)
+    if (isKeyboardAnimating) {
+      layout.setPadding(insets)
+    }
     return insets
   }
 
@@ -56,6 +63,7 @@ class KeyboardInsetsChangeAnimator(
     if (isKeyboardAnimating && (animation.typeMask and ime() != 0)) {
       isKeyboardAnimating = false
     }
+    isTemporarilyDisabled = false
   }
 
   private fun View.setPadding(windowInsets: WindowInsetsCompat) {
