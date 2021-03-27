@@ -11,6 +11,7 @@ import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView.State
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
@@ -43,6 +44,7 @@ import press.theme.themeAware
 import press.widgets.DividerItemDecoration
 import press.widgets.PressToolbar
 import press.widgets.SlideDownItemAnimator
+import press.widgets.insets.keyboardHeight
 
 // TODO: Rename to NoteListView
 class HomeView @InflationInject constructor(
@@ -64,7 +66,6 @@ class HomeView @InflationInject constructor(
 
   private val notesList = InboxRecyclerView(context).apply {
     id = R.id.home_notes
-    layoutManager = LinearLayoutManager(context)
     toolbar.doOnLayout {
       clipToPadding = true  // for dimming to be drawn over the toolbar.
       updatePadding(top = toolbar.bottom)
@@ -88,6 +89,16 @@ class HomeView @InflationInject constructor(
   init {
     id = R.id.home_view
     notesList.adapter = ConcatAdapter(folderAdapter, noteAdapter)
+
+    notesList.layoutManager = object : LinearLayoutManager(context) {
+      override fun calculateExtraLayoutSpace(state: State, extraLayoutSpace: IntArray) {
+        super.calculateExtraLayoutSpace(state, extraLayoutSpace)
+        // When this screen gets resized by the keyboard, we wanna continue showing items in the space covered
+        // by the keyboard. This way all the notes stay visible when the editor screen is dragged for a note
+        // item that's covered by the keyboard.
+        extraLayoutSpace[1] = maxOf(keyboardHeight() ?: 0, extraLayoutSpace[1])
+      }
+    }
 
     themeAware { palette ->
       toolbar.menu.clear()
