@@ -136,7 +136,7 @@ class GitHubService(private val args: GitHostServiceArgs) : GitHostService {
   private suspend fun HttpResponse.readErrorMessage(): String? {
     return try {
       this.readText().let { errorJson ->
-        json.decodeFromString(GithubError.serializer(), errorJson).errorMessage
+        json.decodeFromString(GithubError.serializer(), errorJson).errorMessage?.capitalize()
       }
     } catch (e: Throwable) {
       null  // Unexpected error json.
