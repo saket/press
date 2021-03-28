@@ -1,10 +1,10 @@
 package press.navigation.transitions
 
-import android.graphics.Color.BLACK
 import android.view.View
 import androidx.appcompat.widget.Toolbar
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.animation.ItemExpandAnimator
+import me.saket.inboxrecyclerview.dimming.AnimatedVisibilityColorDrawable
 import me.saket.inboxrecyclerview.dimming.DimPainter
 import me.saket.inboxrecyclerview.expander.InboxItemExpander
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
@@ -91,12 +91,17 @@ class ExpandableScreenTransition : ScreenTransition {
     this.itemExpander = itemExpander
     this.expandablePage = page
     this.itemExpandAnimator = ItemExpandAnimator.split()
-    this.dimPainter = DimPainter.listAndPage(color = BLACK, alpha = 0.25f)
+    this.dimPainter = ExpandableScreenDimPainter(
+      // These foregrounds are set in PhoneFormFactor.
+      listDrawable = parent.foreground as AnimatedVisibilityColorDrawable,
+      pageDrawable = page.foreground as AnimatedVisibilityColorDrawable
+    )
     page.pushParentToolbarOnExpand(toolbar = parent.findChild<Toolbar>()!!)
   }
 
   private fun InboxRecyclerView.detachPage(page: ExpandablePageLayout) {
     this.expandablePage = null
+    this.dimPainter = DimPainter.none()
     page.pushParentToolbarOnExpand(null)
   }
 }
