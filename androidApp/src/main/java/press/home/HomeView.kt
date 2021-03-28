@@ -5,10 +5,6 @@ import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.Menu
 import android.view.MenuItem.SHOW_AS_ACTION_IF_ROOM
-import android.view.MotionEvent
-import android.view.MotionEvent.ACTION_MOVE
-import androidx.core.view.doOnLayout
-import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView.State
@@ -66,15 +62,12 @@ class HomeView @InflationInject constructor(
 
   private val notesList = InboxRecyclerView(context).apply {
     id = R.id.home_notes
-    toolbar.doOnLayout {
-      clipToPadding = true  // for dimming to be drawn over the toolbar.
-      updatePadding(top = toolbar.bottom)
-    }
     itemAnimator = SlideDownItemAnimator()
     addItemDecoration(DividerItemDecoration())
+    //this.dimPainter = DimPainter.listAndPage(color = Color.CYAN, alpha = 0.25f)
     applyLayout(
       x = leftTo { parent.left() }.rightTo { parent.right() },
-      y = topTo { parent.top() }.bottomTo { parent.bottom() }
+      y = topTo { toolbar.bottom() }.bottomTo { parent.bottom() }
     )
   }
 
@@ -163,18 +156,6 @@ class HomeView @InflationInject constructor(
       newNoteFab.hide()
     } else {
       newNoteFab.show()
-    }
-  }
-
-  override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-    // The note list is positioned in front of the toolbar so that its items can go
-    // over it, but RV steals all touch events even if there isn't a child under to
-    // receive the event.
-    // TODO: draw dimming inside NavigationHostLayout and get rid of this hack.
-    return if (ev.action != ACTION_MOVE && ev.y > toolbar.y && ev.y < (toolbar.y + toolbar.height)) {
-      toolbar.dispatchTouchEvent(ev)
-    } else {
-      super.dispatchTouchEvent(ev)
     }
   }
 

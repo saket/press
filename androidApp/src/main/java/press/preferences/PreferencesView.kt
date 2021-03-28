@@ -3,10 +3,6 @@ package press.preferences
 import android.content.Context
 import android.text.Html
 import android.text.Html.FROM_HTML_MODE_LEGACY
-import android.view.MotionEvent
-import android.view.MotionEvent.ACTION_MOVE
-import androidx.core.view.doOnLayout
-import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.squareup.contour.ContourLayout
 import me.saket.inboxrecyclerview.InboxRecyclerView
@@ -56,16 +52,10 @@ class PreferencesView(context: Context) : ContourLayout(context), ExpandableScre
     )
     categoryList.layoutBy(
       x = matchParentX(),
-      y = matchParentY()
+      y = topTo { toolbar.bottom() }.bottomTo { parent.bottom() }
     )
 
     categoryList.adapter = categoryAdapter
-
-    // Draw InboxRecyclerView's dimming over toolbar.
-    toolbar.doOnLayout {
-      categoryList.clipToPadding = true
-      categoryList.updatePadding(top = toolbar.bottom)
-    }
   }
 
   private fun preferenceCategories(): List<PreferenceCategoryItemModel> {
@@ -87,18 +77,6 @@ class PreferencesView(context: Context) : ContourLayout(context), ExpandableScre
         category = AboutApp
       )
     )
-  }
-
-  override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-    // The note list is positioned in front of the toolbar so that its items can go
-    // over it, but RV steals all touch events even if there isn't a child under to
-    // receive the event.
-    // TODO: draw dimming inside NavigationHostLayout and get rid of this hack.
-    return if (ev.action != ACTION_MOVE && ev.y > toolbar.y && ev.y < (toolbar.y + toolbar.height)) {
-      toolbar.dispatchTouchEvent(ev)
-    } else {
-      super.dispatchTouchEvent(ev)
-    }
   }
 
   override fun createScreenExpander(): InboxItemExpander<ScreenKey> {
