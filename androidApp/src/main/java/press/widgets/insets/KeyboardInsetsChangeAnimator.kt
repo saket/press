@@ -12,10 +12,10 @@ import androidx.core.view.WindowInsetsCompat.Type.systemBars
 /**
  * Synchronizes keyboard entry & exit animation with the app's layout.
  *
- * Google's [official sample](https://github.com/android/user-interface-samples) prefers to move each UI component
- * individually by animating their translationY for maximum efficiency. Press takes a shortcut by updating the padding
- * for the entire app on every frame of the animation. This isn't ideal, but it makes the whole logic extremely simple
- * to maintain instead of doing it in every screen.
+ * Google's [official sample](https://github.com/android/user-interface-samples/tree/main/WindowInsetsAnimation)
+ * prefers to move each UI component individually by animating their translationY for maximum efficiency. Press takes
+ * a shortcut by updating the padding for the entire app on every frame of the animation. This isn't ideal, but it
+ * makes the whole logic extremely simple to maintain instead of doing it in every screen.
  */
 class KeyboardInsetsChangeAnimator(
   private val layout: ViewGroup
