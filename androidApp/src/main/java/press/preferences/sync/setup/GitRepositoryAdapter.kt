@@ -4,11 +4,16 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
 import me.saket.press.shared.preferences.sync.setup.RepoUiModel
 import me.saket.press.shared.syncer.git.service.GitRepositoryInfo
 
 class GitRepositoryAdapter : ListAdapter<RepoUiModel, RepoViewHolder>(ItemDiffer) {
   lateinit var onClick: (GitRepositoryInfo) -> Unit
+
+  init {
+    stateRestorationPolicy = PREVENT_WHEN_EMPTY
+  }
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RepoViewHolder {
     return RepoViewHolder(GitRepoRowView(parent.context))
