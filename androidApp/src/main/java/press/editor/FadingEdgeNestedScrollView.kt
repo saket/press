@@ -39,8 +39,10 @@ class FadingEdgeNestedScrollView(context: Context) : NestedScrollView(context) {
     // https://issuetracker.google.com/issues/183218283
     rectangle.offset(child.left - child.scrollX, child.top - child.scrollY)
     val delta = computeScrollDeltaToGetChildRectOnScreen(rectangle)
-    return (delta != 0).also {
+    val scroll = delta != 0
+    if (scroll) {
       smoothScrollBy(0, delta, scrollDuration)
     }
+    return scroll
   }
 }
