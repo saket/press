@@ -8,8 +8,7 @@ import android.widget.OverScroller
 import androidx.core.widget.NestedScrollView
 import press.extensions.reflect
 
-// todo: rename to EditorScrollView.
-class FadingEdgeNestedScrollView(context: Context) : NestedScrollView(context) {
+class EditorScrollView(context: Context) : NestedScrollView(context) {
   private var scrollDuration = 300  // NestedScrollView uses 250.
 
   init {
@@ -34,8 +33,9 @@ class FadingEdgeNestedScrollView(context: Context) : NestedScrollView(context) {
       return super.requestChildRectangleOnScreen(child, rectangle, immediate)
     }
 
-    // Copied from NestedScrollView. Copying this code would have not
-    // been needed if NestedScrollView#smoothScrollBy wasn't final.
+    // Copied from NestedScrollView. Copying this code would have not been
+    // needed if NestedScrollView allowed setting a default scroll duration
+    // or if smoothScrollBy() wasn't final.
     // https://issuetracker.google.com/issues/183218283
     rectangle.offset(child.left - child.scrollX, child.top - child.scrollY)
     val delta = computeScrollDeltaToGetChildRectOnScreen(rectangle)

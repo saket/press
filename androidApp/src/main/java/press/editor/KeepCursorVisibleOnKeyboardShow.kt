@@ -10,7 +10,7 @@ import androidx.core.view.WindowInsetsCompat.Type.ime
  * Scrolls to the line under the cursor when the soft keyboard is shown.
  */
 class KeepCursorVisibleOnKeyboardShow(
-  private val scrollView: FadingEdgeNestedScrollView,
+  private val scrollView: EditorScrollView,
   private val editText: EditText
 ) : WindowInsetsAnimationCompat.Callback(DISPATCH_MODE_CONTINUE_ON_SUBTREE) {
 

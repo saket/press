@@ -101,7 +101,7 @@ class EditorView @InflationInject constructor(
     }
   }
 
-  private val scrollView = FadingEdgeNestedScrollView(context).apply {
+  private val scrollView = EditorScrollView(context).apply {
     id = R.id.editor_scrollable_container
     isFillViewport = true
   }
