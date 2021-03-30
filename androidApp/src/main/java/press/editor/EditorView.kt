@@ -13,6 +13,7 @@ import android.widget.EditText
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.core.text.buildSpannedString
+import androidx.core.text.color
 import androidx.core.text.inSpans
 import androidx.core.view.ViewCompat
 import androidx.core.view.updatePaddingRelative
@@ -288,7 +289,7 @@ class EditorView @InflationInject constructor(
 
     val menuItem = when (item) {
       is ToolbarMenuAction -> {
-        menu.add(item.label).setOnMenuItemClickListener {
+        menu.add(item.coloredLabel(palette)).setOnMenuItemClickListener {
           when (item.clickEvent) {
             is CloseSubMenu -> backNavigator.navigateBack()
             else -> presenter.dispatch(item.clickEvent)
@@ -311,6 +312,18 @@ class EditorView @InflationInject constructor(
       it.iconTintList = ColorStateList.valueOf(palette.accentColor)
       it.setShowAsAction(if (menu.size() <= 2) SHOW_AS_ACTION_IF_ROOM else SHOW_AS_ACTION_NEVER)
     }
+  }
+}
+
+private fun ToolbarMenuAction.coloredLabel(palette: ThemePalette): CharSequence {
+  return if (isDangerousAction) {
+    buildSpannedString {
+      color(palette.textColorWarning) {
+        append(label)
+      }
+    }
+  } else {
+    label
   }
 }
 

@@ -58,12 +58,14 @@ sealed class EditorUiEffect {
 sealed class ToolbarMenuItem {
   abstract val label: String
   abstract val icon: ToolbarIconKind?
+  abstract val isDangerousAction: Boolean
 }
 
 data class ToolbarMenuAction(
   override val label: String,
+  override val isDangerousAction: Boolean = false,
   override val icon: ToolbarIconKind? = null,
-  val clickEvent: EditorEvent
+  val clickEvent: EditorEvent,
 ) : ToolbarMenuItem()
 
 data class ToolbarSubMenu(
@@ -71,7 +73,9 @@ data class ToolbarSubMenu(
   val subMenuTitle: String = label,
   override val icon: ToolbarIconKind? = null,
   val children: List<ToolbarMenuItem>
-) : ToolbarMenuItem()
+) : ToolbarMenuItem() {
+  override val isDangerousAction = false
+}
 
 enum class ToolbarIconKind {
   Archive,

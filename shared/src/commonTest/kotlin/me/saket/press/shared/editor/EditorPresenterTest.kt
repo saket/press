@@ -365,6 +365,7 @@ class EditorPresenterTest : BaseDatabaeTest() {
       children = listOf(
         ToolbarMenuAction(
           label = ENGLISH_STRINGS.editor.menu_delete_note_confirm,
+          isDangerousAction = true,
           clickEvent = DeleteNoteClicked,
         ),
         ToolbarMenuAction(

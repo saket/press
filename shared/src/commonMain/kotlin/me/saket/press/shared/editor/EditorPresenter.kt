@@ -19,7 +19,6 @@ import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.publish
 import com.badoo.reaktive.observable.take
 import com.badoo.reaktive.observable.takeUntil
-import com.badoo.reaktive.observable.takeWhile
 import com.badoo.reaktive.observable.withLatestFrom
 import com.badoo.reaktive.observable.wrap
 import me.saket.press.PressDatabase
@@ -265,6 +264,7 @@ class EditorPresenter(
             children = listOf(
               ToolbarMenuAction(
                 label = strings.editor.menu_delete_note_confirm,
+                isDangerousAction = true,
                 clickEvent = DeleteNoteClicked,
               ),
               ToolbarMenuAction(

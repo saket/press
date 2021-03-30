@@ -10,6 +10,7 @@ private val COLOR_GHOST = "#C2C3C7".parseColor()
 private val COLOR_ANAKIWA = "#8BE8FD".parseColor()
 private val COLOR_PERFUME = "#CCAEF9".parseColor()
 private val COLOR_PERFUME_TRANSLUCENT = "#7FC9B0FF".parseColor()
+private val VIVID_TANGERINE = "#FF9580".parseColor()
 
 object DraculaThemePalette : ThemePalette(
   isLightTheme = false,
@@ -36,5 +37,6 @@ object DraculaThemePalette : ThemePalette(
   textColorPrimary = COLOR_WHITE,
   textColorSecondary = COLOR_GHOST,
   textColorHint = "#97999F".parseColor(),
+  textColorWarning = VIVID_TANGERINE,
   fabColor = COLOR_ANAKIWA
 )
