@@ -320,13 +320,11 @@ class EditorPresenter(
 
     return copyClicks.withLatestFrom(noteChanges)
       .observeOn(schedulers.io)
-      .consumeOnNext { (format, note) ->
-        val formattedText = format.generateFrom(note)
+      .consumeOnNext { (format, noteContent) ->
         val exhaustive = when (format) {
-          Html, RichText -> clipboard.copyRichText(formattedText)
-          Markdown -> clipboard.copyPlainText(formattedText)
+          Html, RichText -> clipboard.copyRichText(markdownParser.renderHtml(noteContent))
+          Markdown -> clipboard.copyPlainText(noteContent)
         }
-
         args.onEffect(ShowToast(strings.editor.note_copied))
       }
   }
@@ -339,11 +337,10 @@ class EditorPresenter(
 
     return shareClicks.withLatestFrom(noteChanges)
       .observeOn(schedulers.io)
-      .consumeOnNext { (format, note) ->
-        val formattedText = format.generateFrom(note)
+      .consumeOnNext { (format, noteContent) ->
         val exhaustive = when (format) {
-          Html, RichText -> intentLauncher.shareRichText(formattedText)
-          Markdown -> intentLauncher.sharePlainText(formattedText)
+          Html, RichText -> intentLauncher.shareRichText(markdownParser.renderHtml(noteContent))
+          Markdown -> intentLauncher.sharePlainText(noteContent)
         }
       }
   }
@@ -400,13 +397,6 @@ class EditorPresenter(
         noteQueries.markAsPendingDeletion(note.id)  // Will get deleted on next sync.
         args.navigator.goBack()
       }
-  }
-
-  private fun TextFormat.generateFrom(noteContent: String): String {
-    return when (this) {
-      Markdown -> noteContent
-      Html, RichText -> markdownParser.renderHtml(noteContent)
-    }
   }
 
   private fun Observable<EditorEvent>.autoSaveContent(noteStream: Observable<Note>): Observable<EditorUiModel> {
