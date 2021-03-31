@@ -1,5 +1,6 @@
 package me.saket.press.shared.editor
 
+import app.cash.exhaustive.Exhaustive
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.completable.andThen
 import com.badoo.reaktive.completable.completableFromFunction
@@ -321,7 +322,8 @@ class EditorPresenter(
     return copyClicks.withLatestFrom(noteChanges)
       .observeOn(schedulers.io)
       .consumeOnNext { (format, noteContent) ->
-        val exhaustive = when (format) {
+        @Exhaustive
+        when (format) {
           Html, RichText -> clipboard.copyRichText(markdownParser.renderHtml(noteContent))
           Markdown -> clipboard.copyPlainText(noteContent)
         }
@@ -338,7 +340,8 @@ class EditorPresenter(
     return shareClicks.withLatestFrom(noteChanges)
       .observeOn(schedulers.io)
       .consumeOnNext { (format, noteContent) ->
-        val exhaustive = when (format) {
+        @Exhaustive
+        when (format) {
           Html, RichText -> intentLauncher.shareRichText(markdownParser.renderHtml(noteContent))
           Markdown -> intentLauncher.sharePlainText(noteContent)
         }

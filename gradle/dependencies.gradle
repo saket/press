@@ -203,6 +203,10 @@ buildscript {
     ],
     'cascade': "me.saket.cascade:cascade:$versions.cascade",
     'korio': "com.soywiz.korlibs.korio:korio:$versions.korio",
-    'flow': "com.squareup.flow:flow:1.0.0-alpha3"
+    'flow': "com.squareup.flow:flow:1.0.0-alpha3",
+    'exhaustive': [
+      gradlePlugin: "app.cash.exhaustive:exhaustive-gradle:$versions.exhaustive",
+      annotation: "app.cash.exhaustive:exhaustive-annotation:$versions.exhaustive"
+    ],
   ]
 }

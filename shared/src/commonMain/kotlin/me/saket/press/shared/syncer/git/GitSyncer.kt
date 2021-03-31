@@ -1,5 +1,6 @@
 package me.saket.press.shared.syncer.git
 
+import app.cash.exhaustive.Exhaustive
 import co.touchlab.stately.concurrency.AtomicBoolean
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.combineLatest
@@ -124,6 +125,7 @@ class GitSyncer(
         lastOp.onNext(Idle)
 
       } catch (e: Throwable) {
+        @Exhaustive
         when (git.tryRecovering(e)) {
           Recovered -> log("Failed with a known error. Will retry later. ${e.stackTraceToString()}")
           NetworkError -> log("Network error. Will retry later.")
@@ -132,7 +134,7 @@ class GitSyncer(
             log("Auth failed. Deploy key was likely revoked. Disabling sync. ${e.stackTraceToString()}")
             disable()
           }
-        }.exhaustive
+        }
 
         lastOp.onNext(Failed)
         loggers.onSyncComplete()
@@ -689,6 +691,3 @@ private fun List<GitTreeDiff.Change>.filterNoteChanges() = filter { it.isNoteCha
 fun <T> List<T>.zipWithNext(initial: T): List<Pair<T, T>> {
   return (listOf(initial) + this).zipWithNext()
 }
-
-private val Unit.exhaustive: Unit
-  get() = this

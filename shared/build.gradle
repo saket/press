@@ -6,6 +6,7 @@ apply plugin: "org.jetbrains.kotlin.native.cocoapods"
 apply plugin: "com.codingfeline.buildkonfig"
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'org.jlleitschuh.gradle.ktlint'
+apply plugin: 'app.cash.exhaustive'
 
 android {
   compileSdkVersion versions.compileSdk
@@ -64,6 +65,7 @@ kotlin {
         implementation deps.kotlinx.serialization
         implementation (deps.kotlinx.coroutines) { force = true }
         implementation deps.korio
+        implementation deps.exhaustive.annotation
       }
     }
     commonTest {
