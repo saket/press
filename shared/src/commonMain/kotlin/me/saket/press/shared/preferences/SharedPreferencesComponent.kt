@@ -1,6 +1,6 @@
 package me.saket.press.shared.preferences
 
-import com.russhwolf.settings.ExperimentalListener
+import com.russhwolf.settings.ExperimentalSettingsApi
 import com.russhwolf.settings.ObservableSettings
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
@@ -84,7 +84,7 @@ class SharedPreferencesComponent {
     }
   }
 
-  @OptIn(ExperimentalListener::class)
+  @OptIn(ExperimentalSettingsApi::class)
   private fun gitUserSetting(settings: ObservableSettings, json: Json): Setting<GitIdentity> {
     return Setting.create(
       settings = settings,
