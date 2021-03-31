@@ -2,16 +2,14 @@ package press.editor
 
 import android.text.InputFilter
 import android.text.Selection
-import android.text.SpannableStringBuilder
 import android.text.Spanned
-import android.widget.EditText
 import me.saket.wysiwyg.formatting.AutoFormatOnEnterPress
 import me.saket.wysiwyg.formatting.TextSelection
 
 /**
  * Detects presence of a new line character when the text is changed. This isn't ideal and it'd be great if Press
- * could simply rely on ACTION_ENTER ime events, but the keyboard world on Android is strange place where there are
- * no contracts and they can do whatever they feel like.
+ * could simply rely on ACTION_ENTER ime events, but the keyboard world on Android is a strange place where there
+ * are no contracts and keyboards can do whatever they feel like.
  */
 class FormatMarkdownOnEnterPress(private val view: MarkdownEditText) : InputFilter {
   var ignoreNextFilter = false
@@ -35,23 +33,21 @@ class FormatMarkdownOnEnterPress(private val view: MarkdownEditText) : InputFilt
     val destLength = dend - dstart
     val wasNewLineEntered = sourceLength - destLength == 1 && source.endsWith("\n")
 
-    // Return null to accept this text change.
-    return null.also {
-      if (wasNewLineEntered) {
+    if (wasNewLineEntered) {
+      val replacement = AutoFormatOnEnterPress.onEnter(
+        textBeforeEnter = dest,
+        cursorBeforeEnter = TextSelection.cursor(Selection.getSelectionStart(dest))
+      )
+      if (replacement != null) {
+        // Can't change the text here so will have to post this to the end of the View's queue.
         view.post {
           ignoreNextFilter = true
-          replaceTextOnEnterPress(view, dest)
+          view.setTextWithoutBustingUndoHistory(replacement.replacement, replacement.newSelection)
         }
       }
     }
-  }
 
-  private fun replaceTextOnEnterPress(view: MarkdownEditText, textBeforeEnter: Spanned) {
-    val replacement = AutoFormatOnEnterPress.onEnter(
-      textBeforeEnter = textBeforeEnter,
-      cursorBeforeEnter = TextSelection.cursor(Selection.getSelectionStart(textBeforeEnter))
-    ) ?: return
-
-    view.setTextWithoutBustingUndoHistory(replacement.replacement, replacement.newSelection)
+    // Return null to accept this text change.
+    return null
   }
 }
