@@ -49,6 +49,7 @@ class EditorFormattingToolbar(
   }
 
   init {
+    isHorizontalScrollBarEnabled = false
     isFillViewport = true
     clipToPadding = false
     updatePadding(horizontal = dp(12))
