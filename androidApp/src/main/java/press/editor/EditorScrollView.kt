@@ -8,7 +8,8 @@ import android.widget.OverScroller
 import androidx.core.widget.NestedScrollView
 import press.extensions.reflect
 
-class EditorScrollView(context: Context) : NestedScrollView(context) {
+// NestedScrollView needs a default style because https://issuetracker.google.com/issues/183986650.
+class EditorScrollView(context: Context) : NestedScrollView(context, null, android.R.attr.scrollViewStyle) {
   private var scrollDuration = 300  // NestedScrollView uses 250.
 
   init {
