@@ -5,6 +5,7 @@ import android.graphics.Color.BLACK
 import android.view.View
 import android.view.animation.PathInterpolator
 import me.saket.inboxrecyclerview.dimming.AnimatedVisibilityColorDrawable
+import me.saket.inboxrecyclerview.page.PageCollapseEligibilityHapticFeedback
 import me.saket.inboxrecyclerview.page.StandaloneExpandablePageLayout
 import me.saket.press.shared.home.HomeScreenKey
 import me.saket.press.shared.ui.ScreenKey
@@ -58,6 +59,7 @@ class PhoneFormFactor(private val viewFactories: ViewFactories) : FormFactor {
       animationInterpolator = PathInterpolator(0.5f, 0f, 0f, 1f)
       animationDurationMillis = SCREEN_TRANSITION_DURATION
       contentOpacityWhenCollapsed = 0f
+      addOnPullListener(PageCollapseEligibilityHapticFeedback(this))
 
       onPageRelease = { collapseEligible ->
         if (collapseEligible) {
