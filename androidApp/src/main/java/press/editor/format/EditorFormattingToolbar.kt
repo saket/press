@@ -3,6 +3,8 @@ package press.editor.format
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM
 import android.view.Gravity.CENTER
+import android.view.HapticFeedbackConstants
+import android.view.HapticFeedbackConstants.LONG_PRESS
 import android.view.View
 import android.widget.FrameLayout.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout.LayoutParams.WRAP_CONTENT
@@ -159,6 +161,7 @@ class EditorFormattingToolbar(
     }
 
     button.setOnClickListener {
+      button.performHapticFeedback(LONG_PRESS)
       action.onClick(button)
     }
     button.themeAware { palette ->
