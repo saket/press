@@ -32,6 +32,7 @@ fun Assert<Iterable<*>?>.containsOnly(vararg elements: Any?) = given { actual ->
         append("\n\nExtra elements found:")
         notInExpected.appendFlatString(this)
       }
+      append("\n------\n")
     }
   )
 }

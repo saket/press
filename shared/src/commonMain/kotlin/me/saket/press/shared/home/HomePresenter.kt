@@ -3,6 +3,7 @@ package me.saket.press.shared.home
 import com.badoo.reaktive.completable.andThen
 import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.observable.Observable
+import com.badoo.reaktive.observable.ObservableWrapper
 import com.badoo.reaktive.observable.combineLatest
 import com.badoo.reaktive.observable.flatMapCompletable
 import com.badoo.reaktive.observable.map
@@ -12,6 +13,8 @@ import com.badoo.reaktive.observable.observableOf
 import com.badoo.reaktive.observable.observableOfEmpty
 import com.badoo.reaktive.observable.observeOn
 import com.badoo.reaktive.observable.ofType
+import com.badoo.reaktive.observable.publish
+import com.badoo.reaktive.observable.switchMap
 import com.badoo.reaktive.observable.wrap
 import me.saket.press.PressDatabase
 import me.saket.press.shared.db.NoteId
@@ -21,6 +24,7 @@ import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLD
 import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.editor.PreSavedNoteId
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
+import me.saket.press.shared.home.HomeEvent.SearchTextChanged
 import me.saket.press.shared.keyboard.KeyboardShortcuts
 import me.saket.press.shared.keyboard.KeyboardShortcuts.Companion.newNote
 import me.saket.press.shared.localization.Strings
@@ -47,8 +51,11 @@ class HomePresenter(
   override fun defaultUiModel() =
     HomeUiModel(rows = emptyList(), title = "")
 
-  override fun models() =
-    merge(populateNotes(), openNewNoteScreen()).wrap()
+  override fun models(): ObservableWrapper<HomeUiModel> {
+    return viewEvents().publish { events ->
+      merge(populateNotes(events), openNewNoteScreen())
+    }.wrap()
+  }
 
   private fun openNewNoteScreen(): Observable<HomeUiModel> {
     return viewEvents().ofType<NewNoteClicked>()
@@ -75,7 +82,7 @@ class HomePresenter(
       .andThen(observableOfEmpty())
   }
 
-  private fun populateNotes(): Observable<HomeUiModel> {
+  private fun populateNotes(events: Observable<HomeEvent>): Observable<HomeUiModel> {
     val folderId = args.screenKey.folder
 
     val screenTitle = if (folderId != null) {
@@ -87,35 +94,53 @@ class HomePresenter(
       observableOf(strings.common.app_name)
     }
 
-    val folderModels = database.folderQueries.nonEmptyFoldersUnder(folderId)
-      .asObservable(schedulers.io)
-      .mapToList()
-      .mapIterable { folder ->
-        HomeUiModel.Folder(
-          id = folder.id,
-          title = folder.name
-        )
+    return events.ofType<SearchTextChanged>().publish { searchTexts ->
+      val folderModels = searchTexts.switchMap { (searchText) ->
+        if (searchText.isBlank()) {
+          database.folderQueries.nonEmptyFoldersUnder(folderId)
+            .asObservable(schedulers.io)
+            .mapToList()
+            .mapIterable { folder ->
+              HomeUiModel.Folder( // todo: avoid double mapping from cursors.
+                id = folder.id,
+                title = folder.name
+              )
+            }
+        } else {
+          observableOf(emptyList())
+        }
       }
 
-    val noteModels = when {
-      args.includeBlankNotes -> noteQueries.visibleNotesInFolder(folderId)
-      else -> noteQueries.visibleNonEmptyNotesInFolder(folderId)
-    }.asObservable(schedulers.io)
-      .mapToList()
-      .mapIterable { note ->
-        val (heading, body) = HeadingAndBody.parse(note.content)
-        HomeUiModel.Note(
-          id = note.id,
-          title = heading,
-          body = body
-        )
+      val noteModels = searchTexts.switchMap { (searchText) ->
+        // todo: move filtering of empty notes back to kotlin to clean up this mess.
+        val query = when (args.screenKey.folder) {
+          null -> when {
+            args.includeBlankNotes -> noteQueries.visibleNotes(searchText)
+            else -> noteQueries.visibleNonEmptyNotes(searchText)
+          }
+          else -> when {
+            args.includeBlankNotes -> noteQueries.visibleNotesInFolder(folderId, searchText)
+            else -> noteQueries.visibleNonEmptyNotesInFolder(folderId, searchText)
+          }
+        }
+        query.asObservable(schedulers.io)
+          .mapToList()
+          .mapIterable { note ->
+            val (heading, body) = HeadingAndBody.parse(note.content)
+            HomeUiModel.Note(
+              id = note.id,
+              title = heading,
+              body = body
+            )
+          }
       }
 
-    return combineLatest(screenTitle, folderModels, noteModels) { title, folders, notes ->
-      HomeUiModel(
-        title = title,
-        rows = folders + notes
-      )
+      return@publish combineLatest(screenTitle, folderModels, noteModels) { title, folders, notes ->
+        HomeUiModel(
+          title = title,
+          rows = folders + notes
+        )
+      }
     }
   }
 

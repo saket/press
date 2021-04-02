@@ -26,7 +26,9 @@ class NoteQueriesTest : BaseDatabaeTest() {
       fakeNote("#  "),
     )
 
-    val visibleNotes = noteQueries.visibleNonEmptyNotesInFolder(folderId = null).executeAsList().map { it.content }
+    val visibleNotes = noteQueries.visibleNonEmptyNotesInFolder(folderId = null, searchText = "")
+      .executeAsList()
+      .map { it.content }
     assertThat(visibleNotes).containsOnly("Note 1")
   }
 

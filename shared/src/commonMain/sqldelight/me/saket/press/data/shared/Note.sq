@@ -48,13 +48,28 @@ WHERE isPendingDeletion IS 0 AND trim(content) != '' AND trim(content) != '#';
 visibleNonEmptyNotesInFolder:
 SELECT *
 FROM visibleNonEmptyNotes
-WHERE folderId = ?
+WHERE folderId = ? AND (content LIKE ('%' || :searchText || '%') OR trim(:searchText) = '')
+ORDER BY updatedAt DESC;
+
+visibleNonEmptyNotes:
+SELECT *
+FROM visibleNonEmptyNotes
+WHERE (content LIKE ('%' || :searchText || '%') OR trim(:searchText) = '')
 ORDER BY updatedAt DESC;
 
 visibleNotesInFolder:
 SELECT *
 FROM note
-WHERE folderId = ? AND isPendingDeletion IS 0
+WHERE folderId = ?
+  AND isPendingDeletion IS 0
+  AND (content LIKE ('%' || :searchText || '%') OR trim(:searchText) = '')
+ORDER BY updatedAt DESC;
+
+visibleNotes:
+SELECT *
+FROM note
+WHERE isPendingDeletion IS 0
+  AND (content LIKE ('%' || :searchText || '%') OR trim(:searchText) = '')
 ORDER BY updatedAt DESC;
 
 archivedNotes:

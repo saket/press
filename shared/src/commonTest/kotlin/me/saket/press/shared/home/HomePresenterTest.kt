@@ -5,7 +5,6 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import com.badoo.reaktive.observable.map
 import com.badoo.reaktive.test.observable.test
-import com.soywiz.klock.hours
 import me.saket.press.shared.FakeSchedulers
 import me.saket.press.shared.containsOnly
 import me.saket.press.shared.db.BaseDatabaeTest
@@ -18,6 +17,7 @@ import me.saket.press.shared.editor.PreSavedNoteId
 import me.saket.press.shared.fakedata.fakeFolder
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
+import me.saket.press.shared.home.HomeEvent.SearchTextChanged
 import me.saket.press.shared.home.HomePresenter.Args
 import me.saket.press.shared.home.HomeUiModel.Note
 import me.saket.press.shared.keyboard.KeyboardShortcuts
@@ -63,26 +63,17 @@ class HomePresenterTest : BaseDatabaeTest() {
     val archive = fakeFolder("archive")
     folderQueries.insert(archive)
 
-    val witcher3 = fakeNote(
-      content = "The Witcher 3 Wild Hunt",
-      createdAt = clock.nowUtc(),
-      updatedAt = clock.nowUtc() + 2.hours
-    )
-    val nicolasCage = fakeNote(
-      content = "# Nicolas Cage\nOur national treasure",
-      createdAt = clock.nowUtc(),
-      updatedAt = clock.nowUtc()
-    )
-    val uncharted = fakeNote(
-      content = "# Uncharted\nThe Lost Legacy",
-      folderId = archive.id
-    )
+    val witcher3 = fakeNote(content = "The Witcher 3 Wild Hunt")
+    val nicolasCage = fakeNote(content = "# Nicolas Cage\nOur national treasure")
+    val uncharted = fakeNote(content = "# Uncharted\nThe Lost Legacy", folderId = archive.id)
     noteQueries.testInsert(nicolasCage, witcher3, uncharted)
 
-    val models = presenter().models()
+    val presenter = presenter()
+    val models = presenter.models()
       .map { it.rows }
       .test(rxRule)
 
+    presenter.dispatch(SearchTextChanged(text = ""))
     assertThat(models.popValue()).containsOnly(
       HomeUiModel.Folder(
         id = archive.id,
@@ -106,24 +97,17 @@ class HomePresenterTest : BaseDatabaeTest() {
     val games = fakeFolder("games", parent = archive.id)
     folderQueries.insert(archive, games)
 
-    val nicolasCage = fakeNote(
-      content = "# Nicolas Cage\nOur national treasure",
-      folderId = null
-    )
-    val witcher3 = fakeNote(
-      content = "# The Witcher 3\nWild Hunt",
-      folderId = archive.id
-    )
-    val uncharted = fakeNote(
-      content = "# Uncharted\nThe Lost Legacy",
-      folderId = games.id
-    )
+    val nicolasCage = fakeNote(content = "# Nicolas Cage\nOur national treasure", folderId = null)
+    val witcher3 = fakeNote(content = "# The Witcher 3\nWild Hunt", folderId = archive.id)
+    val uncharted = fakeNote(content = "# Uncharted\nThe Lost Legacy", folderId = games.id)
     noteQueries.testInsert(nicolasCage, witcher3, uncharted)
 
-    val models = presenter(folder = archive.id).models()
+    val presenter = presenter(folder = archive.id)
+    val models = presenter.models()
       .map { it.rows }
       .test(rxRule)
 
+    presenter.dispatch(SearchTextChanged(text = ""))
     assertThat(models.popValue()).containsOnly(
       HomeUiModel.Folder(
         id = games.id,
@@ -137,6 +121,41 @@ class HomePresenterTest : BaseDatabaeTest() {
     )
   }
 
+  @Test fun `populate filtered notes when searching in the root folder`() {
+    val games = fakeFolder("games")
+    val archive = fakeFolder("archive")
+    folderQueries.insert(games, archive)
+
+    val uncharted = fakeNote(content = "# Uncharted")
+    val gambling = fakeNote(content = "# Gambling")
+    val archivedWitcher = fakeNote(content = "# The Archived Witcher 3 (game)", folderId = archive.id)
+    noteQueries.testInsert(uncharted, gambling, archivedWitcher)
+
+    val presenter = presenter(folder = null)
+    val models = presenter.models()
+      .map { it.rows }
+      .test(rxRule)
+
+    // When searching in the folder, include results from all nested folders too.
+    presenter.dispatch(SearchTextChanged(text = "gam"))
+    assertThat(models.popValue()).containsOnly(
+      Note(
+        id = gambling.id,
+        title = "Gambling",
+        body = ""
+      ),
+      Note(
+        id = archivedWitcher.id,
+        title = "The Archived Witcher 3 (game)",
+        body = ""
+      )
+    )
+  }
+
+  @Test fun `populate filtered notes when searching in a folder that contains sub-folders`() {
+    // TODO.
+  }
+
   @Test fun `filter out empty notes if requested`() {
     noteQueries.testInsert(
       fakeNote(id = NoteId.generate(), content = "# Non-empty note"),
@@ -144,13 +163,13 @@ class HomePresenterTest : BaseDatabaeTest() {
       fakeNote(id = NoteId.generate(), content = "")
     )
 
-    presenter(includeEmptyNotes = false)
-      .models()
-      .test()
-      .apply {
-        val titleAndBodies = values[0].notes.map { it.title to it.body }
-        assertThat(titleAndBodies).containsOnly("Non-empty note" to "")
-      }
+    val presenter = presenter(includeEmptyNotes = false)
+    val titlesAndBodies = presenter.models()
+      .map { model -> model.notes.map { it.title to it.body } }
+      .test(rxRule)
+
+    presenter.dispatch(SearchTextChanged(text = ""))
+    assertThat(titlesAndBodies.popValue()).containsOnly("Non-empty note" to "")
   }
 
   @Test fun `include empty notes if requested`() {
@@ -160,17 +179,17 @@ class HomePresenterTest : BaseDatabaeTest() {
       fakeNote(id = NoteId.generate(), content = "")
     )
 
-    presenter(includeEmptyNotes = true)
-      .models()
-      .test()
-      .apply {
-        val titleAndBodies = values[0].notes.map { it.title to it.body }
-        assertThat(titleAndBodies).containsOnly(
-          "Non-empty note" to "",
-          "" to "",
-          "" to ""
-        )
-      }
+    val presenter = presenter(includeEmptyNotes = true)
+    val titlesAndBodies = presenter.models()
+      .map { model -> model.notes.map { it.title to it.body } }
+      .test(rxRule)
+
+    presenter.dispatch(SearchTextChanged(text = ""))
+    assertThat(titlesAndBodies.popValue()).containsOnly(
+      "Non-empty note" to "",
+      "" to "",
+      "" to ""
+    )
   }
 
   @Test fun `open new note screen when new note is clicked`() {

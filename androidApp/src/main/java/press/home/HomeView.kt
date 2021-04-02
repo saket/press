@@ -21,6 +21,7 @@ import me.saket.press.R
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
+import me.saket.press.shared.home.HomeEvent.SearchTextChanged
 import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.home.HomePresenter.Args
 import me.saket.press.shared.home.HomeScreenKey
@@ -122,6 +123,7 @@ class HomeView @InflationInject constructor(
     newNoteFab.setOnClickListener {
       presenter.dispatch(NewNoteClicked)
     }
+    presenter.dispatch(SearchTextChanged(text = ""))
 
     Observable.merge(noteAdapter.clicks, folderAdapter.clicks)
       .throttleFirst(1.second, mainThread())
