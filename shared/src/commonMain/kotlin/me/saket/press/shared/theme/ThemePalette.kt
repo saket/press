@@ -71,35 +71,36 @@ data class MarkdownPalette(
   val thematicBreakColor: Int
 )
 
-fun WysiwygStyle.Companion.from(palette: MarkdownPalette, displayUnits: DisplayUnits) =
-  WysiwygStyle(
-    syntaxColor = palette.syntaxColor,
-    strikethroughTextColor = palette.strikethroughTextColor,
+fun ThemePalette.wysiwygStyle(displayUnits: DisplayUnits): WysiwygStyle {
+  return WysiwygStyle(
+    syntaxColor = markdown.syntaxColor,
+    strikethroughTextColor = markdown.strikethroughTextColor,
     blockQuote = BlockQuote(
-      leftBorderColor = palette.blockQuoteTextColor,
+      leftBorderColor = markdown.blockQuoteTextColor,
       leftBorderWidth = displayUnits.scaledPixels(4).roundToInt(),
       indentationMargin = displayUnits.scaledPixels(24).roundToInt(),
-      textColor = palette.blockQuoteTextColor
+      textColor = markdown.blockQuoteTextColor
     ),
     code = Code(
-      backgroundColor = palette.codeBackgroundColor,
+      backgroundColor = markdown.codeBackgroundColor,
       codeBlockMargin = displayUnits.scaledPixels(8).roundToInt()
     ),
     heading = Heading(
-      textColor = palette.headingTextColor
+      textColor = markdown.headingTextColor
     ),
     link = Link(
-      textColor = palette.linkTextColor,
-      urlColor = palette.linkUrlColor
+      textColor = markdown.linkTextColor,
+      urlColor = markdown.linkUrlColor
     ),
     list = WysiwygStyle.List(
       indentationMargin = displayUnits.scaledPixels(8).roundToInt()
     ),
     thematicBreak = ThematicBreak(
-      color = palette.thematicBreakColor,
+      color = markdown.thematicBreakColor,
       height = displayUnits.scaledPixels(4)
     )
   )
+}
 
 @Deprecated("use separator", level = ERROR, replaceWith = ReplaceWith("separator"))
 val ThemePalette.divider: Int get() = separator

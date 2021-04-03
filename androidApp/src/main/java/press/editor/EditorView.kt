@@ -62,12 +62,11 @@ import me.saket.press.shared.theme.TextStyles.mainBody
 import me.saket.press.shared.theme.TextView
 import me.saket.press.shared.theme.ThemePalette
 import me.saket.press.shared.theme.applyStyle
-import me.saket.press.shared.theme.from
+import me.saket.press.shared.theme.wysiwygStyle
 import me.saket.press.shared.ui.models
 import me.saket.wysiwyg.Wysiwyg
 import me.saket.wysiwyg.formatting.TextSelection
 import me.saket.wysiwyg.parser.node.HeadingLevel.H1
-import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.widgets.addTextChangedListener
 import press.editor.format.EditorFormattingToolbar
 import press.extensions.doOnEveryLayout
@@ -178,7 +177,7 @@ class EditorView @InflationInject constructor(
       .take(1)
       .takeUntil(detaches())
       .subscribe { palette ->
-        val wysiwygStyle = WysiwygStyle.from(palette.markdown, DisplayUnits(context))
+        val wysiwygStyle = palette.wysiwygStyle(DisplayUnits(context))
         val wysiwyg = Wysiwyg(editorEditText, wysiwygStyle)
         editorEditText.addTextChangedListener(wysiwyg.syntaxHighlighter())
       }
