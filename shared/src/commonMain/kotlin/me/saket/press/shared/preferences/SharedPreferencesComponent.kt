@@ -15,13 +15,13 @@ import me.saket.kgit.GitIdentity
 import me.saket.kgit.RealSshKeygen
 import me.saket.press.shared.di.koin
 import me.saket.press.shared.preferences.sync.SyncPreferencesPresenter
+import me.saket.press.shared.preferences.sync.setup.GitHostIntegrationPresenter
+import me.saket.press.shared.preferences.sync.setup.GitRepositoryCache
+import me.saket.press.shared.preferences.sync.setup.NewGitRepositoryPresenter
 import me.saket.press.shared.preferences.sync.stats.SyncStatsForNerdsPresenter
 import me.saket.press.shared.syncer.createJson
 import me.saket.press.shared.syncer.git.GitHost
 import me.saket.press.shared.syncer.git.GitHostAuthToken
-import me.saket.press.shared.preferences.sync.setup.GitHostIntegrationPresenter
-import me.saket.press.shared.preferences.sync.setup.GitRepositoryCache
-import me.saket.press.shared.preferences.sync.setup.NewGitRepositoryPresenter
 import me.saket.press.shared.syncer.git.service.GitHostService
 import me.saket.press.shared.syncer.git.service.GitHostServiceArgs
 import org.koin.core.parameter.parametersOf
@@ -38,8 +38,7 @@ class SharedPreferencesComponent {
 
     factory { // Note to self: this probably blocks all future <(GitHost) -> *> definitions.
       { host: GitHost ->
-        Setting.create(
-          settings = get(),
+        get<ObservableSettings>().setting(
           key = "${host.name}_auth_token",
           from = ::GitHostAuthToken,
           to = GitHostAuthToken::value,
@@ -86,8 +85,7 @@ class SharedPreferencesComponent {
 
   @OptIn(ExperimentalSettingsApi::class)
   private fun gitUserSetting(settings: ObservableSettings, json: Json): Setting<GitIdentity> {
-    return Setting.create(
-      settings = settings,
+    return settings.setting(
       key = "githost_username",
       from = { json.decodeFromString(GitIdentity.serializer(), it) },
       to = { json.encodeToString(GitIdentity.serializer(), it) },

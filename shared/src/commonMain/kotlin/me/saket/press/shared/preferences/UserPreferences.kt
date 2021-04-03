@@ -7,18 +7,15 @@ import me.saket.press.shared.theme.UiStyles.FontFamily.WORK_SANS
 
 inline class AutoCorrectEnabled(val enabled: Boolean)
 
-@OptIn(ExperimentalSettingsApi::class)
 class UserPreferences(settings: ObservableSettings) {
-  val autoCorrectEnabled = Setting.create(
-    settings = settings,
+  val autoCorrectEnabled = settings.setting(
     key = "autocorrect_enabled",
     from = { AutoCorrectEnabled(it.toBoolean()) },
     to = { it.enabled.toString() },
     defaultValue = AutoCorrectEnabled(true)
   )
 
-  val fontFamily = Setting.create(
-    settings = settings,
+  val fontFamily = settings.setting(
     key = "typeface",
     from = { FontFamily.valueOf(it) },
     to = { it.name },

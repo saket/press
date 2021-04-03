@@ -17,32 +17,30 @@ abstract class Setting<T : Any> {
   abstract fun get(): T?
   abstract fun set(value: T?)
   internal abstract fun listen(): Observable<T?>
+}
 
-  companion object {
-    fun <T : Any> create(
-      settings: ObservableSettings,
-      key: String,
-      from: (String) -> T,
-      to: (T) -> String,
-      defaultValue: T?
-    ): Setting<T> {
-      return object : Setting<T>() {
-        override fun get(): T? {
-          val saved = settings.getStringOrNull(key)
-          return if (saved != null) from(saved) else defaultValue
-        }
+fun <T : Any> ObservableSettings.setting(
+  key: String,
+  from: (String) -> T,
+  to: (T) -> String,
+  defaultValue: T?
+): Setting<T> {
+  val settings = this
+  return object : Setting<T>() {
+    override fun get(): T? {
+      val saved = settings.getStringOrNull(key)
+      return if (saved != null) from(saved) else defaultValue
+    }
 
-        override fun set(value: T?) {
-          settings[key] = if (value != null) to(value) else null
-        }
+    override fun set(value: T?) {
+      settings[key] = if (value != null) to(value) else null
+    }
 
-        override fun listen(): Observable<T?> {
-          return observable { emitter ->
-            val listener = settings.addListener(key) { emitter.onNext(get()) }
-            emitter.setCancellable { listener.deactivate() }
-            emitter.onNext(get()) // initial value.
-          }
-        }
+    override fun listen(): Observable<T?> {
+      return observable { emitter ->
+        val listener = settings.addListener(key) { emitter.onNext(get()) }
+        emitter.setCancellable { listener.deactivate() }
+        emitter.onNext(get()) // initial value.
       }
     }
   }
