@@ -26,9 +26,10 @@ abstract class ThemePalette(
   val fabColor: Int
 ) {
 
-  private companion object {
+  companion object {
     private const val BLACK = 0xFF000000.toInt()
     private const val WHITE = 0xFFFFFFFF.toInt()
+    private const val TRANSPARENT: Int = 0
   }
 
   val fabIcon: Int
@@ -42,7 +43,12 @@ abstract class ThemePalette(
     get() = window.backgroundColor.blendWith(if (isLightTheme) WHITE else BLACK, ratio = 0.2f)
 
   val buttonPressed: Int
-    get() = window.backgroundColor.blendWith(if (isLightTheme) WHITE else BLACK, ratio = 0.5f)
+    get() = pressedColor(window.backgroundColor)
+
+  fun pressedColor(normalColor: Int): Int {
+    val ratio = if (normalColor == TRANSPARENT) 0.2f else 0.5f
+    return normalColor.blendWith(if (isLightTheme) WHITE else BLACK, ratio)
+  }
 }
 
 data class WindowPalette(

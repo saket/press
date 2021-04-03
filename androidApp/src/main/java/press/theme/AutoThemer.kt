@@ -174,6 +174,7 @@ private fun themed(view: FloatingActionButton) = view.apply {
   themeAware {
     backgroundTintList = ColorStateList.valueOf(it.fabColor)
     colorFilter = PorterDuffColorFilter(it.fabIcon, SRC_ATOP)
+    rippleColor = it.pressedColor(it.fabColor)
   }
 }
 
