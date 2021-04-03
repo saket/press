@@ -1,12 +1,12 @@
-package press.preferences.lookandfeel
+package press.preferences.editor
 
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.LinearLayout
-import android.widget.LinearLayout.SHOW_DIVIDER_END
 import android.widget.LinearLayout.SHOW_DIVIDER_MIDDLE
 import android.widget.LinearLayout.VERTICAL
 import android.widget.Toast
+import androidx.core.view.updatePadding
 import androidx.core.widget.NestedScrollView
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
@@ -18,31 +18,29 @@ import press.preferences.PreferenceRowView
 import press.theme.themeAware
 import press.widgets.DividerDrawable
 import press.widgets.PressToolbar
+import press.widgets.dp
 
-class LookAndFeelPreferencesView @InflationInject constructor(
+class EditorPreferencesView @InflationInject constructor(
   @Assisted context: Context,
   @Assisted attrs: AttributeSet? = null,
   userPreferences: UserPreferences
 ) : ContourLayout(context) {
 
   private val toolbar = PressToolbar(context).apply {
-    title = context.strings().prefs.category_title_look_and_feel
+    title = context.strings().prefs.category_title_editor
   }
-
-  private val fontFamilyView = PreferenceRowView(context)
-  private val themeView = PreferenceRowView(context)
 
   private val preferenceList = LinearLayout(context).apply {
     orientation = VERTICAL
-    showDividers = SHOW_DIVIDER_MIDDLE or SHOW_DIVIDER_END
+    showDividers = SHOW_DIVIDER_MIDDLE
+    updatePadding(bottom = dp(24))
     themeAware { dividerDrawable = DividerDrawable(it.separator) }
-    addView(fontFamilyView)
-    addView(themeView)
   }
 
-  init {
-    id = R.id.lookandfeel_preferences_view
+  private val fontFamilyView = PreferenceRowView(context)
 
+  init {
+    id = R.id.editor_preferences_view
     themeAware {
       setBackgroundColor(it.window.backgroundColor)
     }
@@ -59,17 +57,12 @@ class LookAndFeelPreferencesView @InflationInject constructor(
       )
     }
 
+    preferenceList.addView(fontFamilyView)
+
     fontFamilyView.render(
       setting = userPreferences.fontFamily,
-      title = context.strings().prefs.lookandfeel_fontfamily,
+      title = context.strings().prefs.editor_fontfamily,
       subtitle = { it!!.displayName },
-      onClick = {
-        Toast.makeText(context, "Work in progress", Toast.LENGTH_SHORT).show()
-      }
-    )
-    themeView.render(
-      title = "Theme",
-      subtitle = "Dracula",
       onClick = {
         Toast.makeText(context, "Work in progress", Toast.LENGTH_SHORT).show()
       }

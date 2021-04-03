@@ -104,16 +104,17 @@ class Strings(
 
   class Preferences(
     val screen_title: String,
-    val category_title_look_and_feel: String,
-    val category_subtitle_look_and_feel: String,
+    val category_title_editor: String,
+    val category_subtitle_editor: String,
+    val category_title_theme: String,
+    val category_subtitle_theme: String,
     val category_title_sync: String,
     val category_subtitle_sync: String,
     val category_title_about_app: String,
     val category_subtitle_about_app: String,
-    val lookandfeel_fontfamily: String,
+    val editor_fontfamily: String,
     val about_playstore_link_title: String,
     val about_header_html: String,
-    val about_playstore_link_subtitle: String,
     val about_github_link_title: String,
     val about_credits_title: String,
   )
@@ -220,19 +221,20 @@ val ENGLISH_STRINGS = Strings(
   ),
   prefs = Preferences(
     screen_title = "Preferences",
-    category_title_look_and_feel = "Look & feel",
-    category_subtitle_look_and_feel = "Colors, typography and your typing experience",
+    category_title_editor = "Editor",
+    category_subtitle_editor = "Typography and spacings",
+    category_title_theme = "Theme",
+    category_subtitle_theme = "Colors and dark mode",
     category_title_sync = "Sync",
     category_subtitle_sync = "Your notes, available anywhere through git",
     category_title_about_app = "About Press",
     category_subtitle_about_app = "Send <strike>complaints</strike> kudos here",
-    lookandfeel_fontfamily = "Font family",
+    editor_fontfamily = "Font family",
 
     about_header_html = "Press is maintained by <a href=\"https://saket.me\">Saket Narayan</a>. It was created" +
       " as a result of their frustration for lack of a minimal & cross-platform markdown note taking app for " +
       "Android. Follow them <a href=\"https://twitter.com/saketme\">@saketme</a> on twitter for progress updates!",
     about_playstore_link_title = "Rate on Play Store ❤️",
-    about_playstore_link_subtitle = "<3",
     about_github_link_title = "View source on GitHub",
     about_credits_title = "Licenses & Attributes",
   )

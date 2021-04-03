@@ -22,7 +22,8 @@ data class PreferenceCategoryItemModel(
 )
 
 enum class PreferenceCategory {
-  LookAndFeel,
+  Editor,
+  Theme,
   Sync,
   AboutApp
 }

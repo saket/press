@@ -6,8 +6,9 @@ import androidx.appcompat.widget.AppCompatImageView
 import com.squareup.contour.ContourLayout
 import me.saket.press.R
 import me.saket.press.shared.preferences.PreferenceCategory.AboutApp
-import me.saket.press.shared.preferences.PreferenceCategory.LookAndFeel
+import me.saket.press.shared.preferences.PreferenceCategory.Editor
 import me.saket.press.shared.preferences.PreferenceCategory.Sync
+import me.saket.press.shared.preferences.PreferenceCategory.Theme
 import me.saket.press.shared.preferences.PreferenceCategoryItemModel
 import me.saket.press.shared.theme.TextStyles.mainTitle
 import me.saket.press.shared.theme.TextStyles.smallBody
@@ -50,7 +51,8 @@ class PreferenceCategoryRowView(context: Context) : ContourLayout(context) {
     this.model = model
     iconView.setImageResource(
       when (model.category) {
-        LookAndFeel -> R.drawable.ic_twotone_format_shapes_24
+        Editor -> R.drawable.ic_twotone_format_shapes_24
+        Theme -> R.drawable.ic_twotone_color_lens_24
         Sync -> R.drawable.ic_twotone_phonelink_24
         AboutApp -> R.drawable.ic_twotone_adb_24
       }

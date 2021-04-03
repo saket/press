@@ -10,8 +10,8 @@
   <item name="editor_textfield" type="id" />
 
   <item name="preferences_view" type="id" />
-  <item name="lookandfeel_preferences_view" type="id" />
   <item name="editor_preferences_view" type="id" />
+  <item name="theme_preferences_view" type="id" />
   <item name="aboutapp_preferences_view" type="id" />
   <item name="syncpreferences_view" type="id" />
 

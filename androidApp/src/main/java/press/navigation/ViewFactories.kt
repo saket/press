@@ -6,8 +6,9 @@ import com.squareup.inject.inflation.ViewFactory
 import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.home.HomeScreenKey
 import me.saket.press.shared.preferences.PreferenceCategory.AboutApp
-import me.saket.press.shared.preferences.PreferenceCategory.LookAndFeel
+import me.saket.press.shared.preferences.PreferenceCategory.Editor
 import me.saket.press.shared.preferences.PreferenceCategory.Sync
+import me.saket.press.shared.preferences.PreferenceCategory.Theme
 import me.saket.press.shared.preferences.PreferenceCategoryScreenKey
 import me.saket.press.shared.preferences.PreferencesScreenKey
 import me.saket.press.shared.preferences.sync.setup.GitHostIntegrationScreenKey
@@ -18,11 +19,12 @@ import press.editor.EditorView
 import press.home.HomeView
 import press.preferences.PreferencesView
 import press.preferences.about.AboutAppPreferencesView
-import press.preferences.lookandfeel.LookAndFeelPreferencesView
+import press.preferences.editor.EditorPreferencesView
 import press.preferences.sync.SyncPreferencesView
 import press.preferences.sync.setup.GitHostIntegrationView
 import press.preferences.sync.setup.NewGitRepositoryView
 import press.preferences.sync.stats.SyncStatsForNerdsView
+import press.preferences.theme.ThemePreferencesView
 import javax.inject.Inject
 import kotlin.reflect.KClass
 
@@ -42,7 +44,8 @@ class ViewFactories @Inject constructor(
       is PreferencesScreenKey -> PreferencesView(context)
       is PreferenceCategoryScreenKey -> {
         when (screen.category) {
-          LookAndFeel -> generate(context, LookAndFeelPreferencesView::class)
+          Editor -> generate(context, EditorPreferencesView::class)
+          Theme -> generate(context, ThemePreferencesView::class)
           Sync -> generate(context, SyncPreferencesView::class)
           AboutApp -> generate(context, AboutAppPreferencesView::class)
         }
