@@ -11,6 +11,7 @@ import kotlin.DeprecationLevel.ERROR
 import kotlin.math.roundToInt
 
 abstract class ThemePalette(
+  val name: String,
   val isLightTheme: Boolean,
   val primaryColor: Int,
   val primaryColorDark: Int,
