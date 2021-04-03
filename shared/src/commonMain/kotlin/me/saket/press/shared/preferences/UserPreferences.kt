@@ -1,6 +1,7 @@
 package me.saket.press.shared.preferences
 
 import com.russhwolf.settings.ObservableSettings
+import me.saket.press.shared.theme.ThemeSwitchingMode
 import me.saket.press.shared.theme.UiStyles.FontFamily
 import me.saket.press.shared.theme.UiStyles.FontFamily.WORK_SANS
 
@@ -19,5 +20,12 @@ class UserPreferences(settings: ObservableSettings) {
     from = { FontFamily.valueOf(it) },
     to = { it.name },
     defaultValue = WORK_SANS
+  )
+
+  val themeSwitchingMode = settings.setting(
+    key = "theme_switching_mode",
+    from = { ThemeSwitchingMode.valueOf(it) },
+    to = { it.name },
+    defaultValue = ThemeSwitchingMode.MatchSystem
   )
 }

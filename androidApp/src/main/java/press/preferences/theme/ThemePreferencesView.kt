@@ -40,6 +40,8 @@ class ThemePreferencesView @InflationInject constructor(
   }
 
   private val darkModeView = PreferenceRowView(context)
+  private val lightThemePaletteView = ThemePalettePickerView(context)
+  private val darkThemePaletteView = ThemePalettePickerView(context)
 
   init {
     id = R.id.theme_preferences_view
@@ -61,14 +63,26 @@ class ThemePreferencesView @InflationInject constructor(
 
     preferenceList.let {
       it.addView(darkModeView)
+      it.addView(lightThemePaletteView)
+      it.addView(darkThemePaletteView)
     }
 
     darkModeView.render(
-      title = "Dark mode",
-      subtitle = "Match system",
+      title = "Theme mode",
+      subtitle = "Auto dark (match system)",
       onClick = {
         Toast.makeText(context, "Work in progress", Toast.LENGTH_SHORT).show()
       }
+    )
+    lightThemePaletteView.render(
+      title = "Light theme",
+      palettes = ThemePalette.lightThemePalettes(),
+      selected = DraculaThemePalette
+    )
+    darkThemePaletteView.render(
+      title = "Dark theme",
+      palettes = ThemePalette.darkThemePalettes(),
+      selected = DraculaThemePalette
     )
   }
 }

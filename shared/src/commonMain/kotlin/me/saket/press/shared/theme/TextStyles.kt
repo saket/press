@@ -28,4 +28,11 @@ object TextStyles {
     textSize = 14f,
     lineSpacingMultiplier = 1.25f
   )
+
+  // todo: find a better name?
+  val tinyBody = UiStyles.Text(
+    font = WORK_SANS * REGULAR,
+    textSize = 12f,
+    lineSpacingMultiplier = 1.25f
+  )
 }

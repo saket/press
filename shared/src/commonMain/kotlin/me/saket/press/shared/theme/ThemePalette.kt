@@ -31,6 +31,14 @@ abstract class ThemePalette(
     private const val BLACK = 0xFF000000.toInt()
     private const val WHITE = 0xFFFFFFFF.toInt()
     private const val TRANSPARENT: Int = 0
+
+    fun lightThemePalettes(): List<ThemePalette> {
+      return listOf(DraculaThemePalette, DraculaThemePalette, DraculaThemePalette, DraculaThemePalette)
+    }
+
+    fun darkThemePalettes(): List<ThemePalette> {
+      return listOf(DraculaThemePalette, DraculaThemePalette, DraculaThemePalette, DraculaThemePalette)
+    }
   }
 
   val fabIcon: Int
