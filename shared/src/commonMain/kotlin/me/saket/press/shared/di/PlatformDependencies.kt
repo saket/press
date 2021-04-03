@@ -1,6 +1,5 @@
 package me.saket.press.shared.di
 
-import com.russhwolf.settings.ExperimentalSettingsApi
 import com.russhwolf.settings.ObservableSettings
 import com.squareup.sqldelight.db.SqlDriver
 import io.ktor.client.engine.HttpClientEngine
@@ -14,7 +13,6 @@ import org.koin.core.scope.Scope
 /**
  * @param settings for storing user preferences.
  */
-@OptIn(ExperimentalSettingsApi::class)
 data class PlatformDependencies(
   val settings: () -> ObservableSettings,
   val sqlDriver: (SqlDriver.Schema) -> SqlDriver,

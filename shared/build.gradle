@@ -121,6 +121,7 @@ kotlin {
       languageSettings {
         enableLanguageFeature('InlineClasses')
         useExperimentalAnnotation('kotlin.Experimental')
+        useExperimentalAnnotation('com.russhwolf.settings.ExperimentalSettingsApi')
       }
     }
   }

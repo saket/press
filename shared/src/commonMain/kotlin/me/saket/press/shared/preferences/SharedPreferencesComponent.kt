@@ -1,6 +1,5 @@
 package me.saket.press.shared.preferences
 
-import com.russhwolf.settings.ExperimentalSettingsApi
 import com.russhwolf.settings.ObservableSettings
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
@@ -83,7 +82,6 @@ class SharedPreferencesComponent {
     }
   }
 
-  @OptIn(ExperimentalSettingsApi::class)
   private fun gitUserSetting(settings: ObservableSettings, json: Json): Setting<GitIdentity> {
     return settings.setting(
       key = "githost_username",

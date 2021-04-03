@@ -1,6 +1,5 @@
 package me.saket.press.shared.preferences
 
-import com.russhwolf.settings.ExperimentalSettingsApi
 import com.russhwolf.settings.ObservableSettings
 import me.saket.press.shared.theme.UiStyles.FontFamily
 import me.saket.press.shared.theme.UiStyles.FontFamily.WORK_SANS

@@ -3,7 +3,6 @@ package me.saket.press.shared.preferences
 import com.badoo.reaktive.base.setCancellable
 import com.badoo.reaktive.observable.Observable
 import com.badoo.reaktive.observable.observable
-import com.russhwolf.settings.ExperimentalSettingsApi
 import com.russhwolf.settings.ObservableSettings
 import com.russhwolf.settings.set
 
@@ -12,7 +11,6 @@ import com.russhwolf.settings.set
  * store, letting usages fetch and save its value without requiring to know about
  * the setting key.
  */
-@OptIn(ExperimentalSettingsApi::class)
 abstract class Setting<T : Any> {
   abstract fun get(): T?
   abstract fun set(value: T?)
