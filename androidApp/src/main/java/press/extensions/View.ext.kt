@@ -21,7 +21,6 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
-import androidx.core.view.doOnLayout
 import androidx.core.view.forEach
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
@@ -110,11 +109,18 @@ fun ViewFlipper.setDisplayedChild(child: View) {
 fun createRippleDrawable(
   palette: ThemePalette,
   background: Int = Color.TRANSPARENT,
-  borderless: Boolean = false
+  cornerRadius: Float = 0f
 ): RippleDrawable {
-  val shape = if (borderless) null else PaintDrawable(background)
-  val mask = if (borderless) null else PaintDrawable(Color.BLACK)
-  return RippleDrawable(ColorStateList.valueOf(palette.buttonPressed), shape, mask)
+  val shape = PaintDrawable(background).apply { setCornerRadius(cornerRadius) }
+  val mask = PaintDrawable(Color.BLACK).apply { setCornerRadius(cornerRadius) }
+  return RippleDrawable(ColorStateList.valueOf(palette.pressedColor(background)), shape, mask)
+}
+
+fun createBorderlessRippleDrawable(
+  palette: ThemePalette,
+  background: Int = Color.TRANSPARENT,
+): RippleDrawable {
+  return RippleDrawable(ColorStateList.valueOf(palette.pressedColor(background)), null, null)
 }
 
 inline fun ViewGroup.onViewAdds(crossinline action: (View) -> Unit) {
