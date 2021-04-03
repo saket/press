@@ -1,16 +1,25 @@
 package me.saket.wysiwyg.parser
 
 import me.saket.wysiwyg.parser.node.HeadingLevel
+import me.saket.wysiwyg.parser.node.Node
 import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.widgets.EditableText
 import me.saket.wysiwyg.widgets.NativeTextField
+import me.saket.wysiwyg.widgets.StyledText
 
-actual class RealMarkdownRenderer actual constructor(
+actual class RealtimeMarkdownRenderer actual constructor(
   style: WysiwygStyle,
   textField: NativeTextField
-) : MarkdownRenderer(style) {
-  override fun renderTo(text: EditableText): Unit = TODO()
-  override fun clear(): Unit = TODO()
+) : BaseMarkdownRenderer(style) {
+  actual fun renderTo(text: EditableText): Unit = TODO()
+  actual fun clear(): Unit = TODO()
+}
+
+actual class StaticMarkdownRenderer actual constructor(style: WysiwygStyle) : BaseMarkdownRenderer(style) {
+  actual fun renderWith(markdownNode: Node, text: String): StyledText = TODO()
+}
+
+actual abstract class BaseMarkdownRenderer(style: WysiwygStyle) : MarkdownRenderer(style) {
   override fun addForegroundColor(color: Int, from: Int, to: Int): Unit = TODO()
   override fun addItalics(from: Int, to: Int): Unit = TODO()
   override fun addBold(from: Int, to: Int): Unit = TODO()
