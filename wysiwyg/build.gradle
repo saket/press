@@ -36,7 +36,9 @@ kotlin {
 
   sourceSets {
     commonMain {
-      dependencies {}
+      dependencies {
+        implementation deps.colorMath
+      }
     }
     commonTest {
       dependencies {

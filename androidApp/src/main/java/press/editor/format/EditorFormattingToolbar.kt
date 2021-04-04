@@ -20,6 +20,7 @@ import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.theme.MarkdownPalette
 import me.saket.press.shared.theme.TextStyles.smallTitle
+import me.saket.press.shared.theme.ThemePalette
 import me.saket.wysiwyg.formatting.BlockQuoteSyntaxApplier
 import me.saket.wysiwyg.formatting.EmphasisSyntaxApplier
 import me.saket.wysiwyg.formatting.HeadingSyntaxApplier
@@ -111,11 +112,11 @@ class EditorFormattingToolbar(
       FormatActionText(
         label = { palette ->
           buildSpannedString {
-            color(palette.syntaxColor) { append('`') }
+            color(palette.accentColor) { append('`') }
             inSpans(MonospaceTypefaceSpan {}) {
               append(context.strings().editor.formattingtoolbar_inline_code)
             }
-            color(palette.syntaxColor) { append('`') }
+            color(palette.accentColor) { append('`') }
           }
         },
         onClick = { applyMarkdownSyntax(InlineCodeSyntaxApplier) }
@@ -126,7 +127,7 @@ class EditorFormattingToolbar(
       FormatActionText(
         label = { palette ->
           buildSpannedString {
-            color(palette.blockQuoteVerticalRuleColor) { append("> ") }
+            color(palette.markdown.blockQuoteTextColor) { append("> ") }
             append(context.strings().editor.formattingtoolbar_blockquote)
           }
         },
@@ -146,7 +147,7 @@ class EditorFormattingToolbar(
           it.layoutParams = LayoutParams(WRAP_CONTENT, MATCH_PARENT)
           it.updatePadding(horizontal = dp(12), vertical = dp(4))
           it.themeAware { palette ->
-            it.text = action.label(palette.markdown)
+            it.text = action.label(palette)
           }
         }
       }
@@ -217,6 +218,6 @@ private data class FormatActionIcon(
 ) : FormatAction()
 
 private data class FormatActionText(
-  val label: (palette: MarkdownPalette) -> CharSequence,
+  val label: (palette: ThemePalette) -> CharSequence,
   override val onClick: (View) -> Unit
 ) : FormatAction()

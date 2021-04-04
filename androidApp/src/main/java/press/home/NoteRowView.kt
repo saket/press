@@ -39,7 +39,7 @@ class NoteRowView(context: Context) : ContourLayout(context) {
     stateListAnimator = loadStateListAnimator(context, R.animator.thread_elevation_stateanimator)
     contourHeightOf { bodyView.bottom() + 16.dip }
     themeAware {
-      setBackgroundColor(it.window.editorBackgroundColor)
+      setBackgroundColor(it.window.elevatedBackgroundColor)
     }
   }
 

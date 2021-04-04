@@ -1,5 +1,7 @@
 package me.saket.wysiwyg.style
 
+import com.github.ajalt.colormath.RGB
+
 /**
  * Color palette and dimensions for highlighting markdown.
  */
@@ -13,6 +15,10 @@ data class WysiwygStyle(
   val list: List,
   val thematicBreak: ThematicBreak
 ) {
+
+  init {
+    check(RGB.fromInt(code.backgroundColor).alpha < 1f)
+  }
 
   /** "> Quote" */
   data class BlockQuote(

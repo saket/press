@@ -96,7 +96,7 @@ class EditorView @InflationInject constructor(
 
   private val toolbar = PressToolbar(context).apply {
     themeAware {
-      setBackgroundColor(it.window.editorBackgroundColor)
+      setBackgroundColor(it.window.elevatedBackgroundColor)
     }
   }
 
@@ -169,7 +169,7 @@ class EditorView @InflationInject constructor(
     )
 
     themeAware { palette ->
-      setBackgroundColor(palette.window.editorBackgroundColor)
+      setBackgroundColor(palette.window.elevatedBackgroundColor)
     }
 
     // TODO: add support for changing WysiwygStyle.

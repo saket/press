@@ -3,7 +3,6 @@ package press.preferences.sync.stats
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.HorizontalScrollView
-import android.widget.ScrollView
 import androidx.core.view.setPadding
 import androidx.core.widget.NestedScrollView
 import com.jakewharton.rxbinding3.view.detaches
@@ -56,7 +55,7 @@ class SyncStatsForNerdsView @InflationInject constructor(
   private val logsScrollView = NestedScrollView(context).apply {
     isFillViewport = true
     themeAware {
-      setBackgroundColor(it.window.editorBackgroundColor)
+      setBackgroundColor(it.window.elevatedBackgroundColor)
     }
 
     addView(

@@ -1,6 +1,13 @@
 package me.saket.press.shared.theme
 
-/** Copied from Android. */
+import com.github.ajalt.colormath.HSV
+import com.github.ajalt.colormath.RGB
+import kotlin.math.roundToInt
+
+/**
+ * Copied from Android.
+ *
+ */
 fun Int.blendWith(color2: Int, ratio: Float): Int {
   val inverseRatio = 1 - ratio
   val color1 = this
@@ -19,4 +26,31 @@ private fun blue(color: Int): Int = color and 0xFF
 
 private fun argb(alpha: Int, red: Int, green: Int, blue: Int): Int {
   return alpha shl 24 or (red shl 16) or (green shl 8) or blue
+}
+
+fun Int.withAlpha(alpha: Float): Int {
+  return RGB.fromInt(this).copy(a = alpha).toPackedInt()
+}
+
+fun Int.toHsvColor() = RGB.fromInt(this).toHSV()
+
+fun HSV.toRgbColorInt() = toRGB().toPackedInt()
+
+fun HSV.saturateBy(by: Float): HSV {
+  check(by in -1f..1f) { by }
+  return copy(s = (s * (1f + by)).roundToInt().coerceAtMost(100))
+}
+
+fun HSV.increaseHueBy(by: Float): HSV {
+  check(by in -1f..1f) { by }
+  return copy(h = (h * (1f + by)).roundToInt().coerceAtMost(360))
+}
+
+fun HSV.lightenBy(by: Float): HSV {
+  check(by in -1f..1f) { by }
+  return copy(v = (v * (1f + by)).roundToInt().coerceAtMost(100))
+}
+
+fun HSV.darkenBy(by: Float): HSV {
+  return lightenBy(-by)
 }

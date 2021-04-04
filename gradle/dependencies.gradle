@@ -208,5 +208,6 @@ buildscript {
       gradlePlugin: "app.cash.exhaustive:exhaustive-gradle:$versions.exhaustive",
       annotation: "app.cash.exhaustive:exhaustive-annotation:$versions.exhaustive"
     ],
+    'colorMath': "com.github.ajalt.colormath:colormath:2.0.0",
   ]
 }

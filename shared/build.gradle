@@ -66,6 +66,7 @@ kotlin {
         implementation (deps.kotlinx.coroutines) { force = true }
         implementation deps.korio
         implementation deps.exhaustive.annotation
+        implementation deps.colorMath
       }
     }
     commonTest {
