@@ -3,6 +3,7 @@ package press.preferences.theme
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.LinearLayout
+import android.widget.LinearLayout.SHOW_DIVIDER_END
 import android.widget.LinearLayout.SHOW_DIVIDER_MIDDLE
 import android.widget.LinearLayout.VERTICAL
 import android.widget.Toast
@@ -14,9 +15,9 @@ import com.squareup.inject.inflation.InflationInject
 import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.preferences.UserPreferences
-import me.saket.press.shared.theme.DraculaThemePalette
 import me.saket.press.shared.theme.ThemePalette
 import press.preferences.PreferenceRowView
+import press.theme.appTheme
 import press.theme.themeAware
 import press.widgets.DividerDrawable
 import press.widgets.PressToolbar
@@ -34,7 +35,7 @@ class ThemePreferencesView @InflationInject constructor(
 
   private val preferenceList = LinearLayout(context).apply {
     orientation = VERTICAL
-    showDividers = SHOW_DIVIDER_MIDDLE
+    showDividers = SHOW_DIVIDER_MIDDLE or SHOW_DIVIDER_END
     updatePadding(bottom = dp(24))
     themeAware { dividerDrawable = DividerDrawable(it.separator) }
   }
@@ -77,12 +78,14 @@ class ThemePreferencesView @InflationInject constructor(
     lightThemePaletteView.render(
       title = "Light theme",
       palettes = ThemePalette.lightThemePalettes(),
-      selected = DraculaThemePalette
+      selected = ThemePalette.lightThemePalettes().first(),
+      onSelect = { appTheme().change(it) }
     )
     darkThemePaletteView.render(
       title = "Dark theme",
       palettes = ThemePalette.darkThemePalettes(),
-      selected = DraculaThemePalette
+      selected = ThemePalette.darkThemePalettes().first(),
+      onSelect = { appTheme().change(it) }
     )
   }
 }
