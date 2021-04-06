@@ -81,6 +81,8 @@ private class ThemePaletteRowView(context: Context) : ContourLayout(context) {
   }
 
   init {
+    elevation = 2f.dip
+
     sampleTextView.layoutBy(
       // The text extends beyond this View's right bounds.
       // This design was copied from Bear. Looks pretty cool.

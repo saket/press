@@ -3,7 +3,7 @@ package press.theme
 import dagger.Module
 import dagger.Provides
 import me.saket.press.shared.theme.AppTheme
-import me.saket.press.shared.theme.DraculaThemePalette
+import me.saket.press.shared.theme.palettes.DraculaThemePalette
 import javax.inject.Singleton
 
 @Module

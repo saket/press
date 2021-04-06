@@ -1,14 +1,20 @@
 package me.saket.press.shared.theme
 
 import com.github.ajalt.colormath.RGB
-import com.github.ajalt.colormath.toCssRgb
+import me.saket.press.shared.theme.palettes.CascadeThemePalette
+import me.saket.press.shared.theme.palettes.CityLightsThemePalette
+import me.saket.press.shared.theme.palettes.DraculaThemePalette
+import me.saket.press.shared.theme.palettes.MinimalDarkThemePalette
+import me.saket.press.shared.theme.palettes.MinimalLightThemePalette
+import me.saket.press.shared.theme.palettes.PureBlackThemePalette
+import me.saket.press.shared.theme.palettes.SolarizedLightThemePalette
+import me.saket.press.shared.theme.palettes.UnnamedThemePalette
 import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.style.WysiwygStyle.BlockQuote
 import me.saket.wysiwyg.style.WysiwygStyle.Code
 import me.saket.wysiwyg.style.WysiwygStyle.Heading
 import me.saket.wysiwyg.style.WysiwygStyle.Link
 import me.saket.wysiwyg.style.WysiwygStyle.ThematicBreak
-import me.saket.wysiwyg.style.withOpacity
 import kotlin.DeprecationLevel.ERROR
 import kotlin.math.roundToInt
 
@@ -21,7 +27,7 @@ abstract class ThemePalette(
   val window: WindowPalette,
   val markdown: MarkdownPalette,
   val textColorHeading: Int,
-  val textColorPrimary: Int,
+  val textColorPrimary: Int,  // Equivalent to base00 in terminal.
   val textColorWarning: Int,
   val fabColor: Int
 ) {
@@ -31,7 +37,7 @@ abstract class ThemePalette(
 
   // todo: rename to divider
   val separator: Int
-    get() = BLACK.withOpacity(0.2f)
+    get() = window.backgroundColor.darkenColorBy(0.15f)
 
   val buttonNormal: Int
     get() = window.backgroundColor.blendWith(if (isLightTheme) WHITE else BLACK, ratio = 0.2f)
@@ -57,8 +63,15 @@ abstract class ThemePalette(
   }
 
   fun pressedColor(normalColor: Int): Int {
-    val ratio = if (normalColor == TRANSPARENT) 0.2f else 0.5f
-    return normalColor.blendWith(if (isLightTheme) WHITE else BLACK, ratio)
+    if (normalColor == TRANSPARENT) {
+      return BLACK.withAlpha(0.1f)
+    }
+
+    return if (isLightTheme) {
+      normalColor.darkenColorBy(0.2f)
+    } else {
+      normalColor.darkenColorBy(-0.2f)
+    }
   }
 
   companion object {
@@ -67,34 +80,32 @@ abstract class ThemePalette(
     private const val TRANSPARENT: Int = 0
 
     fun lightThemePalettes(): List<ThemePalette> {
-      return listOf(DraculaThemePalette, DraculaThemePalette, DraculaThemePalette, DraculaThemePalette)
+      return listOf(SolarizedLightThemePalette, MinimalLightThemePalette, CascadeThemePalette)
     }
 
     fun darkThemePalettes(): List<ThemePalette> {
-      return listOf(DraculaThemePalette, DraculaThemePalette, DraculaThemePalette, DraculaThemePalette)
+      return listOf(DraculaThemePalette, MinimalDarkThemePalette, CityLightsThemePalette, PureBlackThemePalette, UnnamedThemePalette)
     }
   }
 }
 
 data class WindowPalette(
   val backgroundColor: Int, // Equivalent to base3 color in terminal.
-) {
-  val elevatedBackgroundColor: Int = backgroundColor.toHsvColor()
-    .lightenBy(-0.075f)
-    .saturateBy(0.083f)
-    .toRgbColorInt()
-}
+  val elevatedBackgroundColor: Int
+)
 
 data class MarkdownPalette(
+  val syntaxColor: Int,
   val blockQuoteTextColor: Int,
   val linkTextColor: Int,
   val linkUrlColor: Int,
+  val codeBackgroundColor: Int,
   val thematicBreakColor: Int
 )
 
 fun ThemePalette.wysiwygStyle(displayUnits: DisplayUnits): WysiwygStyle {
   return WysiwygStyle(
-    syntaxColor = accentColor,
+    syntaxColor = markdown.syntaxColor,
     strikethroughTextColor = textColorPrimary.blendWith(window.backgroundColor, .5f),
     blockQuote = BlockQuote(
       leftBorderColor = markdown.blockQuoteTextColor,
@@ -103,12 +114,7 @@ fun ThemePalette.wysiwygStyle(displayUnits: DisplayUnits): WysiwygStyle {
       textColor = markdown.blockQuoteTextColor
     ),
     code = Code(
-      backgroundColor = window.backgroundColor.toHsvColor()
-        .darkenBy(0.52f)
-        .saturateBy(0.875f)
-        .increaseHueBy(0.03f)
-        .copy(a = 0.36f)
-        .toRgbColorInt(),
+      backgroundColor = markdown.codeBackgroundColor,
       codeBlockMargin = displayUnits.scaledPixels(8).roundToInt()
     ),
     heading = Heading(

@@ -54,3 +54,7 @@ fun HSV.lightenBy(by: Float): HSV {
 fun HSV.darkenBy(by: Float): HSV {
   return lightenBy(-by)
 }
+
+fun Int.darkenColorBy(by: Float): Int {
+  return this.toHsvColor().darkenBy(by).toRgbColorInt()
+}

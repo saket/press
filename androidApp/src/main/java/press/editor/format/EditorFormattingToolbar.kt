@@ -3,7 +3,6 @@ package press.editor.format
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM
 import android.view.Gravity.CENTER
-import android.view.HapticFeedbackConstants
 import android.view.HapticFeedbackConstants.LONG_PRESS
 import android.view.View
 import android.widget.FrameLayout.LayoutParams.MATCH_PARENT
@@ -18,7 +17,6 @@ import androidx.core.view.plusAssign
 import androidx.core.view.setPadding
 import me.saket.press.R
 import me.saket.press.shared.localization.strings
-import me.saket.press.shared.theme.MarkdownPalette
 import me.saket.press.shared.theme.TextStyles.smallTitle
 import me.saket.press.shared.theme.ThemePalette
 import me.saket.wysiwyg.formatting.BlockQuoteSyntaxApplier
@@ -36,7 +34,9 @@ import me.saket.wysiwyg.style.withOpacity
 import press.editor.MarkdownEditText
 import press.extensions.createBorderlessRippleDrawable
 import press.extensions.createRippleDrawable
+import press.extensions.getDrawable
 import press.extensions.showKeyboard
+import press.extensions.textColor
 import press.extensions.updatePadding
 import press.theme.themeAware
 import press.widgets.PressBorderlessImageButton
@@ -112,11 +112,11 @@ class EditorFormattingToolbar(
       FormatActionText(
         label = { palette ->
           buildSpannedString {
-            color(palette.accentColor) { append('`') }
+            color(palette.markdown.syntaxColor) { append('`') }
             inSpans(MonospaceTypefaceSpan {}) {
               append(context.strings().editor.formattingtoolbar_inline_code)
             }
-            color(palette.accentColor) { append('`') }
+            color(palette.markdown.syntaxColor) { append('`') }
           }
         },
         onClick = { applyMarkdownSyntax(InlineCodeSyntaxApplier) }
@@ -148,6 +148,7 @@ class EditorFormattingToolbar(
           it.updatePadding(horizontal = dp(12), vertical = dp(4))
           it.themeAware { palette ->
             it.text = action.label(palette)
+            it.textColor = palette.textColorPrimary
           }
         }
       }
@@ -157,7 +158,9 @@ class EditorFormattingToolbar(
           it.tooltipText = action.label
           it.layoutParams = LayoutParams(WRAP_CONTENT, MATCH_PARENT)
           it.setPadding(dp(12))
-          it.setImageResource(action.iconRes)
+          it.themeAware { palette ->
+            it.setImageDrawable(context.getDrawable(action.iconRes, palette.textColorPrimary))
+          }
         }
       }
     }
