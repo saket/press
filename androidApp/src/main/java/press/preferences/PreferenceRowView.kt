@@ -9,7 +9,7 @@ import me.saket.press.shared.listen
 import me.saket.press.shared.preferences.Setting
 import me.saket.press.shared.theme.TextStyles
 import me.saket.press.shared.theme.TextView
-import press.extensions.createRippleDrawable
+import press.extensions.rippleDrawable
 import press.extensions.textColor
 import press.theme.themeAware
 
@@ -33,7 +33,7 @@ class PreferenceRowView(context: Context) : ContourLayout(context) {
     themeAware {
       titleView.textColor = it.textColorPrimary
       subtitleView.textColor = it.textColorSecondary
-      background = createRippleDrawable(it)
+      background = rippleDrawable(it)
     }
   }
 

@@ -32,8 +32,7 @@ import me.saket.wysiwyg.formatting.from
 import me.saket.wysiwyg.spans.MonospaceTypefaceSpan
 import me.saket.wysiwyg.style.withOpacity
 import press.editor.MarkdownEditText
-import press.extensions.createBorderlessRippleDrawable
-import press.extensions.createRippleDrawable
+import press.extensions.borderlessRippleDrawable
 import press.extensions.getDrawable
 import press.extensions.showKeyboard
 import press.extensions.textColor
@@ -170,7 +169,7 @@ class EditorFormattingToolbar(
       action.onClick(button)
     }
     button.themeAware { palette ->
-      button.background = createBorderlessRippleDrawable(
+      button.background = borderlessRippleDrawable(
         palette = palette,
         background = palette.buttonPressed
       )

@@ -24,8 +24,8 @@ import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextStyles.smallTitle
 import me.saket.press.shared.theme.TextView
 import me.saket.press.shared.theme.ThemePalette
-import press.extensions.createBorderlessRippleDrawable
-import press.extensions.createRippleDrawable
+import press.extensions.borderlessRippleDrawable
+import press.extensions.rippleDrawable
 import press.extensions.getDrawable
 import press.extensions.textColor
 import press.navigation.navigator
@@ -110,7 +110,7 @@ class SyncEnabledView(context: Context) : ContourLayout(context) {
       setImageResource(R.drawable.ic_more_horiz_24)
       themeAware {
         setColorFilter(it.textColorSecondary)
-        background = createBorderlessRippleDrawable(it)
+        background = borderlessRippleDrawable(it)
       }
     }
 
@@ -135,7 +135,7 @@ class SyncEnabledView(context: Context) : ContourLayout(context) {
       updatePadding(left = 20.dip, top = 20.dip, right = 10.dip, bottom = 20.dip)
       contourHeightWrapContent()
       themeAware {
-        background = createRippleDrawable(it)
+        background = rippleDrawable(it)
       }
 
       // Avoid accidental taps on parent by increasing the option button's tap area.

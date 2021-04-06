@@ -106,7 +106,7 @@ fun ViewFlipper.setDisplayedChild(child: View) {
   }
 }
 
-fun createRippleDrawable(
+fun rippleDrawable(
   palette: ThemePalette,
   background: Int = Color.TRANSPARENT,
   cornerRadius: Float = 0f
@@ -116,11 +116,15 @@ fun createRippleDrawable(
   return RippleDrawable(ColorStateList.valueOf(palette.pressedColor(background)), shape, mask)
 }
 
-fun createBorderlessRippleDrawable(
+fun borderlessRippleDrawable(
   palette: ThemePalette,
   background: Int = Color.TRANSPARENT,
 ): RippleDrawable {
   return RippleDrawable(ColorStateList.valueOf(palette.pressedColor(background)), null, null)
+}
+
+fun borderlessRippleDrawable(color: Int): RippleDrawable {
+  return RippleDrawable(ColorStateList.valueOf(color), null, null)
 }
 
 inline fun ViewGroup.onViewAdds(crossinline action: (View) -> Unit) {

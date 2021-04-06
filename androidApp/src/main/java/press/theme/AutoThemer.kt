@@ -26,8 +26,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import me.saket.press.R
-import press.extensions.createBorderlessRippleDrawable
-import press.extensions.createRippleDrawable
+import press.extensions.borderlessRippleDrawable
 import press.extensions.findTitleView
 import press.extensions.onViewAdds
 import press.extensions.textColor
@@ -106,7 +105,7 @@ private fun <T : EditText> themed(view: T): T = view.apply {
 
 private fun <T : CheckBox> themed(view: T): T = view.apply {
   themeAware {
-    background = createBorderlessRippleDrawable(it)
+    background = borderlessRippleDrawable(it)
     buttonTintList = ColorStateList.valueOf(it.accentColor)
   }
 }
@@ -148,7 +147,7 @@ private fun themed(toolbar: Toolbar) = toolbar.apply {
 
   val setRipple = { child: View ->
     child.themeAware {
-      child.background = createBorderlessRippleDrawable(it).apply {
+      child.background = borderlessRippleDrawable(it.pressedColor(it.accentColor)).apply {
         radius = maxOf(radius, context.dp(20))
       }
     }

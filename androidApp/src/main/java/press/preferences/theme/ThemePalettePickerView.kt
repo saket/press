@@ -20,7 +20,7 @@ import me.saket.press.shared.theme.ThemePalette
 import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.theme.wysiwygStyle
 import me.saket.wysiwyg.Wysiwyg
-import press.extensions.createRippleDrawable
+import press.extensions.rippleDrawable
 import press.extensions.textColor
 import press.theme.themeAware
 import press.widgets.SlideDownItemAnimator
@@ -57,7 +57,7 @@ class ThemePalettePickerView(context: Context) : ContourLayout(context) {
     themeAware {
       titleView.textColor = it.textColorPrimary
       subtitleView.textColor = it.textColorSecondary
-      background = createRippleDrawable(it)
+      background = rippleDrawable(it)
     }
   }
 
@@ -110,7 +110,5 @@ private class ThemePaletteRowView(context: Context) : ContourLayout(context) {
       it.text = Wysiwyg.highlightImmediately(markdown, palette.wysiwygStyle(DisplayUnits(context)))
     }
 
-    background = PaintDrawable(palette.window.elevatedBackgroundColor).apply { setCornerRadius(dp(4f)) }
-    foreground = createRippleDrawable(palette, background = Color.TRANSPARENT, cornerRadius = dp(4f))
   }
 }
