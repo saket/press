@@ -5,9 +5,11 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.view.WindowManager.LayoutParams
+import android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.core.graphics.drawable.toBitmap
+import androidx.core.view.WindowCompat
 import me.saket.press.R
 import press.theme.AutoThemer
 import press.theme.themeAware
@@ -26,8 +28,11 @@ abstract class ThemeAwareActivity : AppCompatActivity() {
       // Window chrome.
       window.apply {
         setBackgroundDrawable(ColorDrawable(palette.window.backgroundColor))
-        addFlags(LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        addFlags(FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         statusBarColor = palette.primaryColorDark
+
+        val insetsController = WindowCompat.getInsetsController(this, decorView)!!
+        insetsController.isAppearanceLightStatusBars = palette.isLightTheme
       }
 
       // For recent apps.
