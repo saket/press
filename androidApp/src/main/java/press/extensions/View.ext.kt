@@ -72,12 +72,6 @@ fun View.hideKeyboard() {
   inputManager.hideSoftInputFromWindow(windowToken, 0)
 }
 
-inline fun View.locationOnScreen(): Rect {
-  val loc = IntArray(2)
-  getLocationOnScreen(loc)
-  return Rect(loc[0], loc[1], loc[0] + width, loc[1] + height)
-}
-
 inline fun EditText.doOnTextChange(crossinline action: (Editable) -> Unit) {
   addTextChangedListener(object : SimpleTextWatcher {
     override fun afterTextChanged(text: Editable) = action(text)
