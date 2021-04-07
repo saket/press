@@ -19,7 +19,7 @@ class PreferenceRowView(context: Context) : ContourLayout(context) {
 
   init {
     titleView.layoutBy(
-      x = matchParentX(marginLeft = 16.dip, marginRight = 16.dip),
+      x = matchParentX(marginLeft = 20.dip, marginRight = 20.dip),
       y = topTo { parent.top() + 16.dip }
     )
     subtitleView.layoutBy(

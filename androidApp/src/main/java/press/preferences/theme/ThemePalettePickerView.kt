@@ -33,12 +33,12 @@ class ThemePalettePickerView(context: Context) : ContourLayout(context) {
     layoutManager = LinearLayoutManager(context, HORIZONTAL, false)
     scrollBarStyle = SCROLLBARS_OUTSIDE_OVERLAY
     addItemDecoration(SpacingItemDecoration(spacing = 8.dip, orientation = HORIZONTAL))
-    updatePaddingRelative(start = 12.dip, end = 12.dip, top = 16.dip, bottom = 20.dip)
+    updatePaddingRelative(start = 20.dip, end = 20.dip, top = 16.dip, bottom = 20.dip)
   }
 
   init {
     titleView.layoutBy(
-      x = matchParentX(marginLeft = 16.dip, marginRight = 16.dip),
+      x = matchParentX(marginLeft = 20.dip, marginRight = 20.dip),
       y = topTo { parent.top() + 16.dip }
     )
     subtitleView.layoutBy(
