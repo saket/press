@@ -2,6 +2,7 @@ package press.preferences.theme
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.View
 import android.widget.LinearLayout
 import android.widget.LinearLayout.SHOW_DIVIDER_END
 import android.widget.LinearLayout.SHOW_DIVIDER_MIDDLE
@@ -43,6 +44,7 @@ class ThemePreferencesView @InflationInject constructor(
   private val darkModeView = PreferenceRowView(context)
   private val lightThemePaletteView = ThemePalettePickerView(context)
   private val darkThemePaletteView = ThemePalettePickerView(context)
+  private val themeTransition = CircularRevealTransition(sceneRoot = this)
 
   init {
     id = R.id.theme_preferences_view
@@ -79,13 +81,20 @@ class ThemePreferencesView @InflationInject constructor(
       title = "Light theme",
       palettes = ThemePalette.lightThemePalettes(),
       selected = ThemePalette.lightThemePalettes().first(),
-      onSelect = { appTheme().change(it) }
+      onSelect = ::changeThemeTo
     )
     darkThemePaletteView.render(
       title = "Dark theme",
       palettes = ThemePalette.darkThemePalettes(),
       selected = ThemePalette.darkThemePalettes().first(),
-      onSelect = { appTheme().change(it) }
+      onSelect = ::changeThemeTo
     )
+  }
+
+  private fun changeThemeTo(palette: ThemePalette, anchorView: View) {
+    if (appTheme().palette != palette && !themeTransition.isOngoing) {
+      themeTransition.beginTransition(anchor = anchorView)
+      appTheme().change(palette)
+    }
   }
 }

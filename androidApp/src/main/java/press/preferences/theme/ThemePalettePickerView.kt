@@ -2,6 +2,7 @@ package press.preferences.theme
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.updatePaddingRelative
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -62,7 +63,7 @@ class ThemePalettePickerView(context: Context) : ContourLayout(context) {
     title: String,
     palettes: List<ThemePalette>,
     selected: ThemePalette,
-    onSelect: (ThemePalette) -> Unit
+    onSelect: (ThemePalette, anchor: View) -> Unit
   ) {
     titleView.text = title
     subtitleView.text = selected.name
@@ -78,7 +79,7 @@ class ThemePalettePickerView(context: Context) : ContourLayout(context) {
 
 private class ThemePaletteRowView(
   context: Context,
-  private val onSelect: (ThemePalette) -> Unit
+  private val onSelect: (ThemePalette, View) -> Unit
 ) : ContourLayout(context) {
 
   private val sampleTextView = TextView(context, tinyBody).apply {
@@ -117,7 +118,7 @@ private class ThemePaletteRowView(
       .withRipple(rippleColor = palette.accentColor)
 
     setOnClickListener {
-      onSelect(palette)
+      onSelect(palette, this)
     }
   }
 }
