@@ -16,6 +16,7 @@ import com.squareup.inject.inflation.InflationInject
 import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.preferences.UserPreferences
+import me.saket.press.shared.theme.AppTheme
 import me.saket.press.shared.theme.ThemePalette
 import press.preferences.PreferenceRowView
 import press.theme.appTheme
@@ -27,7 +28,8 @@ import press.widgets.dp
 class ThemePreferencesView @InflationInject constructor(
   @Assisted context: Context,
   @Assisted attrs: AttributeSet? = null,
-  userPreferences: UserPreferences
+  userPreferences: UserPreferences,
+  appTheme: AppTheme,
 ) : ContourLayout(context) {
 
   private val toolbar = PressToolbar(context).apply {
@@ -44,7 +46,6 @@ class ThemePreferencesView @InflationInject constructor(
   private val darkModeView = PreferenceRowView(context)
   private val lightThemePaletteView = ThemePalettePickerView(context)
   private val darkThemePaletteView = ThemePalettePickerView(context)
-  private val themeTransition = CircularRevealTransition(sceneRoot = this)
 
   init {
     id = R.id.theme_preferences_view
@@ -79,22 +80,13 @@ class ThemePreferencesView @InflationInject constructor(
     )
     lightThemePaletteView.render(
       title = "Light theme",
-      palettes = ThemePalette.lightThemePalettes(),
-      selected = ThemePalette.lightThemePalettes().first(),
-      onSelect = ::changeThemeTo
+      palettes = appTheme.lightThemePalettes(),
+      setting = userPreferences.lightThemePalette,
     )
     darkThemePaletteView.render(
       title = "Dark theme",
-      palettes = ThemePalette.darkThemePalettes(),
-      selected = ThemePalette.darkThemePalettes().first(),
-      onSelect = ::changeThemeTo
+      palettes = appTheme.darkThemePalettes(),
+      setting = userPreferences.darkThemePalette,
     )
-  }
-
-  private fun changeThemeTo(palette: ThemePalette, anchorView: View) {
-    if (appTheme().palette != palette && !themeTransition.isOngoing) {
-      themeTransition.beginTransition(anchor = anchorView)
-      appTheme().change(palette)
-    }
   }
 }

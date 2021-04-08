@@ -8,11 +8,12 @@ import me.saket.press.shared.SharedAppComponent
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.preferences.UserPreferences
 import me.saket.press.shared.syncer.SyncCoordinator
+import me.saket.press.shared.theme.AppTheme
 import me.saket.press.shared.ui.ScreenResults
 import press.editor.EditorModule
 import press.home.HomeModule
 import press.preferences.PreferencesModule
-import press.theme.ThemeModule
+import javax.inject.Singleton
 
 @InflationModule
 @AssistedModule
@@ -20,7 +21,6 @@ import press.theme.ThemeModule
   includes = [
     InflationInject_AppModule::class,
     AssistedInject_AppModule::class,
-    ThemeModule::class,
     HomeModule::class,
     EditorModule::class,
     PreferencesModule::class
@@ -38,4 +38,7 @@ object AppModule {
 
   @Provides
   fun userPreferences(): UserPreferences = SharedAppComponent.userPreferences()
+
+  @Provides
+  fun theme(): AppTheme = SharedAppComponent.theme()
 }

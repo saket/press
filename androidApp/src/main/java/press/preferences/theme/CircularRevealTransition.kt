@@ -21,7 +21,7 @@ import androidx.core.view.doOnDetach
 import kotlin.math.hypot
 import kotlin.math.max
 
-class CircularRevealTransition(private val sceneRoot: ViewGroup) {
+class CircularRevealTransition() {
   private var animator = ValueAnimator()
   val isOngoing get() = animator.isRunning
 
@@ -35,8 +35,8 @@ class CircularRevealTransition(private val sceneRoot: ViewGroup) {
    */
   fun beginTransition(anchor: View) {
     // The overlay is applied to the Window's entire content
-    // (rootView) to include the status and nav bars.
-    val windowDecorView = sceneRoot.rootView as ViewGroup
+    // (decor View) to include the status and nav bars.
+    val windowDecorView = anchor.rootView as ViewGroup
 
     val decorImage = windowDecorView.captureImage()
     windowDecorView.overlay.add(decorImage)
@@ -50,7 +50,7 @@ class CircularRevealTransition(private val sceneRoot: ViewGroup) {
         windowDecorView.overlay.remove(decorImage)
       }
     }
-    sceneRoot.doOnDetach {
+    anchor.doOnDetach {
       animator.end()
     }
   }

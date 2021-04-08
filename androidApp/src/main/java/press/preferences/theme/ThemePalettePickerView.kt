@@ -8,17 +8,22 @@ import androidx.core.view.updatePaddingRelative
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.HORIZONTAL
+import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
+import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import me.saket.press.shared.listen
+import me.saket.press.shared.preferences.Setting
 import me.saket.press.shared.theme.DisplayUnits
 import me.saket.press.shared.theme.TextStyles.mainTitle
 import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextStyles.tinyBody
 import me.saket.press.shared.theme.TextView
 import me.saket.press.shared.theme.ThemePalette
-import me.saket.press.shared.theme.wysiwygStyle
+import me.saket.press.shared.theme.palettes.wysiwygStyle
 import me.saket.wysiwyg.Wysiwyg
 import press.extensions.rippleDrawable
 import press.extensions.textColor
+import press.theme.appTheme
 import press.theme.themeAware
 import press.widgets.Drawables
 import press.widgets.SpacingItemDecoration
@@ -26,6 +31,7 @@ import press.widgets.dp
 import press.widgets.withRipple
 
 class ThemePalettePickerView(context: Context) : ContourLayout(context) {
+  private val themeTransition = CircularRevealTransition()
   private val titleView = TextView(context, mainTitle)
   private val subtitleView = TextView(context, smallBody)
 
@@ -55,33 +61,49 @@ class ThemePalettePickerView(context: Context) : ContourLayout(context) {
     themeAware {
       titleView.textColor = it.textColorPrimary
       subtitleView.textColor = it.textColorSecondary
-      background = rippleDrawable(it)
     }
   }
 
   fun render(
     title: String,
     palettes: List<ThemePalette>,
-    selected: ThemePalette,
-    onSelect: (ThemePalette, anchor: View) -> Unit
+    setting: Setting<ThemePalette>
   ) {
+    check(paletteListView.adapter == null)
+
     titleView.text = title
-    subtitleView.text = selected.name
+    setting.listen()
+      .takeUntil(detaches())
+      .observeOn(mainThread())
+      .subscribe { (selectedPalette) ->
+        subtitleView.text = selectedPalette!!.name
+      }
 
     class VH(val view: ThemePaletteRowView) : RecyclerView.ViewHolder(view)
     paletteListView.adapter = object : RecyclerView.Adapter<VH>() {
       override fun getItemCount() = palettes.size
-      override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = VH(ThemePaletteRowView(context, onSelect))
-      override fun onBindViewHolder(holder: VH, position: Int) = holder.view.render(palettes[position])
+      override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = VH(ThemePaletteRowView(context))
+
+      override fun onBindViewHolder(holder: VH, position: Int) {
+        val palette = palettes[position]
+        holder.view.render(palette)
+        holder.view.setOnClickListener {
+          changeThemeTo(setting, palette, anchorView = holder.view)
+        }
+      }
+    }
+  }
+
+  private fun changeThemeTo(setting: Setting<ThemePalette>, palette: ThemePalette, anchorView: View) {
+    if (appTheme().palette != palette && !themeTransition.isOngoing) {
+      themeTransition.beginTransition(anchor = anchorView)
+      appTheme().change(palette)
+      setting.set(palette)
     }
   }
 }
 
-private class ThemePaletteRowView(
-  context: Context,
-  private val onSelect: (ThemePalette, View) -> Unit
-) : ContourLayout(context) {
-
+private class ThemePaletteRowView(context: Context) : ContourLayout(context) {
   private val sampleTextView = TextView(context, tinyBody).apply {
     maxLines = 4
     updatePaddingRelative(start = dp(24), top = dp(20), end = -dp(20))
@@ -116,9 +138,5 @@ private class ThemePaletteRowView(
     background = Drawables
       .roundedRect(palette.window.elevatedBackgroundColor, cornerRadius = dp(4f))
       .withRipple(rippleColor = palette.accentColor)
-
-    setOnClickListener {
-      onSelect(palette, this)
-    }
   }
 }

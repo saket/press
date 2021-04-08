@@ -62,7 +62,7 @@ import me.saket.press.shared.theme.TextStyles.mainBody
 import me.saket.press.shared.theme.TextView
 import me.saket.press.shared.theme.ThemePalette
 import me.saket.press.shared.theme.applyStyle
-import me.saket.press.shared.theme.wysiwygStyle
+import me.saket.press.shared.theme.palettes.wysiwygStyle
 import me.saket.press.shared.ui.models
 import me.saket.wysiwyg.Wysiwyg
 import me.saket.wysiwyg.formatting.TextSelection

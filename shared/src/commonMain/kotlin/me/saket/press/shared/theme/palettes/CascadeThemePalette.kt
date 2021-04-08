@@ -1,8 +1,6 @@
 package me.saket.press.shared.theme.palettes
 
-import me.saket.press.shared.theme.MarkdownPalette
 import me.saket.press.shared.theme.ThemePalette
-import me.saket.press.shared.theme.WindowPalette
 import me.saket.press.shared.theme.darkenBy
 import me.saket.press.shared.theme.increaseHueBy
 import me.saket.press.shared.theme.lightenBy
