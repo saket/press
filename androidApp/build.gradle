@@ -50,6 +50,14 @@ android {
   }
 }
 
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+  kotlinOptions {
+    // To suppress "Class ... is compiled by a pre-release version
+    // of Kotlin and cannot be loaded by this version of the compiler".
+    freeCompilerArgs += "-Xskip-prerelease-check"
+  }
+}
+
 dependencies {
   implementation project(':wysiwyg')
   implementation project(':shared')
