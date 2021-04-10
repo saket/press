@@ -21,7 +21,6 @@ import me.saket.press.shared.theme.TextView
 import me.saket.press.shared.theme.ThemePalette
 import me.saket.press.shared.theme.palettes.wysiwygStyle
 import me.saket.wysiwyg.Wysiwyg
-import press.extensions.rippleDrawable
 import press.extensions.textColor
 import press.theme.appTheme
 import press.theme.themeAware
@@ -79,10 +78,10 @@ class ThemePalettePickerView(context: Context) : ContourLayout(context) {
         subtitleView.text = selectedPalette!!.name
       }
 
-    class VH(val view: ThemePaletteRowView) : RecyclerView.ViewHolder(view)
+    class VH(val view: ThemePalettePreviewView) : RecyclerView.ViewHolder(view)
     paletteListView.adapter = object : RecyclerView.Adapter<VH>() {
       override fun getItemCount() = palettes.size
-      override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = VH(ThemePaletteRowView(context))
+      override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = VH(ThemePalettePreviewView(context))
 
       override fun onBindViewHolder(holder: VH, position: Int) {
         val palette = palettes[position]
@@ -103,8 +102,8 @@ class ThemePalettePickerView(context: Context) : ContourLayout(context) {
   }
 }
 
-private class ThemePaletteRowView(context: Context) : ContourLayout(context) {
-  private val sampleTextView = TextView(context, tinyBody).apply {
+private class ThemePalettePreviewView(context: Context) : ContourLayout(context) {
+  private val previewTextView = TextView(context, tinyBody).apply {
     maxLines = 4
     updatePaddingRelative(start = dp(24), top = dp(20), end = -dp(20))
   }
@@ -112,14 +111,14 @@ private class ThemePaletteRowView(context: Context) : ContourLayout(context) {
   init {
     elevation = 2f.dip
 
-    sampleTextView.layoutBy(
+    previewTextView.layoutBy(
       // The text extends beyond this View's right bounds.
       // This design was copied from Bear. Looks pretty cool.
       x = leftTo { parent.left() }.rightTo { parent.right() + 50.xdip },
       y = topTo { parent.top() }
     )
     contourWidthOf { 200.xdip }
-    contourHeightOf { sampleTextView.bottom() }
+    contourHeightOf { previewTextView.bottom() }
   }
 
   @SuppressLint("SetTextI18n")
@@ -130,7 +129,7 @@ private class ThemePaletteRowView(context: Context) : ContourLayout(context) {
         molecules drifting wherever the universe blows you.
         """.trimIndent().replace("\\\n", "")
 
-    sampleTextView.let {
+    previewTextView.let {
       it.textColor = palette.textColorPrimary
       it.text = Wysiwyg.highlightImmediately(markdown, palette.wysiwygStyle(DisplayUnits(context)))
     }
