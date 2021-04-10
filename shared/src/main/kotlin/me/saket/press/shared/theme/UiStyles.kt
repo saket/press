@@ -9,10 +9,10 @@ import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import me.saket.press.shared.BuildConfig
 import me.saket.press.shared.R
-import me.saket.press.shared.theme.UiStyles.FontFamily.WORK_SANS
-import me.saket.press.shared.theme.UiStyles.FontVariant.BOLD
-import me.saket.press.shared.theme.UiStyles.FontVariant.ITALIC
-import me.saket.press.shared.theme.UiStyles.FontVariant.REGULAR
+import me.saket.press.shared.theme.UiStyles.FontFamily.Regular
+import me.saket.press.shared.theme.UiStyles.FontVariant.Bold
+import me.saket.press.shared.theme.UiStyles.FontVariant.Italic
+import me.saket.press.shared.theme.UiStyles.FontVariant.Normal
 
 fun TextView.applyStyle(style: UiStyles.Text) {
   textSize = style.textSize
@@ -27,7 +27,7 @@ fun TextView.applyStyle(style: UiStyles.Text) {
 
 fun UiStyles.Font.asTypeface(context: Context): Typeface {
   val fontResId = when (family) {
-    WORK_SANS -> R.font.work_sans
+    Regular -> R.font.work_sans
   }
   val fontFamily = ResourcesCompat.getFont(context, fontResId)
 
@@ -35,14 +35,14 @@ fun UiStyles.Font.asTypeface(context: Context): Typeface {
     val isItalic = variant.isItalic
     Typeface.create(fontFamily, variant.weight, isItalic)
   } else {
-    if (BuildConfig.DEBUG && variant.weight > 400 && variant == ITALIC) {
+    if (BuildConfig.DEBUG && variant.weight > 400 && variant == Italic) {
       throw TODO("Find a way backward-compatible way to render composite styles (i.e., italic + bold)")
     }
 
     val styleInt = when (variant) {
-      REGULAR -> Typeface.NORMAL
-      ITALIC -> Typeface.ITALIC
-      BOLD -> Typeface.BOLD
+      Normal -> Typeface.NORMAL
+      Italic -> Typeface.ITALIC
+      Bold -> Typeface.BOLD
     }
     Typeface.create(fontFamily, styleInt)
   }

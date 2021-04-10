@@ -52,7 +52,7 @@ extension UiStyles.Text {
 
   func resolveFontName() -> String {
     switch (font.family) {
-    case .workSans:
+    case .regular:
       switch font.variant {
       case .regular: return "WorkSans-Regular"
       case .bold: return "WorkSans-Bold"

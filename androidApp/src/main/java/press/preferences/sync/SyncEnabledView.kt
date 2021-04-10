@@ -18,18 +18,15 @@ import me.saket.cascade.CascadePopupMenu
 import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.preferences.sync.SyncPreferencesUiModel.SyncEnabled
-import me.saket.press.shared.syncer.git.GitHost.GITHUB
 import me.saket.press.shared.preferences.sync.stats.SyncStatsForNerdsScreenKey
+import me.saket.press.shared.syncer.git.GitHost.GITHUB
 import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextStyles.smallTitle
 import me.saket.press.shared.theme.TextView
-import me.saket.press.shared.theme.ThemePalette
 import press.extensions.borderlessRippleDrawable
 import press.extensions.rippleDrawable
-import press.extensions.getDrawable
 import press.extensions.textColor
 import press.navigation.navigator
-import press.theme.appTheme
 import press.theme.pressCascadeStyler
 import press.theme.themeAware
 
@@ -52,21 +49,21 @@ class SyncEnabledView(context: Context) : ContourLayout(context) {
     itemView.setOnClickListener { openRepo() }
 
     itemView.optionsButton.setOnClickListener {
-      showOptionsMenu(palette = appTheme().palette, openRepo)
+      showOptionsMenu(openRepo)
     }
   }
 
-  private fun showOptionsMenu(palette: ThemePalette, openRepo: () -> Unit) {
-    CascadePopupMenu(context, anchor = itemView.optionsButton, styler = pressCascadeStyler(palette)).apply {
+  private fun showOptionsMenu(openRepo: () -> Unit) {
+    CascadePopupMenu(context, anchor = itemView.optionsButton, styler = pressCascadeStyler()).apply {
       menu.add(context.strings().sync.open_repository)
-        .setIcon(context.getDrawable(R.drawable.ic_twotone_web_24, palette.textColorPrimary))
+        .setIcon(R.drawable.ic_twotone_web_24)
         .setOnMenuItemClickListener {
           openRepo()
           true
         }
 
       menu.addSubMenu(context.strings().sync.remove_repository)
-        .setIcon(context.getDrawable(R.drawable.ic_twotone_delete_24, palette.textColorPrimary))
+        .setIcon(R.drawable.ic_twotone_delete_24)
         .setHeaderTitle(context.strings().sync.remove_repository_confirm_question).also {
           it.add(context.strings().sync.remove_repository_confirm)
             .setOnMenuItemClickListener {
@@ -81,7 +78,7 @@ class SyncEnabledView(context: Context) : ContourLayout(context) {
         }
 
       menu.add(context.strings().sync.show_sync_stats)
-        .setIcon(context.getDrawable(R.drawable.ic_twotone_bug_report_24, palette.textColorPrimary))
+        .setIcon(R.drawable.ic_twotone_bug_report_24)
         .setOnMenuItemClickListener {
           navigator().lfg(SyncStatsForNerdsScreenKey)
           true

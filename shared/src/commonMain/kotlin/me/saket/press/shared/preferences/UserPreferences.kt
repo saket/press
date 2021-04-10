@@ -3,8 +3,8 @@ package me.saket.press.shared.preferences
 import com.russhwolf.settings.ObservableSettings
 import me.saket.press.shared.theme.ThemeSwitchingMode
 import me.saket.press.shared.theme.ThemeSwitchingMode.MatchSystem
-import me.saket.press.shared.theme.UiStyles.FontFamily
-import me.saket.press.shared.theme.UiStyles.FontFamily.WORK_SANS
+import me.saket.press.shared.theme.UiStyles.Typeface
+import me.saket.press.shared.theme.UiStyles.Typeface.WorkSans
 import me.saket.press.shared.theme.palettes.CascadeThemePalette
 import me.saket.press.shared.theme.palettes.CityLightsThemePalette
 import me.saket.press.shared.theme.palettes.DraculaThemePalette
@@ -24,11 +24,11 @@ class UserPreferences(settings: ObservableSettings) {
     defaultValue = AutoCorrectEnabled(true)
   )
 
-  val fontFamily = settings.setting(
+  val typeface = settings.setting(
     key = "typeface",
-    from = { FontFamily.valueOf(it) },
+    from = { Typeface.valueOf(it) },
     to = { it.name },
-    defaultValue = WORK_SANS
+    defaultValue = WorkSans
   )
 
   val themeSwitchingMode = settings.setting(

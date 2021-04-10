@@ -266,7 +266,7 @@ class EditorView @InflationInject constructor(
       CascadePopupMenu(
         context = context,
         anchor = anchor,
-        styler = pressCascadeStyler(palette),
+        styler = pressCascadeStyler(),
         backNavigator = backNavigator
       )
     }

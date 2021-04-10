@@ -2,6 +2,7 @@ package press.preferences.editor
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.LinearLayout.SHOW_DIVIDER_MIDDLE
 import android.widget.LinearLayout.VERTICAL
@@ -11,10 +12,13 @@ import androidx.core.widget.NestedScrollView
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.inflation.InflationInject
+import me.saket.cascade.CascadePopupMenu
 import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.preferences.UserPreferences
+import me.saket.press.shared.theme.UiStyles.Typeface
 import press.preferences.PreferenceRowView
+import press.theme.pressCascadeStyler
 import press.theme.themeAware
 import press.widgets.DividerDrawable
 import press.widgets.PressToolbar
@@ -37,6 +41,7 @@ class EditorPreferencesView @InflationInject constructor(
     themeAware { dividerDrawable = DividerDrawable(it.separator) }
   }
 
+  private val previewView = EditorPreviewView(context)
   private val fontFamilyView = PreferenceRowView(context)
 
   init {
@@ -57,14 +62,24 @@ class EditorPreferencesView @InflationInject constructor(
       )
     }
 
-    preferenceList.addView(fontFamilyView)
+    preferenceList.let {
+      it.addView(previewView)
+      it.addView(fontFamilyView)
+    }
 
     fontFamilyView.render(
-      setting = userPreferences.fontFamily,
-      title = context.strings().prefs.editor_fontfamily,
+      setting = userPreferences.typeface,
+      title = context.strings().prefs.editor_typeface,
       subtitle = { it!!.displayName },
       onClick = {
-        Toast.makeText(context, "Work in progress", Toast.LENGTH_SHORT).show()
+        val cascade = CascadePopupMenu(context, anchor = fontFamilyView, styler = pressCascadeStyler())
+        Typeface.values().forEach {
+          cascade.menu.add(it.displayName).setOnMenuItemClickListener {
+            Toast.makeText(context, "Work in progress", Toast.LENGTH_SHORT).show()
+            true
+          }
+        }
+        cascade.show()
       }
     )
   }
