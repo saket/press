@@ -8,6 +8,7 @@ import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import io.reactivex.rxkotlin.Observables.combineLatest
 import io.reactivex.subjects.BehaviorSubject
+import me.saket.press.shared.listenRx
 import me.saket.press.shared.preferences.sync.setup.HighlightedText
 import me.saket.press.shared.preferences.sync.setup.RepoUiModel
 import me.saket.press.shared.theme.TextStyles.mainTitle
@@ -16,8 +17,8 @@ import me.saket.press.shared.theme.TextView
 import me.saket.press.shared.theme.ThemePalette
 import press.extensions.rippleDrawable
 import press.extensions.textColor
+import press.theme.appTheme
 import press.theme.themeAware
-import press.theme.themePalette
 
 class GitRepoRowView(context: Context) : ContourLayout(context) {
   private val ownerView = TextView(context, smallBody).apply {
@@ -56,7 +57,7 @@ class GitRepoRowView(context: Context) : ContourLayout(context) {
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
 
-    combineLatest(models, themePalette())
+    combineLatest(models, appTheme().listenRx())
       .takeUntil(detaches())
       .subscribe { (model, palette) -> render(model, palette) }
   }

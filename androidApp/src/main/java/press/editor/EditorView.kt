@@ -81,9 +81,9 @@ import press.navigation.BackPressInterceptor.InterceptResult
 import press.navigation.BackPressInterceptor.InterceptResult.Ignored
 import press.navigation.navigator
 import press.navigation.screenKey
+import press.theme.appTheme
 import press.theme.pressCascadeStyler
 import press.theme.themeAware
-import press.theme.themePalette
 import press.widgets.PressToolbar
 
 class EditorView @InflationInject constructor(
@@ -173,7 +173,7 @@ class EditorView @InflationInject constructor(
     }
 
     // TODO: add support for changing WysiwygStyle.
-    themePalette()
+    appTheme().listenRx()
       .take(1)
       .takeUntil(detaches())
       .subscribe { palette ->

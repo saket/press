@@ -1,6 +1,5 @@
 package press.theme
 
-import android.annotation.SuppressLint
 import android.app.Application
 import android.content.ComponentCallbacks
 import android.content.res.Configuration
@@ -9,7 +8,6 @@ import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.view.View
 import com.jakewharton.rxbinding3.view.attaches
 import com.jakewharton.rxbinding3.view.detaches
-import io.reactivex.Observable
 import io.reactivex.Single
 import me.saket.press.BuildConfig
 import me.saket.press.shared.listenRx
@@ -45,16 +43,12 @@ private val Configuration.isDarkModeEnabled: Boolean
     }
   }
 
-@SuppressLint("WrongConstant")
 fun appTheme(): AppTheme {
   return PressApp.component.theme()
 }
 
-fun themePalette(): Observable<ThemePalette> =
-  appTheme().listenRx()
-
 fun View.themeAware(onThemeChange: (ThemePalette) -> Unit) {
-  val stream = themePalette()
+  val stream = appTheme().listenRx()
 
   val attaches = attaches().mergeWith(Single.create {
     // Because RxBinding doesn't emit anything if the View is already attached.
@@ -68,5 +62,6 @@ fun View.themeAware(onThemeChange: (ThemePalette) -> Unit) {
     .takeUntil(detaches())
     .mergeWith(stream.take(1))  // Don't wait till attach for the first emission.
     .distinctUntilChanged()
-    .subscribe { onThemeChange(it) }
+    .subscribe(onThemeChange)
 }
+
