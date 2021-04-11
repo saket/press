@@ -28,4 +28,7 @@ fun <T : Any> Setting<T>.listen(): RxJavaObservable<Optional<T>> {
     .asRxJava2Observable()
 }
 
+// todo: rename to listen()
 fun AppTheme.listenRx() = listen().asRxJava2Observable()
+
+fun AppTheme.listenPreChanges() = listenPreChange().asRxJava2Observable()

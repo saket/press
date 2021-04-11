@@ -28,7 +28,7 @@ class AndroidAppTheme @Inject constructor(
     app.registerComponentCallbacks(object : ComponentCallbacks {
       override fun onLowMemory() = Unit
       override fun onConfigurationChanged(newConfig: Configuration) {
-        setDarkModeEnabled(newConfig.isDarkModeEnabled)
+        isSystemInDarkMode = newConfig.isDarkModeEnabled
       }
     })
   }

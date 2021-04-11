@@ -2,7 +2,6 @@ package press.preferences.theme
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.View
 import android.widget.LinearLayout
 import android.widget.LinearLayout.SHOW_DIVIDER_END
 import android.widget.LinearLayout.SHOW_DIVIDER_MIDDLE
@@ -17,9 +16,7 @@ import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.preferences.UserPreferences
 import me.saket.press.shared.theme.AppTheme
-import me.saket.press.shared.theme.ThemePalette
 import press.preferences.PreferenceRowView
-import press.theme.appTheme
 import press.theme.themeAware
 import press.widgets.DividerDrawable
 import press.widgets.PressToolbar
@@ -43,9 +40,20 @@ class ThemePreferencesView @InflationInject constructor(
     themeAware { dividerDrawable = DividerDrawable(it.separator) }
   }
 
-  private val darkModeView = PreferenceRowView(context)
-  private val lightThemePaletteView = ThemePalettePickerView(context)
-  private val darkThemePaletteView = ThemePalettePickerView(context)
+  private val themeModeView = PreferenceRowView(context)
+
+  private val lightThemePaletteView = ThemePalettePickerView(
+    context,
+    title = "Light theme",
+    palettes = appTheme.lightThemePalettes(),
+    setting = userPreferences.lightThemePalette
+  )
+  private val darkThemePaletteView = ThemePalettePickerView(
+    context,
+    title = "Dark theme",
+    palettes = appTheme.darkThemePalettes(),
+    setting = userPreferences.darkThemePalette
+  )
 
   init {
     id = R.id.theme_preferences_view
@@ -66,27 +74,17 @@ class ThemePreferencesView @InflationInject constructor(
     }
 
     preferenceList.let {
-      it.addView(darkModeView)
+      it.addView(themeModeView)
       it.addView(lightThemePaletteView)
       it.addView(darkThemePaletteView)
     }
 
-    darkModeView.render(
+    themeModeView.render(
       title = "Theme mode",
       subtitle = "Auto dark (match system)",
       onClick = {
         Toast.makeText(context, "Work in progress", Toast.LENGTH_SHORT).show()
       }
-    )
-    lightThemePaletteView.render(
-      title = "Light theme",
-      palettes = appTheme.lightThemePalettes(),
-      setting = userPreferences.lightThemePalette,
-    )
-    darkThemePaletteView.render(
-      title = "Dark theme",
-      palettes = appTheme.darkThemePalettes(),
-      setting = userPreferences.darkThemePalette,
     )
   }
 }
