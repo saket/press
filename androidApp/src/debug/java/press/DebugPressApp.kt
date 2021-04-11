@@ -7,8 +7,6 @@ import com.facebook.flipper.plugins.inspector.DescriptorMapping
 import com.facebook.flipper.plugins.inspector.InspectorFlipperPlugin
 import com.facebook.flipper.plugins.sharedpreferences.SharedPreferencesFlipperPlugin
 import com.facebook.soloader.SoLoader
-import press.di.AppComponent
-import press.di.DaggerAppComponent
 import timber.log.Timber
 import timber.log.Timber.DebugTree
 import me.saket.press.shared.util.Timber as MppTimber
@@ -33,7 +31,4 @@ class DebugPressApp : PressApp() {
       client.start()
     }
   }
-
-  override fun buildDependencyGraph(): AppComponent =
-    DaggerAppComponent.builder().build()
 }

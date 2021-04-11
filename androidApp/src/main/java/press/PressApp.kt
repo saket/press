@@ -18,6 +18,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import me.saket.press.R
 import me.saket.press.shared.di.SharedComponent
 import press.di.AppComponent
+import press.di.DaggerAppComponent
 import press.navigation.TheActivity
 
 abstract class PressApp : Application(), LifecycleObserver {
@@ -25,11 +26,9 @@ abstract class PressApp : Application(), LifecycleObserver {
     lateinit var component: AppComponent
   }
 
-  abstract fun buildDependencyGraph(): AppComponent
-
   override fun onCreate() {
     super.onCreate()
-    component = buildDependencyGraph()
+    component = DaggerAppComponent.builder().application(this).build()
     SharedComponent.initialize(this)
 
     RxAndroidPlugins.setInitMainThreadSchedulerHandler {
