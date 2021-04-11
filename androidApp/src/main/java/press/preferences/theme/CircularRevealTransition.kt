@@ -21,7 +21,7 @@ import androidx.core.view.doOnDetach
 import kotlin.math.hypot
 import kotlin.math.max
 
-class CircularRevealTransition() {
+class CircularRevealTransition {
   private var animator = ValueAnimator()
   val isOngoing get() = animator.isRunning
 

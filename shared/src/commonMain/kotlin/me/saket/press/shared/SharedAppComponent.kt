@@ -10,7 +10,6 @@ import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.preferences.UserPreferences
 import me.saket.press.shared.rx.Schedulers
 import me.saket.press.shared.syncer.SyncCoordinator
-import me.saket.press.shared.theme.AppTheme
 import me.saket.press.shared.time.Clock
 import me.saket.press.shared.time.RealClock
 import me.saket.press.shared.ui.ScreenResults
@@ -24,7 +23,6 @@ class SharedAppComponent {
     single { ScreenResults() }
     factory { Schedulers(io = ioScheduler, computation = computationScheduler) }
     factory { UserPreferences(get()) }
-    single { AppTheme(get()) }
   }
 
   companion object {
@@ -33,6 +31,5 @@ class SharedAppComponent {
     fun syncCoordinator(): SyncCoordinator = koin()
     fun screenResults(): ScreenResults = koin()
     fun userPreferences(): UserPreferences = koin()
-    fun theme(): AppTheme = koin()
   }
 }
