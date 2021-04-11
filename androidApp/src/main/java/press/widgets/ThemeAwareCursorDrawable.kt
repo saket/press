@@ -11,31 +11,28 @@ import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.util.TypedValue.COMPLEX_UNIT_DIP
-import com.jakewharton.rx.replayingShare
-import me.saket.press.shared.listenRx
 import org.xmlpull.v1.XmlPullParser
 import press.PressApp
 
-class ThemeAwareCursorDrawable(private val state: CursorState = CursorState()) : Drawable() {
+class ThemeAwareCursorDrawable : Drawable() {
+  private var width: Int = 0
   private val paint = Paint(ANTI_ALIAS_FLAG)
-
-  init {
-    state.palette.subscribe {
-      paint.color = it.accentColor
-      invalidateSelf()
-    }
-  }
 
   override fun inflate(r: Resources, parser: XmlPullParser, attrs: AttributeSet, theme: Theme?) {
     super.inflate(r, parser, attrs, theme)
-    state.width = TypedValue.applyDimension(COMPLEX_UNIT_DIP, 2f, r.displayMetrics).toInt()
+    width = TypedValue.applyDimension(COMPLEX_UNIT_DIP, 2f, r.displayMetrics).toInt()
   }
 
   override fun setBounds(left: Int, top: Int, right: Int, bottom: Int) {
-    super.setBounds(left, top, left + state.width, bottom)
+    super.setBounds(left, top, left + width, bottom)
   }
 
   override fun draw(canvas: Canvas) {
+    PressApp.component.theme().palette.let {
+      if (paint.color != it.accentColor) {
+        paint.color = it.accentColor
+      }
+    }
     canvas.drawRect(bounds, paint)
   }
 
@@ -49,22 +46,6 @@ class ThemeAwareCursorDrawable(private val state: CursorState = CursorState()) :
     invalidateSelf()
   }
 
-  override fun getOpacity(): Int {
-    return PixelFormat.OPAQUE
-  }
-
-  override fun getConstantState(): ConstantState? {
-    return state
-  }
-
-  class CursorState : ConstantState() {
-    var width: Int = 0
-    val palette = PressApp.component
-      .theme()
-      .listenRx()
-      .replayingShare()
-
-    override fun newDrawable() = ThemeAwareCursorDrawable(this)
-    override fun getChangingConfigurations() = 0
-  }
+  override fun getOpacity(): Int = PixelFormat.OPAQUE
+  override fun getConstantState(): ConstantState? = null
 }
