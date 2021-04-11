@@ -47,7 +47,7 @@ class PreferenceRowView(context: Context) : ContourLayout(context) {
   fun <T : Any> render(
     setting: Setting<T>,
     title: String,
-    subtitle: (T?) -> String?,
+    subtitle: (T) -> String,
     onClick: () -> Unit
   ) {
     render(title, subtitle = "", onClick)
@@ -56,7 +56,7 @@ class PreferenceRowView(context: Context) : ContourLayout(context) {
       .switchMap { setting.listen() }
       .takeUntil(detaches())
       .subscribe { (preference) ->
-        render(title, subtitle(preference), onClick)
+        render(title, subtitle(preference!!), onClick)
       }
   }
 }

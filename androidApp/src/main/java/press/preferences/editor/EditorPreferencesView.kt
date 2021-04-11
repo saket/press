@@ -2,7 +2,6 @@ package press.preferences.editor
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.LinearLayout.SHOW_DIVIDER_MIDDLE
 import android.widget.LinearLayout.VERTICAL
@@ -70,16 +69,16 @@ class EditorPreferencesView @InflationInject constructor(
     fontFamilyView.render(
       setting = userPreferences.typeface,
       title = context.strings().prefs.editor_typeface,
-      subtitle = { it!!.displayName },
+      subtitle = { it.displayName },
       onClick = {
-        val cascade = CascadePopupMenu(context, anchor = fontFamilyView, styler = pressCascadeStyler())
-        Typeface.values().forEach {
-          cascade.menu.add(it.displayName).setOnMenuItemClickListener {
-            Toast.makeText(context, "Work in progress", Toast.LENGTH_SHORT).show()
-            true
+        CascadePopupMenu(context, anchor = fontFamilyView, styler = pressCascadeStyler()).apply {
+          Typeface.values().forEach {
+            menu.add(it.displayName).setOnMenuItemClickListener {
+              Toast.makeText(context, "Work in progress", Toast.LENGTH_SHORT).show()
+              true
+            }
           }
-        }
-        cascade.show()
+        }.show()
       }
     )
   }

@@ -33,10 +33,10 @@ class CircularRevealTransition {
    * 2. It cuts through the transition overlay so that any unfinished
    *    ripple animation is still visible, and doesn't end abruptly.
    */
-  fun beginTransition(anchor: View) {
+  fun beginTransition(sceneRoot: ViewGroup, anchor: View?) {
     // The overlay is applied to the Window's entire content
     // (decor View) to include the status and nav bars.
-    val windowDecorView = anchor.rootView as ViewGroup
+    val windowDecorView = sceneRoot.rootView as ViewGroup
 
     val decorImage = windowDecorView.captureImage()
     windowDecorView.overlay.add(decorImage)
@@ -50,7 +50,7 @@ class CircularRevealTransition {
         windowDecorView.overlay.remove(decorImage)
       }
     }
-    anchor.doOnDetach {
+    sceneRoot.doOnDetach {
       animator.end()
     }
   }
@@ -87,13 +87,24 @@ private class RevealView(context: Context) : View(context) {
     canvas.restoreToCount(checkpoint)
   }
 
-  fun createRevealAnimation(anchor: View): ValueAnimator {
-    val anchorBounds = anchor.locationInWindow()
-    val anchorCornerRadius = anchor.background.outline().radius // Doesn't work with non-rectangles yet.
-    check(anchorCornerRadius >= 0f)
+  fun createRevealAnimation(anchor: View?): ValueAnimator {
+    val anchorBounds: RectF
+    val anchorCornerRadius: Float
+    val epicenter: PointF
+
+    if (anchor == null) {
+      anchorBounds = RectF(0f, 0f, 0f, 0f)
+      anchorCornerRadius = 0f
+      epicenter = PointF(0f, 0f)
+
+    } else {
+      anchorBounds = anchor.locationInWindow()
+      anchorCornerRadius = anchor.background.outline().radius
+      check(anchorCornerRadius >= 0f) { "Non-rectangle anchors aren't supported yet." }
+      epicenter = PointF(anchorBounds.centerX(), anchorBounds.centerY())
+    }
 
     val startRadius = 0f
-    val epicenter = PointF(anchorBounds.centerX(), anchorBounds.centerY())
     val endRadius = fullyRevealedRadius(epicenter)
 
     return ObjectAnimator.ofFloat(startRadius, endRadius).apply {

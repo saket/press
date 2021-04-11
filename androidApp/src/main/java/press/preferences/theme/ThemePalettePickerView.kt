@@ -2,7 +2,6 @@ package press.preferences.theme
 
 import android.content.Context
 import android.view.HapticFeedbackConstants
-import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
 import androidx.core.view.updatePaddingRelative
@@ -74,14 +73,10 @@ class ThemePalettePickerView(
     // made outside this View (for example when "Theme mode" preference is changed).
     appTheme().listenPreChanges().takeUntil(detaches()).subscribe { palette ->
       if (palette in paletteAdapter.palettes) {
-        val previewView = paletteListView.children
+        val owningView = paletteListView.children
           .filterIsInstance<ThemePalettePreviewView>()
           .firstOrNull { it.palette == palette }
-
-        if (previewView != null) {
-          themeTransition.beginTransition(anchor = previewView)
-        }
-        performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+        themeTransition.beginTransition(sceneRoot = this, anchor = owningView)
       }
     }
   }
@@ -89,6 +84,7 @@ class ThemePalettePickerView(
   private fun changeThemeTo(palette: ThemePalette) {
     if (!themeTransition.isOngoing) {
       setting.set(palette)
+      performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
     }
   }
 }

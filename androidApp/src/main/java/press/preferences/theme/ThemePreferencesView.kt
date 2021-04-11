@@ -12,11 +12,14 @@ import androidx.core.widget.NestedScrollView
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.inflation.InflationInject
+import me.saket.cascade.CascadePopupMenu
 import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.preferences.UserPreferences
 import me.saket.press.shared.theme.AppTheme
+import me.saket.press.shared.theme.ThemeSwitchingMode
 import press.preferences.PreferenceRowView
+import press.theme.pressCascadeStyler
 import press.theme.themeAware
 import press.widgets.DividerDrawable
 import press.widgets.PressToolbar
@@ -28,6 +31,8 @@ class ThemePreferencesView @InflationInject constructor(
   userPreferences: UserPreferences,
   appTheme: AppTheme,
 ) : ContourLayout(context) {
+
+  private val strings get() = context.strings().prefs
 
   private val toolbar = PressToolbar(context).apply {
     title = context.strings().prefs.category_title_theme
@@ -80,10 +85,18 @@ class ThemePreferencesView @InflationInject constructor(
     }
 
     themeModeView.render(
-      title = "Theme mode",
-      subtitle = "Auto dark (match system)",
+      setting = userPreferences.themeSwitchingMode,
+      title = strings.theme_themeMode_title,
+      subtitle = { it.displayName(strings) },
       onClick = {
-        Toast.makeText(context, "Work in progress", Toast.LENGTH_SHORT).show()
+        CascadePopupMenu(context, anchor = themeModeView, styler = pressCascadeStyler()).apply {
+          ThemeSwitchingMode.values().forEach { mode ->
+            menu.add(mode.displayName(strings)).setOnMenuItemClickListener {
+              userPreferences.themeSwitchingMode.set(mode)
+              true
+            }
+          }
+        }.show()
       }
     )
   }

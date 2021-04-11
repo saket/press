@@ -113,6 +113,12 @@ class Strings(
     val category_title_about_app: String,
     val category_subtitle_about_app: String,
     val editor_typeface: String,
+
+    val theme_themeMode_title: String,
+    val theme_themeMode_always_dark: String,
+    val theme_themeMode_never_dark: String,
+    val theme_themeMode_match_system: String,
+
     val about_playstore_link_title: String,
     val about_header_html: String,
     val about_github_link_title: String,
@@ -230,6 +236,11 @@ val ENGLISH_STRINGS = Strings(
     category_title_about_app = "About Press",
     category_subtitle_about_app = "Send <strike>complaints</strike> kudos here",
     editor_typeface = "Typeface",
+
+    theme_themeMode_title = "Theme mode",
+    theme_themeMode_always_dark = "Always dark",
+    theme_themeMode_never_dark = "Always light",
+    theme_themeMode_match_system = "Match system",
 
     about_header_html = "Press is maintained by <a href=\"https://saket.me\">Saket Narayan</a>. It was created" +
       " as a result of their frustration for lack of a minimal & cross-platform markdown note taking app for " +
