@@ -2,6 +2,7 @@ package press.preferences.theme
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.view.HapticFeedbackConstants
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.updatePaddingRelative
@@ -94,11 +95,15 @@ class ThemePalettePickerView(context: Context) : ContourLayout(context) {
   }
 
   private fun changeThemeTo(setting: Setting<ThemePalette>, palette: ThemePalette, anchorView: View) {
-    if (appTheme().palette != palette && !themeTransition.isOngoing) {
-      themeTransition.beginTransition(anchor = anchorView)
-      appTheme().change(palette)
-      setting.set(palette)
+    if (appTheme().palette == palette || themeTransition.isOngoing) {
+      return
     }
+
+    themeTransition.beginTransition(anchor = anchorView)
+    appTheme().change(palette)
+    setting.set(palette)
+
+    anchorView.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
   }
 }
 
