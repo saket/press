@@ -40,9 +40,9 @@ class UserPreferences(settings: ObservableSettings) {
 
   val lightThemePalette = settings.setting(
     key = "light_theme_palette",
-    from = { ThemePaletteSerializer.fromString(it, default = SolarizedLightThemePalette) },
+    from = { ThemePaletteSerializer.fromString(it, default = CascadeThemePalette) },
     to = { ThemePaletteSerializer.toString(it) },
-    defaultValue = SolarizedLightThemePalette
+    defaultValue = CascadeThemePalette
   )
 
   val darkThemePalette = settings.setting(

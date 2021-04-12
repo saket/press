@@ -53,7 +53,7 @@ abstract class AppTheme(
 
   fun lightThemePalettes(): List<ThemePalette> {
     return listOf(
-      SolarizedLightThemePalette, MinimalLightThemePalette, CascadeThemePalette
+      CascadeThemePalette, MinimalLightThemePalette, SolarizedLightThemePalette
     )
   }
 
