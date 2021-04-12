@@ -22,13 +22,13 @@ abstract class AppTheme(
   startWithDarkMode: Boolean
 ) {
   private val onPreChange = PublishSubject<ThemePalette>()
-  private val stream = BehaviorSubject(userPrefs.determinePaletteFor(darkMode = startWithDarkMode))
-  val palette: ThemePalette get() = stream.value
+  private val changes = BehaviorSubject(userPrefs.determinePaletteFor(darkMode = startWithDarkMode))
+  val palette: ThemePalette get() = changes.value
 
   protected var isSystemInDarkMode: Boolean = startWithDarkMode
     set(value) {
       field = value
-      stream.onNext(userPrefs.determinePaletteFor(darkMode = value))
+      changes.onNext(userPrefs.determinePaletteFor(darkMode = value))
     }
 
   // This stream gets garbage collected if it's not stored in a class property.
@@ -39,12 +39,12 @@ abstract class AppTheme(
       val newPalette = userPrefs.determinePaletteFor(isSystemInDarkMode)
       if (palette != newPalette) {
         onPreChange.onNext(newPalette)
-        stream.onNext(newPalette)
+        changes.onNext(newPalette)
       }
     }
 
   internal fun listen(): Observable<ThemePalette> {
-    return stream
+    return changes
   }
 
   internal fun listenPreChange(): Observable<ThemePalette> {

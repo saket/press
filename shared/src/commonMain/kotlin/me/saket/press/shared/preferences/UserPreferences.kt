@@ -53,29 +53,27 @@ class UserPreferences(settings: ObservableSettings) {
   )
 
   private object ThemePaletteSerializer {
+    private val paletteToNames = mapOf(
+      CascadeThemePalette to "cascade",
+      CityLightsThemePalette to "city_lights",
+      DraculaThemePalette to "dracula",
+      MinimalDarkThemePalette to "minimal_dark",
+      MinimalLightThemePalette to "minimal_light",
+      PureBlackThemePalette to "pure_black",
+      SolarizedLightThemePalette to "solarized_light",
+    )
+
     fun toString(palette: ThemePalette): String {
-      return when (palette) {
-        CascadeThemePalette -> "cascade"
-        CityLightsThemePalette -> "city_lights"
-        DraculaThemePalette -> "dracula"
-        MinimalDarkThemePalette -> "minimal_dark"
-        MinimalLightThemePalette -> "minimal_light"
-        PureBlackThemePalette -> "pure_black"
-        SolarizedLightThemePalette -> "solarized_light"
-      }
+      return paletteToNames[palette]!!
     }
 
+    /**
+     * @param default will be used in case of de-serialization errors.
+     */
     fun fromString(serialized: String, default: ThemePalette): ThemePalette {
-      return when (serialized) {
-        "cascade" -> CascadeThemePalette
-        "city_lights" -> CityLightsThemePalette
-        "dracula" -> DraculaThemePalette
-        "minimal_dark" -> MinimalDarkThemePalette
-        "minimal_light" -> MinimalLightThemePalette
-        "pure_black" -> PureBlackThemePalette
-        "solarized_light" -> SolarizedLightThemePalette
-        else -> default
-      }
+      return paletteToNames.entries
+        .firstOrNull { (_, serializedName) -> serialized == serializedName }
+        ?.key ?: default
     }
   }
 }
