@@ -22,10 +22,10 @@ import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomeEvent.SearchTextChanged
+import me.saket.press.shared.home.HomeModel
 import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.home.HomePresenter.Args
 import me.saket.press.shared.home.HomeScreenKey
-import me.saket.press.shared.home.HomeModel
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.preferences.PreferencesScreenKey
 import me.saket.press.shared.ui.ScreenKey
@@ -54,36 +54,35 @@ class HomeView @InflationInject constructor(
   private val folderAdapter = FolderListAdapter()
   private val screenKey = screenKey<HomeScreenKey>()
 
-  private val toolbar = PressToolbar(context, showNavIcon = !HomeScreenKey.isRoot(screenKey)).apply {
-    applyLayout(
-      x = leftTo { parent.left() }.rightTo { parent.right() },
-      y = topTo { parent.top() }
-    )
-  }
+  private val toolbar = PressToolbar(context, showNavIcon = !HomeScreenKey.isRoot(screenKey))
 
   private val notesList = InboxRecyclerView(context).apply {
     id = R.id.home_notes
     itemAnimator = SlideDownItemAnimator()
     addItemDecoration(DividerItemDecoration())
-    //this.dimPainter = DimPainter.listAndPage(color = Color.CYAN, alpha = 0.25f)
-    applyLayout(
-      x = leftTo { parent.left() }.rightTo { parent.right() },
-      y = topTo { toolbar.bottom() }.bottomTo { parent.bottom() }
-    )
   }
 
   private val newNoteFab = FloatingActionButton(context).apply {
     setImageResource(R.drawable.ic_note_add_24dp)
-    applyLayout(
-      x = rightTo { parent.right() - 24.dip },
-      y = bottomTo { parent.bottom() - 24.dip }
-    )
   }
 
   init {
     id = R.id.home_view
-    notesList.adapter = ConcatAdapter(folderAdapter, noteAdapter)
 
+    toolbar.layoutBy(
+      x = leftTo { parent.left() }.rightTo { parent.right() },
+      y = topTo { parent.top() }
+    )
+    notesList.layoutBy(
+      x = leftTo { parent.left() }.rightTo { parent.right() },
+      y = topTo { toolbar.bottom() }.bottomTo { parent.bottom() }
+    )
+    newNoteFab.layoutBy(
+      x = rightTo { parent.right() - 24.dip },
+      y = bottomTo { parent.bottom() - 24.dip }
+    )
+
+    notesList.adapter = ConcatAdapter(folderAdapter, noteAdapter)
     notesList.layoutManager = object : LinearLayoutManager(context) {
       override fun calculateExtraLayoutSpace(state: State, extraLayoutSpace: IntArray) {
         super.calculateExtraLayoutSpace(state, extraLayoutSpace)
