@@ -36,23 +36,22 @@ interface EditorEvent {
   object CloseSubMenu : EditorEvent
 }
 
-data class EditorUiModel(
+data class EditorModel(
   val hintText: String?,
   val toolbarMenu: List<ToolbarMenuItem>
 )
 
-sealed class EditorUiEffect {
-  // todo: rename to PopulateNoteBody
-  data class UpdateNoteText(
+sealed class EditorEffect {
+  data class PopulateNoteBody(
     val newText: String,
     val newSelection: TextSelection?
-  ) : EditorUiEffect()
+  ) : EditorEffect()
 
   data class ShowToast(
     val message: String
-  ) : EditorUiEffect()
+  ) : EditorEffect()
 
-  object BlockedDueToSyncConflict : EditorUiEffect()
+  object BlockedDueToSyncConflict : EditorEffect()
 }
 
 sealed class ToolbarMenuItem {

@@ -38,11 +38,11 @@ import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorPresenter
 import me.saket.press.shared.editor.EditorPresenter.Args
 import me.saket.press.shared.editor.EditorScreenKey
-import me.saket.press.shared.editor.EditorUiEffect
-import me.saket.press.shared.editor.EditorUiEffect.BlockedDueToSyncConflict
-import me.saket.press.shared.editor.EditorUiEffect.ShowToast
-import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
-import me.saket.press.shared.editor.EditorUiModel
+import me.saket.press.shared.editor.EditorEffect
+import me.saket.press.shared.editor.EditorEffect.BlockedDueToSyncConflict
+import me.saket.press.shared.editor.EditorEffect.ShowToast
+import me.saket.press.shared.editor.EditorEffect.PopulateNoteBody
+import me.saket.press.shared.editor.EditorModel
 import me.saket.press.shared.editor.ToolbarIconKind.Archive
 import me.saket.press.shared.editor.ToolbarIconKind.CopyAs
 import me.saket.press.shared.editor.ToolbarIconKind.DeleteNote
@@ -229,7 +229,7 @@ class EditorView @InflationInject constructor(
     return Ignored
   }
 
-  private fun render(model: EditorUiModel) {
+  private fun render(model: EditorModel) {
     if (model.hintText == null) {
       headingHintTextView.visibility = GONE
     } else {
@@ -242,13 +242,13 @@ class EditorView @InflationInject constructor(
     }
   }
 
-  private fun render(uiUpdate: EditorUiEffect) {
+  private fun render(effect: EditorEffect) {
     mainThread().scheduleDirect {
       @Exhaustive
-      when (uiUpdate) {
-        is UpdateNoteText -> editorEditText.setText(uiUpdate.newText, uiUpdate.newSelection)
+      when (effect) {
+        is PopulateNoteBody -> editorEditText.setText(effect.newText, effect.newSelection)
         is BlockedDueToSyncConflict -> EditingBlockedDueToConflictDialog.show(context, onDismiss = navigator()::goBack)
-        is ShowToast -> Toast.makeText(context, uiUpdate.message, LENGTH_SHORT).show()
+        is ShowToast -> Toast.makeText(context, effect.message, LENGTH_SHORT).show()
       }
     }
   }

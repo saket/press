@@ -3,7 +3,6 @@ package me.saket.press.shared.editor
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.doesNotContain
-import assertk.assertions.doesNotCorrespond
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
@@ -28,8 +27,8 @@ import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorPresenter.Args
 import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
-import me.saket.press.shared.editor.EditorUiEffect.BlockedDueToSyncConflict
-import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
+import me.saket.press.shared.editor.EditorEffect.BlockedDueToSyncConflict
+import me.saket.press.shared.editor.EditorEffect.PopulateNoteBody
 import me.saket.press.shared.editor.ToolbarIconKind.Archive
 import me.saket.press.shared.editor.ToolbarIconKind.DeleteNote
 import me.saket.press.shared.editor.ToolbarIconKind.Unarchive
@@ -67,7 +66,7 @@ class EditorPresenterTest : BaseDatabaeTest() {
   private val syncConflicts = SyncMergeConflicts()
   private val syncer = FakeSyncer()
 
-  private val uiEffects = IsoStack<EditorUiEffect>()
+  private val uiEffects = IsoStack<EditorEffect>()
 
   private fun presenter(
     openMode: EditorOpenMode,
@@ -266,7 +265,7 @@ class EditorPresenterTest : BaseDatabaeTest() {
       .test()
 
     assertThat(uiEffects.pop()).isEqualTo(
-      UpdateNoteText("Nicolas Cage favorite dialogues", newSelection = null)
+      PopulateNoteBody("Nicolas Cage favorite dialogues", newSelection = null)
     )
   }
 
@@ -276,7 +275,7 @@ class EditorPresenterTest : BaseDatabaeTest() {
       .test()
 
     assertThat(uiEffects.pop()).isEqualTo(
-      UpdateNoteText(
+      PopulateNoteBody(
         newText = NEW_NOTE_PLACEHOLDER,
         newSelection = TextSelection.cursor(NEW_NOTE_PLACEHOLDER.length)
       )
@@ -289,7 +288,7 @@ class EditorPresenterTest : BaseDatabaeTest() {
       .test()
 
     assertThat(uiEffects.pop()).isEqualTo(
-      UpdateNoteText(newText = "Hello, World!", newSelection = null)
+      PopulateNoteBody(newText = "Hello, World!", newSelection = null)
     )
   }
 

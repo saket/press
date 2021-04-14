@@ -35,9 +35,9 @@ import me.saket.press.shared.editor.EditorEvent.ShareAsClicked
 import me.saket.press.shared.editor.EditorEvent.SplitScreenClicked
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
-import me.saket.press.shared.editor.EditorUiEffect.BlockedDueToSyncConflict
-import me.saket.press.shared.editor.EditorUiEffect.ShowToast
-import me.saket.press.shared.editor.EditorUiEffect.UpdateNoteText
+import me.saket.press.shared.editor.EditorEffect.BlockedDueToSyncConflict
+import me.saket.press.shared.editor.EditorEffect.ShowToast
+import me.saket.press.shared.editor.EditorEffect.PopulateNoteBody
 import me.saket.press.shared.editor.TextFormat.Html
 import me.saket.press.shared.editor.TextFormat.Markdown
 import me.saket.press.shared.editor.TextFormat.RichText
@@ -83,7 +83,7 @@ class EditorPresenter(
   private val markdownParser: MarkdownParser,
   private val clipboard: Clipboard,
   private val deviceInfo: DeviceInfo
-) : Presenter<EditorEvent, EditorUiModel>() {
+) : Presenter<EditorEvent, EditorModel>() {
 
   private val openMode = args.openMode
   private val noteQueries get() = database.noteQueries
@@ -91,18 +91,18 @@ class EditorPresenter(
   private val intentLauncher get() = args.navigator.intentLauncher()
 
   override fun defaultUiModel() =
-    EditorUiModel(
+    EditorModel(
       hintText = null,
       toolbarMenu = emptyList()
     )
 
-  override fun models(): ObservableWrapper<EditorUiModel> {
+  override fun models(): ObservableWrapper<EditorModel> {
     return viewEvents().publish { events ->
       createOrFetchNote().publish { noteStream ->
         val models = combineLatest(
           events.toggleHintText(),
           buildToolbarMenu(noteStream),
-          ::EditorUiModel
+          ::EditorModel
         )
 
         merge(
@@ -158,13 +158,13 @@ class EditorPresenter(
     )
   }
 
-  private fun populateExistingNoteOnStart(noteStream: Observable<Note>): Observable<EditorUiModel> {
+  private fun populateExistingNoteOnStart(noteStream: Observable<Note>): Observable<EditorModel> {
     return noteStream
       .take(1)
       .consumeOnNext {
         val isNewNote = it.content == NEW_NOTE_PLACEHOLDER
         args.onEffect(
-          UpdateNoteText(
+          PopulateNoteBody(
             newText = it.content,
             newSelection = if (isNewNote) TextSelection.cursor(it.content.length) else null
           )
@@ -172,7 +172,7 @@ class EditorPresenter(
       }
   }
 
-  private fun blockEditingOnSyncConflict(noteStream: Observable<Note>): Observable<EditorUiModel> {
+  private fun blockEditingOnSyncConflict(noteStream: Observable<Note>): Observable<EditorModel> {
     return noteConflicts(noteStream).consumeOnNext {
       args.onEffect(BlockedDueToSyncConflict)
     }
@@ -294,7 +294,7 @@ class EditorPresenter(
   private fun handleArchiveClicks(
     events: Observable<EditorEvent>,
     noteStream: Observable<Note>
-  ): Observable<EditorUiModel> {
+  ): Observable<EditorModel> {
     return events.ofType<ArchiveToggleClicked>()
       .withLatestFrom(noteStream, ::Pair)
       .observeOn(schedulers.io)
@@ -315,7 +315,7 @@ class EditorPresenter(
 
   private fun handleCopyClicks(
     events: Observable<EditorEvent>
-  ): Observable<EditorUiModel> {
+  ): Observable<EditorModel> {
     val copyClicks = events.ofType<CopyAsClicked>().map { it.format }
     val noteChanges = events.ofType<NoteTextChanged>().map { it.text }
 
@@ -333,7 +333,7 @@ class EditorPresenter(
 
   private fun handleShareClicks(
     events: Observable<EditorEvent>
-  ): Observable<EditorUiModel> {
+  ): Observable<EditorModel> {
     val shareClicks = events.ofType<ShareAsClicked>().map { it.format }
     val noteChanges = events.ofType<NoteTextChanged>().map { it.text }
 
@@ -351,7 +351,7 @@ class EditorPresenter(
   private fun handleSplitScreenClicks(
     events: Observable<EditorEvent>,
     noteStream: Observable<Note>
-  ): Observable<EditorUiModel> {
+  ): Observable<EditorModel> {
     return events.ofType<SplitScreenClicked>()
       .withLatestFrom(noteStream)
       .consumeOnNext { (_, note) ->
@@ -364,7 +364,7 @@ class EditorPresenter(
   private fun handleDuplicateNoteClicks(
     events: Observable<EditorEvent>,
     noteStream: Observable<Note>
-  ): Observable<EditorUiModel> {
+  ): Observable<EditorModel> {
     // It is important to use the text on the UI instead of the
     // one in the DB because it may have not been saved yet.
     val noteContent = events.ofType<NoteTextChanged>().map { it.text }
@@ -391,7 +391,7 @@ class EditorPresenter(
   private fun handleDeleteNoteClicks(
     events: Observable<EditorEvent>,
     noteStream: Observable<Note>
-  ): Observable<EditorUiModel> {
+  ): Observable<EditorModel> {
 
     return events.ofType<DeleteNoteClicked>()
       .withLatestFrom(noteStream)
@@ -402,7 +402,7 @@ class EditorPresenter(
       }
   }
 
-  private fun Observable<EditorEvent>.autoSaveContent(noteStream: Observable<Note>): Observable<EditorUiModel> {
+  private fun Observable<EditorEvent>.autoSaveContent(noteStream: Observable<Note>): Observable<EditorModel> {
     val textChanges = ofType<NoteTextChanged>().map { it.text }
 
     return noteStream
@@ -465,7 +465,7 @@ class EditorPresenter(
     /** Should be kept in sync with [HomePresenter.Args.includeBlankNotes]. */
     val deleteBlankNewNoteOnExit: Boolean,
     val navigator: Navigator,
-    val onEffect: (EditorUiEffect) -> Unit
+    val onEffect: (EditorEffect) -> Unit
   )
 
   companion object {
