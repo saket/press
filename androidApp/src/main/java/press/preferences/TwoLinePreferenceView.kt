@@ -8,6 +8,8 @@ import com.squareup.contour.ContourLayout
 import me.saket.press.shared.listen
 import me.saket.press.shared.preferences.Setting
 import me.saket.press.shared.theme.TextStyles
+import me.saket.press.shared.theme.TextStyles.mainTitle
+import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextView
 import press.extensions.rippleDrawable
 import press.extensions.textColor
@@ -15,8 +17,8 @@ import press.theme.themeAware
 
 /** Shows a title and a subtitle. */
 class TwoLinePreferenceView(context: Context) : ContourLayout(context) {
-  private val titleView = TextView(context, TextStyles.mainTitle)
-  private val subtitleView = TextView(context, TextStyles.smallBody)
+  private val titleView = TextView(context, mainTitle)
+  private val subtitleView = TextView(context, smallBody)
 
   init {
     titleView.layoutBy(
@@ -61,3 +63,4 @@ class TwoLinePreferenceView(context: Context) : ContourLayout(context) {
       }
   }
 }
+

@@ -1,7 +1,9 @@
 package press.theme
 
+import android.R.attr.state_checked
 import android.app.Activity
 import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.PorterDuff.Mode.SRC_ATOP
 import android.graphics.PorterDuff.Mode.SRC_IN
 import android.graphics.PorterDuffColorFilter
@@ -10,6 +12,7 @@ import android.view.ViewGroup
 import android.view.Window.ID_ANDROID_CONTENT
 import android.widget.Button
 import android.widget.CheckBox
+import android.widget.CompoundButton
 import android.widget.EdgeEffect
 import android.widget.EditText
 import android.widget.HorizontalScrollView
@@ -25,13 +28,17 @@ import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.switchmaterial.SwitchMaterial
 import me.saket.press.R
+import me.saket.press.shared.theme.blendWith
+import me.saket.press.shared.theme.withAlpha
 import press.extensions.borderlessRippleDrawable
 import press.extensions.findTitleView
 import press.extensions.onViewAdds
 import press.extensions.textColor
 import press.widgets.PressButton
 import press.widgets.ScrollViewCompat
+import press.widgets.colorStateListOf
 import press.widgets.dp
 
 /**
@@ -68,6 +75,7 @@ object AutoThemer {
     when (view) {
       is EditText -> themed(view)
       is CheckBox -> themed(view)
+      is SwitchMaterial -> themed(view)
       is Button -> themed(view)
       is TextView -> themed(view)
       is ScrollView -> themed(view)
@@ -92,7 +100,7 @@ private fun <T : TextView> themed(view: T): T = view.apply {
 }
 
 private fun <T : Button> themed(view: T): T = view.apply {
-  check(view is PressButton) { "Use PressButton instead" }
+  check(view is PressButton || view is CompoundButton) { "Use PressButton instead" }
 }
 
 private fun <T : EditText> themed(view: T): T = view.apply {
@@ -107,6 +115,19 @@ private fun <T : CheckBox> themed(view: T): T = view.apply {
   themeAware {
     background = borderlessRippleDrawable(it)
     buttonTintList = ColorStateList.valueOf(it.accentColor)
+  }
+}
+
+private fun <T : SwitchMaterial> themed(view: T): T = view.apply {
+  themeAware {
+    thumbTintList = colorStateListOf(
+      intArrayOf(state_checked) to it.accentColor,
+      intArrayOf(-state_checked) to it.window.backgroundColor.blendWith(Color.WHITE, 0.7f)
+    )
+    trackTintList = colorStateListOf(
+      intArrayOf(state_checked) to it.accentColor.withAlpha(0.5f),
+      intArrayOf(-state_checked) to it.window.backgroundColor.blendWith(Color.WHITE, 0.2f)
+    )
   }
 }
 

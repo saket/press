@@ -115,7 +115,9 @@ class Strings(
     val category_subtitle_sync: String,
     val category_title_about_app: String,
     val category_subtitle_about_app: String,
+
     val editor_typeface: String,
+    val editor_autocorrect: String,
 
     val theme_themeMode_title: String,
     val theme_themeMode_always_dark: String,
@@ -241,7 +243,9 @@ val ENGLISH_STRINGS = Strings(
     category_subtitle_sync = "Your notes, available anywhere through git",
     category_title_about_app = "About Press",
     category_subtitle_about_app = "Send <strike>complaints</strike> kudos here",
+
     editor_typeface = "Typeface",
+    editor_autocorrect = "Auto-correct typos",
 
     theme_themeMode_title = "Theme mode",
     theme_themeMode_always_dark = "Always dark",
