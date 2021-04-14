@@ -18,8 +18,9 @@ import me.saket.press.shared.fakedata.fakeFolder
 import me.saket.press.shared.fakedata.fakeNote
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomeEvent.SearchTextChanged
+import me.saket.press.shared.home.HomeModel.FolderModel
+import me.saket.press.shared.home.HomeModel.NoteModel
 import me.saket.press.shared.home.HomePresenter.Args
-import me.saket.press.shared.home.HomeUiModel.Note
 import me.saket.press.shared.keyboard.KeyboardShortcuts
 import me.saket.press.shared.keyboard.RealKeyboardShortcuts
 import me.saket.press.shared.localization.ENGLISH_STRINGS
@@ -75,16 +76,16 @@ class HomePresenterTest : BaseDatabaeTest() {
 
     presenter.dispatch(SearchTextChanged(text = ""))
     assertThat(models.popValue()).containsOnly(
-      HomeUiModel.Folder(
+      FolderModel(
         id = archive.id,
         title = "archive",
       ),
-      Note(
+      NoteModel(
         id = nicolasCage.id,
         title = "Nicolas Cage",
         body = "Our national treasure"
       ),
-      Note(
+      NoteModel(
         id = witcher3.id,
         title = "",
         body = "The Witcher 3 Wild Hunt"
@@ -109,11 +110,11 @@ class HomePresenterTest : BaseDatabaeTest() {
 
     presenter.dispatch(SearchTextChanged(text = ""))
     assertThat(models.popValue()).containsOnly(
-      HomeUiModel.Folder(
+      FolderModel(
         id = games.id,
         title = "games",
       ),
-      Note(
+      NoteModel(
         id = witcher3.id,
         title = "The Witcher 3",
         body = "Wild Hunt"
@@ -139,12 +140,12 @@ class HomePresenterTest : BaseDatabaeTest() {
     // When searching in the folder, include results from all nested folders too.
     presenter.dispatch(SearchTextChanged(text = "gam"))
     assertThat(models.popValue()).containsOnly(
-      Note(
+      NoteModel(
         id = gambling.id,
         title = "Gambling",
         body = ""
       ),
-      Note(
+      NoteModel(
         id = archivedWitcher.id,
         title = "The Archived Witcher 3 (game)",
         body = ""

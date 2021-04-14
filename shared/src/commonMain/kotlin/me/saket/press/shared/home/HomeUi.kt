@@ -23,19 +23,18 @@ interface HomeEvent {
   data class SearchTextChanged(val text: String): HomeEvent
 }
 
-data class HomeUiModel(val title: String, val rows: List<Row>) {
-  val notes: List<Note> get() = rows.filterIsInstance<Note>()
-  val folders: List<Folder> get() = rows.filterIsInstance<Folder>()
+data class HomeModel(val title: String, val rows: List<Row>) {
+  val notes: List<NoteModel> get() = rows.filterIsInstance<NoteModel>()
+  val folders: List<FolderModel> get() = rows.filterIsInstance<FolderModel>()
 
-  interface Row {
+  sealed interface Row {
     val id: Any
     fun screenKey(): ScreenKey
 
     override fun equals(other: Any?): Boolean
   }
 
-  // TODO: Rename to NoteModel.
-  data class Note(
+  data class NoteModel(
     override val id: NoteId,
     val title: String,
     val body: String
@@ -47,8 +46,7 @@ data class HomeUiModel(val title: String, val rows: List<Row>) {
     }
   }
 
-  // TODO: Rename to FolderModel.
-  data class Folder(
+  data class FolderModel(
     override val id: FolderId,
     val title: String
   ) : Row {

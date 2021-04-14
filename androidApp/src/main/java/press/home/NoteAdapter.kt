@@ -4,7 +4,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import me.saket.press.shared.db.NoteId
 import press.home.NoteAdapter.NoteVH
-import me.saket.press.shared.home.HomeUiModel.Note as Model
+import me.saket.press.shared.home.HomeModel.NoteModel as Model
 
 // TODO: rename to NoteListAdapter
 class NoteAdapter : BaseHomeRowAdapter<Model, NoteVH>() {

@@ -7,7 +7,7 @@ import android.view.Gravity.CENTER_VERTICAL
 import android.widget.TextView
 import com.squareup.contour.ContourLayout
 import me.saket.press.R
-import me.saket.press.shared.home.HomeUiModel
+import me.saket.press.shared.home.HomeModel.FolderModel
 import me.saket.press.shared.home.HomeUiStyles.noteTitle
 import me.saket.press.shared.theme.TextView
 import press.extensions.getDrawable
@@ -24,7 +24,7 @@ class FolderRowView(context: Context) : ContourLayout(context) {
     }
   }
 
-  lateinit var model: HomeUiModel.Folder
+  lateinit var model: FolderModel
 
   init {
     titleView.layoutBy(
@@ -39,9 +39,9 @@ class FolderRowView(context: Context) : ContourLayout(context) {
     }
   }
 
-  fun render(noteModel: HomeUiModel.Folder) {
-    this.model = noteModel
-    titleView.text = noteModel.title
+  fun render(model: FolderModel) {
+    this.model = model
+    titleView.text = model.title
   }
 }
 

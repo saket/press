@@ -25,7 +25,7 @@ import me.saket.press.shared.home.HomeEvent.SearchTextChanged
 import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.home.HomePresenter.Args
 import me.saket.press.shared.home.HomeScreenKey
-import me.saket.press.shared.home.HomeUiModel
+import me.saket.press.shared.home.HomeModel
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.preferences.PreferencesScreenKey
 import me.saket.press.shared.ui.ScreenKey
@@ -166,7 +166,7 @@ class HomeView @InflationInject constructor(
     }
   }
 
-  private fun render(model: HomeUiModel) {
+  private fun render(model: HomeModel) {
     toolbar.title = model.title
     noteAdapter.submitList(model.notes)
     folderAdapter.submitList(model.folders)

@@ -4,7 +4,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import me.saket.press.shared.db.FolderId
 import press.home.FolderListAdapter.FolderVH
-import me.saket.press.shared.home.HomeUiModel.Folder as Model
+import me.saket.press.shared.home.HomeModel.FolderModel as Model
 
 class FolderListAdapter : BaseHomeRowAdapter<Model, FolderVH>() {
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =

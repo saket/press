@@ -4,7 +4,7 @@ import android.animation.AnimatorInflater.loadStateListAnimator
 import android.content.Context
 import com.squareup.contour.ContourLayout
 import me.saket.press.R
-import me.saket.press.shared.home.HomeUiModel
+import me.saket.press.shared.home.HomeModel
 import me.saket.press.shared.home.HomeUiStyles.noteBody
 import me.saket.press.shared.home.HomeUiStyles.noteTitle
 import me.saket.press.shared.theme.TextView
@@ -24,7 +24,7 @@ class NoteRowView(context: Context) : ContourLayout(context) {
     }
   }
 
-  lateinit var model: HomeUiModel.Note
+  lateinit var model: HomeModel.NoteModel
 
   init {
     titleView.layoutBy(
@@ -43,9 +43,9 @@ class NoteRowView(context: Context) : ContourLayout(context) {
     }
   }
 
-  fun render(noteModel: HomeUiModel.Note) {
-    this.model = noteModel
-    titleView.text = noteModel.title
-    bodyView.text = noteModel.body
+  fun render(model: HomeModel.NoteModel) {
+    this.model = model
+    titleView.text = model.title
+    bodyView.text = model.body
   }
 }

@@ -25,6 +25,8 @@ import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.editor.PreSavedNoteId
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomeEvent.SearchTextChanged
+import me.saket.press.shared.home.HomeModel.FolderModel
+import me.saket.press.shared.home.HomeModel.NoteModel
 import me.saket.press.shared.keyboard.KeyboardShortcuts
 import me.saket.press.shared.keyboard.KeyboardShortcuts.Companion.newNote
 import me.saket.press.shared.localization.Strings
@@ -45,19 +47,19 @@ class HomePresenter(
   private val strings: Strings,
   private val clock: Clock,
   private val keyboardShortcuts: KeyboardShortcuts
-) : Presenter<HomeEvent, HomeUiModel>() {
+) : Presenter<HomeEvent, HomeModel>() {
   private val noteQueries get() = database.noteQueries
 
   override fun defaultUiModel() =
-    HomeUiModel(rows = emptyList(), title = "")
+    HomeModel(rows = emptyList(), title = "")
 
-  override fun models(): ObservableWrapper<HomeUiModel> {
+  override fun models(): ObservableWrapper<HomeModel> {
     return viewEvents().publish { events ->
       merge(populateNotes(events), openNewNoteScreen())
     }.wrap()
   }
 
-  private fun openNewNoteScreen(): Observable<HomeUiModel> {
+  private fun openNewNoteScreen(): Observable<HomeModel> {
     return viewEvents().ofType<NewNoteClicked>()
       .mergeWith(keyboardShortcuts.listen(newNote))
       .observeOn(schedulers.io)
@@ -82,7 +84,7 @@ class HomePresenter(
       .andThen(observableOfEmpty())
   }
 
-  private fun populateNotes(events: Observable<HomeEvent>): Observable<HomeUiModel> {
+  private fun populateNotes(events: Observable<HomeEvent>): Observable<HomeModel> {
     val folderId = args.screenKey.folder
 
     val screenTitle = if (folderId != null) {
@@ -101,7 +103,7 @@ class HomePresenter(
             .asObservable(schedulers.io)
             .mapToList()
             .mapIterable { folder ->
-              HomeUiModel.Folder( // todo: avoid double mapping from cursors.
+              FolderModel( // todo: avoid double mapping from cursors.
                 id = folder.id,
                 title = folder.name
               )
@@ -127,7 +129,7 @@ class HomePresenter(
           .mapToList()
           .mapIterable { note ->
             val (heading, body) = HeadingAndBody.parse(note.content)
-            HomeUiModel.Note(
+            NoteModel(
               id = note.id,
               title = heading,
               body = body
@@ -136,7 +138,7 @@ class HomePresenter(
       }
 
       return@publish combineLatest(screenTitle, folderModels, noteModels) { title, folders, notes ->
-        HomeUiModel(
+        HomeModel(
           title = title,
           rows = folders + notes
         )
