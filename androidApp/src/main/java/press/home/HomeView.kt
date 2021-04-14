@@ -97,8 +97,13 @@ class HomeView @InflationInject constructor(
     themeAware { palette ->
       toolbar.menu.clear()
       toolbar.menu.add(
+        icon = context.getDrawable(R.drawable.ic_search_24, palette.accentColor),
+        title = context.strings().home.menu_search_notes,
+        onClick = {}
+      )
+      toolbar.menu.add(
         icon = context.getDrawable(R.drawable.ic_preferences_24dp, palette.accentColor),
-        title = context.strings().home.preferences,
+        title = context.strings().home.menu_preferences,
         onClick = { navigator().lfg(PreferencesScreenKey) }
       )
     }

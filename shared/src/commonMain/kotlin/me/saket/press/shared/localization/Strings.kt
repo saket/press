@@ -22,7 +22,10 @@ class Strings(
   )
 
   class Home(
-    val preferences: String
+    val menu_preferences: String,
+    val menu_search_notes: String,
+    val searchnotes_everywhere_hint: String,
+    val searchnotes_in_folder_hint: String,
   )
 
   class Editor(
@@ -135,7 +138,10 @@ val ENGLISH_STRINGS = Strings(
     share_picker_title = "Share with"
   ),
   home = Home(
-    preferences = "Preferences"
+    menu_preferences = "Preferences",
+    menu_search_notes = "Search notes",
+    searchnotes_everywhere_hint = "Search notes…",
+    searchnotes_in_folder_hint = "Search notes in %s…"
   ),
   editor = Editor(
     new_note_hints = listOf(
