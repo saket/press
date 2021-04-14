@@ -13,7 +13,8 @@ import press.extensions.rippleDrawable
 import press.extensions.textColor
 import press.theme.themeAware
 
-class PreferenceRowView(context: Context) : ContourLayout(context) {
+/** Shows a title and a subtitle. */
+class TwoLinePreferenceView(context: Context) : ContourLayout(context) {
   private val titleView = TextView(context, TextStyles.mainTitle)
   private val subtitleView = TextView(context, TextStyles.smallBody)
 

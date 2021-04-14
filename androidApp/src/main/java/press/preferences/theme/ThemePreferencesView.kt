@@ -6,7 +6,6 @@ import android.widget.LinearLayout
 import android.widget.LinearLayout.SHOW_DIVIDER_END
 import android.widget.LinearLayout.SHOW_DIVIDER_MIDDLE
 import android.widget.LinearLayout.VERTICAL
-import android.widget.Toast
 import androidx.core.view.updatePadding
 import androidx.core.widget.NestedScrollView
 import com.squareup.contour.ContourLayout
@@ -18,7 +17,7 @@ import me.saket.press.shared.localization.strings
 import me.saket.press.shared.preferences.UserPreferences
 import me.saket.press.shared.theme.AppTheme
 import me.saket.press.shared.theme.ThemeSwitchingMode
-import press.preferences.PreferenceRowView
+import press.preferences.TwoLinePreferenceView
 import press.theme.pressCascadeStyler
 import press.theme.themeAware
 import press.widgets.DividerDrawable
@@ -45,7 +44,7 @@ class ThemePreferencesView @InflationInject constructor(
     themeAware { dividerDrawable = DividerDrawable(it.separator) }
   }
 
-  private val themeModeView = PreferenceRowView(context)
+  private val themeModeView = TwoLinePreferenceView(context)
 
   private val lightThemePaletteView = ThemePalettePickerView(
     context,

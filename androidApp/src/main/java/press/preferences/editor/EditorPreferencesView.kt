@@ -16,7 +16,7 @@ import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.preferences.UserPreferences
 import me.saket.press.shared.theme.UiStyles.Typeface
-import press.preferences.PreferenceRowView
+import press.preferences.TwoLinePreferenceView
 import press.theme.pressCascadeStyler
 import press.theme.themeAware
 import press.widgets.DividerDrawable
@@ -41,7 +41,7 @@ class EditorPreferencesView @InflationInject constructor(
   }
 
   private val previewView = EditorPreviewView(context)
-  private val fontFamilyView = PreferenceRowView(context)
+  private val fontFamilyView = TwoLinePreferenceView(context)
 
   init {
     id = R.id.editor_preferences_view

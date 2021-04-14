@@ -21,7 +21,7 @@ import me.saket.press.shared.theme.TextStyles.mainBody
 import me.saket.press.shared.theme.TextView
 import press.extensions.textColor
 import press.navigation.navigator
-import press.preferences.PreferenceRowView
+import press.preferences.TwoLinePreferenceView
 import press.theme.themeAware
 import press.widgets.DividerDrawable
 import press.widgets.PressToolbar
@@ -46,9 +46,9 @@ class AboutAppPreferencesView @InflationInject constructor(
     }
   }
 
-  private val playStoreView = PreferenceRowView(context)
-  private val githubView = PreferenceRowView(context)
-  private val creditsView = PreferenceRowView(context)
+  private val playStoreView = TwoLinePreferenceView(context)
+  private val githubView = TwoLinePreferenceView(context)
+  private val creditsView = TwoLinePreferenceView(context)
 
   private val preferenceList = LinearLayout(context).apply {
     orientation = VERTICAL
