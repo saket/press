@@ -46,6 +46,7 @@ kotlin {
   sourceSets {
     commonMain {
       dependencies {
+        implementation project(':wysiwyg')
         implementation project(':kgit')
         api deps.reaktive.core.common
         implementation deps.reaktive.interop.coroutines
