@@ -42,7 +42,7 @@ class PreferenceCategoryRowView(context: Context) : ContourLayout(context) {
       iconView.setColorFilter(it.accentColor)
       titleView.textColor = it.textColorPrimary
       subtitleView.textColor = it.textColorSecondary
-      setBackgroundColor(it.window.backgroundColor)
+      setBackgroundColor(it.window.elevatedBackgroundColor)
     }
     stateListAnimator = AnimatorInflater.loadStateListAnimator(context, R.animator.thread_elevation_stateanimator)
   }
