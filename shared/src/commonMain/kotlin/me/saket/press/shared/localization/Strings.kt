@@ -116,6 +116,7 @@ class Strings(
     val category_title_about_app: String,
     val category_subtitle_about_app: String,
 
+    val editor_preview_title: String,
     val editor_typeface: String,
     val editor_autocorrect: String,
 
@@ -244,6 +245,7 @@ val ENGLISH_STRINGS = Strings(
     category_title_about_app = "About Press",
     category_subtitle_about_app = "Send <strike>complaints</strike> kudos here",
 
+    editor_preview_title = "Preview",
     editor_typeface = "Typeface",
     editor_autocorrect = "Auto-correct typos",
 
