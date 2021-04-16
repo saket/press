@@ -51,7 +51,7 @@ kotlin {
     androidMain {
       dependencies {
         implementation deps.androidx.appCompat
-        implementation deps.flexmark.core
+        api deps.flexmark.core
         implementation deps.flexmark.strikethrough
         implementation deps.flexmark.autoLink
         implementation deps.timber
