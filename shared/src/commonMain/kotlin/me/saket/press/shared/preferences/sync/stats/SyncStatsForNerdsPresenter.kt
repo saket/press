@@ -3,13 +3,11 @@ package me.saket.press.shared.preferences.sync.stats
 import com.badoo.reaktive.observable.ObservableWrapper
 import com.badoo.reaktive.observable.combineLatest
 import com.badoo.reaktive.observable.distinctUntilChanged
-import com.badoo.reaktive.observable.flatMap
 import com.badoo.reaktive.observable.startWithValue
 import com.badoo.reaktive.observable.switchMap
 import com.badoo.reaktive.observable.wrap
 import com.badoo.reaktive.single.Single
 import com.badoo.reaktive.single.asObservable
-import com.badoo.reaktive.single.observeOn
 import com.badoo.reaktive.single.singleFromFunction
 import com.badoo.reaktive.single.subscribeOn
 import me.saket.press.shared.localization.Strings

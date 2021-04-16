@@ -19,8 +19,6 @@ import com.badoo.reaktive.observable.takeUntil
 import com.badoo.reaktive.observable.withLatestFrom
 import com.badoo.reaktive.observable.zip
 import com.badoo.reaktive.scheduler.Scheduler
-import com.badoo.reaktive.single.Single
-import com.badoo.reaktive.single.singleTimer
 import com.soywiz.klock.TimeSpan
 
 internal fun observableInterval(interval: TimeSpan, scheduler: Scheduler): Observable<Long> {

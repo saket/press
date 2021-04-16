@@ -3,7 +3,6 @@ package me.saket.press.shared.syncer
 import co.touchlab.stately.concurrency.AtomicInt
 import com.badoo.reaktive.completable.Completable
 import com.badoo.reaktive.observable.firstOrError
-import com.badoo.reaktive.observable.observableOfNever
 import com.badoo.reaktive.single.asCompletable
 import com.badoo.reaktive.subject.behavior.BehaviorSubject
 import com.badoo.reaktive.subject.publish.PublishSubject

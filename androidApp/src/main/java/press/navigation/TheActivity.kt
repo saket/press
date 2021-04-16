@@ -10,7 +10,6 @@ import android.content.Intent.EXTRA_TEXT
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
-import android.widget.FrameLayout
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorScreenKey

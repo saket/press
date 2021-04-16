@@ -2,19 +2,7 @@ package me.saket.wysiwyg.parser
 
 import android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
 import me.saket.wysiwyg.parser.node.HeadingLevel
-import me.saket.wysiwyg.spans.BlockQuoteSpan
-import me.saket.wysiwyg.spans.ClickableUrlSpan
-import me.saket.wysiwyg.spans.ForegroundColorSpan
 import me.saket.wysiwyg.spans.HeadingSpan
-import me.saket.wysiwyg.spans.IndentedCodeBlockSpan
-import me.saket.wysiwyg.spans.InlineCodeSpan
-import me.saket.wysiwyg.spans.MonospaceTypefaceSpan
-import me.saket.wysiwyg.spans.ParagraphLeadingMarginSpan
-import me.saket.wysiwyg.spans.SpanPool
-import me.saket.wysiwyg.spans.StrikethroughSpan
-import me.saket.wysiwyg.spans.StyleSpan
-import me.saket.wysiwyg.spans.ThematicBreakSpan
-import me.saket.wysiwyg.spans.WysiwygSpan
 import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.widgets.EditableText
 import me.saket.wysiwyg.widgets.NativeTextField

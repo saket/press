@@ -35,6 +35,6 @@ expect class RealtimeMarkdownRenderer(style: WysiwygStyle, textField: NativeText
 }
 
 /** Renderer for an static text view. */
-expect class StaticMarkdownRenderer(style: WysiwygStyle): BaseMarkdownRenderer {
+expect class StaticMarkdownRenderer(style: WysiwygStyle) : BaseMarkdownRenderer {
   fun render(markdownNode: Node, text: String): StyledText
 }

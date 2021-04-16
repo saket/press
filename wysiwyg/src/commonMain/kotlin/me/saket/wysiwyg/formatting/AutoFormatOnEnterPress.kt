@@ -149,7 +149,11 @@ object AutoFormatOnEnterPress {
       )
     }
 
-    private fun endListSyntax(text: CharSequence, cursor: TextSelection, lastItemBounds: ParagraphBounds): ReplaceTextWith {
+    private fun endListSyntax(
+      text: CharSequence,
+      cursor: TextSelection,
+      lastItemBounds: ParagraphBounds
+    ): ReplaceTextWith {
       return ReplaceTextWith(
         replacement = text.removeRange(startIndex = lastItemBounds.start, endIndex = lastItemBounds.endExclusive),
         newSelection = cursor.offsetBy(-lastItemBounds.length)

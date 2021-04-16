@@ -15,4 +15,3 @@ interface ScreenFocusChangeListener {
   /** True when a View is present at the foreground of [TheActivity]. False otherwise. */
   fun onScreenFocusChanged(focusedScreen: ScreenKey?)
 }
-

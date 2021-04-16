@@ -39,7 +39,6 @@ import press.navigation.screenKey
 import press.theme.themeAware
 import press.widgets.PressToolbar
 import press.widgets.SlideDownItemAnimator
-import kotlin.math.abs
 
 class GitHostIntegrationView @InflationInject constructor(
   @Assisted context: Context,

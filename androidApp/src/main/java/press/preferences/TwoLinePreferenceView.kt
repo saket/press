@@ -7,7 +7,6 @@ import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import me.saket.press.shared.listen
 import me.saket.press.shared.preferences.Setting
-import me.saket.press.shared.theme.TextStyles
 import me.saket.press.shared.theme.TextStyles.mainTitle
 import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextView
@@ -63,4 +62,3 @@ class TwoLinePreferenceView(context: Context) : ContourLayout(context) {
       }
   }
 }
-

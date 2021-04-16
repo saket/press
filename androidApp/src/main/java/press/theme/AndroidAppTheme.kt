@@ -64,4 +64,3 @@ fun View.themeAware(onThemeChange: (ThemePalette) -> Unit) {
     .distinctUntilChanged()
     .subscribe(onThemeChange)
 }
-

@@ -20,7 +20,7 @@ data class HomeScreenKey(
 
 interface HomeEvent {
   object NewNoteClicked : HomeEvent
-  data class SearchTextChanged(val text: String): HomeEvent
+  data class SearchTextChanged(val text: String) : HomeEvent
 }
 
 data class HomeModel(val title: String, val rows: List<Row>) {

@@ -8,7 +8,6 @@ import android.widget.LinearLayout.SHOW_DIVIDER_MIDDLE
 import android.widget.LinearLayout.VERTICAL
 import android.widget.Toast
 import androidx.core.view.updatePadding
-import androidx.core.view.updatePaddingRelative
 import androidx.core.widget.NestedScrollView
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.squareup.contour.ContourLayout
@@ -19,7 +18,6 @@ import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.preferences.AutoCorrectEnabled
 import me.saket.press.shared.preferences.UserPreferences
-import me.saket.press.shared.theme.TextStyles
 import me.saket.press.shared.theme.TextStyles.mainTitle
 import me.saket.press.shared.theme.UiStyles.Typeface
 import me.saket.press.shared.theme.applyStyle

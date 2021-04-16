@@ -7,7 +7,6 @@ import android.view.View
 import me.saket.cascade.CascadePopupMenu
 import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextStyles.smallTitle
-import me.saket.press.shared.theme.ThemePalette
 import me.saket.press.shared.theme.applyStyle
 import me.saket.wysiwyg.style.withOpacity
 import press.extensions.rippleDrawable

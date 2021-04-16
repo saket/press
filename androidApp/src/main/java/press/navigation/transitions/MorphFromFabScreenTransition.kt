@@ -17,7 +17,6 @@ import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout.PageState
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout.PageState.COLLAPSING
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout.PageState.EXPANDED
-import me.saket.inboxrecyclerview.page.ExpandablePageLayout.PageState.EXPANDING
 import me.saket.inboxrecyclerview.page.StandaloneExpandablePageLayout
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorScreenKey
