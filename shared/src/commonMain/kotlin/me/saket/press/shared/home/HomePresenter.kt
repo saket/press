@@ -115,8 +115,8 @@ class HomePresenter(
 
       val noteModels = searchTexts.switchMap { (searchText) ->
         // todo: move filtering of empty notes back to kotlin to clean up this mess.
-        val query = when (args.screenKey.folder) {
-          null -> when {
+        val query = when {
+          args.screenKey.folder == null && searchText.isNotEmpty() -> when {
             args.includeBlankNotes -> noteQueries.visibleNotes(searchText)
             else -> noteQueries.visibleNonEmptyNotes(searchText)
           }
