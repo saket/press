@@ -2,16 +2,18 @@ package me.saket.press.shared.theme
 
 import me.saket.press.shared.theme.UiStyles.FontFamily.Regular
 import me.saket.press.shared.theme.UiStyles.FontVariant.Normal
+import me.saket.press.shared.theme.UiStyles.Typeface.WorkSans
 
 object UiStyles {
   data class Text(
-    val font: Font = Font(Regular, Normal),
+    val font: Font = Font(WorkSans, Regular, Normal),
     val textSize: Float,
     val lineSpacingMultiplier: Float = 1.0f,
     val maxLines: Int? = null
   )
 
   data class Font(
+    val typeface: Typeface = WorkSans,
     val family: FontFamily,
     val variant: FontVariant
   )

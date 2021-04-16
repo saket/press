@@ -7,6 +7,8 @@ import android.widget.LinearLayout.SHOW_DIVIDER_END
 import android.widget.LinearLayout.SHOW_DIVIDER_MIDDLE
 import android.widget.LinearLayout.VERTICAL
 import android.widget.Toast
+import androidx.core.text.buildSpannedString
+import androidx.core.text.inSpans
 import androidx.core.view.updatePadding
 import androidx.core.widget.NestedScrollView
 import com.google.android.material.switchmaterial.SwitchMaterial
@@ -21,6 +23,7 @@ import me.saket.press.shared.preferences.UserPreferences
 import me.saket.press.shared.theme.TextStyles.mainTitle
 import me.saket.press.shared.theme.UiStyles.Typeface
 import me.saket.press.shared.theme.applyStyle
+import me.saket.press.shared.theme.asAndroidTypeface
 import press.extensions.updatePadding
 import press.preferences.TwoLinePreferenceView
 import press.theme.pressCascadeStyler
@@ -82,11 +85,11 @@ class EditorPreferencesView @InflationInject constructor(
     fontFamilyView.render(
       setting = userPreferences.typeface,
       title = strings.editor_typeface,
-      subtitle = { it.displayName },
+      subtitle = { it.styledDisplayName() },
       onClick = {
         CascadePopupMenu(context, anchor = fontFamilyView, styler = pressCascadeStyler()).apply {
           Typeface.values().forEach {
-            menu.add(it.displayName).setOnMenuItemClickListener {
+            menu.add(it.styledDisplayName()).setOnMenuItemClickListener {
               Toast.makeText(context, "Work in progress", Toast.LENGTH_SHORT).show()
               true
             }
@@ -99,6 +102,15 @@ class EditorPreferencesView @InflationInject constructor(
     autoCorrectToggleView.isChecked = userPreferences.autoCorrectEnabled.get()!!.enabled
     autoCorrectToggleView.setOnCheckedChangeListener { _, isChecked ->
       userPreferences.autoCorrectEnabled.set(AutoCorrectEnabled(enabled = isChecked))
+    }
+  }
+
+  private fun Typeface.styledDisplayName(): CharSequence {
+    val typeface = this
+    return buildSpannedString {
+      inSpans(Api26TypefaceSpan(typeface.asAndroidTypeface(context))) {
+        append(typeface.displayName)
+      }
     }
   }
 }

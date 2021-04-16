@@ -39,7 +39,7 @@ class TwoLinePreferenceView(context: Context) : ContourLayout(context) {
     }
   }
 
-  fun render(title: String, subtitle: String? = null, onClick: () -> Unit) {
+  fun render(title: String, subtitle: CharSequence? = null, onClick: () -> Unit) {
     titleView.text = title
     subtitleView.text = subtitle
     subtitleView.isVisible = subtitle != null
@@ -49,7 +49,7 @@ class TwoLinePreferenceView(context: Context) : ContourLayout(context) {
   fun <T : Any> render(
     setting: Setting<T>,
     title: String,
-    subtitle: (T) -> String,
+    subtitle: (T) -> CharSequence,
     onClick: () -> Unit
   ) {
     render(title, subtitle = "", onClick)
