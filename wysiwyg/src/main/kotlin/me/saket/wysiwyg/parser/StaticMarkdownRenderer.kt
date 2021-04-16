@@ -8,7 +8,7 @@ import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.widgets.StyledText
 
 actual class StaticMarkdownRenderer actual constructor(style: WysiwygStyle) : BaseMarkdownRenderer(style) {
-  actual fun renderWith(markdownNode: Node, text: String): StyledText {
+  actual fun render(markdownNode: Node, text: String): StyledText {
     RootNodeHighlighter.visit(markdownNode, this)
 
     return SpannableStringBuilder(text).apply {

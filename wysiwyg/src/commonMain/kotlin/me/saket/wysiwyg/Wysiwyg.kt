@@ -47,7 +47,7 @@ class Wysiwyg(
   companion object {
     fun highlightImmediately(markdown: String, style: WysiwygStyle): StyledText {
       val rootNode = MarkdownParser().parseSpans(markdown)
-      return StaticMarkdownRenderer(style).renderWith(rootNode, markdown)
+      return StaticMarkdownRenderer(style).render(rootNode, markdown)
     }
   }
 }

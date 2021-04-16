@@ -16,7 +16,7 @@ actual class RealtimeMarkdownRenderer actual constructor(
 }
 
 actual class StaticMarkdownRenderer actual constructor(style: WysiwygStyle) : BaseMarkdownRenderer(style) {
-  actual fun renderWith(markdownNode: Node, text: String): StyledText = TODO()
+  actual fun render(markdownNode: Node, text: String): StyledText = TODO()
 }
 
 actual abstract class BaseMarkdownRenderer(style: WysiwygStyle) : MarkdownRenderer(style) {

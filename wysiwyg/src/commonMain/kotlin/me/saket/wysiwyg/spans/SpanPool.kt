@@ -10,7 +10,6 @@ typealias Recycler = (WysiwygSpan) -> Unit
  * expensive so Wysiwyg recycles the spans using SpanPool.
  */
 class SpanPool {
-
   @Suppress("LeakingThis")
   private val recycler: Recycler = this::recycle
   private val spans = mutableMapOf<KClass<*>, Stack<WysiwygSpan>>()
