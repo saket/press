@@ -16,21 +16,22 @@ fun View.isKeyboardVisible(): Boolean {
   return if (insets == null) false else insets.bottom > 0
 }
 
-inline fun View.doOnNextKeyboardVisibilityChange(crossinline onStart: () -> Unit) {
-  ViewCompat.setWindowInsetsAnimationCallback(
-    this,
-    object : WindowInsetsAnimationCompat.Callback(DISPATCH_MODE_CONTINUE_ON_SUBTREE) {
-      override fun onStart(animation: WindowInsetsAnimationCompat, bounds: BoundsCompat): BoundsCompat {
-        if (animation.typeMask and ime() != 0) {
-          onStart()
-          ViewCompat.setWindowInsetsAnimationCallback(this@doOnNextKeyboardVisibilityChange, null)
-        }
-        return super.onStart(animation, bounds)
+inline fun View.doOnKeyboardVisibilityChange(crossinline onStart: () -> Unit) {
+  ViewCompat.setWindowInsetsAnimationCallback(this, object : SimpleWindowInsetsAnimationCompatCallback() {
+    override fun onStart(animation: WindowInsetsAnimationCompat, bounds: BoundsCompat): BoundsCompat {
+      if (animation.typeMask and ime() != 0) {
+        onStart()
+        ViewCompat.setWindowInsetsAnimationCallback(this@doOnKeyboardVisibilityChange, null)
       }
+      return super.onStart(animation, bounds)
+    }
+  })
+}
 
-      override fun onProgress(
-        insets: WindowInsetsCompat,
-        runningAnimations: List<WindowInsetsAnimationCompat>
-      ) = insets
-    })
+abstract class SimpleWindowInsetsAnimationCompatCallback :
+  WindowInsetsAnimationCompat.Callback(DISPATCH_MODE_CONTINUE_ON_SUBTREE) {
+  override fun onProgress(
+    insets: WindowInsetsCompat,
+    runningAnimations: List<WindowInsetsAnimationCompat>
+  ) = insets
 }

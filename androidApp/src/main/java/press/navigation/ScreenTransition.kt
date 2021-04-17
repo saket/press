@@ -4,7 +4,7 @@ import android.view.View
 import me.saket.press.shared.ui.ScreenKey
 import press.extensions.findParent
 import press.extensions.hideKeyboard
-import press.widgets.insets.doOnNextKeyboardVisibilityChange
+import press.widgets.insets.doOnKeyboardVisibilityChange
 import press.widgets.insets.isKeyboardVisible
 
 interface ScreenTransition {
@@ -37,7 +37,7 @@ interface ScreenTransition {
   fun View.hideKeyboardAndRun(action: () -> Unit) {
     if (isKeyboardVisible()) {
       findParent<NavigationHostLayout>().applyNextInsetChangeImmediately()
-      doOnNextKeyboardVisibilityChange(action)
+      doOnKeyboardVisibilityChange(action)
       hideKeyboard()
 
     } else {
