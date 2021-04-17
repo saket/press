@@ -12,6 +12,7 @@ import androidx.core.view.updatePaddingRelative
 import com.squareup.contour.ContourLayout
 import kotlinx.android.parcel.Parcelize
 import me.saket.press.R
+import me.saket.press.shared.home.HomeModel
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.preferences.PreferencesScreenKey
 import me.saket.press.shared.theme.EditText
@@ -25,7 +26,7 @@ import press.theme.themeAware
 import press.widgets.PressToolbar
 
 class HomeToolbar(context: Context, showNavIcon: Boolean) : ContourLayout(context) {
-  val baseToolbar = PressToolbar(context, showNavIcon)
+  private val baseToolbar = PressToolbar(context, showNavIcon)
   private val searchView = SearchToolbar(context)
 
   init {
@@ -78,6 +79,11 @@ class HomeToolbar(context: Context, showNavIcon: Boolean) : ContourLayout(contex
     setSearchVisible(state.isSearchVisible)
   }
 
+  fun render(model: HomeModel) {
+    baseToolbar.title = model.title
+    searchView.editText.hint = model.searchFieldHint
+  }
+
   fun setSearchVisible(visible: Boolean) {
     searchView.isVisible = visible
 
@@ -119,7 +125,6 @@ private class SearchToolbar(context: Context) : ContourLayout(context) {
 
   val editText = EditText(context, appTitle).apply {
     id = R.id.home_notes_search_textfield
-    hint = context.strings().home.searchnotes_everywhere_hint
     background = null
     isSingleLine = true
     updatePaddingRelative(top = 14.dip, bottom = 14.dip, end = 16.dip)

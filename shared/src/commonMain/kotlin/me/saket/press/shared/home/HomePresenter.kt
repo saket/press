@@ -39,6 +39,7 @@ import me.saket.press.shared.rx.mergeWith
 import me.saket.press.shared.time.Clock
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
+import me.saket.press.shared.util.format
 
 class HomePresenter(
   private val args: Args,
@@ -51,7 +52,11 @@ class HomePresenter(
   private val noteQueries get() = database.noteQueries
 
   override fun defaultUiModel() =
-    HomeModel(rows = emptyList(), title = "")
+    HomeModel(
+      rows = emptyList(),
+      title = "",
+      searchFieldHint = ""
+    )
 
   override fun models(): ObservableWrapper<HomeModel> {
     return viewEvents().publish { events ->
@@ -87,13 +92,13 @@ class HomePresenter(
   private fun populateNotes(events: Observable<HomeEvent>): Observable<HomeModel> {
     val folderId = args.screenKey.folder
 
-    val screenTitle = if (folderId != null) {
+    val folderName = if (folderId != null) {
       database.folderQueries.folder(folderId)
         .asObservable(schedulers.io)
         .mapToOneOrNull()
-        .map { folder -> folder?.name ?: strings.common.app_name }
+        .map { folder -> folder?.name }
     } else {
-      observableOf(strings.common.app_name)
+      observableOf(null)
     }
 
     return events.ofType<SearchTextChanged>().publish { searchTexts ->
@@ -137,10 +142,14 @@ class HomePresenter(
           }
       }
 
-      return@publish combineLatest(screenTitle, folderModels, noteModels) { title, folders, notes ->
+      return@publish combineLatest(folderName, folderModels, noteModels) { folderName, folders, notes ->
         HomeModel(
-          title = title,
-          rows = folders + notes
+          title = folderName ?: strings.common.app_name,
+          rows = folders + notes,
+          searchFieldHint = when (folderName) {
+            null -> strings.home.searchnotes_everywhere_hint
+            else -> strings.home.searchnotes_in_folder_hint.format(folderName)
+          }
         )
       }
     }

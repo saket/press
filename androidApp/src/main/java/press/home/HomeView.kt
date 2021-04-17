@@ -152,7 +152,7 @@ class HomeView @InflationInject constructor(
   }
 
   private fun render(model: HomeModel) {
-    toolbar.baseToolbar.title = model.title
+    toolbar.render(model)
     noteAdapter.submitList(model.notes)
     folderAdapter.submitList(model.folders)
   }

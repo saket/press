@@ -145,7 +145,7 @@ val ENGLISH_STRINGS = Strings(
     menu_preferences = "Preferences",
     menu_search_notes = "Search notes",
     searchnotes_everywhere_hint = "Search notes…",
-    searchnotes_in_folder_hint = "Search notes in %s…",
+    searchnotes_in_folder_hint = "Search in %s…",
     close_search_contentdescriptoin = "Close search",
   ),
   editor = Editor(

@@ -23,7 +23,11 @@ interface HomeEvent {
   data class SearchTextChanged(val text: String) : HomeEvent
 }
 
-data class HomeModel(val title: String, val rows: List<Row>) {
+data class HomeModel(
+  val title: String,
+  val rows: List<Row>,
+  val searchFieldHint: String
+) {
   val notes: List<NoteModel> get() = rows.filterIsInstance<NoteModel>()
   val folders: List<FolderModel> get() = rows.filterIsInstance<FolderModel>()
 
