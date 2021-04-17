@@ -28,6 +28,17 @@ inline fun View.doOnKeyboardVisibilityChange(crossinline onStart: () -> Unit) {
   })
 }
 
+inline fun View.doOnPreKeyboardVisibilityChange(crossinline onPrepare: (WindowInsetsAnimationCompat) -> Unit) {
+  ViewCompat.setWindowInsetsAnimationCallback(this, object : SimpleWindowInsetsAnimationCompatCallback() {
+    override fun onPrepare(animation: WindowInsetsAnimationCompat) {
+      if (animation.typeMask and ime() != 0) {
+        onPrepare(animation)
+        ViewCompat.setWindowInsetsAnimationCallback(this@doOnPreKeyboardVisibilityChange, null)
+      }
+    }
+  })
+}
+
 abstract class SimpleWindowInsetsAnimationCompatCallback :
   WindowInsetsAnimationCompat.Callback(DISPATCH_MODE_CONTINUE_ON_SUBTREE) {
   override fun onProgress(

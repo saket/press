@@ -34,6 +34,8 @@ import press.navigation.FormFactor
 import press.navigation.navigator
 import press.theme.themeAware
 import press.widgets.PressToolbar
+import press.widgets.insets.doOnPreKeyboardVisibilityChange
+import press.widgets.insets.isKeyboardVisible
 
 class HomeToolbar(context: Context, showNavIcon: Boolean) : ContourLayout(context) {
   private val baseToolbar = PressToolbar(context, showNavIcon)
@@ -112,10 +114,20 @@ class HomeToolbar(context: Context, showNavIcon: Boolean) : ContourLayout(contex
       baseToolbar.isInvisible = visible
     }
 
-    playAnimation(
-      duration = 285,   // Duration normally used by Gboard.
-      interpolator = FormFactor.SCREEN_TRANSITION_INTERPOLATOR
-    )
+    val canSynchronizeWithKeyboard = withKeyboard && (visible != isKeyboardVisible())
+    if (canSynchronizeWithKeyboard) {
+      doOnPreKeyboardVisibilityChange { animation ->
+        playAnimation(
+          duration = animation.durationMillis,
+          interpolator = animation.interpolator!!
+        )
+      }
+    } else {
+      playAnimation(
+        duration = 285,   // Duration normally used by Gboard.
+        interpolator = FormFactor.SCREEN_TRANSITION_INTERPOLATOR
+      )
+    }
 
     if (visible) {
       post { searchView.editText.showKeyboard() }
