@@ -9,6 +9,8 @@ import me.saket.inboxrecyclerview.page.PageCollapseEligibilityHapticFeedback
 import me.saket.inboxrecyclerview.page.StandaloneExpandablePageLayout
 import me.saket.press.shared.home.HomeScreenKey
 import me.saket.press.shared.ui.ScreenKey
+import press.navigation.FormFactor.Companion.SCREEN_TRANSITION_DURATION
+import press.navigation.FormFactor.Companion.SCREEN_TRANSITION_INTERPOLATOR
 import press.navigation.transitions.ExpandableScreenTransition
 import press.navigation.transitions.MorphFromFabScreenTransition
 import press.theme.themeAware
@@ -23,6 +25,11 @@ interface FormFactor {
 
   // Hack hack :/
   fun findDecoratedScreenView(view: View): View
+
+  companion object {
+    const val SCREEN_TRANSITION_DURATION = 350L
+    val SCREEN_TRANSITION_INTERPOLATOR = PathInterpolator(0.5f, 0f, 0f, 1f)
+  }
 }
 
 /**
@@ -56,7 +63,7 @@ class PhoneFormFactor(private val viewFactories: ViewFactories) : FormFactor {
       id = view.id
       view.id = View.NO_ID
 
-      animationInterpolator = PathInterpolator(0.5f, 0f, 0f, 1f)
+      animationInterpolator = SCREEN_TRANSITION_INTERPOLATOR
       animationDurationMillis = SCREEN_TRANSITION_DURATION
       contentOpacityWhenCollapsed = 0f
       addOnPullListener(PageCollapseEligibilityHapticFeedback(this))
@@ -87,9 +94,5 @@ class PhoneFormFactor(private val viewFactories: ViewFactories) : FormFactor {
         view.setBackgroundColor(it.window.backgroundColor)
       }
     }
-  }
-
-  companion object {
-    const val SCREEN_TRANSITION_DURATION = 350L
   }
 }
