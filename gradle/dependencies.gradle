@@ -33,7 +33,7 @@ buildscript {
     kotlinxSerialization: '1.0.0-RC',
     kotlinxCoroutinesNativeMt: '1.3.9-native-mt',
     buildKonfig: '0.7.0',
-    reaktive: '1.1.17',
+    reaktive: '1.1.22',
     okio: '2.8.0',
     jgit: '5.8.1.202007141445-r',
     korio: '2.0.0-alpha'
