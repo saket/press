@@ -6,7 +6,7 @@ import androidx.core.view.updatePaddingRelative
 import com.squareup.contour.ContourLayout
 import me.saket.press.shared.theme.TextStyles
 import me.saket.press.shared.theme.TextView
-import me.saket.press.shared.theme.ThemePalette
+import me.saket.press.shared.theme.palettes.ThemePalette
 import press.extensions.textColor
 import press.widgets.Drawables
 import press.widgets.dp

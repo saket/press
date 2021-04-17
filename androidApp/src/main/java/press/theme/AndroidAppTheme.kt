@@ -13,7 +13,7 @@ import me.saket.press.BuildConfig
 import me.saket.press.shared.listenRx
 import me.saket.press.shared.preferences.UserPreferences
 import me.saket.press.shared.theme.AppTheme
-import me.saket.press.shared.theme.ThemePalette
+import me.saket.press.shared.theme.palettes.ThemePalette
 import press.PressApp
 import javax.inject.Inject
 import javax.inject.Singleton

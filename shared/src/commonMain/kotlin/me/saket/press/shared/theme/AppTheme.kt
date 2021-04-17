@@ -16,6 +16,7 @@ import me.saket.press.shared.theme.palettes.MinimalDarkThemePalette
 import me.saket.press.shared.theme.palettes.MinimalLightThemePalette
 import me.saket.press.shared.theme.palettes.PureBlackThemePalette
 import me.saket.press.shared.theme.palettes.SolarizedLightThemePalette
+import me.saket.press.shared.theme.palettes.ThemePalette
 
 abstract class AppTheme(
   private val userPrefs: UserPreferences,
@@ -33,15 +34,15 @@ abstract class AppTheme(
 
   // This stream gets garbage collected if it's not stored in a class property.
   private val disposable = userPrefs.themeSwitchingMode.listen()
-    .mergeWith(userPrefs.darkThemePalette.listen())
-    .mergeWith(userPrefs.lightThemePalette.listen())
-    .subscribe {
-      val newPalette = userPrefs.determinePaletteFor(isSystemInDarkMode)
-      if (palette != newPalette) {
-        onPreChange.onNext(newPalette)
-        changes.onNext(newPalette)
+      .mergeWith(userPrefs.darkThemePalette.listen())
+      .mergeWith(userPrefs.lightThemePalette.listen())
+      .subscribe {
+        val newPalette = userPrefs.determinePaletteFor(isSystemInDarkMode)
+        if (palette != newPalette) {
+          onPreChange.onNext(newPalette)
+          changes.onNext(newPalette)
+        }
       }
-    }
 
   internal fun listen(): Observable<ThemePalette> {
     return changes
@@ -53,13 +54,13 @@ abstract class AppTheme(
 
   fun lightThemePalettes(): List<ThemePalette> {
     return listOf(
-      CascadeThemePalette, MinimalLightThemePalette, SolarizedLightThemePalette
+        CascadeThemePalette, MinimalLightThemePalette, SolarizedLightThemePalette
     )
   }
 
   fun darkThemePalettes(): List<ThemePalette> {
     return listOf(
-      DraculaThemePalette, MinimalDarkThemePalette, CityLightsThemePalette, PureBlackThemePalette
+        DraculaThemePalette, MinimalDarkThemePalette, CityLightsThemePalette, PureBlackThemePalette
     )
   }
 

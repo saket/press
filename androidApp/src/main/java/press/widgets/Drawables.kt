@@ -5,7 +5,7 @@ import android.graphics.Color.BLACK
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.GradientDrawable.RECTANGLE
 import android.graphics.drawable.RippleDrawable
-import me.saket.press.shared.theme.ThemePalette
+import me.saket.press.shared.theme.palettes.ThemePalette
 import me.saket.press.shared.theme.withAlpha
 
 object Drawables {

@@ -16,7 +16,7 @@ import me.saket.press.shared.preferences.Setting
 import me.saket.press.shared.theme.TextStyles.mainTitle
 import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextView
-import me.saket.press.shared.theme.ThemePalette
+import me.saket.press.shared.theme.palettes.ThemePalette
 import press.extensions.textColor
 import press.preferences.theme.PalettePreviewAdapter.VH
 import press.theme.appTheme

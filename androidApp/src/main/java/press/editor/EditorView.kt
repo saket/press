@@ -60,8 +60,8 @@ import me.saket.press.shared.theme.AppTheme
 import me.saket.press.shared.theme.DisplayUnits
 import me.saket.press.shared.theme.TextStyles.mainBody
 import me.saket.press.shared.theme.TextView
-import me.saket.press.shared.theme.ThemePalette
 import me.saket.press.shared.theme.applyStyle
+import me.saket.press.shared.theme.palettes.ThemePalette
 import me.saket.press.shared.theme.palettes.wysiwygStyle
 import me.saket.press.shared.ui.models
 import me.saket.wysiwyg.Wysiwyg
@@ -253,7 +253,10 @@ class EditorView @InflationInject constructor(
     }
   }
 
-  private fun renderToolbarMenu(items: List<ToolbarMenuItem>, palette: ThemePalette) {
+  private fun renderToolbarMenu(
+    items: List<ToolbarMenuItem>,
+    palette: ThemePalette
+  ) {
     toolbar.overflowIcon!!.setTint(palette.accentColor)
 
     val backNavigator = CascadeBackNavigator()
@@ -272,7 +275,11 @@ class EditorView @InflationInject constructor(
     }
   }
 
-  private fun ToolbarMenuItem.addToMenu(menu: Menu, palette: ThemePalette, backNavigator: CascadeBackNavigator) {
+  private fun ToolbarMenuItem.addToMenu(
+    menu: Menu,
+    palette: ThemePalette,
+    backNavigator: CascadeBackNavigator
+  ) {
     val item: ToolbarMenuItem = this
     val iconRes = when (item.icon) {
       Archive -> R.drawable.ic_twotone_archive_24

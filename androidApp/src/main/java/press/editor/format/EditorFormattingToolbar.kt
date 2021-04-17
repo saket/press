@@ -18,7 +18,7 @@ import androidx.core.view.setPadding
 import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.theme.TextStyles.smallTitle
-import me.saket.press.shared.theme.ThemePalette
+import me.saket.press.shared.theme.palettes.ThemePalette
 import me.saket.wysiwyg.formatting.BlockQuoteSyntaxApplier
 import me.saket.wysiwyg.formatting.EmphasisSyntaxApplier
 import me.saket.wysiwyg.formatting.HeadingSyntaxApplier

@@ -23,7 +23,7 @@ import androidx.core.view.children
 import androidx.core.view.forEach
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
-import me.saket.press.shared.theme.ThemePalette
+import me.saket.press.shared.theme.palettes.ThemePalette
 import me.saket.wysiwyg.widgets.SimpleTextWatcher
 import java.util.ArrayDeque
 import kotlin.DeprecationLevel.ERROR
