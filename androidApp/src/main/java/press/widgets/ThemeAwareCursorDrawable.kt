@@ -28,11 +28,7 @@ class ThemeAwareCursorDrawable : Drawable() {
   }
 
   override fun draw(canvas: Canvas) {
-    PressApp.component.theme().palette.let {
-      if (paint.color != it.accentColor) {
-        paint.color = it.accentColor
-      }
-    }
+    paint.color = PressApp.component.theme().palette.accentColor
     canvas.drawRect(bounds, paint)
   }
 
