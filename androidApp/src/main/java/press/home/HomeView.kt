@@ -25,6 +25,7 @@ import me.saket.press.shared.home.HomePresenter.Args
 import me.saket.press.shared.home.HomeScreenKey
 import me.saket.press.shared.ui.ScreenKey
 import me.saket.press.shared.ui.models
+import press.extensions.doOnTextChange
 import press.extensions.hideKeyboard
 import press.extensions.second
 import press.extensions.throttleFirst
@@ -106,7 +107,9 @@ class HomeView @InflationInject constructor(
     newNoteFab.setOnClickListener {
       presenter.dispatch(NewNoteClicked)
     }
-    presenter.dispatch(SearchTextChanged(text = ""))
+    toolbar.searchField.doOnTextChange {
+      presenter.dispatch(SearchTextChanged(text = it.toString()))
+    }
 
     Observable.merge(noteAdapter.clicks, folderAdapter.clicks)
       .throttleFirst(1.second, mainThread())

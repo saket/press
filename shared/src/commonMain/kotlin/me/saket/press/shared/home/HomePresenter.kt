@@ -15,6 +15,7 @@ import com.badoo.reaktive.observable.observeOn
 import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.publish
 import com.badoo.reaktive.observable.switchMap
+import com.badoo.reaktive.observable.throttleLatest
 import com.badoo.reaktive.observable.wrap
 import me.saket.press.PressDatabase
 import me.saket.press.shared.db.NoteId
@@ -91,7 +92,6 @@ class HomePresenter(
 
   private fun populateNotes(events: Observable<HomeEvent>): Observable<HomeModel> {
     val folderId = args.screenKey.folder
-
     val folderName = if (folderId != null) {
       database.folderQueries.folder(folderId)
         .asObservable(schedulers.io)
@@ -101,7 +101,11 @@ class HomePresenter(
       observableOf(null)
     }
 
-    return events.ofType<SearchTextChanged>().publish { searchTexts ->
+    val searchTextChanges = events
+      .ofType<SearchTextChanged>()
+      .throttleLatest(timeoutMillis = 250, scheduler = schedulers.io, emitLast = true)
+
+    return searchTextChanges.publish { searchTexts ->
       val folderModels = searchTexts.switchMap { (searchText) ->
         if (searchText.isBlank()) {
           database.folderQueries.nonEmptyFoldersUnder(folderId)

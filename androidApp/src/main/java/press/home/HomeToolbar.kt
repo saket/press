@@ -28,6 +28,7 @@ import press.widgets.PressToolbar
 class HomeToolbar(context: Context, showNavIcon: Boolean) : ContourLayout(context) {
   private val baseToolbar = PressToolbar(context, showNavIcon)
   private val searchView = SearchToolbar(context)
+  val searchField get() = searchView.editText
 
   init {
     id = R.id.home_toolbar
