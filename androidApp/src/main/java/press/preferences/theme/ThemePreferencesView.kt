@@ -61,6 +61,9 @@ class ThemePreferencesView @InflationInject constructor(
 
   init {
     id = R.id.theme_preferences_view
+    lightThemePaletteView.id = R.id.themepreferences_light_palette_list_container
+    darkThemePaletteView.id = R.id.themepreferences_dark_palette_list_container
+
     themeAware {
       setBackgroundColor(it.window.backgroundColor)
     }

@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.HORIZONTAL
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
+import me.saket.press.R
 import me.saket.press.shared.listen
 import me.saket.press.shared.listenPreChanges
 import me.saket.press.shared.preferences.Setting
@@ -43,6 +44,7 @@ class ThemePalettePickerView(
   }
 
   private val paletteListView = RecyclerView(context).apply {
+    id = R.id.themepreferences_palette_list
     clipToPadding = false
     layoutManager = LinearLayoutManager(context, HORIZONTAL, false)
     scrollBarStyle = SCROLLBARS_OUTSIDE_OVERLAY
