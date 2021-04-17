@@ -10,10 +10,9 @@ apply plugin: 'app.cash.exhaustive'
 
 android {
   compileSdkVersion versions.compileSdk
-  defaultConfig {
-    minSdkVersion versions.minSdk
-  }
+  defaultConfig.minSdkVersion versions.minSdk
   testOptions.unitTests.includeAndroidResources = true
+  sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
 }
 
 sqldelight {

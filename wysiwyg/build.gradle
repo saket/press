@@ -6,9 +6,8 @@ apply plugin: 'org.jlleitschuh.gradle.ktlint'
 
 android {
   compileSdkVersion versions.compileSdk
-  defaultConfig {
-    minSdkVersion versions.minSdk
-  }
+  defaultConfig.minSdkVersion versions.minSdk
+  sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
 
   lintOptions {
     lintConfig file("lint.xml")
