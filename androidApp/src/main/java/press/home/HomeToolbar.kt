@@ -92,6 +92,8 @@ class HomeToolbar(context: Context, showNavIcon: Boolean) : ContourLayout(contex
       post {
         searchView.editText.showKeyboard()
       }
+    } else {
+      searchView.editText.setText("")
     }
   }
 
