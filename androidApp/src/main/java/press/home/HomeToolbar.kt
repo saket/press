@@ -3,12 +3,21 @@ package press.home
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Parcelable
+import android.view.Gravity.BOTTOM
+import android.view.Gravity.TOP
 import android.view.Menu
 import android.view.MenuItem
+import android.view.animation.Interpolator
 import android.widget.ImageButton
+import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.view.setPadding
 import androidx.core.view.updatePaddingRelative
+import androidx.transition.Slide
+import androidx.transition.Transition
+import androidx.transition.TransitionListenerAdapter
+import androidx.transition.TransitionManager
+import androidx.transition.TransitionSet
 import com.squareup.contour.ContourLayout
 import kotlinx.android.parcel.Parcelize
 import me.saket.press.R
@@ -21,6 +30,7 @@ import press.extensions.borderlessRippleDrawable
 import press.extensions.getDrawable
 import press.extensions.hideKeyboard
 import press.extensions.showKeyboard
+import press.navigation.FormFactor
 import press.navigation.navigator
 import press.theme.themeAware
 import press.widgets.PressToolbar
@@ -50,7 +60,7 @@ class HomeToolbar(context: Context, showNavIcon: Boolean) : ContourLayout(contex
         menu.add(
           icon = context.getDrawable(R.drawable.ic_search_24, palette.accentColor),
           title = context.strings().home.menu_search_notes,
-          onClick = { setSearchVisible(true) }
+          onClick = { setSearchVisible(true, withKeyboard = true) }
         )
         menu.add(
           icon = context.getDrawable(R.drawable.ic_preferences_24dp, palette.accentColor),
@@ -62,8 +72,7 @@ class HomeToolbar(context: Context, showNavIcon: Boolean) : ContourLayout(contex
 
     searchView.isVisible = false
     searchView.backButton.setOnClickListener {
-      setSearchVisible(false)
-      hideKeyboard()
+      setSearchVisible(false, withKeyboard = true)
     }
   }
 
@@ -77,7 +86,7 @@ class HomeToolbar(context: Context, showNavIcon: Boolean) : ContourLayout(contex
   override fun onRestoreInstanceState(state: Parcelable) {
     check(state is SavedState)
     super.onRestoreInstanceState(state.superState)
-    setSearchVisible(state.isSearchVisible)
+    setSearchVisible(state.isSearchVisible, withKeyboard = true)
   }
 
   fun render(model: HomeModel) {
@@ -85,15 +94,35 @@ class HomeToolbar(context: Context, showNavIcon: Boolean) : ContourLayout(contex
     searchView.editText.hint = model.searchFieldHint
   }
 
-  fun setSearchVisible(visible: Boolean) {
-    searchView.isVisible = visible
+  fun setSearchVisible(visible: Boolean, withKeyboard: Boolean) {
+    fun playAnimation(duration: Long, interpolator: Interpolator) {
+      TransitionManager.beginDelayedTransition(
+        this, TransitionSet()
+        .addTransition(Slide(BOTTOM).addTarget(searchView))
+        .addTransition(Slide(TOP).addTarget(baseToolbar))
+        .setDuration(duration)
+        .setInterpolator(interpolator)
+        .addListener(object : TransitionListenerAdapter() {
+          override fun onTransitionEnd(transition: Transition) {
+            searchView.editText.setText("")
+          }
+        })
+      )
+      searchView.isVisible = visible
+      baseToolbar.isInvisible = visible
+    }
+
+    playAnimation(
+      duration = 285,   // Duration normally used by Gboard.
+      interpolator = FormFactor.SCREEN_TRANSITION_INTERPOLATOR
+    )
 
     if (visible) {
-      post {
-        searchView.editText.showKeyboard()
-      }
+      post { searchView.editText.showKeyboard() }
     } else {
-      searchView.editText.setText("")
+      if (withKeyboard) {
+        hideKeyboard()
+      }
     }
   }
 
