@@ -15,7 +15,7 @@ class Strings(
 ) {
   class Common(
     val app_name: String,
-    val close_nav_icon_description: String,
+    val close_nav_icon_contentdescription: String,
     val generic_error: String,
     val retry: String,
     val share_picker_title: String
@@ -24,6 +24,7 @@ class Strings(
   class Home(
     val menu_preferences: String,
     val menu_search_notes: String,
+    val close_search_contentdescriptoin: String,
     val searchnotes_everywhere_hint: String,
     val searchnotes_in_folder_hint: String,
   )
@@ -135,7 +136,7 @@ class Strings(
 val ENGLISH_STRINGS = Strings(
   common = Common(
     app_name = "Press",
-    close_nav_icon_description = "Go back",
+    close_nav_icon_contentdescription = "Go back",
     generic_error = "Something went wrong, try again?",
     retry = "Retry",
     share_picker_title = "Share with"
@@ -144,7 +145,8 @@ val ENGLISH_STRINGS = Strings(
     menu_preferences = "Preferences",
     menu_search_notes = "Search notes",
     searchnotes_everywhere_hint = "Search notes…",
-    searchnotes_in_folder_hint = "Search notes in %s…"
+    searchnotes_in_folder_hint = "Search notes in %s…",
+    close_search_contentdescriptoin = "Close search",
   ),
   editor = Editor(
     new_note_hints = listOf(

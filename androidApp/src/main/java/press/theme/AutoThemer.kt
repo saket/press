@@ -22,7 +22,6 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.widget.ActionMenuView
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
 import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.RecyclerView
@@ -30,6 +29,8 @@ import androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.switchmaterial.SwitchMaterial
 import me.saket.press.R
+import me.saket.press.shared.theme.TextStyles.appTitle
+import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.theme.blendWith
 import me.saket.press.shared.theme.withAlpha
 import press.extensions.borderlessRippleDrawable
@@ -160,8 +161,7 @@ private fun <T : RecyclerView> themed(view: T): T = view.apply {
 
 private fun themed(toolbar: Toolbar) = toolbar.apply {
   val titleView = findTitleView()
-  titleView.typeface = ResourcesCompat.getFont(context, R.font.work_sans_bold)
-
+  titleView.applyStyle(appTitle)
   themeAware {
     titleView.textColor = it.textColorHeading
   }

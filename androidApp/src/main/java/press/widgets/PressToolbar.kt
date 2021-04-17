@@ -9,10 +9,11 @@ import press.extensions.getDrawable
 import press.navigation.navigator
 import press.theme.themeAware
 
-class PressToolbar(context: Context, showNavIcon: Boolean = true) : Toolbar(context) {
+@Suppress("LeakingThis")
+open class PressToolbar(context: Context, showNavIcon: Boolean = true) : Toolbar(context) {
   init {
     if (showNavIcon) {
-      navigationContentDescription = context.strings().common.close_nav_icon_description
+      navigationContentDescription = context.strings().common.close_nav_icon_contentdescription
       themeAware {
         super.setNavigationIcon(context.getDrawable(R.drawable.ic_close_24dp, it.accentColor))
       }

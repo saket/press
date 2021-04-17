@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Typeface
 import android.os.Build.VERSION.SDK_INT
 import android.text.TextUtils.TruncateAt.END
+import android.widget.EditText
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import me.saket.press.shared.R
@@ -64,4 +65,9 @@ fun UiStyles.Font.asTypeface(context: Context): Typeface {
 @Suppress("FunctionName")
 fun TextView(context: Context, style: UiStyles.Text): TextView {
   return TextView(context).apply { applyStyle(style) }
+}
+
+@Suppress("FunctionName")
+fun EditText(context: Context, style: UiStyles.Text): EditText {
+  return EditText(context).apply { applyStyle(style) }
 }

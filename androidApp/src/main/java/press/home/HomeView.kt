@@ -1,10 +1,7 @@
 package press.home
 
 import android.content.Context
-import android.graphics.drawable.Drawable
 import android.util.AttributeSet
-import android.view.Menu
-import android.view.MenuItem.SHOW_AS_ACTION_IF_ROOM
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView.State
@@ -26,20 +23,16 @@ import me.saket.press.shared.home.HomeModel
 import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.home.HomePresenter.Args
 import me.saket.press.shared.home.HomeScreenKey
-import me.saket.press.shared.localization.strings
-import me.saket.press.shared.preferences.PreferencesScreenKey
 import me.saket.press.shared.ui.ScreenKey
 import me.saket.press.shared.ui.models
-import press.extensions.getDrawable
+import press.extensions.hideKeyboard
 import press.extensions.second
 import press.extensions.throttleFirst
 import press.navigation.ScreenFocusChangeListener
 import press.navigation.navigator
 import press.navigation.screenKey
 import press.navigation.transitions.ExpandableScreenHost
-import press.theme.themeAware
 import press.widgets.DividerItemDecoration
-import press.widgets.PressToolbar
 import press.widgets.SlideDownItemAnimator
 import press.widgets.insets.keyboardHeight
 
@@ -54,7 +47,7 @@ class HomeView @InflationInject constructor(
   private val folderAdapter = FolderListAdapter()
   private val screenKey = screenKey<HomeScreenKey>()
 
-  private val toolbar = PressToolbar(context, showNavIcon = !HomeScreenKey.isRoot(screenKey))
+  private val toolbar = HomeToolbar(context, showNavIcon = !HomeScreenKey.isRoot(screenKey))
 
   private val notesList = InboxRecyclerView(context).apply {
     id = R.id.home_notes
@@ -92,20 +85,6 @@ class HomeView @InflationInject constructor(
         extraLayoutSpace[1] = maxOf(keyboardHeight() ?: 0, extraLayoutSpace[1])
       }
     }
-
-    themeAware { palette ->
-      toolbar.menu.clear()
-      toolbar.menu.add(
-        icon = context.getDrawable(R.drawable.ic_search_24, palette.accentColor),
-        title = context.strings().home.menu_search_notes,
-        onClick = {}
-      )
-      toolbar.menu.add(
-        icon = context.getDrawable(R.drawable.ic_preferences_24dp, palette.accentColor),
-        title = context.strings().home.menu_preferences,
-        onClick = { navigator().lfg(PreferencesScreenKey) }
-      )
-    }
   }
 
   override fun onAttachedToWindow() {
@@ -133,6 +112,9 @@ class HomeView @InflationInject constructor(
       .throttleFirst(1.second, mainThread())
       .takeUntil(detaches())
       .subscribe { row ->
+        if (toolbar.isSearchVisible()) {
+          hideKeyboard()
+        }
         navigator().lfg(row.screenKey())
       }
   }
@@ -163,19 +145,15 @@ class HomeView @InflationInject constructor(
     } else {
       newNoteFab.show()
     }
+
+    if (focusedScreen !== this.screenKey) {
+      toolbar.setSearchVisible(false)
+    }
   }
 
   private fun render(model: HomeModel) {
-    toolbar.title = model.title
+    toolbar.baseToolbar.title = model.title
     noteAdapter.submitList(model.notes)
     folderAdapter.submitList(model.folders)
-  }
-}
-
-private fun Menu.add(icon: Drawable, title: String, onClick: () -> Unit) {
-  add(title).let {
-    it.icon = icon
-    it.setShowAsAction(SHOW_AS_ACTION_IF_ROOM)
-    it.setOnMenuItemClickListener { onClick(); true }
   }
 }
