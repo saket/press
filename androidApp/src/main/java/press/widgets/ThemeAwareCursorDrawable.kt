@@ -47,5 +47,11 @@ class ThemeAwareCursorDrawable : Drawable() {
   }
 
   override fun getOpacity(): Int = PixelFormat.OPAQUE
-  override fun getConstantState(): ConstantState? = null
+  override fun getConstantState(): ConstantState = CursorConstantState
+
+  // A constant state isn't needed for this drawable, but some manufacturers crash without one.
+  private object CursorConstantState : ConstantState() {
+    override fun newDrawable(): Drawable = ThemeAwareCursorDrawable()
+    override fun getChangingConfigurations(): Int = 0
+  }
 }
