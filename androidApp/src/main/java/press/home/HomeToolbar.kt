@@ -2,6 +2,7 @@ package press.home
 
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.os.Parcelable
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageButton
@@ -9,6 +10,7 @@ import androidx.core.view.isVisible
 import androidx.core.view.setPadding
 import androidx.core.view.updatePaddingRelative
 import com.squareup.contour.ContourLayout
+import kotlinx.android.parcel.Parcelize
 import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.preferences.PreferencesScreenKey
@@ -27,6 +29,8 @@ class HomeToolbar(context: Context, showNavIcon: Boolean) : ContourLayout(contex
   private val searchView = SearchToolbar(context)
 
   init {
+    id = R.id.home_toolbar
+
     baseToolbar.layoutBy(
       x = matchParentX(),
       y = topTo { parent.top() }
@@ -61,6 +65,19 @@ class HomeToolbar(context: Context, showNavIcon: Boolean) : ContourLayout(contex
     }
   }
 
+  override fun onSaveInstanceState(): Parcelable {
+    return SavedState(
+      superState = super.onSaveInstanceState(),
+      isSearchVisible = isSearchVisible()
+    )
+  }
+
+  override fun onRestoreInstanceState(state: Parcelable) {
+    check(state is SavedState)
+    super.onRestoreInstanceState(state.superState)
+    setSearchVisible(state.isSearchVisible)
+  }
+
   fun setSearchVisible(visible: Boolean) {
     searchView.isVisible = visible
 
@@ -84,6 +101,12 @@ class HomeToolbar(context: Context, showNavIcon: Boolean) : ContourLayout(contex
   }
 }
 
+@Parcelize
+private data class SavedState(
+  val superState: Parcelable?,
+  val isSearchVisible: Boolean
+) : Parcelable
+
 private class SearchToolbar(context: Context) : ContourLayout(context) {
   val backButton = ImageButton(context).apply {
     contentDescription = context.strings().home.close_search_contentdescriptoin
@@ -95,6 +118,7 @@ private class SearchToolbar(context: Context) : ContourLayout(context) {
   }
 
   val editText = EditText(context, appTitle).apply {
+    id = R.id.home_notes_search_textfield
     hint = context.strings().home.searchnotes_everywhere_hint
     background = null
     isSingleLine = true

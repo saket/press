@@ -4,6 +4,8 @@
 
   <item name="home_view" type="id" />
   <item name="home_notes" type="id" />
+  <item name="home_toolbar" type="id" />
+  <item name="home_notes_search_textfield" type="id" />
 
   <item name="editor_view" type="id" />
   <item name="editor_scrollable_container" type="id" />
