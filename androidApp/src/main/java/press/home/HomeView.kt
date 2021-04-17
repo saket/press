@@ -105,6 +105,7 @@ class HomeView @InflationInject constructor(
       .subscribe(::render)
 
     newNoteFab.setOnClickListener {
+      toolbar.setSearchVisible(false, withKeyboard = false)
       presenter.dispatch(NewNoteClicked)
     }
     toolbar.searchField.doOnTextChange {
@@ -147,10 +148,6 @@ class HomeView @InflationInject constructor(
       newNoteFab.hide()
     } else {
       newNoteFab.show()
-    }
-
-    if (focusedScreen !== this.screenKey) {
-      toolbar.setSearchVisible(false)
     }
   }
 
