@@ -111,6 +111,7 @@ class HomeView @InflationInject constructor(
       presenter.dispatch(NewNoteClicked)
     }
     toolbar.searchField.doOnTextChange {
+      notesList.scrollToPosition(0)
       presenter.dispatch(SearchTextChanged(text = it.toString()))
     }
 
