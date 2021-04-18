@@ -15,16 +15,15 @@ import org.xmlpull.v1.XmlPullParser
 import press.PressApp
 
 class ThemeAwareCursorDrawable : Drawable() {
-  private var width: Int = 0
   private val paint = Paint(ANTI_ALIAS_FLAG)
 
   override fun inflate(r: Resources, parser: XmlPullParser, attrs: AttributeSet, theme: Theme?) {
     super.inflate(r, parser, attrs, theme)
-    width = TypedValue.applyDimension(COMPLEX_UNIT_DIP, 2f, r.displayMetrics).toInt()
+    CursorConstantState.width = TypedValue.applyDimension(COMPLEX_UNIT_DIP, 2f, r.displayMetrics).toInt()
   }
 
   override fun setBounds(left: Int, top: Int, right: Int, bottom: Int) {
-    super.setBounds(left, top, left + width, bottom)
+    super.setBounds(left, top, left + CursorConstantState.width, bottom)
   }
 
   override fun draw(canvas: Canvas) {
@@ -47,6 +46,7 @@ class ThemeAwareCursorDrawable : Drawable() {
 
   // A constant state isn't needed for this drawable, but some manufacturers crash without one.
   private object CursorConstantState : ConstantState() {
+    var width: Int = 0
     override fun newDrawable(): Drawable = ThemeAwareCursorDrawable()
     override fun getChangingConfigurations(): Int = 0
   }
