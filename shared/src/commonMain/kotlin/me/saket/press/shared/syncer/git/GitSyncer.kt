@@ -164,8 +164,12 @@ class GitSyncer(
   override fun disable() {
     log("Disabling sync.")
     configQueries.delete()
-    directory.delete(recursively = true)
     noteQueries.swapSyncStates(old = SyncState.values().toList(), new = PENDING)
+
+    // Deletion of the directory may fail and leave behind residual.
+    // Renaming the directory before deleting it makes sure that the
+    // residual files do not mess with future syncs.
+    directory.renameTo("trash_${directory.name}").delete(recursively = true)
   }
 
   private fun SyncTransaction.resetState() {

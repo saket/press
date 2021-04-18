@@ -70,9 +70,9 @@ fun File.delete(recursively: Boolean) {
   delete()
 }
 
-fun File.renameTo(newName: String) {
+fun File.renameTo(newName: String): File {
   val newFile = File(this.parent, newName)
-  renameTo(newFile)
+  return renameTo(newFile)
 }
 
 fun File.relativePathIn(ancestor: File): String {
