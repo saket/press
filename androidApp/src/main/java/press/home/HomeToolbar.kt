@@ -62,7 +62,7 @@ class HomeToolbar(context: Context, showNavIcon: Boolean) : ContourLayout(contex
         menu.add(
           icon = context.getDrawable(R.drawable.ic_search_24, palette.accentColor),
           title = context.strings().home.menu_search_notes,
-          onClick = { setSearchVisible(true, withKeyboard = true) }
+          onClick = { setSearchVisible(true) }
         )
         menu.add(
           icon = context.getDrawable(R.drawable.ic_preferences_24dp, palette.accentColor),
@@ -74,7 +74,7 @@ class HomeToolbar(context: Context, showNavIcon: Boolean) : ContourLayout(contex
 
     searchView.isVisible = false
     searchView.backButton.setOnClickListener {
-      setSearchVisible(false, withKeyboard = true)
+      setSearchVisible(false)
     }
   }
 
@@ -88,7 +88,7 @@ class HomeToolbar(context: Context, showNavIcon: Boolean) : ContourLayout(contex
   override fun onRestoreInstanceState(state: Parcelable) {
     check(state is SavedState)
     super.onRestoreInstanceState(state.superState)
-    setSearchVisible(state.isSearchVisible, withKeyboard = true)
+    setSearchVisible(state.isSearchVisible)
   }
 
   fun render(model: HomeModel) {
@@ -96,7 +96,7 @@ class HomeToolbar(context: Context, showNavIcon: Boolean) : ContourLayout(contex
     searchView.editText.hint = model.searchFieldHint
   }
 
-  fun setSearchVisible(visible: Boolean, withKeyboard: Boolean) {
+  fun setSearchVisible(visible: Boolean, withKeyboard: Boolean = true) {
     fun playAnimation(duration: Long, interpolator: Interpolator) {
       TransitionManager.beginDelayedTransition(
         this, TransitionSet()

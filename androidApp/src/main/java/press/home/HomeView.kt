@@ -29,6 +29,8 @@ import press.extensions.doOnTextChange
 import press.extensions.hideKeyboard
 import press.extensions.second
 import press.extensions.throttleFirst
+import press.navigation.BackPressInterceptor
+import press.navigation.BackPressInterceptor.InterceptResult
 import press.navigation.ScreenFocusChangeListener
 import press.navigation.navigator
 import press.navigation.screenKey
@@ -42,7 +44,7 @@ class HomeView @InflationInject constructor(
   @Assisted context: Context,
   @Assisted attrs: AttributeSet? = null,
   private val presenter: HomePresenter.Factory
-) : ContourLayout(context), ScreenFocusChangeListener, ExpandableScreenHost {
+) : ContourLayout(context), ScreenFocusChangeListener, ExpandableScreenHost, BackPressInterceptor {
 
   private val noteAdapter = NoteAdapter()
   private val folderAdapter = FolderListAdapter()
@@ -148,6 +150,15 @@ class HomeView @InflationInject constructor(
       newNoteFab.hide()
     } else {
       newNoteFab.show()
+    }
+  }
+
+  override fun onInterceptBackPress(): InterceptResult {
+    return if (toolbar.isSearchVisible()) {
+      toolbar.setSearchVisible(false)
+      InterceptResult.Intercepted
+    } else {
+      InterceptResult.Ignored
     }
   }
 
