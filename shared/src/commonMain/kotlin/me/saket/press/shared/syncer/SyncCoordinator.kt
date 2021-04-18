@@ -5,6 +5,7 @@ import com.badoo.reaktive.completable.andThen
 import com.badoo.reaktive.completable.completableFromFunction
 import com.badoo.reaktive.completable.onErrorComplete
 import com.badoo.reaktive.completable.subscribe
+import com.badoo.reaktive.completable.subscribeOn
 import com.badoo.reaktive.observable.ofType
 import com.badoo.reaktive.observable.switchMapCompletable
 import com.badoo.reaktive.subject.publish.PublishSubject
@@ -35,6 +36,7 @@ class RealSyncCoordinator(
   override fun start() {
     triggers.switchMapCompletable {
       syncWithResult()
+        .subscribeOn(schedulers.io)
         .andThen(completableTimer(syncEvery, schedulers.computation))
         .andThen(completableFromFunction { trigger() })
     }.subscribe()
