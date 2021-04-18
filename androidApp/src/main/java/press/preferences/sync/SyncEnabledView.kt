@@ -11,11 +11,14 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ImageView.ScaleType.CENTER_INSIDE
+import androidx.core.text.buildSpannedString
+import androidx.core.text.color
 import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
 import com.squareup.contour.ContourLayout
 import me.saket.cascade.CascadePopupMenu
 import me.saket.press.R
+import me.saket.press.shared.editor.ToolbarMenuAction
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.preferences.sync.SyncPreferencesUiModel.SyncEnabled
 import me.saket.press.shared.preferences.sync.stats.SyncStatsForNerdsScreenKey
@@ -23,6 +26,8 @@ import me.saket.press.shared.syncer.git.GitHost.GITHUB
 import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextStyles.smallTitle
 import me.saket.press.shared.theme.TextView
+import me.saket.press.shared.theme.palettes.ThemePalette
+import press.PressApp
 import press.extensions.borderlessRippleDrawable
 import press.extensions.rippleDrawable
 import press.extensions.textColor
@@ -65,7 +70,12 @@ class SyncEnabledView(context: Context) : ContourLayout(context) {
       menu.addSubMenu(context.strings().sync.remove_repository)
         .setIcon(R.drawable.ic_twotone_delete_24)
         .setHeaderTitle(context.strings().sync.remove_repository_confirm_question).also {
-          it.add(context.strings().sync.remove_repository_confirm)
+          val confirmationInRed = buildSpannedString {
+            color(PressApp.component.theme().palette.textColorWarning) {
+              append(context.strings().sync.remove_repository_confirm)
+            }
+          }
+          it.add(confirmationInRed)
             .setOnMenuItemClickListener {
               onDisableClick()
               true
