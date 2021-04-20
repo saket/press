@@ -3,7 +3,7 @@ package press.theme
 import android.R.attr.state_checked
 import android.app.Activity
 import android.content.res.ColorStateList
-import android.graphics.Color
+import android.graphics.Color.WHITE
 import android.graphics.PorterDuff.Mode.SRC_ATOP
 import android.graphics.PorterDuff.Mode.SRC_IN
 import android.graphics.PorterDuffColorFilter
@@ -121,13 +121,14 @@ private fun <T : CheckBox> themed(view: T): T = view.apply {
 
 private fun <T : SwitchMaterial> themed(view: T): T = view.apply {
   themeAware {
+    background = borderlessRippleDrawable(it)
     thumbTintList = colorStateListOf(
       intArrayOf(state_checked) to it.accentColor,
-      intArrayOf(-state_checked) to it.window.backgroundColor.blendWith(Color.WHITE, 0.7f)
+      intArrayOf(-state_checked) to it.window.backgroundColor.blendWith(WHITE, 0.7f)
     )
     trackTintList = colorStateListOf(
       intArrayOf(state_checked) to it.accentColor.withAlpha(0.5f),
-      intArrayOf(-state_checked) to it.window.backgroundColor.blendWith(Color.WHITE, 0.2f)
+      intArrayOf(-state_checked) to it.window.backgroundColor.blendWith(WHITE, 0.2f)
     )
   }
 }
