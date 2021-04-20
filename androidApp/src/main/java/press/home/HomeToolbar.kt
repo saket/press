@@ -5,8 +5,14 @@ import android.graphics.drawable.Drawable
 import android.os.Parcelable
 import android.view.Gravity.BOTTOM
 import android.view.Gravity.TOP
+import android.view.KeyEvent
+import android.view.KeyEvent.ACTION_DOWN
+import android.view.KeyEvent.ACTION_UP
+import android.view.KeyEvent.DispatcherState
+import android.view.KeyEvent.KEYCODE_BACK
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.view.animation.Interpolator
 import android.widget.ImageButton
 import androidx.core.view.isInvisible
@@ -76,6 +82,18 @@ class HomeToolbar(context: Context, showNavIcon: Boolean) : ContourLayout(contex
     searchView.backButton.setOnClickListener {
       setSearchVisible(false)
     }
+  }
+
+  override fun dispatchKeyEventPreIme(event: KeyEvent): Boolean {
+    if (searchView.editText.text.isBlank()) {
+      val handled = doOnHardwareBackPress(event) {
+        setSearchVisible(false)
+      }
+      if (handled) {
+        return true
+      }
+    }
+    return super.dispatchKeyEventPreIme(event)
   }
 
   override fun onSaveInstanceState(): Parcelable {
@@ -188,4 +206,20 @@ private class SearchToolbar(context: Context) : ContourLayout(context) {
       setBackgroundColor(it.window.backgroundColor)
     }
   }
+}
+
+/** @return whether this event was handled and should be intercepted. */
+private inline fun View.doOnHardwareBackPress(event: KeyEvent, action: () -> Unit): Boolean {
+  val state: DispatcherState? = keyDispatcherState
+  if (state != null && event.keyCode == KEYCODE_BACK) {
+    if (event.action == ACTION_DOWN && event.repeatCount == 0) {
+      state.startTracking(event, this)  // Needed for detecting and ignoring long-presses.
+      return true
+
+    } else if (event.action == ACTION_UP && !event.isCanceled && state.isTracking(event)) {
+      action()
+      return true
+    }
+  }
+  return false
 }

@@ -39,7 +39,6 @@ import press.widgets.DividerItemDecoration
 import press.widgets.SlideDownItemAnimator
 import press.widgets.insets.keyboardHeight
 
-// TODO: Rename to NoteListView
 class HomeView @InflationInject constructor(
   @Assisted context: Context,
   @Assisted attrs: AttributeSet? = null,
