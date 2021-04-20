@@ -143,7 +143,7 @@ val ENGLISH_STRINGS = Strings(
   ),
   home = Home(
     menu_preferences = "Preferences",
-    menu_search_notes = "Search notes",
+    menu_search_notes = "Search all notes",
     searchnotes_everywhere_hint = "Search notes…",
     searchnotes_in_folder_hint = "Search in %s…",
     close_search_contentdescriptoin = "Close search",
