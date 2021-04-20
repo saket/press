@@ -49,7 +49,7 @@ class HomeView @InflationInject constructor(
   private val folderAdapter = FolderListAdapter()
   private val screenKey = screenKey<HomeScreenKey>()
 
-  private val toolbar = HomeToolbar(context, showNavIcon = !HomeScreenKey.isRoot(screenKey))
+  override val toolbar = HomeToolbar(context, showNavIcon = !HomeScreenKey.isRoot(screenKey))
 
   private val notesList = InboxRecyclerView(context).apply {
     id = R.id.home_notes

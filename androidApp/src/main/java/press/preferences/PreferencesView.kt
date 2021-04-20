@@ -25,7 +25,7 @@ import press.widgets.PressToolbar
 import press.widgets.SlideDownItemAnimator
 
 class PreferencesView(context: Context) : ContourLayout(context), ExpandableScreenHost {
-  private val toolbar = PressToolbar(context).apply {
+  override val toolbar = PressToolbar(context).apply {
     title = context.strings().prefs.screen_title
   }
 
