@@ -26,6 +26,9 @@ import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.editor.PreSavedNoteId
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomeEvent.SearchTextChanged
+import me.saket.press.shared.home.HomeModel.EmptyStateKind
+import me.saket.press.shared.home.HomeModel.EmptyStateKind.Notes
+import me.saket.press.shared.home.HomeModel.EmptyStateKind.Search
 import me.saket.press.shared.home.HomeModel.FolderModel
 import me.saket.press.shared.home.HomeModel.NoteModel
 import me.saket.press.shared.keyboard.KeyboardShortcuts
@@ -56,7 +59,8 @@ class HomePresenter(
     HomeModel(
       rows = emptyList(),
       title = "",
-      searchFieldHint = ""
+      searchFieldHint = "",
+      emptyState = null
     )
 
   override fun models(): ObservableWrapper<HomeModel> {
@@ -125,7 +129,7 @@ class HomePresenter(
       val noteModels = searchTexts.switchMap { (searchText) ->
         // todo: move filtering of empty notes back to kotlin to clean up this mess.
         val query = when {
-          args.screenKey.folder == null && searchText.isNotEmpty() -> when {
+          args.screenKey.folder == null && searchText.isNotBlank() -> when {
             args.includeBlankNotes -> noteQueries.visibleNotes(searchText)
             else -> noteQueries.visibleNonEmptyNotes(searchText)
           }
@@ -146,13 +150,20 @@ class HomePresenter(
           }
       }
 
-      return@publish combineLatest(folderName, folderModels, noteModels) { folderName, folders, notes ->
+      return@publish combineLatest(
+        folderName, folderModels, noteModels, searchTexts
+      ) { folderName, folders, notes, (searchText) ->
+        val isScreenEmpty = folders.isEmpty() && notes.isEmpty()
         HomeModel(
           title = folderName ?: strings.common.app_name,
           rows = folders + notes,
           searchFieldHint = when (folderName) {
             null -> strings.home.searchnotes_everywhere_hint
             else -> strings.home.searchnotes_in_folder_hint.format(folderName)
+          },
+          emptyState = when {
+            isScreenEmpty -> if (searchText.isBlank()) Notes else Search
+            else -> null
           }
         )
       }

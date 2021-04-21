@@ -2,9 +2,12 @@ package press.home
 
 import android.content.Context
 import android.util.AttributeSet
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView.State
+import androidx.transition.Fade
+import androidx.transition.TransitionManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
@@ -49,7 +52,12 @@ class HomeView @InflationInject constructor(
   private val folderAdapter = FolderListAdapter()
   private val screenKey = screenKey<HomeScreenKey>()
 
-  override val toolbar = HomeToolbar(context, showNavIcon = !HomeScreenKey.isRoot(screenKey))
+  override val toolbar = HomeToolbar(
+    context = context,
+    showNavIcon = !HomeScreenKey.isRoot(screenKey)
+  )
+
+  private val emptyStateView = EmptyStateView(context)
 
   private val notesList = InboxRecyclerView(context).apply {
     id = R.id.home_notes
@@ -67,6 +75,10 @@ class HomeView @InflationInject constructor(
     toolbar.layoutBy(
       x = leftTo { parent.left() }.rightTo { parent.right() },
       y = topTo { parent.top() }
+    )
+    emptyStateView.layoutBy(
+      x = matchParentX(),
+      y = centerVerticallyTo { parent.centerY() }
     )
     notesList.layoutBy(
       x = leftTo { parent.left() }.rightTo { parent.right() },
@@ -166,5 +178,9 @@ class HomeView @InflationInject constructor(
     toolbar.render(model)
     noteAdapter.submitList(model.notes)
     folderAdapter.submitList(model.folders)
+
+    TransitionManager.beginDelayedTransition(this, Fade().addTarget(emptyStateView))
+    emptyStateView.isVisible = model.emptyState != null
+    emptyStateView.render(model.emptyState)
   }
 }

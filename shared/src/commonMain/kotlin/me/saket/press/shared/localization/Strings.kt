@@ -27,6 +27,8 @@ class Strings(
     val close_search_contentdescriptoin: String,
     val searchnotes_everywhere_hint: String,
     val searchnotes_in_folder_hint: String,
+    val emptystate_for_notes: String,
+    val emptystate_for_search: String,
   )
 
   class Editor(
@@ -147,6 +149,8 @@ val ENGLISH_STRINGS = Strings(
     searchnotes_everywhere_hint = "Search notes…",
     searchnotes_in_folder_hint = "Search in %s…",
     close_search_contentdescriptoin = "Close search",
+    emptystate_for_notes = "Create your first note!",
+    emptystate_for_search = "No results",
   ),
   editor = Editor(
     new_note_hints = listOf(

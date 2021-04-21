@@ -26,7 +26,8 @@ interface HomeEvent {
 data class HomeModel(
   val title: String,
   val rows: List<Row>,
-  val searchFieldHint: String
+  val searchFieldHint: String,
+  val emptyState: EmptyStateKind?,
 ) {
   val notes: List<NoteModel> get() = rows.filterIsInstance<NoteModel>()
   val folders: List<FolderModel> get() = rows.filterIsInstance<FolderModel>()
@@ -57,5 +58,10 @@ data class HomeModel(
     override fun screenKey(): ScreenKey {
       return HomeScreenKey(folder = id)
     }
+  }
+
+  enum class EmptyStateKind {
+    Search,
+    Notes
   }
 }
