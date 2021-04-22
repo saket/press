@@ -64,10 +64,9 @@ class HomePresenterTest : BaseDatabaeTest() {
     val archive = fakeFolder("archive")
     folderQueries.insert(archive)
 
-    val witcher3 = fakeNote(content = "The Witcher 3 Wild Hunt")
-    val nicolasCage = fakeNote(content = "# Nicolas Cage\nOur national treasure")
-    val uncharted = fakeNote(content = "# Uncharted\nThe Lost Legacy", folderId = archive.id)
-    noteQueries.testInsert(nicolasCage, witcher3, uncharted)
+    val witcher3 = fakeNote("The Witcher 3 Wild Hunt")
+    val uncharted = fakeNote("# Uncharted\nThe Lost Legacy", folderId = archive.id)
+    noteQueries.testInsert(witcher3, uncharted)
 
     val presenter = presenter()
     val models = presenter.models()
@@ -79,11 +78,6 @@ class HomePresenterTest : BaseDatabaeTest() {
       FolderModel(
         id = archive.id,
         title = "archive",
-      ),
-      NoteModel(
-        id = nicolasCage.id,
-        title = "Nicolas Cage",
-        body = "Our national treasure"
       ),
       NoteModel(
         id = witcher3.id,
@@ -127,9 +121,9 @@ class HomePresenterTest : BaseDatabaeTest() {
     val archive = fakeFolder("archive")
     folderQueries.insert(games, archive)
 
-    val uncharted = fakeNote(content = "# Uncharted")
-    val gambling = fakeNote(content = "# Gambling")
-    val archivedWitcher = fakeNote(content = "# The Archived Witcher 3 (game)", folderId = archive.id)
+    val uncharted = fakeNote("# Uncharted")
+    val gambling = fakeNote("# Gambling")
+    val archivedWitcher = fakeNote("# The Archived Witcher 3 (game)", folderId = archive.id)
     noteQueries.testInsert(uncharted, gambling, archivedWitcher)
 
     val presenter = presenter(folder = null)
@@ -137,31 +131,59 @@ class HomePresenterTest : BaseDatabaeTest() {
       .map { it.rows }
       .test(rxRule)
 
-    // When searching in the folder, include results from all nested folders too.
+    // todo: When searching in the root folder, include results from all folders except archive.
     presenter.dispatch(SearchTextChanged(text = "gam"))
     assertThat(models.popValue()).containsOnly(
       NoteModel(
         id = gambling.id,
         title = "Gambling",
         body = ""
+      )
+    )
+  }
+
+  @Test fun `populate filtered notes when searching in a folder that contains nested folders`() {
+    val archive = fakeFolder("archive")
+    val gamesFolder = fakeFolder("games", parent = archive.id)
+    val rpgGamesFolder = fakeFolder("rpg", parent = gamesFolder.id)
+    folderQueries.insert(archive, gamesFolder, rpgGamesFolder)
+
+    val gamesToBuy = fakeNote("# Games to buy", folderId = archive.id)
+    val unravel2 = fakeNote("# Unravel 2 (game)", folderId = gamesFolder.id)
+    val witcher3 = fakeNote("# Witcher 3 (game)", folderId = rpgGamesFolder.id)
+    noteQueries.testInsert(gamesToBuy, unravel2, witcher3)
+
+    val presenter = presenter(folder = archive.id)
+    val models = presenter.models()
+      .map { it.rows }
+      .test(rxRule)
+
+    presenter.dispatch(SearchTextChanged(text = "game"))
+    assertThat(models.popValue()).containsOnly(
+      NoteModel(
+        id = gamesToBuy.id,
+        title = "Games to buy",
+        body = ""
       ),
       NoteModel(
-        id = archivedWitcher.id,
-        title = "The Archived Witcher 3 (game)",
+        id = unravel2.id,
+        title = "Unravel 2 (game)",
+        body = ""
+      ),
+      NoteModel(
+        id = witcher3.id,
+        title = "Witcher 3 (game)",
         body = ""
       )
     )
   }
 
-  @Test fun `populate filtered notes when searching in a folder that contains sub-folders`() {
-    // TODO.
-  }
-
   @Test fun `filter out empty notes if requested`() {
     noteQueries.testInsert(
       fakeNote(id = NoteId.generate(), content = "# Non-empty note"),
-      fakeNote(id = NoteId.generate(), content = NEW_NOTE_PLACEHOLDER),
-      fakeNote(id = NoteId.generate(), content = "")
+      fakeNote(id = NoteId.generate(), content = "# "),
+      fakeNote(id = NoteId.generate(), content = ""),
+      fakeNote(id = NoteId.generate(), content = "  "),
     )
 
     val presenter = presenter(includeEmptyNotes = false)
@@ -176,8 +198,9 @@ class HomePresenterTest : BaseDatabaeTest() {
   @Test fun `include empty notes if requested`() {
     noteQueries.testInsert(
       fakeNote(id = NoteId.generate(), content = "# Non-empty note"),
-      fakeNote(id = NoteId.generate(), content = NEW_NOTE_PLACEHOLDER),
-      fakeNote(id = NoteId.generate(), content = "")
+      fakeNote(id = NoteId.generate(), content = "# "),
+      fakeNote(id = NoteId.generate(), content = ""),
+      fakeNote(id = NoteId.generate(), content = "  "),
     )
 
     val presenter = presenter(includeEmptyNotes = true)
@@ -189,7 +212,8 @@ class HomePresenterTest : BaseDatabaeTest() {
     assertThat(titlesAndBodies.popValue()).containsOnly(
       "Non-empty note" to "",
       "" to "",
-      "" to ""
+      "" to "",
+      "" to "",
     )
   }
 

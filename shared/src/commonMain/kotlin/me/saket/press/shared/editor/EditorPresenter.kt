@@ -470,6 +470,7 @@ class EditorPresenter(
 
   companion object {
     const val NEW_NOTE_PLACEHOLDER = "# "
+    val NEW_NOTE_PLACEHOLDER_TRIMMED = NEW_NOTE_PLACEHOLDER.trim()
   }
 }
 

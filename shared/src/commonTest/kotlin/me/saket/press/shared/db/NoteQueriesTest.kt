@@ -12,26 +12,6 @@ class NoteQueriesTest : BaseDatabaeTest() {
   private val noteQueries get() = database.noteQueries
   private val folderQueries get() = database.folderQueries
 
-  @Test fun `visible non-empty notes`() {
-    val folder1 = fakeFolder("folder1")
-    val folder2 = fakeFolder("folder2")
-    val folder3 = fakeFolder("folder3")
-    folderQueries.insert(folder1, folder2, folder3)
-
-    noteQueries.testInsert(
-      fakeNote("Note 1"),
-      fakeNote("Note 2", isPendingDeletion = true),
-      fakeNote(""),
-      fakeNote("   "),
-      fakeNote("#  "),
-    )
-
-    val visibleNotes = noteQueries.visibleNonEmptyNotesInFolder(folderId = null, searchText = "")
-      .executeAsList()
-      .map { it.content }
-    assertThat(visibleNotes).containsOnly("Note 1")
-  }
-
   @Test fun `archived notes`() {
     val archive = fakeFolder("archive")
     val note1 = fakeNote("# Uncharted 1")

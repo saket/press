@@ -42,7 +42,7 @@ WHERE parent = ?
 ORDER BY name ASC;
 
 nonEmptyFoldersUnder:
-SELECT * FROM folder
+SELECT id, name FROM folder
 WHERE parent = ? AND id IN (
   SELECT folderId
   FROM visibleNonEmptyNotes

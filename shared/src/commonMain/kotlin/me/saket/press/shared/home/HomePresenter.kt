@@ -18,15 +18,16 @@ import com.badoo.reaktive.observable.switchMap
 import com.badoo.reaktive.observable.throttleLatest
 import com.badoo.reaktive.observable.wrap
 import me.saket.press.PressDatabase
+import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorPresenter
 import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
+import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER_TRIMMED
 import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.editor.PreSavedNoteId
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomeEvent.SearchTextChanged
-import me.saket.press.shared.home.HomeModel.EmptyStateKind
 import me.saket.press.shared.home.HomeModel.EmptyStateKind.Notes
 import me.saket.press.shared.home.HomeModel.EmptyStateKind.Search
 import me.saket.press.shared.home.HomeModel.FolderModel
@@ -112,34 +113,24 @@ class HomePresenter(
     return searchTextChanges.publish { searchTexts ->
       val folderModels = searchTexts.switchMap { (searchText) ->
         if (searchText.isBlank()) {
-          database.folderQueries.nonEmptyFoldersUnder(folderId)
+          database.folderQueries.nonEmptyFoldersUnder(folderId, mapper = ::FolderModel)
             .asObservable(schedulers.io)
             .mapToList()
-            .mapIterable { folder ->
-              FolderModel( // todo: avoid double mapping from cursors.
-                id = folder.id,
-                title = folder.name
-              )
-            }
         } else {
           observableOf(emptyList())
         }
       }
 
       val noteModels = searchTexts.switchMap { (searchText) ->
-        // todo: move filtering of empty notes back to kotlin to clean up this mess.
+        // When searching for notes, include all nested folders (excluding archive).
         val query = when {
-          args.screenKey.folder == null && searchText.isNotBlank() -> when {
-            args.includeBlankNotes -> noteQueries.visibleNotes(searchText)
-            else -> noteQueries.visibleNonEmptyNotes(searchText)
-          }
-          else -> when {
-            args.includeBlankNotes -> noteQueries.visibleNotesInFolder(folderId, searchText)
-            else -> noteQueries.visibleNonEmptyNotesInFolder(folderId, searchText)
-          }
+          folderId == null && searchText.isNotBlank() -> noteQueries.visibleNonArchivedNotes(searchText)
+          folderId != null && searchText.isNotBlank() -> noteQueries.visibleNotesInDeepFolders(folderId, searchText)
+          else -> noteQueries.visibleNotesInFolder(folderId)
         }
         query.asObservable(schedulers.io)
           .mapToList()
+          .map { notes -> notes.maybeFilterBlankNotes() }
           .mapIterable { note ->
             val (heading, body) = HeadingAndBody.parse(note.content)
             NoteModel(
@@ -167,6 +158,15 @@ class HomePresenter(
           }
         )
       }
+    }
+  }
+
+  private fun List<Note>.maybeFilterBlankNotes(): List<Note> {
+    if (args.includeBlankNotes) {
+      return this
+    }
+    return filter {
+      it.content.isNotBlank() && it.content.trim() != NEW_NOTE_PLACEHOLDER_TRIMMED
     }
   }
 

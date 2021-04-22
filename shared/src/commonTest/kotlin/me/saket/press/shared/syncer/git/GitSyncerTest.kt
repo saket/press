@@ -1329,6 +1329,8 @@ class GitSyncerTest : BaseDatabaeTest() {
   }
 }
 
+// todo: Rename to insert.
+// todo: move outside this file.
 fun NoteQueries.testInsert(vararg notes: Note) {
   notes.forEach { testInsert(it) }
 }
