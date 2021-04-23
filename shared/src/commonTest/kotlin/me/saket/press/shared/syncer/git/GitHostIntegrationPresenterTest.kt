@@ -12,7 +12,7 @@ import me.saket.kgit.GitIdentity
 import me.saket.kgit.SshKeyPair
 import me.saket.kgit.SshPrivateKey
 import me.saket.press.shared.db.BaseDatabaeTest
-import me.saket.press.shared.fakedata.fakeRepository
+import me.saket.press.shared.fakeRepository
 import me.saket.press.shared.preferences.sync.setup.GitHostIntegrationPresenter
 import me.saket.press.shared.preferences.sync.setup.NewGitRepositoryScreenKey
 import me.saket.press.shared.rx.RxRule

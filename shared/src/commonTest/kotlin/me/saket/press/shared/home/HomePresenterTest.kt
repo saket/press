@@ -11,11 +11,10 @@ import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.FolderId
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
-import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
 import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.editor.PreSavedNoteId
-import me.saket.press.shared.fakedata.fakeFolder
-import me.saket.press.shared.fakedata.fakeNote
+import me.saket.press.shared.fakeFolder
+import me.saket.press.shared.fakeNote
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomeEvent.SearchTextChanged
 import me.saket.press.shared.home.HomeModel.FolderModel

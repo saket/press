@@ -30,9 +30,9 @@ import me.saket.press.shared.PlatformHost.Android
 import me.saket.press.shared.containsOnly
 import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.NoteId
-import me.saket.press.shared.fakedata.fakeFolder
-import me.saket.press.shared.fakedata.fakeNote
-import me.saket.press.shared.fakedata.fakeRepository
+import me.saket.press.shared.fakeFolder
+import me.saket.press.shared.fakeNote
+import me.saket.press.shared.fakeRepository
 import me.saket.press.shared.isEqualTo
 import me.saket.press.shared.localization.ENGLISH_STRINGS
 import me.saket.press.shared.syncer.SyncMergeConflicts

@@ -11,8 +11,8 @@ import me.saket.press.shared.containsOnly
 import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.FolderId
 import me.saket.press.shared.db.NoteId
-import me.saket.press.shared.fakedata.fakeFolder
-import me.saket.press.shared.fakedata.fakeNote
+import me.saket.press.shared.fakeFolder
+import me.saket.press.shared.fakeNote
 import kotlin.test.Test
 
 class FolderPathsTest : BaseDatabaeTest() {

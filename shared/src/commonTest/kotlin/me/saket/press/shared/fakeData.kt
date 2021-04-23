@@ -1,4 +1,4 @@
-package me.saket.press.shared.fakedata
+package me.saket.press.shared
 
 import com.soywiz.klock.DateTime
 import me.saket.press.data.shared.Folder

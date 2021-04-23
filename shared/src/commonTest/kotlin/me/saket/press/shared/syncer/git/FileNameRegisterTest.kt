@@ -12,8 +12,8 @@ import me.saket.press.data.shared.Note
 import me.saket.press.shared.containsOnly
 import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.NoteId
-import me.saket.press.shared.fakedata.fakeFolder
-import me.saket.press.shared.fakedata.fakeNote
+import me.saket.press.shared.fakeFolder
+import me.saket.press.shared.fakeNote
 import me.saket.press.shared.testDeviceInfo
 import kotlin.test.AfterTest
 import kotlin.test.Test
