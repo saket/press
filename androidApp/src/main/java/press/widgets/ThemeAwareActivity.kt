@@ -4,14 +4,18 @@ import android.app.ActivityManager.TaskDescription
 import android.graphics.drawable.ColorDrawable
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
+import android.view.View
 import android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.WindowCompat
+import com.jakewharton.rxbinding3.view.detaches
 import me.saket.press.R
+import me.saket.press.shared.listenRx
+import me.saket.press.shared.theme.palettes.ThemePalette
 import press.theme.AutoThemer
-import press.theme.themeAware
+import press.theme.appTheme
 
 abstract class ThemeAwareActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,7 +24,6 @@ abstract class ThemeAwareActivity : AppCompatActivity() {
     AutoThemer.theme(this)
   }
 
-  // TODO: apply to all activities through activity lifecycle callbacks instead of maintaining a "base" activity.
   @Suppress("DEPRECATION")
   private fun applyPaletteTheme() {
     window.decorView.themeAware { palette ->
@@ -43,5 +46,11 @@ abstract class ThemeAwareActivity : AppCompatActivity() {
       }
       setTaskDescription(taskDescription)
     }
+  }
+
+  private fun View.themeAware(onThemeChange: (ThemePalette) -> Unit) {
+    appTheme().listenRx()
+      .takeUntil(this.detaches())
+      .subscribe(onThemeChange)
   }
 }

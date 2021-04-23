@@ -19,7 +19,7 @@ import me.saket.press.shared.preferences.PreferenceCategoryScreenKey
 import me.saket.press.shared.ui.ScreenKey
 import press.navigation.navigator
 import press.navigation.transitions.ExpandableScreenHost
-import press.theme.themeAware
+import press.theme.themePalette
 import press.widgets.DividerItemDecoration
 import press.widgets.PressToolbar
 import press.widgets.SlideDownItemAnimator
@@ -44,9 +44,7 @@ class PreferencesView(context: Context) : ContourLayout(context), ExpandableScre
 
   init {
     id = R.id.preferences_view
-    themeAware {
-      setBackgroundColor(it.window.backgroundColor)
-    }
+    setBackgroundColor(themePalette().window.backgroundColor)
 
     toolbar.layoutBy(
       x = matchParentX(),

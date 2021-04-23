@@ -36,7 +36,7 @@ import press.extensions.doOnTextChange
 import press.extensions.hideKeyboard
 import press.navigation.navigator
 import press.navigation.screenKey
-import press.theme.themeAware
+import press.theme.themePalette
 import press.widgets.PressToolbar
 import press.widgets.SlideDownItemAnimator
 
@@ -107,9 +107,7 @@ class GitHostIntegrationView @InflationInject constructor(
 
   init {
     id = R.id.githostintegration_view
-    themeAware {
-      setBackgroundColor(it.window.backgroundColor)
-    }
+    setBackgroundColor(themePalette().window.backgroundColor)
 
     val fabMargin = 24.dip
     newGitRepoFab.layoutBy(

@@ -13,14 +13,14 @@ import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextView
 import press.extensions.textColor
 import press.extensions.updateMargins
-import press.theme.themeAware
+import press.theme.themePalette
 import press.widgets.PressButton
 import press.widgets.dp
 
 class SyncDisabledView(context: Context) : ContourLayout(context) {
   private val messageView = TextView(context, smallBody).apply {
     text = context.strings().sync.sync_disabled_message
-    themeAware { textColor = it.textColorPrimary }
+    textColor = themePalette().textColorPrimary
     applyLayout(
       x = matchParentX(marginLeft = 22.dip, marginRight = 22.dip),
       y = topTo { parent.top() + 8.ydip }
@@ -50,8 +50,8 @@ class SyncDisabledView(context: Context) : ContourLayout(context) {
     return PressButton(context, smallBody).also {
       it.text = context.strings().sync.setup_sync_with_host.format(host.displayName())
       it.layoutParams = MarginLayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+      it.textColor = themePalette().textColorPrimary
       it.updateMargins(bottom = dp(8))
-      it.themeAware { palette -> it.textColor = palette.textColorPrimary }
       it.setOnClickListener { onClick(host) }
     }
   }

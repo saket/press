@@ -37,7 +37,7 @@ import press.extensions.textColor
 import press.navigation.NotPullCollapsible
 import press.navigation.navigator
 import press.navigation.screenKey
-import press.theme.themeAware
+import press.theme.themePalette
 import press.widgets.MaterialTextInputLayout
 import press.widgets.PressDialogView
 
@@ -134,9 +134,7 @@ private class ContentView(context: Context) : ContourLayout(context) {
     editText.imeOptions = editText.imeOptions or IME_ACTION_GO
     hint = context.strings().sync.newgitrepo_name_hint
     isHelperTextEnabled = true
-    themeAware {
-      editText.textColor = it.textColorPrimary
-    }
+    editText.textColor = themePalette().textColorPrimary
   }
 
   val loadingView = ProgressBar(context)

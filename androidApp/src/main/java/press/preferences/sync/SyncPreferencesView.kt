@@ -20,7 +20,7 @@ import me.saket.press.shared.ui.models
 import press.extensions.setDisplayedChild
 import press.extensions.unsafeLazy
 import press.navigation.navigator
-import press.theme.themeAware
+import press.theme.themePalette
 import press.widgets.PressToolbar
 
 class SyncPreferencesView @InflationInject constructor(
@@ -60,9 +60,7 @@ class SyncPreferencesView @InflationInject constructor(
 
   init {
     id = R.id.syncpreferences_view
-    themeAware {
-      setBackgroundColor(it.window.backgroundColor)
-    }
+    setBackgroundColor(themePalette().window.backgroundColor)
   }
 
   override fun onAttachedToWindow() {

@@ -14,7 +14,7 @@ import me.saket.press.shared.theme.TextStyles.mainTitle
 import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextView
 import press.extensions.textColor
-import press.theme.themeAware
+import press.theme.themePalette
 
 class PreferenceCategoryRowView(context: Context) : ContourLayout(context) {
   private val iconView = AppCompatImageView(context)
@@ -38,12 +38,11 @@ class PreferenceCategoryRowView(context: Context) : ContourLayout(context) {
     )
     contourHeightOf { subtitleView.bottom() + 16.dip }
 
-    themeAware {
-      iconView.setColorFilter(it.accentColor)
-      titleView.textColor = it.textColorPrimary
-      subtitleView.textColor = it.textColorSecondary
-      setBackgroundColor(it.window.elevatedBackgroundColor)
-    }
+    iconView.setColorFilter(themePalette().accentColor)
+    titleView.textColor = themePalette().textColorPrimary
+    subtitleView.textColor = themePalette().textColorSecondary
+
+    setBackgroundColor(themePalette().window.elevatedBackgroundColor)
     stateListAnimator = AnimatorInflater.loadStateListAnimator(context, R.animator.thread_elevation_stateanimator)
   }
 

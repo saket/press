@@ -5,7 +5,6 @@ import android.content.ComponentCallbacks
 import android.content.res.Configuration
 import android.content.res.Configuration.UI_MODE_NIGHT_MASK
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import android.view.View
 import me.saket.press.BuildConfig
 import me.saket.press.shared.preferences.UserPreferences
 import me.saket.press.shared.theme.AppTheme
@@ -43,6 +42,6 @@ fun appTheme(): AppTheme {
   return PressApp.component.theme()
 }
 
-fun View.themeAware(onThemeChange: (ThemePalette) -> Unit) {
-  onThemeChange(appTheme().palette)
+fun themePalette(): ThemePalette {
+  return PressApp.component.theme().palette
 }

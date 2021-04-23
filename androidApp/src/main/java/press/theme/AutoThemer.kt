@@ -93,11 +93,9 @@ object AutoThemer {
 private fun <T : TextView> themed(view: T): T = view.apply {
   val selectionHandleDrawables = TextViewCompat.textSelectionHandles(this)
 
-  themeAware { palette ->
-    highlightColor = palette.textHighlightColor
-    selectionHandleDrawables.forEach { it.setColorFilter(palette.accentColor, SRC_IN) }
-    setLinkTextColor(palette.accentColor)
-  }
+  highlightColor = themePalette().textHighlightColor
+  selectionHandleDrawables.forEach { it.setColorFilter(themePalette().accentColor, SRC_IN) }
+  setLinkTextColor(themePalette().accentColor)
 }
 
 private fun <T : Button> themed(view: T): T = view.apply {
@@ -107,55 +105,42 @@ private fun <T : Button> themed(view: T): T = view.apply {
 private fun <T : EditText> themed(view: T): T = view.apply {
   themed(view as TextView)
 
-  themeAware { palette ->
-    setHintTextColor(palette.textColorSecondary)
-  }
+  setHintTextColor(themePalette().textColorSecondary)
 }
 
 private fun <T : CheckBox> themed(view: T): T = view.apply {
-  themeAware {
-    background = borderlessRippleDrawable(it)
-    buttonTintList = ColorStateList.valueOf(it.accentColor)
-  }
+  background = borderlessRippleDrawable()
+  buttonTintList = ColorStateList.valueOf(themePalette().accentColor)
 }
 
 private fun <T : SwitchMaterial> themed(view: T): T = view.apply {
-  themeAware {
-    background = borderlessRippleDrawable(it)
-    thumbTintList = colorStateListOf(
-      intArrayOf(state_checked) to it.accentColor,
-      intArrayOf(-state_checked) to it.window.backgroundColor.blendWith(WHITE, 0.7f)
-    )
-    trackTintList = colorStateListOf(
-      intArrayOf(state_checked) to it.accentColor.withAlpha(0.5f),
-      intArrayOf(-state_checked) to it.window.backgroundColor.blendWith(WHITE, 0.2f)
-    )
-  }
+  background = borderlessRippleDrawable()
+  thumbTintList = colorStateListOf(
+    intArrayOf(state_checked) to themePalette().accentColor,
+    intArrayOf(-state_checked) to themePalette().window.backgroundColor.blendWith(WHITE, 0.7f)
+  )
+  trackTintList = colorStateListOf(
+    intArrayOf(state_checked) to themePalette().accentColor.withAlpha(0.5f),
+    intArrayOf(-state_checked) to themePalette().window.backgroundColor.blendWith(WHITE, 0.2f)
+  )
 }
 
 private fun themed(view: ScrollView) = view.apply {
-  themeAware {
-    ScrollViewCompat.setEdgeEffectColor(view, it.accentColor)
-  }
+  ScrollViewCompat.setEdgeEffectColor(view, themePalette().accentColor)
 }
 
 private fun themed(view: NestedScrollView) = view.apply {
-  themeAware {
-    ScrollViewCompat.setEdgeEffectColor(view, it.accentColor)
-  }
+  ScrollViewCompat.setEdgeEffectColor(view, themePalette().accentColor)
 }
 
 private fun themed(view: HorizontalScrollView) = view.apply {
-  themeAware {
-    ScrollViewCompat.setEdgeEffectColor(view, it.accentColor)
-  }
+  ScrollViewCompat.setEdgeEffectColor(view, themePalette().accentColor)
 }
 
 private fun <T : RecyclerView> themed(view: T): T = view.apply {
-  themeAware {
-    edgeEffectFactory = object : EdgeEffectFactory() {
-      override fun createEdgeEffect(view: RecyclerView, direction: Int) =
-        EdgeEffect(view.context).apply { color = it.accentColor }
+  edgeEffectFactory = object : EdgeEffectFactory() {
+    override fun createEdgeEffect(view: RecyclerView, direction: Int): EdgeEffect {
+      return EdgeEffect(view.context).apply { color = themePalette().accentColor }
     }
   }
 }
@@ -163,15 +148,11 @@ private fun <T : RecyclerView> themed(view: T): T = view.apply {
 private fun themed(toolbar: Toolbar) = toolbar.apply {
   val titleView = findTitleView()
   titleView.applyStyle(appTitle)
-  themeAware {
-    titleView.textColor = it.textColorHeading
-  }
+  titleView.textColor = themePalette().textColorHeading
 
   val setRipple = { child: View ->
-    child.themeAware {
-      child.background = borderlessRippleDrawable(it.pressedColor(it.accentColor)).apply {
-        radius = maxOf(radius, context.dp(20))
-      }
+    child.background = borderlessRippleDrawable(themePalette().pressedColor(themePalette().accentColor)).apply {
+      radius = maxOf(radius, context.dp(20))
     }
   }
 
@@ -193,15 +174,12 @@ private fun ViewGroup.viewChanges(action: (View) -> Unit) {
 }
 
 private fun themed(view: FloatingActionButton) = view.apply {
-  themeAware {
-    backgroundTintList = ColorStateList.valueOf(it.fabColor)
-    colorFilter = PorterDuffColorFilter(it.fabIcon, SRC_ATOP)
-    rippleColor = it.pressedColor(it.fabColor)
-  }
+  val palette = themePalette()
+  backgroundTintList = ColorStateList.valueOf(palette.fabColor)
+  colorFilter = PorterDuffColorFilter(palette.fabIcon, SRC_ATOP)
+  rippleColor = palette.pressedColor(palette.fabColor)
 }
 
 private fun <T : ProgressBar> themed(view: T): T = view.apply {
-  themeAware {
-    view.indeterminateTintList = ColorStateList.valueOf(it.accentColor)
-  }
+  view.indeterminateTintList = ColorStateList.valueOf(themePalette().accentColor)
 }

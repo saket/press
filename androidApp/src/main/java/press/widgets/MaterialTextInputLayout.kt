@@ -8,7 +8,7 @@ import android.widget.EditText
 import androidx.core.view.updatePadding
 import com.google.android.material.textfield.TextInputLayout
 import me.saket.press.shared.theme.blendWith
-import press.theme.themeAware
+import press.theme.themePalette
 
 @Suppress("LeakingThis")
 open class MaterialTextInputLayout(context: Context) : TextInputLayout(context) {
@@ -24,12 +24,11 @@ open class MaterialTextInputLayout(context: Context) : TextInputLayout(context) 
     importantForAutofill = IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS
     boxBackgroundMode = BOX_BACKGROUND_FILLED
 
-    themeAware {
-      hintTextColor = ColorStateList.valueOf(it.accentColor)
-      boxBackgroundColor = it.window.backgroundColor.blendWith(Color.BLACK, ratio = 0.1f)
-      boxStrokeColor = it.accentColor
-      setHelperTextColor(ColorStateList.valueOf(it.textColorHint))
-    }
+    val palette = themePalette()
+    hintTextColor = ColorStateList.valueOf(palette.accentColor)
+    boxBackgroundColor = palette.window.backgroundColor.blendWith(Color.BLACK, ratio = 0.1f)
+    boxStrokeColor = palette.accentColor
+    setHelperTextColor(ColorStateList.valueOf(palette.textColorHint))
   }
 
   override fun getEditText(): EditText {

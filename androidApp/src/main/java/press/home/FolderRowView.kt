@@ -12,16 +12,14 @@ import me.saket.press.shared.home.HomeUiStyles.noteTitle
 import me.saket.press.shared.theme.TextView
 import press.extensions.getDrawable
 import press.extensions.textColor
-import press.theme.themeAware
+import press.theme.themePalette
 
 class FolderRowView(context: Context) : ContourLayout(context) {
   private val titleView = TextView(context, noteTitle).apply {
     gravity = CENTER_VERTICAL
     compoundDrawablePadding = 8.dip
-    themeAware {
-      textColor = it.textColorHeading
-      setStartDrawable(context.getDrawable(R.drawable.ic_twotone_folder_16, tint = it.textColorHeading))
-    }
+    textColor = themePalette().textColorHeading
+    setStartDrawable(context.getDrawable(R.drawable.ic_twotone_folder_16, tint = themePalette().textColorHeading))
   }
 
   lateinit var model: FolderModel
@@ -34,9 +32,7 @@ class FolderRowView(context: Context) : ContourLayout(context) {
 
     stateListAnimator = loadStateListAnimator(context, R.animator.thread_elevation_stateanimator)
     contourHeightOf { titleView.bottom() + 16.dip }
-    themeAware {
-      setBackgroundColor(it.window.elevatedBackgroundColor)
-    }
+    setBackgroundColor(themePalette().window.elevatedBackgroundColor)
   }
 
   fun render(model: FolderModel) {

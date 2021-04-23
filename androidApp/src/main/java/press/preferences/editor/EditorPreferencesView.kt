@@ -27,7 +27,7 @@ import me.saket.press.shared.theme.asAndroidTypeface
 import press.extensions.updatePadding
 import press.preferences.TwoLinePreferenceView
 import press.theme.pressCascadeStyler
-import press.theme.themeAware
+import press.theme.themePalette
 import press.widgets.DividerDrawable
 import press.widgets.PressToolbar
 import press.widgets.dp
@@ -45,8 +45,8 @@ class EditorPreferencesView @InflationInject constructor(
   private val preferenceList = LinearLayout(context).apply {
     orientation = VERTICAL
     showDividers = SHOW_DIVIDER_MIDDLE or SHOW_DIVIDER_END
+    dividerDrawable = DividerDrawable(themePalette().separator)
     updatePadding(bottom = dp(24))
-    themeAware { dividerDrawable = DividerDrawable(it.separator) }
   }
 
   private val previewView = EditorPreviewView(context)
@@ -59,9 +59,7 @@ class EditorPreferencesView @InflationInject constructor(
 
   init {
     id = R.id.editor_preferences_view
-    themeAware {
-      setBackgroundColor(it.window.backgroundColor)
-    }
+    setBackgroundColor(themePalette().window.backgroundColor)
 
     toolbar.layoutBy(
       x = matchParentX(),

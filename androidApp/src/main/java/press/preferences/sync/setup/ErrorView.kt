@@ -7,16 +7,14 @@ import me.saket.press.shared.localization.strings
 import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextView
 import press.extensions.textColor
-import press.theme.themeAware
+import press.theme.themePalette
 import press.widgets.PressButton
 
 class ErrorView(context: Context) : ContourLayout(context) {
   private val messageView = TextView(context, smallBody).apply {
     gravity = CENTER_HORIZONTAL
     text = context.strings().common.generic_error
-    themeAware {
-      textColor = it.textColorPrimary
-    }
+    textColor = themePalette().textColorPrimary
   }
 
   val retryButton = PressButton(context, smallBody).apply {

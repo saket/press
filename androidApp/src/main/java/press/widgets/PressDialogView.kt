@@ -7,7 +7,6 @@ import android.view.Gravity.CENTER_HORIZONTAL
 import android.view.KeyEvent
 import android.view.View
 import android.widget.FrameLayout
-import android.widget.FrameLayout.LayoutParams
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
@@ -18,7 +17,7 @@ import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextView
 import press.extensions.padding
 import press.extensions.textColor
-import press.theme.themeAware
+import press.theme.themePalette
 
 /**
  * Rounded corners and theme colors, because [AlertDialog] isn't very customizable.
@@ -27,7 +26,7 @@ import press.theme.themeAware
 class PressDialogView(context: Context) : ContourLayout(context) {
   private val titleView = TextView(context, mainTitle).apply {
     gravity = CENTER_HORIZONTAL
-    themeAware { textColor = it.textColorPrimary }
+    textColor = themePalette().textColorPrimary
     layoutBy(
       x = matchParentX(marginLeft = 20.dip, marginRight = 20.dip),
       y = topTo { parent.top() + 20.ydip }
@@ -36,7 +35,7 @@ class PressDialogView(context: Context) : ContourLayout(context) {
 
   private val messageView = TextView(context, smallBody).apply {
     gravity = CENTER_HORIZONTAL
-    themeAware { textColor = it.textColorPrimary }
+    textColor = themePalette().textColorPrimary
     updatePaddingRelative(start = 20.dip, end = 20.dip)
   }
 
@@ -46,7 +45,7 @@ class PressDialogView(context: Context) : ContourLayout(context) {
 
   private val negativeButtonView = PressBorderlessButton(context, smallBody).apply {
     padding = dp(16)
-    themeAware { textColor = it.textColorPrimary }
+    textColor = themePalette().textColorPrimary
     layoutBy(
       x = leftTo { parent.left() }.rightTo { parent.centerX() },
       y = topTo { buttonsTopSeparator.bottom() }
@@ -56,7 +55,7 @@ class PressDialogView(context: Context) : ContourLayout(context) {
   val positiveButtonView = PressBorderlessButton(context, smallBody).apply {
     padding = dp(16)
     isSingleLine = true
-    themeAware { textColor = it.accentColor }
+    textColor = themePalette().accentColor
     applyLayout(
       x = leftTo { if (negativeButtonView.isVisible) parent.centerX() else parent.left() }
         .rightTo { parent.right() },
@@ -65,7 +64,7 @@ class PressDialogView(context: Context) : ContourLayout(context) {
   }
 
   private val buttonsTopSeparator = View(context).apply {
-    themeAware { setBackgroundColor(it.separator) }
+    setBackgroundColor(themePalette().separator)
     applyLayout(
       x = matchParentX(),
       y = topTo { contentView.bottom() + 20.ydip }.heightOf { 1.ydip }
@@ -74,7 +73,7 @@ class PressDialogView(context: Context) : ContourLayout(context) {
 
   @Suppress("unused")
   private val buttonsMidSeparator = View(context).apply {
-    themeAware { setBackgroundColor(it.separator) }
+    setBackgroundColor(themePalette().separator)
     applyLayout(
       x = centerHorizontallyTo { parent.centerX() }.widthOf { 1.xdip },
       y = topTo { buttonsTopSeparator.bottom() }.bottomTo { parent.bottom() }
@@ -96,10 +95,8 @@ class PressDialogView(context: Context) : ContourLayout(context) {
       }
     )
 
-    themeAware {
-      background = PaintDrawable(it.window.backgroundColor).apply {
-        setCornerRadius(8f.dip)
-      }
+    background = PaintDrawable(themePalette().window.backgroundColor).apply {
+      setCornerRadius(8f.dip)
     }
 
     contourWidthOf { available -> minOf(300.xdip, available - 60.xdip) }

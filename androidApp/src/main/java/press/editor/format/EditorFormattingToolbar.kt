@@ -18,7 +18,6 @@ import androidx.core.view.setPadding
 import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.theme.TextStyles.smallTitle
-import me.saket.press.shared.theme.palettes.ThemePalette
 import me.saket.wysiwyg.formatting.BlockQuoteSyntaxApplier
 import me.saket.wysiwyg.formatting.EmphasisSyntaxApplier
 import me.saket.wysiwyg.formatting.HeadingSyntaxApplier
@@ -37,7 +36,7 @@ import press.extensions.getDrawable
 import press.extensions.showKeyboard
 import press.extensions.textColor
 import press.extensions.updatePadding
-import press.theme.themeAware
+import press.theme.themePalette
 import press.widgets.PressBorderlessImageButton
 import press.widgets.PressButton
 import press.widgets.dp
@@ -56,12 +55,11 @@ class EditorFormattingToolbar(
     isFillViewport = true
     clipToPadding = false
     updatePadding(horizontal = dp(12))
-    themeAware {
-      // A background is important so that the button ripples are drawn over it instead of
-      // over the editor in the background, and thus clipped to this layout's height.
-      setBackgroundColor(it.window.elevatedBackgroundColor)
-    }
     addView(actionListView)
+
+    // A background is important so that the button ripples are drawn over it instead of
+    // over the editor in the background, and thus clipped to this layout's height.
+    setBackgroundColor(themePalette().window.elevatedBackgroundColor)
 
     actionListView += createButton(
       FormatActionIcon(
@@ -109,14 +107,12 @@ class EditorFormattingToolbar(
     actionListView += createDivider()
     actionListView += createButton(
       FormatActionText(
-        label = { palette ->
-          buildSpannedString {
-            color(palette.markdown.syntaxColor) { append('`') }
-            inSpans(MonospaceTypefaceSpan {}) {
-              append(context.strings().editor.formattingtoolbar_inline_code)
-            }
-            color(palette.markdown.syntaxColor) { append('`') }
+        label = buildSpannedString {
+          color(themePalette().markdown.syntaxColor) { append('`') }
+          inSpans(MonospaceTypefaceSpan {}) {
+            append(context.strings().editor.formattingtoolbar_inline_code)
           }
+          color(themePalette().markdown.syntaxColor) { append('`') }
         },
         onClick = { applyMarkdownSyntax(InlineCodeSyntaxApplier) }
       )
@@ -124,11 +120,9 @@ class EditorFormattingToolbar(
     actionListView += createDivider()
     actionListView += createButton(
       FormatActionText(
-        label = { palette ->
-          buildSpannedString {
-            color(palette.markdown.blockQuoteTextColor) { append("> ") }
-            append(context.strings().editor.formattingtoolbar_blockquote)
-          }
+        label = buildSpannedString {
+          color(themePalette().markdown.blockQuoteTextColor) { append("> ") }
+          append(context.strings().editor.formattingtoolbar_blockquote)
         },
         onClick = { applyMarkdownSyntax(BlockQuoteSyntaxApplier) }
       )
@@ -145,10 +139,8 @@ class EditorFormattingToolbar(
           it.compoundDrawablePadding = dp(4)
           it.layoutParams = LayoutParams(WRAP_CONTENT, MATCH_PARENT)
           it.updatePadding(horizontal = dp(12), vertical = dp(4))
-          it.themeAware { palette ->
-            it.text = action.label(palette)
-            it.textColor = palette.textColorPrimary
-          }
+          it.text = action.label
+          it.textColor = themePalette().textColorPrimary
         }
       }
       is FormatActionIcon -> {
@@ -157,9 +149,7 @@ class EditorFormattingToolbar(
           it.tooltipText = action.label
           it.layoutParams = LayoutParams(WRAP_CONTENT, MATCH_PARENT)
           it.setPadding(dp(12))
-          it.themeAware { palette ->
-            it.setImageDrawable(context.getDrawable(action.iconRes, palette.textColorPrimary))
-          }
+          it.setImageDrawable(context.getDrawable(action.iconRes, themePalette().textColorPrimary))
         }
       }
     }
@@ -168,24 +158,17 @@ class EditorFormattingToolbar(
       button.performHapticFeedback(LONG_PRESS)
       action.onClick(button)
     }
-    button.themeAware { palette ->
-      button.background = borderlessRippleDrawable(
-        palette = palette,
-        background = palette.buttonPressed
-      )
-    }
+    button.background = borderlessRippleDrawable(background = themePalette().buttonPressed)
     return button
   }
 
   private fun createDivider(): View {
     return View(context).also {
       it.layoutParams = LayoutParams(dp(1), MATCH_PARENT)
-      it.themeAware { palette ->
-        it.background = GradientDrawable(
-          TOP_BOTTOM,
-          intArrayOf(palette.separator.withOpacity(0f), palette.separator)
-        )
-      }
+      it.background = GradientDrawable(
+        TOP_BOTTOM,
+        intArrayOf(themePalette().separator.withOpacity(0f), themePalette().separator)
+      )
     }
   }
 
@@ -220,6 +203,6 @@ private data class FormatActionIcon(
 ) : FormatAction()
 
 private data class FormatActionText(
-  val label: (palette: ThemePalette) -> CharSequence,
+  val label: CharSequence,
   override val onClick: (View) -> Unit
 ) : FormatAction()

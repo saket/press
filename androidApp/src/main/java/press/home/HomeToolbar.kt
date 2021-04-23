@@ -38,7 +38,7 @@ import press.extensions.hideKeyboard
 import press.extensions.showKeyboard
 import press.navigation.FormFactor
 import press.navigation.navigator
-import press.theme.themeAware
+import press.theme.themePalette
 import press.widgets.PressToolbar
 import press.widgets.insets.doOnPreKeyboardVisibilityChange
 import press.widgets.insets.isKeyboardVisible
@@ -62,20 +62,18 @@ class HomeToolbar(context: Context, showNavIcon: Boolean) : ContourLayout(contex
     contourHeightOf { baseToolbar.bottom() }
     check(baseToolbar.elevation == 0f)
 
-    themeAware { palette ->
-      with(baseToolbar) {
-        menu.clear()
-        menu.add(
-          icon = context.getDrawable(R.drawable.ic_search_24, palette.accentColor),
-          title = context.strings().home.menu_search_notes,
-          onClick = { setSearchVisible(true) }
-        )
-        menu.add(
-          icon = context.getDrawable(R.drawable.ic_preferences_24dp, palette.accentColor),
-          title = context.strings().home.menu_preferences,
-          onClick = { navigator().lfg(PreferencesScreenKey) }
-        )
-      }
+    with(baseToolbar) {
+      menu.clear()
+      menu.add(
+        icon = context.getDrawable(R.drawable.ic_search_24, themePalette().accentColor),
+        title = context.strings().home.menu_search_notes,
+        onClick = { setSearchVisible(true) }
+      )
+      menu.add(
+        icon = context.getDrawable(R.drawable.ic_preferences_24dp, themePalette().accentColor),
+        title = context.strings().home.menu_preferences,
+        onClick = { navigator().lfg(PreferencesScreenKey) }
+      )
     }
 
     searchView.isVisible = false
@@ -178,11 +176,9 @@ private data class SavedState(
 private class SearchToolbar(context: Context) : ContourLayout(context) {
   val backButton = ImageButton(context).apply {
     contentDescription = context.strings().home.close_search_contentdescriptoin
-    themeAware {
-      background = borderlessRippleDrawable(it).apply { radius = 20.dip }
-      setImageDrawable(context.getDrawable(R.drawable.ic_arrow_back_24, it.accentColor))
-      setPadding(14.dip)
-    }
+    background = borderlessRippleDrawable().apply { radius = 20.dip }
+    setImageDrawable(context.getDrawable(R.drawable.ic_arrow_back_24, themePalette().accentColor))
+    setPadding(14.dip)
   }
 
   val editText = EditText(context, appTitle).apply {
@@ -201,10 +197,7 @@ private class SearchToolbar(context: Context) : ContourLayout(context) {
       x = leftTo { backButton.right() }.rightTo { parent.right() },
       y = matchParentY()
     )
-
-    themeAware {
-      setBackgroundColor(it.window.backgroundColor)
-    }
+    setBackgroundColor(themePalette().window.backgroundColor)
   }
 }
 

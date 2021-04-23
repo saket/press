@@ -7,16 +7,14 @@ import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import press.extensions.getDrawable
 import press.navigation.navigator
-import press.theme.themeAware
+import press.theme.themePalette
 
 @Suppress("LeakingThis")
 open class PressToolbar(context: Context, showNavIcon: Boolean = true) : Toolbar(context) {
   init {
     if (showNavIcon) {
       navigationContentDescription = context.strings().common.close_nav_icon_contentdescription
-      themeAware {
-        super.setNavigationIcon(context.getDrawable(R.drawable.ic_close_24dp, it.accentColor))
-      }
+      super.setNavigationIcon(context.getDrawable(R.drawable.ic_close_24dp, themePalette().accentColor))
       setNavigationOnClickListener {
         navigator().goBack()
       }

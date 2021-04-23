@@ -31,7 +31,7 @@ import press.extensions.rippleDrawable
 import press.extensions.textColor
 import press.navigation.navigator
 import press.theme.pressCascadeStyler
-import press.theme.themeAware
+import press.theme.themePalette
 
 class SyncEnabledView(context: Context) : ContourLayout(context) {
   private val itemView = ItemView(context)
@@ -98,25 +98,23 @@ class SyncEnabledView(context: Context) : ContourLayout(context) {
   private class ItemView(context: Context) : ContourLayout(context) {
     private val iconView = ImageView(context).apply {
       scaleType = CENTER_INSIDE
-      themeAware { setColorFilter(it.textColorPrimary) }
+      setColorFilter(themePalette().textColorPrimary)
     }
 
     val nameView = TextView(context, smallTitle).apply {
       maxLines = 1
       ellipsize = END
-      themeAware { textColor = it.textColorPrimary }
+      textColor = themePalette().textColorPrimary
     }
 
     private val statusView = TextView(context, smallBody).apply {
-      themeAware { textColor = it.textColorSecondary }
+      textColor = themePalette().textColorSecondary
     }
 
     val optionsButton = ImageButton(context).apply {
+      background = borderlessRippleDrawable()
       setImageResource(R.drawable.ic_more_horiz_24)
-      themeAware {
-        setColorFilter(it.textColorSecondary)
-        background = borderlessRippleDrawable(it)
-      }
+      setColorFilter(themePalette().textColorSecondary)
     }
 
     init {
@@ -137,11 +135,9 @@ class SyncEnabledView(context: Context) : ContourLayout(context) {
         y = topTo { parent.top() }.heightOf { 40.ydip }
       )
 
+      background = rippleDrawable()
       updatePadding(left = 20.dip, top = 20.dip, right = 10.dip, bottom = 20.dip)
       contourHeightWrapContent()
-      themeAware {
-        background = rippleDrawable(it)
-      }
 
       // Avoid accidental taps on parent by increasing the option button's tap area.
       optionsButton.doOnLayout {

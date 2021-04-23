@@ -8,7 +8,7 @@ import me.saket.press.shared.theme.TextView
 import press.extensions.textColor
 import press.extensions.updatePadding
 import press.preferences.theme.createPreviewMarkdownText
-import press.theme.themeAware
+import press.theme.themePalette
 import press.widgets.dp
 
 class EditorPreviewView(context: Context) : ContourLayout(context) {
@@ -24,14 +24,11 @@ class EditorPreviewView(context: Context) : ContourLayout(context) {
       y = topTo { parent.top() }
     )
     contourHeightOf { previewTextView.bottom() }
+    setBackgroundColor(themePalette().window.elevatedBackgroundColor)
 
-    themeAware { palette ->
-      setBackgroundColor(palette.window.elevatedBackgroundColor)
-
-      previewTextView.let {
-        it.textColor = palette.textColorPrimary
-        it.text = palette.createPreviewMarkdownText(title = context.strings().prefs.editor_preview_title)
-      }
+    previewTextView.let {
+      it.textColor = themePalette().textColorPrimary
+      it.text = themePalette().createPreviewMarkdownText(title = context.strings().prefs.editor_preview_title)
     }
   }
 }

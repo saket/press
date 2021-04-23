@@ -15,7 +15,7 @@ import androidx.core.view.setPadding
 import me.saket.press.shared.theme.UiStyles
 import me.saket.press.shared.theme.applyStyle
 import press.extensions.updatePadding
-import press.theme.themeAware
+import press.theme.themePalette
 
 open class PressButton(context: Context, style: UiStyles.Text) : AppCompatButton(context) {
   init {
@@ -24,11 +24,9 @@ open class PressButton(context: Context, style: UiStyles.Text) : AppCompatButton
     minWidth = 0
     minimumWidth = 0
     isAllCaps = false
+    background = pressButtonDrawable(themePalette().buttonNormal, pressedColor = themePalette().buttonPressed)
     applyStyle(style)
     updatePadding(horizontal = dp(16), vertical = dp(8))
-    themeAware {
-      background = pressButtonDrawable(it.buttonNormal, pressedColor = it.buttonPressed)
-    }
   }
 
   override fun setTextColor(color: Int) {
@@ -45,9 +43,7 @@ class PressBorderlessButton(context: Context, style: UiStyles.Text) : PressButto
   init {
     elevation = 0f
     stateListAnimator = null
-    themeAware {
-      background = pressButtonDrawable(TRANSPARENT, pressedColor = it.buttonPressed, rounded = false)
-    }
+    background = pressButtonDrawable(TRANSPARENT, pressedColor = themePalette().buttonPressed, rounded = false)
   }
 }
 
@@ -55,10 +51,8 @@ class PressBorderlessImageButton(context: Context) : AppCompatImageButton(contex
   init {
     elevation = 0f
     stateListAnimator = null
+    background = RippleDrawable(ColorStateList.valueOf(themePalette().buttonPressed), null, null)
     setPadding(dp(16))
-    themeAware {
-      background = RippleDrawable(ColorStateList.valueOf(it.buttonPressed), null, null)
-    }
   }
 }
 

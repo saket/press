@@ -19,7 +19,7 @@ import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextView
 import me.saket.press.shared.ui.models
 import press.extensions.textColor
-import press.theme.themeAware
+import press.theme.themePalette
 import press.widgets.PressToolbar
 
 class SyncStatsForNerdsView @InflationInject constructor(
@@ -33,30 +33,22 @@ class SyncStatsForNerdsView @InflationInject constructor(
   }
 
   private val directorySizeView = TextView(context, mainBody).apply {
-    themeAware {
-      textColor = it.textColorPrimary
-    }
+    textColor = themePalette().textColorPrimary
   }
 
   private val logsLabelView = TextView(context, mainBody).apply {
     text = context.strings().sync.nerd_stats_logs_label
-    themeAware {
-      textColor = it.textColorPrimary
-    }
+    textColor = themePalette().textColorPrimary
   }
 
   private val logsView = TextView(context, smallBody).apply {
+    textColor = themePalette().textColorPrimary
     setTextIsSelectable(true)
-    themeAware {
-      textColor = it.textColorPrimary
-    }
   }
 
   private val logsScrollView = NestedScrollView(context).apply {
     isFillViewport = true
-    themeAware {
-      setBackgroundColor(it.window.elevatedBackgroundColor)
-    }
+    setBackgroundColor(themePalette().window.elevatedBackgroundColor)
 
     addView(
       HorizontalScrollView(context).also {
@@ -87,9 +79,7 @@ class SyncStatsForNerdsView @InflationInject constructor(
     )
     contourHeightMatchParent()
 
-    themeAware {
-      setBackgroundColor(it.window.backgroundColor)
-    }
+    setBackgroundColor(themePalette().window.backgroundColor)
   }
 
   override fun onAttachedToWindow() {

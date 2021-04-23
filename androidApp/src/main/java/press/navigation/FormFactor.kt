@@ -13,7 +13,7 @@ import press.navigation.FormFactor.Companion.SCREEN_TRANSITION_DURATION
 import press.navigation.FormFactor.Companion.SCREEN_TRANSITION_INTERPOLATOR
 import press.navigation.transitions.ExpandableScreenTransition
 import press.navigation.transitions.MorphFromFabScreenTransition
-import press.theme.themeAware
+import press.theme.themePalette
 import kotlin.math.roundToInt
 
 /**
@@ -90,9 +90,7 @@ class PhoneFormFactor(private val viewFactories: ViewFactories) : FormFactor {
 
   private fun maybeSetThemeBackground(view: View) {
     if (view.background == null) {
-      view.themeAware {
-        view.setBackgroundColor(it.window.backgroundColor)
-      }
+      view.setBackgroundColor(themePalette().window.backgroundColor)
     }
   }
 }

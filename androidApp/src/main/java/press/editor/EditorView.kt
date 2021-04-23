@@ -32,17 +32,17 @@ import me.saket.cascade.CascadeBackNavigator
 import me.saket.cascade.CascadePopupMenu
 import me.saket.cascade.overrideAllPopupMenus
 import me.saket.press.R
+import me.saket.press.shared.editor.EditorEffect
+import me.saket.press.shared.editor.EditorEffect.BlockedDueToSyncConflict
+import me.saket.press.shared.editor.EditorEffect.PopulateNoteBody
+import me.saket.press.shared.editor.EditorEffect.ShowToast
 import me.saket.press.shared.editor.EditorEvent.CloseSubMenu
 import me.saket.press.shared.editor.EditorEvent.NoteTextChanged
+import me.saket.press.shared.editor.EditorModel
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorPresenter
 import me.saket.press.shared.editor.EditorPresenter.Args
 import me.saket.press.shared.editor.EditorScreenKey
-import me.saket.press.shared.editor.EditorEffect
-import me.saket.press.shared.editor.EditorEffect.BlockedDueToSyncConflict
-import me.saket.press.shared.editor.EditorEffect.ShowToast
-import me.saket.press.shared.editor.EditorEffect.PopulateNoteBody
-import me.saket.press.shared.editor.EditorModel
 import me.saket.press.shared.editor.ToolbarIconKind.Archive
 import me.saket.press.shared.editor.ToolbarIconKind.CopyAs
 import me.saket.press.shared.editor.ToolbarIconKind.DeleteNote
@@ -81,9 +81,8 @@ import press.navigation.BackPressInterceptor.InterceptResult
 import press.navigation.BackPressInterceptor.InterceptResult.Ignored
 import press.navigation.navigator
 import press.navigation.screenKey
-import press.theme.appTheme
 import press.theme.pressCascadeStyler
-import press.theme.themeAware
+import press.theme.themePalette
 import press.widgets.PressToolbar
 
 class EditorView @InflationInject constructor(
@@ -95,9 +94,7 @@ class EditorView @InflationInject constructor(
 ) : ContourLayout(context), BackPressInterceptor {
 
   private val toolbar = PressToolbar(context).apply {
-    themeAware {
-      setBackgroundColor(it.window.elevatedBackgroundColor)
-    }
+    setBackgroundColor(themePalette().window.elevatedBackgroundColor)
   }
 
   private val scrollView = EditorScrollView(context).apply {
@@ -108,21 +105,17 @@ class EditorView @InflationInject constructor(
   private val editorEditText = MarkdownEditText(context).apply {
     applyStyle(mainBody)
     id = R.id.editor_textfield
+    textColor = themePalette().textColorPrimary
     if (preferences.autoCorrectEnabled.get()!!.enabled) {
       inputType = inputType or TYPE_TEXT_FLAG_AUTO_CORRECT
     }
     movementMethod = EditorLinkMovementMethod(scrollView)
     updatePaddingRelative(start = 20.dip, end = 20.dip, bottom = 52.dip)
-    themeAware {
-      textColor = it.textColorPrimary
-    }
   }
 
   private val headingHintTextView = TextView(context, mainBody).apply {
     textSizePx = editorEditText.textSize
-    themeAware {
-      textColor = it.textColorHint
-    }
+    textColor = themePalette().textColorHint
   }
 
   private val formattingToolbar = EditorFormattingToolbar(editorEditText)
@@ -140,6 +133,7 @@ class EditorView @InflationInject constructor(
 
   init {
     id = R.id.editor_view
+    setBackgroundColor(themePalette().window.elevatedBackgroundColor)
 
     toolbar.layoutBy(
       x = matchParentX(),
@@ -168,19 +162,9 @@ class EditorView @InflationInject constructor(
       KeepCursorVisibleOnKeyboardShow(scrollView, editorEditText)
     )
 
-    themeAware { palette ->
-      setBackgroundColor(palette.window.elevatedBackgroundColor)
-    }
-
-    // TODO: add support for changing WysiwygStyle.
-    appTheme().listenRx()
-      .take(1)
-      .takeUntil(detaches())
-      .subscribe { palette ->
-        val wysiwygStyle = palette.wysiwygStyle(DisplayUnits(context))
-        val wysiwyg = Wysiwyg(editorEditText, wysiwygStyle)
-        editorEditText.addTextChangedListener(wysiwyg.syntaxHighlighter())
-      }
+    val wysiwygStyle = themePalette().wysiwygStyle(DisplayUnits(context))
+    val wysiwyg = Wysiwyg(editorEditText, wysiwygStyle)
+    editorEditText.addTextChangedListener(wysiwyg.syntaxHighlighter())
 
     if (screenKey<EditorScreenKey>().openMode is NewNote) {
       editorEditText.post {

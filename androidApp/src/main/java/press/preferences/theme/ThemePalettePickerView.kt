@@ -20,7 +20,7 @@ import me.saket.press.shared.theme.palettes.ThemePalette
 import press.extensions.textColor
 import press.preferences.theme.PalettePreviewAdapter.VH
 import press.theme.appTheme
-import press.theme.themeAware
+import press.theme.themePalette
 import press.widgets.SpacingItemDecoration
 
 class ThemePalettePickerView(
@@ -32,14 +32,14 @@ class ThemePalettePickerView(
 
   private val titleView = TextView(context, mainTitle).apply {
     text = title
-    themeAware { textColor = it.textColorPrimary }
+    textColor = themePalette().textColorPrimary
   }
 
   private val subtitleView = TextView(context, smallBody).apply {
     setting.listen().takeUntil(detaches()).subscribe { (selectedPalette) ->
       text = selectedPalette!!.name
     }
-    themeAware { textColor = it.textColorSecondary }
+    textColor = themePalette().textColorSecondary
   }
 
   val paletteListView = RecyclerView(context).apply {

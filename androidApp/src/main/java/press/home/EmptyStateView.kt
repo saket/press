@@ -9,14 +9,12 @@ import me.saket.press.shared.home.HomeModel.EmptyStateKind.Search
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.theme.TextStyles.mainBody
 import me.saket.press.shared.theme.TextView
-import press.theme.themeAware
+import press.theme.themePalette
 
 class EmptyStateView(context: Context) : ContourLayout(context) {
   private val titleView = TextView(context, mainBody).apply {
     gravity = CENTER
-    themeAware {
-      setTextColor(it.textColorPrimary)
-    }
+    setTextColor(themePalette().textColorPrimary)
   }
 
   init {

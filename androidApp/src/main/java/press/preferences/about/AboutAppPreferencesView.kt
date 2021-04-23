@@ -22,7 +22,7 @@ import me.saket.press.shared.theme.TextView
 import press.extensions.textColor
 import press.navigation.navigator
 import press.preferences.TwoLinePreferenceView
-import press.theme.themeAware
+import press.theme.themePalette
 import press.widgets.DividerDrawable
 import press.widgets.PressToolbar
 
@@ -41,9 +41,7 @@ class AboutAppPreferencesView @InflationInject constructor(
     text = Html.fromHtml(strings.about_header_html, FROM_HTML_MODE_LEGACY)
     movementMethod = BetterLinkMovementMethod.getInstance()
     updatePaddingRelative(start = 16.dip, end = 16.dip, top = 0, bottom = 24.dip)
-    themeAware {
-      textColor = it.textColorPrimary
-    }
+    textColor = themePalette().textColorPrimary
   }
 
   private val playStoreView = TwoLinePreferenceView(context)
@@ -53,7 +51,7 @@ class AboutAppPreferencesView @InflationInject constructor(
   private val preferenceList = LinearLayout(context).apply {
     orientation = VERTICAL
     showDividers = SHOW_DIVIDER_MIDDLE or SHOW_DIVIDER_END
-    themeAware { dividerDrawable = DividerDrawable(it.separator) }
+    dividerDrawable = DividerDrawable(themePalette().separator)
     addView(headerTextView)
     addView(playStoreView)
     addView(githubView)
@@ -62,9 +60,7 @@ class AboutAppPreferencesView @InflationInject constructor(
 
   init {
     id = R.id.aboutapp_preferences_view
-    themeAware {
-      setBackgroundColor(it.window.backgroundColor)
-    }
+    setBackgroundColor(themePalette().window.backgroundColor)
 
     toolbar.layoutBy(
       x = matchParentX(),

@@ -9,19 +9,15 @@ import me.saket.press.shared.home.HomeUiStyles.noteBody
 import me.saket.press.shared.home.HomeUiStyles.noteTitle
 import me.saket.press.shared.theme.TextView
 import press.extensions.textColor
-import press.theme.themeAware
+import press.theme.themePalette
 
 class NoteRowView(context: Context) : ContourLayout(context) {
   private val titleView = TextView(context, noteTitle).apply {
-    themeAware {
-      textColor = it.textColorHeading
-    }
+    textColor = themePalette().textColorHeading
   }
 
   private val bodyView = TextView(context, noteBody).apply {
-    themeAware {
-      textColor = it.textColorSecondary
-    }
+    textColor = themePalette().textColorSecondary
   }
 
   lateinit var model: HomeModel.NoteModel
@@ -38,9 +34,7 @@ class NoteRowView(context: Context) : ContourLayout(context) {
 
     stateListAnimator = loadStateListAnimator(context, R.animator.thread_elevation_stateanimator)
     contourHeightOf { bodyView.bottom() + 16.dip }
-    themeAware {
-      setBackgroundColor(it.window.elevatedBackgroundColor)
-    }
+    setBackgroundColor(themePalette().window.elevatedBackgroundColor)
   }
 
   fun render(model: HomeModel.NoteModel) {

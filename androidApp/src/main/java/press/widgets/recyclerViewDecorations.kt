@@ -7,14 +7,12 @@ import androidx.annotation.ColorInt
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
 import androidx.recyclerview.widget.RecyclerView
-import press.theme.themeAware
+import press.theme.themePalette
 
 @Suppress("FunctionName")
 fun View.DividerItemDecoration(orientation: Int = VERTICAL): RecyclerView.ItemDecoration {
   return DividerItemDecoration(context, orientation).apply {
-    themeAware {
-      setDrawable(DividerDrawable(it.separator))
-    }
+    setDrawable(DividerDrawable(themePalette().separator))
   }
 }
 

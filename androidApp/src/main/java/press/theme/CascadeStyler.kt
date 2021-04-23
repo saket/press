@@ -14,7 +14,7 @@ import press.extensions.textColor
 import press.widgets.dp
 
 fun View.pressCascadeStyler(): CascadePopupMenu.Styler {
-  val palette = appTheme().palette
+  val palette = themePalette()
   return CascadePopupMenu.Styler(
     background = {
       PaintDrawable(palette.buttonNormal, radius = dp(4f))

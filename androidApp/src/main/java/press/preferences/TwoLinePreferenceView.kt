@@ -12,7 +12,7 @@ import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextView
 import press.extensions.rippleDrawable
 import press.extensions.textColor
-import press.theme.themeAware
+import press.theme.themePalette
 
 /** Shows a title and a subtitle. */
 class TwoLinePreferenceView(context: Context) : ContourLayout(context) {
@@ -32,11 +32,9 @@ class TwoLinePreferenceView(context: Context) : ContourLayout(context) {
       (if (subtitleView.isVisible) subtitleView.bottom() else titleView.bottom()) + 16.ydip
     }
 
-    themeAware {
-      titleView.textColor = it.textColorPrimary
-      subtitleView.textColor = it.textColorSecondary
-      background = rippleDrawable(it)
-    }
+    titleView.textColor = themePalette().textColorPrimary
+    subtitleView.textColor = themePalette().textColorSecondary
+    background = rippleDrawable()
   }
 
   fun render(title: String, subtitle: CharSequence? = null, onClick: () -> Unit) {

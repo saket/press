@@ -19,7 +19,7 @@ import me.saket.press.shared.theme.AppTheme
 import me.saket.press.shared.theme.ThemeSwitchingMode
 import press.preferences.TwoLinePreferenceView
 import press.theme.pressCascadeStyler
-import press.theme.themeAware
+import press.theme.themePalette
 import press.widgets.DividerDrawable
 import press.widgets.PressToolbar
 import press.widgets.dp
@@ -40,8 +40,8 @@ class ThemePreferencesView @InflationInject constructor(
   private val preferenceList = LinearLayout(context).apply {
     orientation = VERTICAL
     showDividers = SHOW_DIVIDER_MIDDLE or SHOW_DIVIDER_END
+    dividerDrawable = DividerDrawable(themePalette().separator)
     updatePadding(bottom = dp(24))
-    themeAware { dividerDrawable = DividerDrawable(it.separator) }
   }
 
   private val themeModeView = TwoLinePreferenceView(context)
@@ -63,10 +63,7 @@ class ThemePreferencesView @InflationInject constructor(
     id = R.id.theme_preferences_view
     lightThemePaletteView.paletteListView.id = R.id.themepreferences_light_palette_list
     darkThemePaletteView.paletteListView.id = R.id.themepreferences_dark_palette_list
-
-    themeAware {
-      setBackgroundColor(it.window.backgroundColor)
-    }
+    setBackgroundColor(themePalette().window.backgroundColor)
 
     toolbar.layoutBy(
       x = matchParentX(),

@@ -25,6 +25,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import me.saket.press.shared.theme.palettes.ThemePalette
 import me.saket.wysiwyg.widgets.SimpleTextWatcher
+import press.theme.themePalette
 import java.util.ArrayDeque
 import kotlin.DeprecationLevel.ERROR
 
@@ -100,7 +101,7 @@ fun ViewFlipper.setDisplayedChild(child: View) {
 }
 
 fun rippleDrawable(
-  palette: ThemePalette,
+  palette: ThemePalette = themePalette(),
   background: Int = Color.TRANSPARENT,
   cornerRadius: Float = 0f
 ): RippleDrawable {
@@ -110,7 +111,7 @@ fun rippleDrawable(
 }
 
 fun borderlessRippleDrawable(
-  palette: ThemePalette,
+  palette: ThemePalette = themePalette(),
   background: Int = Color.TRANSPARENT,
 ): RippleDrawable {
   return RippleDrawable(ColorStateList.valueOf(palette.pressedColor(background)), null, null)
