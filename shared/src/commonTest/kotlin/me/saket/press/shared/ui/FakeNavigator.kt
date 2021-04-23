@@ -31,6 +31,8 @@ class FakeNavigator : Navigator {
   }
 
   override fun intentLauncher() = intentLauncher
+
+  override fun recreateScreens() = TODO()
 }
 
 data class Back(val result: ScreenResult? = null)

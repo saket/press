@@ -93,6 +93,12 @@ class RealNavigator(
   override fun intentLauncher(): IntentLauncher {
     return RealIntentLauncher(activity)
   }
+
+  override fun recreateScreens() {
+    val historyBackup = flow.history
+    flow.setHistory(History.single(PlaceholderScreenKey()), REPLACE)
+    flow.setHistory(historyBackup, REPLACE)
+  }
 }
 
 /** Get the [ScreenKey] that was used for navigating to a screen. */

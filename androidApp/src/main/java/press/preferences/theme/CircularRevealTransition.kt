@@ -17,7 +17,8 @@ import android.view.ViewAnimationUtils
 import android.view.ViewGroup
 import android.view.animation.PathInterpolator
 import androidx.core.animation.doOnEnd
-import androidx.core.view.doOnDetach
+import androidx.core.view.doOnPreDraw
+import press.navigation.TheActivity
 import kotlin.math.hypot
 import kotlin.math.max
 
@@ -33,25 +34,28 @@ class CircularRevealTransition {
    * 2. It cuts through the transition overlay so that any unfinished
    *    ripple animation is still visible, and doesn't end abruptly.
    */
+  @Suppress("NAME_SHADOWING")
   fun beginTransition(sceneRoot: ViewGroup, anchor: View?) {
     // The overlay is applied to the Window's entire content
     // (decor View) to include the status and nav bars.
-    val windowDecorView = sceneRoot.rootView as ViewGroup
+    val sceneRoot = sceneRoot.rootView as ViewGroup
 
-    val decorImage = windowDecorView.captureImage()
-    windowDecorView.overlay.add(decorImage)
+    val sceneImage = sceneRoot.captureImage()
+    sceneRoot.overlay.add(sceneImage)
 
-    animator = decorImage.createRevealAnimation(anchor).apply {
+    animator = sceneImage.createRevealAnimation(anchor).apply {
       duration = 400
       interpolator = PathInterpolator(0f, 0f, 0.5f, 1f)
-      start()
-
-      doOnEnd {
-        windowDecorView.overlay.remove(decorImage)
-      }
     }
-    sceneRoot.doOnDetach {
-      animator.end()
+
+    // Recreate the view hierarchy so that the new theme is picked up.
+    TheActivity.viewRecreateRequests.onNext(Unit)
+
+    sceneRoot.doOnPreDraw {
+      animator.start()
+    }
+    animator.doOnEnd {
+      sceneRoot.overlay.remove(sceneImage)
     }
   }
 

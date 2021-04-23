@@ -6,11 +6,7 @@ import android.content.res.Configuration
 import android.content.res.Configuration.UI_MODE_NIGHT_MASK
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.view.View
-import com.jakewharton.rxbinding3.view.attaches
-import com.jakewharton.rxbinding3.view.detaches
-import io.reactivex.Single
 import me.saket.press.BuildConfig
-import me.saket.press.shared.listenRx
 import me.saket.press.shared.preferences.UserPreferences
 import me.saket.press.shared.theme.AppTheme
 import me.saket.press.shared.theme.palettes.ThemePalette
@@ -48,19 +44,5 @@ fun appTheme(): AppTheme {
 }
 
 fun View.themeAware(onThemeChange: (ThemePalette) -> Unit) {
-  val stream = appTheme().listenRx()
-
-  val attaches = attaches().mergeWith(Single.create {
-    // Because RxBinding doesn't emit anything if the View is already attached.
-    if (isAttachedToWindow) {
-      it.onSuccess(Unit)
-    }
-  })
-
-  attaches
-    .switchMap { stream }
-    .takeUntil(detaches())
-    .mergeWith(stream.take(1))  // Don't wait till attach for the first emission.
-    .distinctUntilChanged()
-    .subscribe(onThemeChange)
+  onThemeChange(appTheme().palette)
 }

@@ -18,7 +18,6 @@ import androidx.core.view.updatePadding
 import com.squareup.contour.ContourLayout
 import me.saket.cascade.CascadePopupMenu
 import me.saket.press.R
-import me.saket.press.shared.editor.ToolbarMenuAction
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.preferences.sync.SyncPreferencesUiModel.SyncEnabled
 import me.saket.press.shared.preferences.sync.stats.SyncStatsForNerdsScreenKey
@@ -26,7 +25,6 @@ import me.saket.press.shared.syncer.git.GitHost.GITHUB
 import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.TextStyles.smallTitle
 import me.saket.press.shared.theme.TextView
-import me.saket.press.shared.theme.palettes.ThemePalette
 import press.PressApp
 import press.extensions.borderlessRippleDrawable
 import press.extensions.rippleDrawable

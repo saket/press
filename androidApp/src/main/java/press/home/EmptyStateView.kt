@@ -8,7 +8,6 @@ import me.saket.press.shared.home.HomeModel.EmptyStateKind.Notes
 import me.saket.press.shared.home.HomeModel.EmptyStateKind.Search
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.theme.TextStyles.mainBody
-import me.saket.press.shared.theme.TextStyles.mainTitle
 import me.saket.press.shared.theme.TextView
 import press.theme.themeAware
 

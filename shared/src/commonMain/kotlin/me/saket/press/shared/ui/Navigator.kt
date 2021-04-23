@@ -9,6 +9,9 @@ interface Navigator {
   fun splitScreenAndLfg(screen: ScreenKey)
   fun goBack(result: ScreenResult? = null)
   fun intentLauncher(): IntentLauncher
+
+  /** Currently called in response to theme changes. */
+  fun recreateScreens()
 }
 
 interface ScreenKey : AndroidParcel

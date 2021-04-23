@@ -84,7 +84,10 @@ class ThemePalettePickerView(
   private fun changeThemeTo(palette: ThemePalette) {
     if (!themeTransition.isOngoing) {
       setting.set(palette)
-      performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+
+      // Using Window's decor view to play this feedback because
+      // this View may get detached (recreated) on theme change.
+      rootView.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
     }
   }
 }

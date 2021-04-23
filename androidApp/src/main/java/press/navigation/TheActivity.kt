@@ -8,8 +8,12 @@ import android.content.Intent.ACTION_VIEW
 import android.content.Intent.EXTRA_SUBJECT
 import android.content.Intent.EXTRA_TEXT
 import android.os.Bundle
+import android.os.Parcelable
+import android.util.SparseArray
 import android.view.View
 import android.widget.EditText
+import com.jakewharton.rxbinding3.view.detaches
+import io.reactivex.subjects.PublishSubject
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorScreenKey
@@ -33,6 +37,7 @@ open class TheActivity : ThemeAwareActivity(), HasNavigator {
 
   companion object {
     private const val KEY_INITIAL_SCREEN = "initial_screen"
+    val viewRecreateRequests = PublishSubject.create<Unit>()
 
     fun intent(
       context: Context,
@@ -67,6 +72,15 @@ open class TheActivity : ThemeAwareActivity(), HasNavigator {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(navHostView)
+
+    viewRecreateRequests.takeUntil(navHostView.detaches()).subscribe {
+      val savedState = SparseArray<Parcelable>()
+      navHostView.saveHierarchyState(savedState)
+      navHostView.removeAllViews()
+
+      navigator.recreateScreens()
+      navHostView.restoreHierarchyState(savedState)
+    }
   }
 
   override fun onPostCreate(savedInstanceState: Bundle?) {
