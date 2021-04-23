@@ -45,6 +45,7 @@ import me.saket.press.shared.time.Clock
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.ui.highlight
+import me.saket.press.shared.ui.highlightInNoteBody
 import me.saket.press.shared.util.format
 
 class HomePresenter(
@@ -137,7 +138,7 @@ class HomePresenter(
             NoteModel(
               id = note.id,
               title = heading.highlight(searchText),
-              body = body.highlight(searchText)
+              body = body.highlightInNoteBody(searchText)
             )
           }
       }

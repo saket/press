@@ -188,11 +188,11 @@ class HomePresenterTest : BaseDatabaeTest() {
 
     val presenter = presenter(includeEmptyNotes = false)
     val titlesAndBodies = presenter.models()
-      .map { model -> model.notes.map { it.title to it.body } }
+      .map { model -> model.notes.map { it.title.text to it.body.text } }
       .test(rxRule)
 
     presenter.dispatch(SearchTextChanged(text = ""))
-    assertThat(titlesAndBodies.popValue()).containsOnly("Non-empty note" to "".highlight())
+    assertThat(titlesAndBodies.popValue()).containsOnly("Non-empty note" to "")
   }
 
   @Test fun `include empty notes if requested`() {
@@ -205,15 +205,15 @@ class HomePresenterTest : BaseDatabaeTest() {
 
     val presenter = presenter(includeEmptyNotes = true)
     val titlesAndBodies = presenter.models()
-      .map { model -> model.notes.map { it.title to it.body } }
+      .map { model -> model.notes.map { it.title.text to it.body.text } }
       .test(rxRule)
 
     presenter.dispatch(SearchTextChanged(text = ""))
     assertThat(titlesAndBodies.popValue()).containsOnly(
-      "Non-empty note" to "".highlight(),
-      "" to "".highlight(),
-      "" to "".highlight(),
-      "" to "".highlight(),
+      "Non-empty note" to "",
+      "" to "",
+      "" to "",
+      "" to "",
     )
   }
 
