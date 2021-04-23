@@ -12,8 +12,6 @@ import android.os.Parcelable
 import android.util.SparseArray
 import android.view.View
 import android.widget.EditText
-import com.jakewharton.rxbinding3.view.detaches
-import io.reactivex.subjects.PublishSubject
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorScreenKey
@@ -37,7 +35,6 @@ open class TheActivity : ThemeAwareActivity(), HasNavigator {
 
   companion object {
     private const val KEY_INITIAL_SCREEN = "initial_screen"
-    val viewRecreateRequests = PublishSubject.create<Unit>()
 
     fun intent(
       context: Context,
@@ -73,7 +70,7 @@ open class TheActivity : ThemeAwareActivity(), HasNavigator {
     super.onCreate(savedInstanceState)
     setContentView(navHostView)
 
-    viewRecreateRequests.takeUntil(navHostView.detaches()).subscribe {
+    themeAware(skipInitial = true) {
       val savedState = SparseArray<Parcelable>()
       navHostView.saveHierarchyState(savedState)
       navHostView.removeAllViews()

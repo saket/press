@@ -18,7 +18,6 @@ import android.view.ViewGroup
 import android.view.animation.PathInterpolator
 import androidx.core.animation.doOnEnd
 import androidx.core.view.doOnPreDraw
-import press.navigation.TheActivity
 import kotlin.math.hypot
 import kotlin.math.max
 
@@ -48,9 +47,8 @@ class CircularRevealTransition {
       interpolator = PathInterpolator(0f, 0f, 0.5f, 1f)
     }
 
-    // Recreate the view hierarchy so that the new theme is picked up.
-    TheActivity.viewRecreateRequests.onNext(Unit)
-
+    // Wait for the View hierarchy to get recreated and drawn
+    // again before starting the animation to avoid jank.
     sceneRoot.doOnPreDraw {
       animator.start()
     }

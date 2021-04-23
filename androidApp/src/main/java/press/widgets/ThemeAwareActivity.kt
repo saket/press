@@ -4,7 +4,6 @@ import android.app.ActivityManager.TaskDescription
 import android.graphics.drawable.ColorDrawable
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
-import android.view.View
 import android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
@@ -26,7 +25,7 @@ abstract class ThemeAwareActivity : AppCompatActivity() {
 
   @Suppress("DEPRECATION")
   private fun applyPaletteTheme() {
-    window.decorView.themeAware { palette ->
+    themeAware { palette ->
       // Window chrome.
       window.apply {
         setBackgroundDrawable(ColorDrawable(palette.window.backgroundColor))
@@ -48,9 +47,10 @@ abstract class ThemeAwareActivity : AppCompatActivity() {
     }
   }
 
-  private fun View.themeAware(onThemeChange: (ThemePalette) -> Unit) {
+  protected fun themeAware(skipInitial: Boolean = false, onThemeChange: (ThemePalette) -> Unit) {
     appTheme().listenRx()
-      .takeUntil(this.detaches())
+      .skip(if (skipInitial) 1 else 0)
+      .takeUntil(window.decorView.detaches())
       .subscribe(onThemeChange)
   }
 }
