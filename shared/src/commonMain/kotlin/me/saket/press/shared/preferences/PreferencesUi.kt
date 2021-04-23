@@ -11,10 +11,6 @@ data class PreferenceCategoryScreenKey(
   val category: PreferenceCategory
 ) : ScreenKey
 
-data class PreferencesModel(
-  val categories: List<PreferenceCategoryItemModel>
-)
-
 data class PreferenceCategoryItemModel(
   val title: String,
   val subtitle: CharSequence,
