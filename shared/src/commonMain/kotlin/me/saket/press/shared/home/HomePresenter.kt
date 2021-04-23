@@ -44,6 +44,7 @@ import me.saket.press.shared.rx.mergeWith
 import me.saket.press.shared.time.Clock
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
+import me.saket.press.shared.ui.highlight
 import me.saket.press.shared.util.format
 
 class HomePresenter(
@@ -135,8 +136,8 @@ class HomePresenter(
             val (heading, body) = HeadingAndBody.parse(note.content)
             NoteModel(
               id = note.id,
-              title = heading,
-              body = body
+              title = heading.highlight(searchText),
+              body = body.highlight(searchText)
             )
           }
       }

@@ -2,6 +2,7 @@ package me.saket.press.shared.preferences.sync.setup
 
 import me.saket.press.shared.AndroidParcelize
 import me.saket.press.shared.syncer.git.service.GitRepositoryInfo
+import me.saket.press.shared.ui.HighlightedText
 import me.saket.press.shared.ui.ScreenKey
 
 @AndroidParcelize
@@ -26,20 +27,6 @@ data class RepoUiModel(
   val name: HighlightedText,
   val repo: GitRepositoryInfo
 )
-
-data class HighlightedText(
-  val text: String,
-  val highlight: IntRange?
-) {
-  companion object {
-    fun from(text: String, query: String): HighlightedText {
-      return when (val queryIndex = text.indexOf(query, ignoreCase = true)) {
-        -1 -> HighlightedText(text, null)
-        else -> HighlightedText(text, queryIndex..(queryIndex + query.length))
-      }
-    }
-  }
-}
 
 sealed class FailureKind {
   object Authorization : FailureKind()

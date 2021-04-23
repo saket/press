@@ -23,12 +23,14 @@ import me.saket.press.shared.home.HomePresenter.Args
 import me.saket.press.shared.keyboard.KeyboardShortcuts
 import me.saket.press.shared.keyboard.RealKeyboardShortcuts
 import me.saket.press.shared.localization.ENGLISH_STRINGS
+import me.saket.press.shared.ui.HighlightedText
 import me.saket.press.shared.rx.RxRule
 import me.saket.press.shared.rx.test
 import me.saket.press.shared.syncer.git.insert
 import me.saket.press.shared.syncer.git.testInsert
 import me.saket.press.shared.time.FakeClock
 import me.saket.press.shared.ui.FakeNavigator
+import me.saket.press.shared.ui.highlight
 import kotlin.test.AfterTest
 import kotlin.test.Test
 
@@ -80,8 +82,8 @@ class HomePresenterTest : BaseDatabaeTest() {
       ),
       NoteModel(
         id = witcher3.id,
-        title = "",
-        body = "The Witcher 3 Wild Hunt"
+        title = "".highlight(),
+        body = "The Witcher 3 Wild Hunt".highlight()
       )
     )
   }
@@ -109,8 +111,8 @@ class HomePresenterTest : BaseDatabaeTest() {
       ),
       NoteModel(
         id = witcher3.id,
-        title = "The Witcher 3",
-        body = "Wild Hunt"
+        title = "The Witcher 3".highlight(),
+        body = "Wild Hunt".highlight()
       ),
     )
   }
@@ -130,13 +132,12 @@ class HomePresenterTest : BaseDatabaeTest() {
       .map { it.rows }
       .test(rxRule)
 
-    // todo: When searching in the root folder, include results from all folders except archive.
     presenter.dispatch(SearchTextChanged(text = "gam"))
     assertThat(models.popValue()).containsOnly(
       NoteModel(
         id = gambling.id,
-        title = "Gambling",
-        body = ""
+        title = "Gambling".highlight("gam"),
+        body = "".highlight()
       )
     )
   }
@@ -161,18 +162,18 @@ class HomePresenterTest : BaseDatabaeTest() {
     assertThat(models.popValue()).containsOnly(
       NoteModel(
         id = gamesToBuy.id,
-        title = "Games to buy",
-        body = ""
+        title = "Games to buy".highlight("game"),
+        body = "".highlight()
       ),
       NoteModel(
         id = unravel2.id,
-        title = "Unravel 2 (game)",
-        body = ""
+        title = "Unravel 2 (game)".highlight("game"),
+        body = "".highlight()
       ),
       NoteModel(
         id = witcher3.id,
-        title = "Witcher 3 (game)",
-        body = ""
+        title = "Witcher 3 (game)".highlight("game"),
+        body = "".highlight()
       )
     )
   }
@@ -191,7 +192,7 @@ class HomePresenterTest : BaseDatabaeTest() {
       .test(rxRule)
 
     presenter.dispatch(SearchTextChanged(text = ""))
-    assertThat(titlesAndBodies.popValue()).containsOnly("Non-empty note" to "")
+    assertThat(titlesAndBodies.popValue()).containsOnly("Non-empty note" to "".highlight())
   }
 
   @Test fun `include empty notes if requested`() {
@@ -209,10 +210,10 @@ class HomePresenterTest : BaseDatabaeTest() {
 
     presenter.dispatch(SearchTextChanged(text = ""))
     assertThat(titlesAndBodies.popValue()).containsOnly(
-      "Non-empty note" to "",
-      "" to "",
-      "" to "",
-      "" to "",
+      "Non-empty note" to "".highlight(),
+      "" to "".highlight(),
+      "" to "".highlight(),
+      "" to "".highlight(),
     )
   }
 
@@ -255,4 +256,6 @@ class HomePresenterTest : BaseDatabaeTest() {
     val savedNote = noteQueries.allNotes().executeAsOne()
     assertThat(savedNote.folderId).isEqualTo(folderId)
   }
+
+  private fun String.highlight() = HighlightedText(this)
 }

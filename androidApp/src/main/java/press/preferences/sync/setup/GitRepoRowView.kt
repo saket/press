@@ -1,11 +1,9 @@
 package press.preferences.sync.setup
 
 import android.content.Context
-import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.view.View
 import com.squareup.contour.ContourLayout
-import me.saket.press.shared.preferences.sync.setup.HighlightedText
 import me.saket.press.shared.preferences.sync.setup.RepoUiModel
 import me.saket.press.shared.theme.TextStyles.mainTitle
 import me.saket.press.shared.theme.TextStyles.smallBody
@@ -13,6 +11,7 @@ import me.saket.press.shared.theme.TextView
 import press.extensions.rippleDrawable
 import press.extensions.textColor
 import press.theme.themePalette
+import press.widgets.withSpan
 
 class GitRepoRowView(context: Context) : ContourLayout(context) {
   private val ownerView = TextView(context, smallBody).apply {
@@ -50,14 +49,5 @@ class GitRepoRowView(context: Context) : ContourLayout(context) {
     val highlightSpan = ForegroundColorSpan(themePalette().accentColor)
     ownerView.text = model.owner.withSpan(highlightSpan)
     nameView.text = model.name.withSpan(highlightSpan)
-  }
-
-  private fun HighlightedText.withSpan(span: Any): CharSequence {
-    return when (val it = highlight) {
-      null -> return text
-      else -> SpannableString(text).apply {
-        setSpan(span, it.first, it.last, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
-      }
-    }
   }
 }

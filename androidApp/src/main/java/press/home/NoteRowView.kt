@@ -2,6 +2,7 @@ package press.home
 
 import android.animation.AnimatorInflater.loadStateListAnimator
 import android.content.Context
+import android.text.style.ForegroundColorSpan
 import com.squareup.contour.ContourLayout
 import me.saket.press.R
 import me.saket.press.shared.home.HomeModel
@@ -10,6 +11,7 @@ import me.saket.press.shared.home.HomeUiStyles.noteTitle
 import me.saket.press.shared.theme.TextView
 import press.extensions.textColor
 import press.theme.themePalette
+import press.widgets.withSpan
 
 class NoteRowView(context: Context) : ContourLayout(context) {
   private val titleView = TextView(context, noteTitle).apply {
@@ -39,7 +41,8 @@ class NoteRowView(context: Context) : ContourLayout(context) {
 
   fun render(model: HomeModel.NoteModel) {
     this.model = model
-    titleView.text = model.title
-    bodyView.text = model.body
+    val highlightSpan = ForegroundColorSpan(themePalette().accentColor)
+    titleView.text = model.title.withSpan(highlightSpan)
+    bodyView.text = model.body.withSpan(highlightSpan)
   }
 }

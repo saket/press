@@ -76,7 +76,7 @@ class GitHostIntegrationView @InflationInject constructor(
   private val recyclerView = RecyclerView(context).apply {
     layoutManager = LinearLayoutManager(context)
     adapter = repoAdapter
-    itemAnimator = SlideDownItemAnimator().apply { supportsChangeAnimations = false }
+    itemAnimator = SlideDownItemAnimator()
     applyLayout(
       x = matchParentX(),
       y = topTo { searchView.bottom() }.bottomTo { parent.bottom() }

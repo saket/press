@@ -6,6 +6,7 @@ import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.editor.PreSavedNoteId
+import me.saket.press.shared.ui.HighlightedText
 import me.saket.press.shared.ui.ScreenKey
 
 @AndroidParcelize
@@ -41,8 +42,8 @@ data class HomeModel(
 
   data class NoteModel(
     override val id: NoteId,
-    val title: String,
-    val body: String
+    val title: HighlightedText,
+    val body: HighlightedText
   ) : Row {
     override fun screenKey(): ScreenKey {
       return EditorScreenKey(

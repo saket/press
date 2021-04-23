@@ -26,6 +26,7 @@ class SlideAlphaAnimator(
     addDuration = 250
     removeDuration = 250
     moveDuration = 250
+    supportsChangeAnimations = false  // Avoid flickering of Views when, say, highlighted search query is changed.
     withInterpolator(FastOutSlowInInterpolator())
   }
 

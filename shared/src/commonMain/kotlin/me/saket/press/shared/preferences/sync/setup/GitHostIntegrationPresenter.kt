@@ -52,9 +52,11 @@ import me.saket.press.shared.syncer.git.GitHostAuthToken
 import me.saket.press.shared.syncer.git.GitRemoteAndAuth
 import me.saket.press.shared.syncer.git.service.GitHostService
 import me.saket.press.shared.syncer.git.service.GitRepositoryInfo
+import me.saket.press.shared.ui.HighlightedText
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.ui.ScreenResults
+import me.saket.press.shared.ui.highlight
 
 class GitHostIntegrationPresenter(
   private val args: Args,
@@ -246,8 +248,8 @@ private fun List<GitRepositoryInfo>.toUiModels(searchText: String): List<RepoUiM
   return filtered.map {
     RepoUiModel(
       id = it.ownerAndName,
-      owner = HighlightedText.from(it.owner, searchText),
-      name = HighlightedText.from(it.name, searchText),
+      owner = it.owner.highlight(searchText),
+      name = it.name.highlight(searchText),
       repo = it
     )
   }
