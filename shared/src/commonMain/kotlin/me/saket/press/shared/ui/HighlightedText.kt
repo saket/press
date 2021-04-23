@@ -34,11 +34,11 @@ fun String.highlightInNoteBody(searchText: String): HighlightedText {
   // When this is true, the search term is brought into the visible window by truncating words on
   // the left. This was copied from https://bear.app.
   var truncateFrom = 0
-  var spaceCounted = 0
+  var spacesCounted = 0
 
   for (i in (highlightStart - 1) downTo 0) {
-    spaceCounted += if (body[i] == ' ') 1 else 0
-    if (spaceCounted == 2) {
+    spacesCounted += if (body[i] == ' ') 1 else 0
+    if (spacesCounted == 2) {
       break
     }
     truncateFrom = i

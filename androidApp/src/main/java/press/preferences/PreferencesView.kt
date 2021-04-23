@@ -3,10 +3,12 @@ package press.preferences
 import android.content.Context
 import android.text.Html
 import android.text.Html.FROM_HTML_MODE_LEGACY
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.squareup.contour.ContourLayout
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.expander.InboxItemExpander
+import me.saket.press.BuildConfig
 import me.saket.press.R
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.preferences.PreferenceCategory
@@ -38,7 +40,11 @@ class PreferencesView(context: Context) : ContourLayout(context), ExpandableScre
   private val categoryAdapter = PreferenceCategoryListAdapter(
     categories = preferenceCategories(),
     onClick = { item ->
-      navigator().lfg(PreferenceCategoryScreenKey(item.category))
+      if (item.category == Theme && !BuildConfig.DEBUG) {
+        Toast.makeText(context, "Work in progress", Toast.LENGTH_SHORT).show()
+      } else {
+        navigator().lfg(PreferenceCategoryScreenKey(item.category))
+      }
     }
   )
 
