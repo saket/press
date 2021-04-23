@@ -3,6 +3,7 @@ package press.preferences.theme
 import android.content.Context
 import android.view.HapticFeedbackConstants
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.view.children
 import androidx.core.view.updatePaddingRelative
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.HORIZONTAL
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
+import me.saket.press.BuildConfig
 import me.saket.press.shared.listen
 import me.saket.press.shared.listenPreChanges
 import me.saket.press.shared.preferences.Setting
@@ -82,13 +84,19 @@ class ThemePalettePickerView(
   }
 
   private fun changeThemeTo(palette: ThemePalette) {
-    if (!themeTransition.isOngoing) {
-      setting.set(palette)
-
-      // Using Window's decor view to play this feedback because
-      // this View may get detached (recreated) on theme change.
-      rootView.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+    if (!BuildConfig.DEBUG) {
+      Toast.makeText(context, "Work in progress", Toast.LENGTH_SHORT).show()
+      return
     }
+    if (themeTransition.isOngoing) {
+      return
+    }
+
+    setting.set(palette)
+
+    // Using Window's decor view to play this feedback because
+    // this View may get detached (recreated) on theme change.
+    rootView.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
   }
 }
 
