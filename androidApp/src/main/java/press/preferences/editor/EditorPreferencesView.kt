@@ -45,7 +45,7 @@ class EditorPreferencesView @InflationInject constructor(
   private val preferenceList = LinearLayout(context).apply {
     orientation = VERTICAL
     showDividers = SHOW_DIVIDER_MIDDLE or SHOW_DIVIDER_END
-    dividerDrawable = DividerDrawable(themePalette().separator)
+    dividerDrawable = DividerDrawable(themePalette().divider)
     updatePadding(bottom = dp(24))
   }
 

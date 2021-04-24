@@ -12,7 +12,7 @@ import press.theme.themePalette
 @Suppress("FunctionName")
 fun View.DividerItemDecoration(orientation: Int = VERTICAL): RecyclerView.ItemDecoration {
   return DividerItemDecoration(context, orientation).apply {
-    setDrawable(DividerDrawable(themePalette().separator))
+    setDrawable(DividerDrawable(themePalette().divider))
   }
 }
 

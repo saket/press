@@ -158,7 +158,7 @@ class EditorFormattingToolbar(
       button.performHapticFeedback(LONG_PRESS)
       action.onClick(button)
     }
-    button.background = borderlessRippleDrawable(background = themePalette().buttonPressed)
+    button.background = borderlessRippleDrawable()
     return button
   }
 
@@ -167,7 +167,7 @@ class EditorFormattingToolbar(
       it.layoutParams = LayoutParams(dp(1), MATCH_PARENT)
       it.background = GradientDrawable(
         TOP_BOTTOM,
-        intArrayOf(themePalette().separator.withOpacity(0f), themePalette().separator)
+        intArrayOf(themePalette().divider.withOpacity(0f), themePalette().divider)
       )
     }
   }

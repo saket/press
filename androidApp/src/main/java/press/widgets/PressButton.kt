@@ -14,6 +14,7 @@ import androidx.appcompat.widget.AppCompatImageButton
 import androidx.core.view.setPadding
 import me.saket.press.shared.theme.UiStyles
 import me.saket.press.shared.theme.applyStyle
+import me.saket.press.shared.theme.withAlpha
 import press.extensions.updatePadding
 import press.theme.themePalette
 
@@ -24,7 +25,7 @@ open class PressButton(context: Context, style: UiStyles.Text) : AppCompatButton
     minWidth = 0
     minimumWidth = 0
     isAllCaps = false
-    background = pressButtonDrawable(themePalette().buttonNormal, pressedColor = themePalette().buttonPressed)
+    background = pressButtonDrawable(themePalette().buttonNormal)
     applyStyle(style)
     updatePadding(horizontal = dp(16), vertical = dp(8))
   }
@@ -43,7 +44,7 @@ class PressBorderlessButton(context: Context, style: UiStyles.Text) : PressButto
   init {
     elevation = 0f
     stateListAnimator = null
-    background = pressButtonDrawable(TRANSPARENT, pressedColor = themePalette().buttonPressed, rounded = false)
+    background = pressButtonDrawable(TRANSPARENT, rounded = false)
   }
 }
 
@@ -51,14 +52,13 @@ class PressBorderlessImageButton(context: Context) : AppCompatImageButton(contex
   init {
     elevation = 0f
     stateListAnimator = null
-    background = RippleDrawable(ColorStateList.valueOf(themePalette().buttonPressed), null, null)
     setPadding(dp(16))
   }
 }
 
 @Suppress("FunctionName")
-fun View.pressButtonDrawable(color: Int, pressedColor: Int, rounded: Boolean = true): Drawable {
-  val rippleColor = ColorStateList.valueOf(pressedColor)
+private fun View.pressButtonDrawable(color: Int, rounded: Boolean = true): Drawable {
+  val rippleColor = ColorStateList.valueOf(themePalette().pressedColor(themePalette().accentColor).withAlpha(0.20f))
   val shape = PaintDrawable(color).apply {
     if (rounded) {
       setCornerRadius(dp(20f))

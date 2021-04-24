@@ -23,7 +23,7 @@ import androidx.core.view.children
 import androidx.core.view.forEach
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
-import me.saket.press.shared.theme.palettes.ThemePalette
+import me.saket.press.shared.theme.withAlpha
 import me.saket.wysiwyg.widgets.SimpleTextWatcher
 import press.theme.themePalette
 import java.util.ArrayDeque
@@ -100,24 +100,18 @@ fun ViewFlipper.setDisplayedChild(child: View) {
   }
 }
 
-fun rippleDrawable(
-  palette: ThemePalette = themePalette(),
-  background: Int = Color.TRANSPARENT,
-  cornerRadius: Float = 0f
-): RippleDrawable {
-  val shape = PaintDrawable(background).apply { setCornerRadius(cornerRadius) }
-  val mask = PaintDrawable(Color.BLACK).apply { setCornerRadius(cornerRadius) }
-  return RippleDrawable(ColorStateList.valueOf(palette.pressedColor(background)), shape, mask)
-}
-
-fun borderlessRippleDrawable(
-  palette: ThemePalette = themePalette(),
+fun View.rippleDrawable(
+  color: Int = themePalette().pressedColor(themePalette().accentColor).withAlpha(0.1f),
   background: Int = Color.TRANSPARENT,
 ): RippleDrawable {
-  return RippleDrawable(ColorStateList.valueOf(palette.pressedColor(background)), null, null)
+  val shape = PaintDrawable(background)
+  val mask = PaintDrawable(Color.BLACK)
+  return RippleDrawable(ColorStateList.valueOf(color), shape, mask)
 }
 
-fun borderlessRippleDrawable(color: Int): RippleDrawable {
+fun View.borderlessRippleDrawable(
+  color: Int = themePalette().pressedColor(themePalette().accentColor).withAlpha(0.25f)
+): RippleDrawable {
   return RippleDrawable(ColorStateList.valueOf(color), null, null)
 }
 

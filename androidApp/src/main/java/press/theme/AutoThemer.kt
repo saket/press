@@ -93,7 +93,7 @@ object AutoThemer {
 private fun <T : TextView> themed(view: T): T = view.apply {
   val selectionHandleDrawables = TextViewCompat.textSelectionHandles(this)
 
-  highlightColor = themePalette().textHighlightColor
+  highlightColor = themePalette().textColorHighlight
   selectionHandleDrawables.forEach { it.setColorFilter(themePalette().accentColor, SRC_IN) }
   setLinkTextColor(themePalette().accentColor)
 }
@@ -151,7 +151,7 @@ private fun themed(toolbar: Toolbar) = toolbar.apply {
   titleView.textColor = themePalette().textColorHeading
 
   val setRipple = { child: View ->
-    child.background = borderlessRippleDrawable(themePalette().pressedColor(themePalette().accentColor)).apply {
+    child.background = borderlessRippleDrawable().apply {
       radius = maxOf(radius, context.dp(20))
     }
   }
@@ -177,7 +177,7 @@ private fun themed(view: FloatingActionButton) = view.apply {
   val palette = themePalette()
   backgroundTintList = ColorStateList.valueOf(palette.fabColor)
   colorFilter = PorterDuffColorFilter(palette.fabIcon, SRC_ATOP)
-  rippleColor = palette.pressedColor(palette.fabColor)
+  rippleColor = palette.fabColorPressed
 }
 
 private fun <T : ProgressBar> themed(view: T): T = view.apply {

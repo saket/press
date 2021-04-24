@@ -3,7 +3,11 @@ package me.saket.press.shared.theme.palettes
 import com.github.ajalt.colormath.RGB
 import me.saket.press.shared.theme.DisplayUnits
 import me.saket.press.shared.theme.blendWith
+import me.saket.press.shared.theme.darkenBy
 import me.saket.press.shared.theme.darkenColorBy
+import me.saket.press.shared.theme.saturateBy
+import me.saket.press.shared.theme.toHsvColor
+import me.saket.press.shared.theme.toRgbColorInt
 import me.saket.press.shared.theme.withAlpha
 import me.saket.wysiwyg.style.WysiwygStyle
 import me.saket.wysiwyg.style.WysiwygStyle.BlockQuote
@@ -31,16 +35,14 @@ sealed class ThemePalette(
   val fabIcon: Int
     get() = fabColor.blendWith(if (isLightTheme) WHITE else BLACK, ratio = 0.65f)
 
-  // todo: rename to divider
-  val separator: Int
+  val fabColorPressed: Int
+    get() = fabColor.toHsvColor().darkenBy(0.3f).saturateBy(0.5f).toRgbColorInt()
+
+  val divider: Int
     get() = window.backgroundColor.darkenColorBy(0.15f)
 
   val buttonNormal: Int
     get() = window.backgroundColor.blendWith(if (isLightTheme) WHITE else BLACK, ratio = 0.2f)
-
-  // todo: inline
-  val buttonPressed: Int
-    get() = pressedColor(window.backgroundColor)
 
   val textColorSecondary =
     textColorPrimary.blendWith(window.backgroundColor, ratio = 0.30f)
@@ -48,14 +50,13 @@ sealed class ThemePalette(
   val textColorHint =
     textColorPrimary.blendWith(window.backgroundColor, ratio = 0.50f)
 
-  // todo: rename to textColorHighlight
-  val textHighlightColor =
+  val textColorHighlight =
     window.backgroundColor.blendWith(accentColor, ratio = 1f).withAlpha(0.4f)
 
   init {
     // Need these colors to be translucent to avoid covering the
     // cursor because it is drawn behind ForegroundColorSpan on Android.
-    check(RGB.fromInt(textHighlightColor).alpha < 1f)
+    check(RGB.fromInt(textColorHighlight).alpha < 1f)
   }
 
   fun pressedColor(normalColor: Int): Int {
@@ -118,6 +119,6 @@ fun ThemePalette.wysiwygStyle(displayUnits: DisplayUnits): WysiwygStyle {
   )
 }
 
-@Deprecated("use separator", level = ERROR, replaceWith = ReplaceWith("separator"))
-val ThemePalette.divider: Int
-  get() = separator
+@Deprecated("use divider", level = ERROR, replaceWith = ReplaceWith("divider"))
+val ThemePalette.separator: Int
+  get() = divider

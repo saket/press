@@ -25,13 +25,13 @@ fun View.pressCascadeStyler(): CascadePopupMenu.Styler {
     menuTitle = {
       it.titleView.applyStyle(smallTitle)
       it.titleView.textColor = palette.textColorPrimary.withOpacity(0.5f)
-      it.itemView.background = rippleDrawable(palette)
+      it.itemView.background = rippleDrawable()
     },
     menuItem = {
       it.titleView.applyStyle(smallBody)
       it.titleView.textColor = palette.textColorPrimary
       it.iconView.imageTintList = ColorStateList.valueOf(palette.accentColor)
-      it.itemView.background = rippleDrawable(palette)
+      it.itemView.background = rippleDrawable()
     }
   )
 }

@@ -31,7 +31,7 @@ class GitRepoRowView(context: Context) : ContourLayout(context) {
   }
 
   private val dividerView = View(context).apply {
-    setBackgroundColor(themePalette().separator)
+    setBackgroundColor(themePalette().divider)
     applyLayout(
       x = matchParentX(),
       y = topTo { nameView.bottom() + 16.ydip }.heightOf { 1.ydip }
@@ -41,8 +41,9 @@ class GitRepoRowView(context: Context) : ContourLayout(context) {
   init {
     contourHeightOf { dividerView.bottom() }
 
-    // RV item animations nicer if the items don't leak through each other.
-    background = rippleDrawable(background = themePalette().window.backgroundColor)
+    // Prevent RecyclerView items from leaking through each other by giving this a solid color.
+    setBackgroundColor(themePalette().window.backgroundColor)
+    foreground = rippleDrawable()
   }
 
   fun render(model: RepoUiModel) {

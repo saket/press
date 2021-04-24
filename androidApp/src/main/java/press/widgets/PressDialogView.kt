@@ -64,7 +64,7 @@ class PressDialogView(context: Context) : ContourLayout(context) {
   }
 
   private val buttonsTopSeparator = View(context).apply {
-    setBackgroundColor(themePalette().separator)
+    setBackgroundColor(themePalette().divider)
     applyLayout(
       x = matchParentX(),
       y = topTo { contentView.bottom() + 20.ydip }.heightOf { 1.ydip }
@@ -73,7 +73,7 @@ class PressDialogView(context: Context) : ContourLayout(context) {
 
   @Suppress("unused")
   private val buttonsMidSeparator = View(context).apply {
-    setBackgroundColor(themePalette().separator)
+    setBackgroundColor(themePalette().divider)
     applyLayout(
       x = centerHorizontallyTo { parent.centerX() }.widthOf { 1.xdip },
       y = topTo { buttonsTopSeparator.bottom() }.bottomTo { parent.bottom() }
