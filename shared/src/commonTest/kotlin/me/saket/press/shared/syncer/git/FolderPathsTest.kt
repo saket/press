@@ -34,7 +34,7 @@ class FolderPathsTest : BaseDatabaeTest() {
   @Test fun `ensure folder paths`() {
     val savedFolders = { folderQueries.allFolders().executeAsList() }
     fun List<Folder>.names() = map { it.name }
-    fun List<Folder>.paths() = map { paths.createFlatPath(it.id, existingFolders = this) }
+    fun List<Folder>.paths() = map { paths.createFlatPath(it.id, existingFolders = { this }) }
 
     assertThat(paths.mkdirs("")).isNull()
     assertThat(folderQueries.allFolders().executeAsList()).isEmpty()

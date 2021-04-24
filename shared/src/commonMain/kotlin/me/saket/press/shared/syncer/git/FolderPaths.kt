@@ -13,15 +13,14 @@ internal class FolderPaths(private val database: PressDatabase) {
 
   fun createFlatPath(
     id: FolderId?,
-    existingFolders: List<Folder> = database.folderQueries.allFolders().executeAsList()
+    existingFolders: () -> List<Folder> = { database.folderQueries.allFolders().executeAsList() }
   ): String {
     return createPath(id, existingFolders).flatten()
   }
 
-  // TODO: convert existingFolders() into a lambda
   private fun createPath(
     id: FolderId?,
-    existingFolders: List<Folder> = database.folderQueries.allFolders().executeAsList()
+    existingFolders: () -> List<Folder> = { database.folderQueries.allFolders().executeAsList() }
   ): FolderPath {
     if (id == null) {
       return FolderPath(emptyList())
@@ -29,7 +28,7 @@ internal class FolderPaths(private val database: PressDatabase) {
 
     return FolderPath(
       buildList {
-        val idsToFolders = existingFolders.associateBy { it.id }
+        val idsToFolders = existingFolders().associateBy { it.id }
 
         var parentId: FolderId? = id
         while (parentId != null) {
@@ -51,8 +50,8 @@ internal class FolderPaths(private val database: PressDatabase) {
     }
 
     val allFolders = folderQueries.allFolders().executeAsList()
-    val pathsToFolders = allFolders
-      .associateBy { createFlatPath(id = it.id, allFolders) }
+    val pathsToFolderIds = allFolders
+      .associate { createFlatPath(id = it.id, existingFolders = { allFolders }) to it.id }
       .toMutableMap()
 
     var nextPath = ""
@@ -61,17 +60,17 @@ internal class FolderPaths(private val database: PressDatabase) {
     for (path in folderPath.split("/")) {
       nextPath += path
 
-      if (nextPath !in pathsToFolders) {
-        val folder = Folder(id = FolderId.generate(), name = path, parent = nextParent)
-        pathsToFolders[nextPath] = folder
-        folderQueries.insert(folder)
+      if (nextPath !in pathsToFolderIds) {
+        val folderId = FolderId.generate()
+        pathsToFolderIds[nextPath] = folderId
+        folderQueries.insert(id = folderId, name = path, parent = nextParent)
       }
 
-      nextParent = pathsToFolders[nextPath]!!.id
+      nextParent = pathsToFolderIds[nextPath]!!
       nextPath += "/"
     }
 
-    return pathsToFolders[folderPath]!!.id
+    return pathsToFolderIds[folderPath]!!
   }
 
   fun setArchived(noteId: NoteId, archive: Boolean) {
@@ -112,8 +111,4 @@ internal class FolderPath(private val paths: List<String>) {
 
   fun popHead() =
     FolderPath(paths.subList(1, paths.size))
-}
-
-fun FolderQueries.insert(vararg folders: Folder) {
-  folders.forEach { insert(it) }
 }
