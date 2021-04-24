@@ -3,7 +3,6 @@ package press.preferences.theme
 import android.content.Context
 import android.view.HapticFeedbackConstants
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.view.children
 import androidx.core.view.updatePaddingRelative
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -11,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.HORIZONTAL
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
-import me.saket.press.BuildConfig
 import me.saket.press.shared.listen
 import me.saket.press.shared.listenPreChanges
 import me.saket.press.shared.preferences.Setting

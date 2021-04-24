@@ -52,7 +52,6 @@ import me.saket.press.shared.syncer.git.GitHostAuthToken
 import me.saket.press.shared.syncer.git.GitRemoteAndAuth
 import me.saket.press.shared.syncer.git.service.GitHostService
 import me.saket.press.shared.syncer.git.service.GitRepositoryInfo
-import me.saket.press.shared.ui.HighlightedText
 import me.saket.press.shared.ui.Navigator
 import me.saket.press.shared.ui.Presenter
 import me.saket.press.shared.ui.ScreenResults

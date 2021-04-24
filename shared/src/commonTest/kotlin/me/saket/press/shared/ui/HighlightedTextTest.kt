@@ -34,7 +34,7 @@ class HighlightedTextTest {
   }
 
   @Test fun `search text is after the second word with lots of spaces`() {
-    val highlighted = "Press is a wysiwyg           writer for crafting notes".highlightInNoteBody(searchText = "ter for")
+    val highlighted = "Press is a wysiwyg         writer for crafting notes".highlightInNoteBody(searchText = "ter for")
     assertThat(highlighted).isEqualTo(
       "... wysiwyg wri▮ter for▮ crafting notes".debugHighlight()
     )
