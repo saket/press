@@ -4,19 +4,18 @@ buildscript {
   repositories {
     google()
     mavenCentral()
-    jcenter()
     maven { url "https://dl.bintray.com/badoo/maven" }
     maven { url "https://plugins.gradle.org/m2/" }
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:4.0.2'
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
-    classpath "org.jetbrains.kotlin:kotlin-serialization:$versions.kotlin"
-    classpath "com.squareup.sqldelight:gradle-plugin:$versions.sqlDelight"
-    classpath "com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:$versions.buildKonfig"
-    classpath "org.jlleitschuh.gradle:ktlint-gradle:$versions.ktLintPlugin"
+    classpath deps.androidGradlePlugin
+    classpath deps.kotlinPlugin
+    classpath deps.kotlinx.serializationPlugin
+    classpath deps.sqlDelight.plugin
+    classpath deps.buildKonfigPlugin
+    classpath deps.ktlintPlugin
     classpath deps.exhaustive.gradlePlugin
   }
 }
@@ -25,17 +24,10 @@ allprojects {
   repositories {
     google()
     mavenCentral()
-    jcenter()
     maven { url 'https://dl.bintray.com/badoo/maven' }
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
     maven { url "https://repo.binom.pw/releases" }
     maven { url "https://dl.bintray.com/korlibs/korlibs/" }
-    maven {
-      url 'https://dl.bintray.com/touchlabpublic/kotlin'
-      content {
-        includeGroup 'org.koin'
-      }
-    }
   }
 }
 

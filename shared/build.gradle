@@ -49,7 +49,7 @@ kotlin {
         implementation project(':kgit')
         api deps.reaktive.core.common
         implementation deps.reaktive.interop.coroutines
-        implementation deps.koin.core.common
+        implementation deps.koin
         implementation deps.multiplatformUuid
         implementation deps.klock.common
         implementation deps.sqlDelight.runtime.common
