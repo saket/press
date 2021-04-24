@@ -167,12 +167,16 @@ class ScreenKeyChanger(
       .map { formFactor.findDecoratedScreenView(it) }
       .toList()
     val foregroundView = children.lastOrNull()
+    val focusedScreenKey = foregroundView?.screenKey<ScreenKey>()
 
-    children
-      .filterIsInstance<ScreenFocusChangeListener>()
-      .forEach {
-        it.onScreenFocusChanged(focusedScreen = foregroundView?.screenKey())
+    children.forEach {
+      if (it !== foregroundView) {
+        it.clearFocus()
       }
+      if (it is ScreenFocusChangeListener) {
+        it.onScreenFocusChanged(focusedScreen = focusedScreenKey)
+      }
+    }
   }
 
   fun onInterceptBackPress(): BackPressInterceptor.InterceptResult {
