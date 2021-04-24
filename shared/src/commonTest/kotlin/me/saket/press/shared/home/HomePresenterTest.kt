@@ -12,7 +12,7 @@ import me.saket.press.shared.db.FolderId
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.EditorScreenKey
-import me.saket.press.shared.editor.PreSavedNoteId
+import me.saket.press.shared.editor.ExistingNoteId
 import me.saket.press.shared.fakeFolder
 import me.saket.press.shared.fakeNote
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
@@ -227,7 +227,7 @@ class HomePresenterTest : BaseDatabaeTest() {
     val savedNote = noteQueries.allNotes().executeAsOneOrNull()
     checkNotNull(savedNote)
     assertThat(navigator.pop()).isEqualTo(
-      EditorScreenKey(NewNote(PreSavedNoteId(savedNote.id)))
+      EditorScreenKey(NewNote(ExistingNoteId(savedNote.id)))
     )
   }
 
@@ -240,7 +240,7 @@ class HomePresenterTest : BaseDatabaeTest() {
     val savedNote = noteQueries.allNotes().executeAsOneOrNull()
     checkNotNull(savedNote)
     assertThat(navigator.pop()).isEqualTo(
-      EditorScreenKey(NewNote(PreSavedNoteId(savedNote.id)))
+      EditorScreenKey(NewNote(ExistingNoteId(savedNote.id)))
     )
   }
 

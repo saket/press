@@ -136,7 +136,7 @@ class EditorPresenterTest : BaseDatabaeTest() {
   @Test fun `blank note is not created on start when an existing note is opened`() {
     noteQueries.testInsert(fakeNote("Nicolas", id = noteId))
 
-    presenter(ExistingNote(PreSavedNoteId(noteId)))
+    presenter(ExistingNote(ExistingNoteId(noteId)))
       .models()
       .test(rxRule)
 
@@ -182,7 +182,7 @@ class EditorPresenterTest : BaseDatabaeTest() {
     val note = fakeNote("# The")
     noteQueries.testInsert(note)
 
-    val presenter = presenter(ExistingNote(PreSavedNoteId(note.id)))
+    val presenter = presenter(ExistingNote(ExistingNoteId(note.id)))
     val models = presenter.models().test(rxRule)
 
     noteQueries.run {
@@ -202,7 +202,7 @@ class EditorPresenterTest : BaseDatabaeTest() {
 
   @Test fun `avoid deleting new blank note on close when disabled`() {
     val presenter = presenter(
-      openMode = NewNote(PreSavedNoteId(noteId), preFilledNote = "# Nicolas Cage"),
+      openMode = NewNote(ExistingNoteId(noteId), preFilledNote = "# Nicolas Cage"),
       deleteBlankNoteOnExit = false
     )
     presenter.models().test()
@@ -220,7 +220,7 @@ class EditorPresenterTest : BaseDatabaeTest() {
   @Test fun `avoid deleting existing blank note on close when enabled`() {
     noteQueries.testInsert(fakeNote("Existing note", id = noteId))
 
-    val presenter = presenter(ExistingNote(PreSavedNoteId(noteId)), deleteBlankNoteOnExit = true)
+    val presenter = presenter(ExistingNote(ExistingNoteId(noteId)), deleteBlankNoteOnExit = true)
     presenter.saveEditorContentOnClose("").test(rxRule).assertComplete()
     presenter.saveEditorContentOnClose("  ").test(rxRule).assertComplete()
     presenter.saveEditorContentOnClose("  \n ").test(rxRule).assertComplete()
@@ -260,7 +260,7 @@ class EditorPresenterTest : BaseDatabaeTest() {
   @Test fun `populate existing note's content on start`() {
     noteQueries.testInsert(fakeNote("Nicolas Cage favorite dialogues", id = noteId))
 
-    presenter(ExistingNote(PreSavedNoteId(noteId)))
+    presenter(ExistingNote(ExistingNoteId(noteId)))
       .models()
       .test()
 
@@ -295,7 +295,7 @@ class EditorPresenterTest : BaseDatabaeTest() {
   @Test fun `block editing if note is marked as sync-conflicted`() {
     noteQueries.testInsert(fakeNote("# Existing note", id = noteId))
 
-    presenter(ExistingNote(PreSavedNoteId(noteId)))
+    presenter(ExistingNote(ExistingNoteId(noteId)))
       .models()
       .test()
 
@@ -306,7 +306,7 @@ class EditorPresenterTest : BaseDatabaeTest() {
   @Test fun `stop updating saved note once note is marked as sync-conflicted`() {
     noteQueries.testInsert(fakeNote("# Content before sync", id = noteId))
 
-    val presenter = presenter(ExistingNote(PreSavedNoteId(noteId)))
+    val presenter = presenter(ExistingNote(ExistingNoteId(noteId)))
     presenter.models().test()
     syncConflicts.add(noteId)
 
@@ -322,7 +322,7 @@ class EditorPresenterTest : BaseDatabaeTest() {
       fakeNote("# Existing note", id = noteId, folderId = null)
     )
 
-    val presenter = presenter(ExistingNote(PreSavedNoteId(noteId)))
+    val presenter = presenter(ExistingNote(ExistingNoteId(noteId)))
     presenter.dispatch(NoteTextChanged(""))
 
     val models = presenter.models()
@@ -350,7 +350,7 @@ class EditorPresenterTest : BaseDatabaeTest() {
   @Test fun `show delete menu item only if sync is enabled`() {
     noteQueries.testInsert(fakeNote("# Witcher 3", id = noteId))
 
-    val presenter = presenter(ExistingNote(PreSavedNoteId(noteId)))
+    val presenter = presenter(ExistingNote(ExistingNoteId(noteId)))
     presenter.dispatch(NoteTextChanged(""))
 
     val models = presenter.models()

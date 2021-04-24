@@ -124,7 +124,7 @@ class EditorPresenter(
   private fun createOrFetchNote(): Observable<Note> {
     val newOrExistingId = when (val it = openMode.noteId) {
       is PlaceholderNoteId -> it.id
-      is PreSavedNoteId -> it.id
+      is ExistingNoteId -> it.id
     }
 
     val createIfNeeded = if (openMode is NewNote) {
@@ -356,7 +356,7 @@ class EditorPresenter(
       .withLatestFrom(noteStream)
       .consumeOnNext { (_, note) ->
         args.navigator.splitScreenAndLfg(
-          EditorScreenKey(ExistingNote(PreSavedNoteId(note.id)))
+          EditorScreenKey(ExistingNote(ExistingNoteId(note.id)))
         )
       }
   }
@@ -383,7 +383,7 @@ class EditorPresenter(
         )
         args.navigator.goBack()
         args.navigator.lfg(
-          EditorScreenKey(NewNote(PreSavedNoteId(newNoteId)))
+          EditorScreenKey(NewNote(ExistingNoteId(newNoteId)))
         )
       }
   }
@@ -432,7 +432,7 @@ class EditorPresenter(
 
     val noteId = when (val it = openMode.noteId) {
       is PlaceholderNoteId -> it.id
-      is PreSavedNoteId -> it.id
+      is ExistingNoteId -> it.id
     }
 
     return noteQueries.note(noteId)

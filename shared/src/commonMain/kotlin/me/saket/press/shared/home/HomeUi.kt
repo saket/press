@@ -5,7 +5,7 @@ import me.saket.press.shared.db.FolderId
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorScreenKey
-import me.saket.press.shared.editor.PreSavedNoteId
+import me.saket.press.shared.editor.ExistingNoteId
 import me.saket.press.shared.ui.HighlightedText
 import me.saket.press.shared.ui.ScreenKey
 
@@ -47,7 +47,7 @@ data class HomeModel(
   ) : Row {
     override fun screenKey(): ScreenKey {
       return EditorScreenKey(
-        ExistingNote(PreSavedNoteId(id))
+        ExistingNote(ExistingNoteId(id))
       )
     }
   }

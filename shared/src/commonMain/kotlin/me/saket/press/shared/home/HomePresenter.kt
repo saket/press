@@ -25,7 +25,7 @@ import me.saket.press.shared.editor.EditorPresenter
 import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER
 import me.saket.press.shared.editor.EditorPresenter.Companion.NEW_NOTE_PLACEHOLDER_TRIMMED
 import me.saket.press.shared.editor.EditorScreenKey
-import me.saket.press.shared.editor.PreSavedNoteId
+import me.saket.press.shared.editor.ExistingNoteId
 import me.saket.press.shared.home.HomeEvent.NewNoteClicked
 import me.saket.press.shared.home.HomeEvent.SearchTextChanged
 import me.saket.press.shared.home.HomeModel.EmptyStateKind.Notes
@@ -90,7 +90,7 @@ class HomePresenter(
           )
 
           args.navigator.lfg(
-            EditorScreenKey(NewNote(PreSavedNoteId(newNoteId)))
+            EditorScreenKey(NewNote(ExistingNoteId(newNoteId)))
           )
         }
       }
