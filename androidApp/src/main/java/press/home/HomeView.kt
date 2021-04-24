@@ -163,6 +163,10 @@ class HomeView @InflationInject constructor(
     } else {
       newNoteFab.show()
     }
+
+    if (screenKey == focusedScreen && toolbar.isSearchVisible()) {
+      toolbar.searchField.requestFocus()
+    }
   }
 
   override fun onInterceptBackPress(): InterceptResult {
