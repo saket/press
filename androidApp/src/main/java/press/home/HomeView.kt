@@ -48,7 +48,7 @@ class HomeView @InflationInject constructor(
   private val presenter: HomePresenter.Factory
 ) : ContourLayout(context), ScreenFocusChangeListener, ExpandableScreenHost, BackPressInterceptor {
 
-  private val noteAdapter = NoteAdapter()
+  private val noteAdapter = NoteListAdapter()
   private val folderAdapter = FolderListAdapter()
   private val screenKey = screenKey<HomeScreenKey>()
 

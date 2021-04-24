@@ -3,11 +3,10 @@ package press.home
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import me.saket.press.shared.db.NoteId
-import press.home.NoteAdapter.NoteVH
+import press.home.NoteListAdapter.NoteVH
 import me.saket.press.shared.home.HomeModel.NoteModel as Model
 
-// TODO: rename to NoteListAdapter
-class NoteAdapter : BaseHomeRowAdapter<Model, NoteVH>() {
+class NoteListAdapter : BaseHomeRowAdapter<Model, NoteVH>() {
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
     NoteVH(
       NoteRowView(parent.context).apply {
