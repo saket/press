@@ -13,6 +13,7 @@ import me.saket.press.shared.db.FolderId
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakeFolder
 import me.saket.press.shared.fakeNote
+import me.saket.press.shared.testInsert
 import kotlin.test.Test
 
 class FolderPathsTest : BaseDatabaeTest() {
@@ -24,7 +25,7 @@ class FolderPathsTest : BaseDatabaeTest() {
     val grandParent = fakeFolder(name = "folder1")
     val parent = fakeFolder(name = "folder2", parent = grandParent.id)
     val child = fakeFolder(name = "folder3", parent = parent.id)
-    folderQueries.insert(grandParent, parent, child)
+    folderQueries.testInsert(grandParent, parent, child)
 
     assertThat(paths.createFlatPath(grandParent.id)).isEqualTo("folder1")
     assertThat(paths.createFlatPath(parent.id)).isEqualTo("folder1/folder2")
@@ -63,7 +64,7 @@ class FolderPathsTest : BaseDatabaeTest() {
   @Test fun `archive note`() {
     val showsId = FolderId.generate()
     val noteId = NoteId.generate()
-    folderQueries.insert(fakeFolder("shows", id = showsId))
+    folderQueries.testInsert(fakeFolder("shows", id = showsId))
     noteQueries.testInsert(fakeNote("# Mandalorian", id = noteId, folderId = showsId))
 
     val folderPath = {

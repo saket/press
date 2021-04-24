@@ -33,7 +33,7 @@ import me.saket.press.shared.editor.ToolbarIconKind.Archive
 import me.saket.press.shared.editor.ToolbarIconKind.DeleteNote
 import me.saket.press.shared.editor.ToolbarIconKind.Unarchive
 import me.saket.press.shared.fakeNote
-import me.saket.press.shared.fakeRepository
+import me.saket.press.shared.fakeGitRepository
 import me.saket.press.shared.localization.ENGLISH_STRINGS
 import me.saket.press.shared.rx.RxRule
 import me.saket.press.shared.rx.test
@@ -379,7 +379,7 @@ class EditorPresenterTest : BaseDatabaeTest() {
     syncer.status.onNext(
       Status.Enabled(
         lastOp = Idle,
-        syncingWith = fakeRepository(),
+        syncingWith = fakeGitRepository(),
         lastSyncedAt = null
       )
     )

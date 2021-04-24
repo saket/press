@@ -12,7 +12,7 @@ import me.saket.kgit.GitIdentity
 import me.saket.kgit.SshKeyPair
 import me.saket.kgit.SshPrivateKey
 import me.saket.press.shared.db.BaseDatabaeTest
-import me.saket.press.shared.fakeRepository
+import me.saket.press.shared.fakeGitRepository
 import me.saket.press.shared.preferences.sync.setup.GitHostIntegrationPresenter
 import me.saket.press.shared.preferences.sync.setup.NewGitRepositoryScreenKey
 import me.saket.press.shared.rx.RxRule
@@ -97,7 +97,7 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
       .assertValue(ShowProgress)
       .assertValue(ShowFailure(kind = FetchingRepos))
 
-    gitService.userRepos.value = { listOf(fakeRepository()) }
+    gitService.userRepos.value = { listOf(fakeGitRepository()) }
     presenter.dispatch(RetryClicked(failure = FetchingRepos))
 
     models
@@ -210,13 +210,13 @@ class GitHostIntegrationPresenterTest : BaseDatabaeTest() {
     presenter.models()
       .filter { false }
       .test(rxRule)
-    presenter.dispatch(GitRepositoryClicked(fakeRepository()))
+    presenter.dispatch(GitRepositoryClicked(fakeGitRepository()))
 
     assertThat(authToken.get()).isNull()
   }
 
   companion object {
-    val repo = fakeRepository(name = "NicCage")
+    val repo = fakeGitRepository(name = "NicCage")
     val user = GitIdentity("nicolas", "nicolas@cage.com")
     val sshKeyPair = SshKeyPair(publicKey = "nicolas cage", privateKey = SshPrivateKey("is a national treasure"))
   }

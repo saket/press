@@ -20,14 +20,13 @@ import me.saket.press.shared.home.HomeEvent.SearchTextChanged
 import me.saket.press.shared.home.HomeModel.FolderModel
 import me.saket.press.shared.home.HomeModel.NoteModel
 import me.saket.press.shared.home.HomePresenter.Args
+import me.saket.press.shared.testInsert
 import me.saket.press.shared.keyboard.KeyboardShortcuts
 import me.saket.press.shared.keyboard.RealKeyboardShortcuts
 import me.saket.press.shared.localization.ENGLISH_STRINGS
 import me.saket.press.shared.ui.HighlightedText
 import me.saket.press.shared.rx.RxRule
 import me.saket.press.shared.rx.test
-import me.saket.press.shared.syncer.git.insert
-import me.saket.press.shared.syncer.git.testInsert
 import me.saket.press.shared.time.FakeClock
 import me.saket.press.shared.ui.FakeNavigator
 import me.saket.press.shared.ui.highlight
@@ -63,7 +62,7 @@ class HomePresenterTest : BaseDatabaeTest() {
 
   @Test fun `populate folders and notes for home screen`() {
     val archive = fakeFolder("archive")
-    folderQueries.insert(archive)
+    folderQueries.testInsert(archive)
 
     val witcher3 = fakeNote("The Witcher 3 Wild Hunt")
     val uncharted = fakeNote("# Uncharted\nThe Lost Legacy", folderId = archive.id)
@@ -91,7 +90,7 @@ class HomePresenterTest : BaseDatabaeTest() {
   @Test fun `populate sub-folders and notes for a folder`() {
     val archive = fakeFolder("archive")
     val games = fakeFolder("games", parent = archive.id)
-    folderQueries.insert(archive, games)
+    folderQueries.testInsert(archive, games)
 
     val nicolasCage = fakeNote(content = "# Nicolas Cage\nOur national treasure", folderId = null)
     val witcher3 = fakeNote(content = "# The Witcher 3\nWild Hunt", folderId = archive.id)
@@ -120,7 +119,7 @@ class HomePresenterTest : BaseDatabaeTest() {
   @Test fun `populate filtered notes when searching in the root folder`() {
     val games = fakeFolder("games")
     val archive = fakeFolder("archive")
-    folderQueries.insert(games, archive)
+    folderQueries.testInsert(games, archive)
 
     val uncharted = fakeNote("# Uncharted")
     val gambling = fakeNote("# Gambling")
@@ -146,7 +145,7 @@ class HomePresenterTest : BaseDatabaeTest() {
     val archive = fakeFolder("archive")
     val gamesFolder = fakeFolder("games", parent = archive.id)
     val rpgGamesFolder = fakeFolder("rpg", parent = gamesFolder.id)
-    folderQueries.insert(archive, gamesFolder, rpgGamesFolder)
+    folderQueries.testInsert(archive, gamesFolder, rpgGamesFolder)
 
     val gamesToBuy = fakeNote("# Games to buy", folderId = archive.id)
     val unravel2 = fakeNote("# Unravel 2 (game)", folderId = gamesFolder.id)

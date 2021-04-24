@@ -14,6 +14,7 @@ import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakeFolder
 import me.saket.press.shared.fakeNote
+import me.saket.press.shared.testInsert
 import me.saket.press.shared.testDeviceInfo
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -119,7 +120,7 @@ class FileNameRegisterTest : BaseDatabaeTest() {
   @Test fun `migrate from old record file names`() {
     val gamesFolder = fakeFolder("games", parent = null)
     val witcherNote = fakeNote("# witcher 3", folderId = gamesFolder.id)
-    database.folderQueries.insert(gamesFolder)
+    database.folderQueries.testInsert(gamesFolder)
     register.createNewRecordFor(register.fileFor(witcherNote), witcherNote.id)
 
     val finNote = fakeNote("# finances")
@@ -157,7 +158,7 @@ class FileNameRegisterTest : BaseDatabaeTest() {
     }
 
     val archive = fakeFolder("archive")
-    database.folderQueries.insert(archive)
+    database.folderQueries.testInsert(archive)
 
     val archivedFile = register.fileFor(note.copy(folderId = archive.id))
     assertThat(archivedFile.relativePathIn(directory)).isEqualTo("archive/the_witcher_3.md")
@@ -178,7 +179,7 @@ class FileNameRegisterTest : BaseDatabaeTest() {
 
   @Test fun `support for single folder`() {
     val gamesFolder = fakeFolder("games", parent = null)
-    database.folderQueries.insert(gamesFolder)
+    database.folderQueries.testInsert(gamesFolder)
 
     val note = fakeNote(
       content = "# The Witcher 3\nHearts of Stone",
@@ -196,7 +197,7 @@ class FileNameRegisterTest : BaseDatabaeTest() {
   @Test fun `support for archived note inside a single folder`() {
     val archiveFolder = fakeFolder("archive", parent = null)
     val gamesFolder = fakeFolder("Games", parent = archiveFolder.id)
-    database.folderQueries.insert(archiveFolder, gamesFolder)
+    database.folderQueries.testInsert(archiveFolder, gamesFolder)
 
     val note = fakeNote(
       content = "# The Witcher 3\nHearts of Stone",
@@ -214,7 +215,7 @@ class FileNameRegisterTest : BaseDatabaeTest() {
   @Test fun `support for nested folders`() {
     val gamesFolder = fakeFolder("Games", parent = null)
     val witcherFolder = fakeFolder("The Witcher 3", parent = gamesFolder.id)
-    database.folderQueries.insert(gamesFolder, witcherFolder)
+    database.folderQueries.testInsert(gamesFolder, witcherFolder)
 
     val note = fakeNote(
       content = "# Hearts of Stone",
@@ -233,7 +234,7 @@ class FileNameRegisterTest : BaseDatabaeTest() {
     val archiveFolder = fakeFolder("archive", parent = null)
     val gamesFolder = fakeFolder("Games", parent = archiveFolder.id)
     val witcherFolder = fakeFolder("The Witcher 3", parent = gamesFolder.id)
-    database.folderQueries.insert(archiveFolder, gamesFolder, witcherFolder)
+    database.folderQueries.testInsert(archiveFolder, gamesFolder, witcherFolder)
 
     val note = fakeNote(
       content = "# Hearts of Stone",
@@ -250,7 +251,7 @@ class FileNameRegisterTest : BaseDatabaeTest() {
 
   @Test fun `regression test - note with the same name as a folder shouldn't cause an error`() {
     val financesFolder = fakeFolder("finances")
-    database.folderQueries.insert(financesFolder)
+    database.folderQueries.testInsert(financesFolder)
 
     val randomNote = fakeNote("# Random", folderId = financesFolder.id)
     register.fileFor(randomNote)

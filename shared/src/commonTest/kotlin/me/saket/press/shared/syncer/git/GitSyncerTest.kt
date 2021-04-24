@@ -22,8 +22,6 @@ import me.saket.kgit.GitIdentity
 import me.saket.kgit.PushResult
 import me.saket.kgit.RealGit
 import me.saket.kgit.SshPrivateKey
-import me.saket.press.data.shared.Note
-import me.saket.press.data.shared.NoteQueries
 import me.saket.press.shared.BuildKonfig
 import me.saket.press.shared.Platform
 import me.saket.press.shared.PlatformHost.Android
@@ -31,8 +29,9 @@ import me.saket.press.shared.containsOnly
 import me.saket.press.shared.db.BaseDatabaeTest
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.fakeFolder
+import me.saket.press.shared.fakeGitRepository
 import me.saket.press.shared.fakeNote
-import me.saket.press.shared.fakeRepository
+import me.saket.press.shared.testInsert
 import me.saket.press.shared.isEqualTo
 import me.saket.press.shared.localization.ENGLISH_STRINGS
 import me.saket.press.shared.syncer.SyncMergeConflicts
@@ -55,7 +54,7 @@ class GitSyncerTest : BaseDatabaeTest() {
   private val deviceInfo = testDeviceInfo()
   private val clock = FakeClock()
   private val remoteAndAuth = GitRemoteAndAuth(
-    remote = fakeRepository().copy(
+    remote = fakeGitRepository().copy(
       sshUrl = BuildKonfig.GIT_TEST_REPO_SSH_URL,
       defaultBranch = BuildKonfig.GIT_TEST_REPO_BRANCH
     ),
@@ -284,7 +283,7 @@ class GitSyncerTest : BaseDatabaeTest() {
   @Test fun `push notes with folders`() {
     val gamesFolder = fakeFolder(name = "games")
     val witcherFolder = fakeFolder(name = "witcher 3", parent = gamesFolder.id)
-    folderQueries.insert(gamesFolder, witcherFolder)
+    folderQueries.testInsert(gamesFolder, witcherFolder)
     noteQueries.testInsert(
       fakeNote("# Unravel", folderId = gamesFolder.id),
       fakeNote("# Hearts of Stone", folderId = witcherFolder.id),
@@ -818,7 +817,7 @@ class GitSyncerTest : BaseDatabaeTest() {
     if (!canRunTests()) return
 
     val archive = fakeFolder("archive")
-    folderQueries.insert(archive)
+    folderQueries.testInsert(archive)
 
     val note1 = fakeNote("# Horizon Zero Dawn", folderId = archive.id)
     val note2 = fakeNote("# Uncharted", folderId = archive.id)
@@ -846,7 +845,7 @@ class GitSyncerTest : BaseDatabaeTest() {
 
     // Archive both notes: one on local and the other on remote.
     val archive = fakeFolder("archive")
-    folderQueries.insert(archive)
+    folderQueries.testInsert(archive)
     noteQueries.updateFolder(id = note1.id, folderId = archive.id)
 
     val remote = RemoteRepositoryRobot {
@@ -1327,10 +1326,4 @@ class GitSyncerTest : BaseDatabaeTest() {
       commitFiles(message = "Emptiness", add = emptyList())
     }
   }
-}
-
-// todo: Rename to insert.
-// todo: move outside this file.
-fun NoteQueries.testInsert(vararg notes: Note) {
-  notes.forEach { testInsert(it) }
 }

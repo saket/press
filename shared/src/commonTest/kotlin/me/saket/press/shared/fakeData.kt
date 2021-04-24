@@ -2,7 +2,9 @@ package me.saket.press.shared
 
 import com.soywiz.klock.DateTime
 import me.saket.press.data.shared.Folder
+import me.saket.press.data.shared.FolderQueries
 import me.saket.press.data.shared.Note
+import me.saket.press.data.shared.NoteQueries
 import me.saket.press.shared.db.FolderId
 import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.syncer.SyncState
@@ -11,6 +13,14 @@ import me.saket.press.shared.syncer.git.GitHost.GITHUB
 import me.saket.press.shared.syncer.git.service.GitRepositoryInfo
 import me.saket.press.shared.time.Clock
 import me.saket.press.shared.time.FakeClock
+
+fun FolderQueries.testInsert(vararg folders: Folder) {
+  folders.forEach { this.testInsert(it) }
+}
+
+fun NoteQueries.testInsert(vararg notes: Note) {
+  notes.forEach { this.testInsert(it) }
+}
 
 fun fakeNote(
   content: String,
@@ -43,8 +53,7 @@ fun fakeFolder(
   parent = parent
 )
 
-// TODO: rename to fakeGitRepository()
-fun fakeRepository(
+fun fakeGitRepository(
   name: String = "nationaltreasure"
 ): GitRepositoryInfo {
   return GitRepositoryInfo(

@@ -25,8 +25,8 @@ WITH RECURSIVE cte_folder (id, name, parent, root_name, root_id) AS (
 SELECT id, root_name, root_id FROM cte_folder;
 
 insert:
-INSERT INTO folder
-VALUES ?;
+INSERT INTO folder(id, name, parent)
+VALUES (?, ?, ?);
 
 folder:
 SELECT * FROM folder
@@ -49,3 +49,8 @@ WHERE parent = ? AND id IN (
   WHERE folderId IS NOT NULL
 )
 ORDER BY name ASC;
+
+-- Test functions.
+testInsert:
+INSERT INTO folder
+VALUES ?;
