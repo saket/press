@@ -224,7 +224,7 @@ class EditorPresenter(
 //          )
 //        },
         ToolbarMenuAction(
-          label = strings.editor.menu_change_folder,
+          label = strings.editor.menu_move_to_folder,
           icon = MoveToFolder,
           clickEvent = ChangeFolderClicked
         ),

@@ -38,7 +38,7 @@ class Strings(
     val open_url: String,
     val edit_url: String,
 
-    val menu_change_folder: String,
+    val menu_move_to_folder: String,
     val menu_archive: String,
     val menu_unarchive: String,
     val menu_share_as: String,
@@ -74,6 +74,7 @@ class Strings(
     val movetofolder_title: String,
     val movetofolder_submit: String,
     val movetofolder_cancel: String,
+    val movetofolder_folder_name_hint: String,
   )
 
   class Sync(
@@ -176,7 +177,7 @@ val ENGLISH_STRINGS = Strings(
     open_url = "Open",
     edit_url = "Edit",
 
-    menu_change_folder = "Change folder",
+    menu_move_to_folder = "Move to folder",
     menu_archive = "Archive",
     menu_unarchive = "Unarchive",
     menu_share_as = "Share as",
@@ -208,9 +209,10 @@ val ENGLISH_STRINGS = Strings(
     formattingtoolbar_inline_code = "Code"
   ),
   movetofolder = MoveToFolder(
-    movetofolder_title = "Change folder",
+    movetofolder_title = "Move to folder",
     movetofolder_submit = "Save",
     movetofolder_cancel = "Cancel",
+    movetofolder_folder_name_hint = "path/to/folder"
   ),
   sync = Sync(
     title = "Sync",

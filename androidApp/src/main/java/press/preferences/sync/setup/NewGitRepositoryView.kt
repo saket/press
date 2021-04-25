@@ -44,18 +44,11 @@ import press.widgets.PressDialogView
 class NewGitRepositoryView @InflationInject constructor(
   @Assisted context: Context,
   @Assisted attrs: AttributeSet? = null,
-  presenterFactory: NewGitRepositoryPresenter.Factory
+  private val presenterFactory: NewGitRepositoryPresenter.Factory
 ) : FrameLayout(context), NotPullCollapsible {
 
   private val dialogView = PressDialogView(context)
   private val contentView = ContentView(context)
-
-  private val presenter = presenterFactory.create(
-    Args(
-      screenKey = screenKey(),
-      navigator = navigator()
-    )
-  )
 
   init {
     id = R.id.newgitrepo_view
@@ -88,6 +81,13 @@ class NewGitRepositoryView @InflationInject constructor(
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
+
+    val presenter = presenterFactory.create(
+      Args(
+        screenKey = screenKey(),
+        navigator = navigator()
+      )
+    )
 
     contentView.textField.editText.apply {
       post { showKeyboard() }

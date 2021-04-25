@@ -99,7 +99,7 @@ internal class FolderPaths(private val database: PressDatabase) {
   }
 }
 
-internal class FolderPath(private val paths: List<String>) {
+private class FolderPath(private val paths: List<String>) {
   fun flatten(): String =
     paths.joinToString(separator = "/")
 

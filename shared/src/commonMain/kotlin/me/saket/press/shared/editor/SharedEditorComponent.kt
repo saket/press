@@ -27,7 +27,8 @@ class SharedEditorComponent {
     factory { (args: MoveToFolderPresenter.Args) ->
       MoveToFolderPresenter(
         args = args,
-        database = get()
+        database = get(),
+        schedulers = get()
       )
     }
   }
