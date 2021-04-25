@@ -3,6 +3,7 @@ package me.saket.press.shared.localization
 import me.saket.press.shared.localization.Strings.Common
 import me.saket.press.shared.localization.Strings.Editor
 import me.saket.press.shared.localization.Strings.Home
+import me.saket.press.shared.localization.Strings.MoveToFolder
 import me.saket.press.shared.localization.Strings.Preferences
 import me.saket.press.shared.localization.Strings.Sync
 
@@ -10,6 +11,7 @@ class Strings(
   val common: Common,
   val home: Home,
   val editor: Editor,
+  val movetofolder: MoveToFolder,
   val sync: Sync,
   val prefs: Preferences,
 ) {
@@ -36,6 +38,7 @@ class Strings(
     val open_url: String,
     val edit_url: String,
 
+    val menu_change_folder: String,
     val menu_archive: String,
     val menu_unarchive: String,
     val menu_share_as: String,
@@ -65,6 +68,12 @@ class Strings(
     val formattingtoolbar_heading: String,
     val formattingtoolbar_blockquote: String,
     val formattingtoolbar_inline_code: String,
+  )
+
+  data class MoveToFolder(
+    val movetofolder_title: String,
+    val movetofolder_submit: String,
+    val movetofolder_cancel: String,
   )
 
   class Sync(
@@ -135,6 +144,7 @@ class Strings(
   )
 }
 
+// todo: extract to its own file.
 val ENGLISH_STRINGS = Strings(
   common = Common(
     app_name = "Press",
@@ -166,6 +176,7 @@ val ENGLISH_STRINGS = Strings(
     open_url = "Open",
     edit_url = "Edit",
 
+    menu_change_folder = "Change folder",
     menu_archive = "Archive",
     menu_unarchive = "Unarchive",
     menu_share_as = "Share as",
@@ -195,6 +206,11 @@ val ENGLISH_STRINGS = Strings(
     formattingtoolbar_heading = "Heading",
     formattingtoolbar_blockquote = "Quote",
     formattingtoolbar_inline_code = "Code"
+  ),
+  movetofolder = MoveToFolder(
+    movetofolder_title = "Change folder",
+    movetofolder_submit = "Save",
+    movetofolder_cancel = "Cancel",
   ),
   sync = Sync(
     title = "Sync",

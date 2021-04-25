@@ -74,6 +74,7 @@ class RealNavigator(
   @Suppress("NAME_SHADOWING")
   override fun clearTopAndLfg(screen: ScreenKey) {
     check(screen !is CompositeScreenKey)
+    check(flow.history.top<ScreenKey>() is PlaceholderScreenKey)
     flow.setHistory(History.single(CompositeScreenKey(screen)), REPLACE)
   }
 

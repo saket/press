@@ -28,6 +28,7 @@ interface EditorEvent {
   data class ArchiveToggleClicked(val archive: Boolean) : EditorEvent
   data class ShareAsClicked(val format: TextFormat) : EditorEvent
   data class CopyAsClicked(val format: TextFormat) : EditorEvent
+  object ChangeFolderClicked: EditorEvent
   object DuplicateNoteClicked : EditorEvent
   object SplitScreenClicked : EditorEvent
   object DeleteNoteClicked : EditorEvent
@@ -77,6 +78,7 @@ data class ToolbarSubMenu(
 }
 
 enum class ToolbarIconKind {
+  MoveToFolder,
   Archive,
   Unarchive,
   ShareAs,

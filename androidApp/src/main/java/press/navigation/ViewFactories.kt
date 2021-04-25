@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.View
 import com.squareup.inject.inflation.ViewFactory
 import me.saket.press.shared.editor.EditorScreenKey
+import me.saket.press.shared.editor.folder.MoveToFolderScreenKey
 import me.saket.press.shared.home.HomeScreenKey
 import me.saket.press.shared.preferences.PreferenceCategory.AboutApp
 import me.saket.press.shared.preferences.PreferenceCategory.Editor
@@ -16,6 +17,7 @@ import me.saket.press.shared.preferences.sync.setup.NewGitRepositoryScreenKey
 import me.saket.press.shared.preferences.sync.stats.SyncStatsForNerdsScreenKey
 import me.saket.press.shared.ui.ScreenKey
 import press.editor.EditorView
+import press.editor.folder.MoveToFolderView
 import press.home.HomeView
 import press.preferences.PreferencesView
 import press.preferences.about.AboutAppPreferencesView
@@ -54,6 +56,7 @@ class ViewFactories @Inject constructor(
         val viewClass = when (screen) {
           is HomeScreenKey -> HomeView::class
           is EditorScreenKey -> EditorView::class
+          is MoveToFolderScreenKey -> MoveToFolderView::class
           is GitHostIntegrationScreenKey -> GitHostIntegrationView::class
           is NewGitRepositoryScreenKey -> NewGitRepositoryView::class
           is SyncStatsForNerdsScreenKey -> SyncStatsForNerdsView::class

@@ -44,6 +44,7 @@ import me.saket.press.shared.editor.EditorPresenter
 import me.saket.press.shared.editor.EditorPresenter.Args
 import me.saket.press.shared.editor.EditorScreenKey
 import me.saket.press.shared.editor.ToolbarIconKind.Archive
+import me.saket.press.shared.editor.ToolbarIconKind.MoveToFolder
 import me.saket.press.shared.editor.ToolbarIconKind.CopyAs
 import me.saket.press.shared.editor.ToolbarIconKind.DeleteNote
 import me.saket.press.shared.editor.ToolbarIconKind.DuplicateNote
@@ -266,6 +267,7 @@ class EditorView @InflationInject constructor(
   ) {
     val item: ToolbarMenuItem = this
     val iconRes = when (item.icon) {
+      MoveToFolder -> R.drawable.ic_twotone_folder_24
       Archive -> R.drawable.ic_twotone_archive_24
       Unarchive -> R.drawable.ic_twotone_unarchive_24
       ShareAs -> R.drawable.ic_twotone_share_24

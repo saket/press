@@ -25,7 +25,11 @@ import com.badoo.reaktive.observable.wrap
 import me.saket.press.PressDatabase
 import me.saket.press.data.shared.Note
 import me.saket.press.shared.db.NoteId
+import me.saket.press.shared.editor.EditorEffect.BlockedDueToSyncConflict
+import me.saket.press.shared.editor.EditorEffect.PopulateNoteBody
+import me.saket.press.shared.editor.EditorEffect.ShowToast
 import me.saket.press.shared.editor.EditorEvent.ArchiveToggleClicked
+import me.saket.press.shared.editor.EditorEvent.ChangeFolderClicked
 import me.saket.press.shared.editor.EditorEvent.CloseSubMenu
 import me.saket.press.shared.editor.EditorEvent.CopyAsClicked
 import me.saket.press.shared.editor.EditorEvent.DeleteNoteClicked
@@ -35,19 +39,16 @@ import me.saket.press.shared.editor.EditorEvent.ShareAsClicked
 import me.saket.press.shared.editor.EditorEvent.SplitScreenClicked
 import me.saket.press.shared.editor.EditorOpenMode.ExistingNote
 import me.saket.press.shared.editor.EditorOpenMode.NewNote
-import me.saket.press.shared.editor.EditorEffect.BlockedDueToSyncConflict
-import me.saket.press.shared.editor.EditorEffect.ShowToast
-import me.saket.press.shared.editor.EditorEffect.PopulateNoteBody
 import me.saket.press.shared.editor.TextFormat.Html
 import me.saket.press.shared.editor.TextFormat.Markdown
 import me.saket.press.shared.editor.TextFormat.RichText
-import me.saket.press.shared.editor.ToolbarIconKind.Archive
+import me.saket.press.shared.editor.ToolbarIconKind.MoveToFolder
 import me.saket.press.shared.editor.ToolbarIconKind.CopyAs
 import me.saket.press.shared.editor.ToolbarIconKind.DeleteNote
 import me.saket.press.shared.editor.ToolbarIconKind.DuplicateNote
 import me.saket.press.shared.editor.ToolbarIconKind.OpenInSplitScreen
 import me.saket.press.shared.editor.ToolbarIconKind.ShareAs
-import me.saket.press.shared.editor.ToolbarIconKind.Unarchive
+import me.saket.press.shared.editor.folder.MoveToFolderScreenKey
 import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.rx.Schedulers
@@ -108,6 +109,7 @@ class EditorPresenter(
         merge(
           models.distinctUntilChanged(),
           events.autoSaveContent(noteStream),
+          handleFolderClicks(events, noteStream),
           handleArchiveClicks(events, noteStream),
           handleShareClicks(events),
           handleDuplicateNoteClicks(events, noteStream),
@@ -208,19 +210,24 @@ class EditorPresenter(
 
     return isNoteArchived.map { (isArchived, syncStatus) ->
       listOfNotNull(
-        if (isArchived) {
-          ToolbarMenuAction(
-            label = strings.editor.menu_unarchive,
-            icon = Unarchive,
-            clickEvent = ArchiveToggleClicked(archive = false)
-          )
-        } else {
-          ToolbarMenuAction(
-            label = strings.editor.menu_archive,
-            icon = Archive,
-            clickEvent = ArchiveToggleClicked(archive = true)
-          )
-        },
+//        if (isArchived) {
+//          ToolbarMenuAction(
+//            label = strings.editor.menu_unarchive,
+//            icon = Unarchive,
+//            clickEvent = ArchiveToggleClicked(archive = false)
+//          )
+//        } else {
+//          ToolbarMenuAction(
+//            label = strings.editor.menu_archive,
+//            icon = Archive,
+//            clickEvent = ArchiveToggleClicked(archive = true)
+//          )
+//        },
+        ToolbarMenuAction(
+          label = strings.editor.menu_change_folder,
+          icon = MoveToFolder,
+          clickEvent = ChangeFolderClicked
+        ),
         ToolbarSubMenu(
           label = strings.editor.menu_share_as,
           icon = ShareAs,
@@ -289,6 +296,17 @@ class EditorPresenter(
         } else null,
       )
     }
+  }
+
+  private fun handleFolderClicks(
+    events: Observable<EditorEvent>,
+    noteStream: Observable<Note>
+  ): Observable<EditorModel> {
+    return events.ofType<ChangeFolderClicked>()
+      .withLatestFrom(noteStream, ::Pair)
+      .consumeOnNext { (_, note) ->
+        args.navigator.lfg(MoveToFolderScreenKey(noteId = note.id))
+      }
   }
 
   private fun handleArchiveClicks(

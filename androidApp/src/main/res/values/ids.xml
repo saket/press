@@ -11,6 +11,8 @@
   <item name="editor_scrollable_container" type="id" />
   <item name="editor_textfield" type="id" />
 
+  <item name="movetofolder_view" type="id" />
+
   <item name="preferences_view" type="id" />
   <item name="editor_preferences_view" type="id" />
 
