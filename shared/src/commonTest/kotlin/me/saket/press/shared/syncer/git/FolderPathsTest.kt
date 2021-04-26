@@ -44,7 +44,7 @@ class FolderPathsTest : BaseDatabaeTest() {
     assertThat(folder1Id).isNotNull()
     assertThat(savedFolders().names()).containsOnly("folder1")
 
-    val folder3Id = paths.mkdirs("folder1/folder2/folder1/folder3")!!
+    val folder3Id = paths.mkdirs("folder1/folder2/folder1/folder3/")!!
     assertThat(folder1Id).isNotNull()
     assertThat(paths.createFlatPath(folder3Id)).isEqualTo("folder1/folder2/folder1/folder3")
     assertThat(savedFolders().names()).containsOnly(

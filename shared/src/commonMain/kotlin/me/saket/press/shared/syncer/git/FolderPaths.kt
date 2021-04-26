@@ -44,7 +44,9 @@ internal class FolderPaths(private val database: PressDatabase) {
    * @param folderPath path/to/a/folder
    * @return FolderId that represents [folderPath].
    */
+  @Suppress("NAME_SHADOWING")
   fun mkdirs(folderPath: String): FolderId? {
+    val folderPath = folderPath.removeSuffix("/")
     if (folderPath.isBlank()) {
       return null
     }
