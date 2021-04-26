@@ -12,15 +12,15 @@ import me.saket.press.shared.rx.mapToOne
 import me.saket.press.shared.syncer.git.FolderPaths
 import me.saket.press.shared.ui.Presenter
 
-class MoveToFolderPresenter(
+class CreateFolderPresenter(
   private val args: Args,
   private val database: PressDatabase,
   private val schedulers: Schedulers,
-) : Presenter<MoveToFolderEvent, MoveToFolderModel>() {
+) : Presenter<CreateFolderEvent, CreateFolderModel>() {
 
   private val folderPaths = FolderPaths(database)
 
-  override fun models(): ObservableWrapper<MoveToFolderModel> {
+  override fun models(): ObservableWrapper<CreateFolderModel> {
     return viewEvents().publish { events ->
       database.noteQueries.note(args.screenKey.noteId)
         .asObservable(schedulers.io)
@@ -28,7 +28,7 @@ class MoveToFolderPresenter(
         .take(1)
         .map { note ->
           val folderPath = folderPaths.createFlatPath(id = note.folderId)
-          MoveToFolderModel(
+          CreateFolderModel(
             folderPath = folderPath,
             errorMessage = null
           )
@@ -37,10 +37,10 @@ class MoveToFolderPresenter(
   }
 
   fun interface Factory {
-    fun create(args: Args): MoveToFolderPresenter
+    fun create(args: Args): CreateFolderPresenter
   }
 
   data class Args(
-    val screenKey: MoveToFolderScreenKey,
+    val screenKey: CreateFolderScreenKey,
   )
 }

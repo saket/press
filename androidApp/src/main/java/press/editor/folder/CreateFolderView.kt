@@ -13,13 +13,17 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.inflation.InflationInject
 import io.reactivex.android.schedulers.AndroidSchedulers
 import me.saket.press.R
-import me.saket.press.shared.editor.folder.MoveToFolderModel
-import me.saket.press.shared.editor.folder.MoveToFolderPresenter
+import me.saket.press.shared.editor.folder.CreateFolderEvent.NameTextChanged
+import me.saket.press.shared.editor.folder.CreateFolderEvent.SubmitClicked
+import me.saket.press.shared.editor.folder.CreateFolderModel
+import me.saket.press.shared.editor.folder.CreateFolderPresenter
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.applyStyle
 import me.saket.press.shared.ui.models
 import me.saket.wysiwyg.style.withOpacity
+import press.extensions.doOnEditorAction
+import press.extensions.doOnTextChange
 import press.extensions.setTextAndCursor
 import press.extensions.showKeyboard
 import press.extensions.textColor
@@ -30,17 +34,17 @@ import press.theme.themePalette
 import press.widgets.MaterialTextInputLayout
 import press.widgets.PressDialogView
 
-class MoveToFolderView @InflationInject constructor(
+class CreateFolderView @InflationInject constructor(
   @Assisted context: Context,
   @Assisted attrs: AttributeSet? = null,
-  private val presenterFactory: MoveToFolderPresenter.Factory
+  private val presenterFactory: CreateFolderPresenter.Factory
 ) : FrameLayout(context), NotPullCollapsible {
 
   private val dialogView = PressDialogView(context)
   private val contentView = ContentView(context)
 
   init {
-    id = R.id.movetofolder_view
+    id = R.id.createfolder_view
 
     addView(dialogView)
     dialogView.updateLayoutParams<LayoutParams> { gravity = CENTER }
@@ -51,13 +55,18 @@ class MoveToFolderView @InflationInject constructor(
     }
 
     dialogView.render(
-      title = context.strings().movetofolder.movetofolder_title,
-      negativeButton = context.strings().movetofolder.movetofolder_cancel,
-      positiveButton = context.strings().movetofolder.movetofolder_submit,
+      title = context.strings().createfolder.createfolder_title,
+      negativeButton = context.strings().createfolder.createfolder_cancel,
+      positiveButton = context.strings().createfolder.createfolder_submit,
       negativeOnClick = { navigator().goBack() }
     )
     dialogView.replaceMessageWith(contentView)
 
+    contentView.textField.editText.run {
+      doOnEditorAction(IME_ACTION_DONE) {
+        dialogView.positiveButtonView.performClick()
+      }
+    }
     post {
       contentView.textField.editText.showKeyboard()
     }
@@ -67,8 +76,14 @@ class MoveToFolderView @InflationInject constructor(
     super.onAttachedToWindow()
 
     val presenter = presenterFactory.create(
-      args = MoveToFolderPresenter.Args(screenKey = screenKey())
+      args = CreateFolderPresenter.Args(screenKey = screenKey())
     )
+    dialogView.positiveButtonView.setOnClickListener {
+      presenter.dispatch(SubmitClicked)
+    }
+    contentView.textField.editText.doOnTextChange {
+      presenter.dispatch(NameTextChanged(it.toString()))
+    }
 
     presenter.models()
       .observeOn(AndroidSchedulers.mainThread())
@@ -76,7 +91,7 @@ class MoveToFolderView @InflationInject constructor(
       .subscribe(::render)
   }
 
-  private fun render(model: MoveToFolderModel) {
+  private fun render(model: CreateFolderModel) {
     contentView.textField.let {
       it.editText.setTextAndCursor(model.folderPath)
       it.error = model.errorMessage
@@ -92,10 +107,10 @@ class MoveToFolderView @InflationInject constructor(
 private class ContentView(context: Context) : ContourLayout(context) {
   val textField = MaterialTextInputLayout(context).apply {
     editText.applyStyle(smallBody)
-    editText.id = R.id.movetofolder_folder_name
+    editText.id = R.id.createfolder_folder_name
     editText.isSingleLine = true
     editText.imeOptions = editText.imeOptions or IME_ACTION_DONE
-    hint = context.strings().movetofolder.movetofolder_folder_name_hint
+    hint = context.strings().createfolder.createfolder_name_hint
     isHelperTextEnabled = true
     editText.textColor = themePalette().textColorPrimary
   }

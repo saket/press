@@ -2,7 +2,7 @@ package me.saket.press.shared.editor
 
 import com.soywiz.klock.seconds
 import me.saket.press.shared.di.koin
-import me.saket.press.shared.editor.folder.MoveToFolderPresenter
+import me.saket.press.shared.editor.folder.CreateFolderPresenter
 import me.saket.wysiwyg.parser.MarkdownParser
 import org.koin.core.parameter.parametersOf
 import org.koin.dsl.module
@@ -24,8 +24,8 @@ class SharedEditorComponent {
         deviceInfo = get()
       )
     }
-    factory { (args: MoveToFolderPresenter.Args) ->
-      MoveToFolderPresenter(
+    factory { (args: CreateFolderPresenter.Args) ->
+      CreateFolderPresenter(
         args = args,
         database = get(),
         schedulers = get()
@@ -40,7 +40,7 @@ class SharedEditorComponent {
     fun editorPresenter(args: EditorPresenter.Args): EditorPresenter =
       koin { parametersOf(args) }
 
-    fun moveToFolderPresenter(args: MoveToFolderPresenter.Args): MoveToFolderPresenter =
+    fun createFolderPresenter(args: CreateFolderPresenter.Args): CreateFolderPresenter =
       koin { parametersOf(args) }
   }
 }

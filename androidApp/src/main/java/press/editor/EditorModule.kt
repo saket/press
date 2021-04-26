@@ -4,7 +4,7 @@ import dagger.Module
 import dagger.Provides
 import me.saket.press.shared.editor.EditorPresenter
 import me.saket.press.shared.editor.SharedEditorComponent
-import me.saket.press.shared.editor.folder.MoveToFolderPresenter
+import me.saket.press.shared.editor.folder.CreateFolderPresenter
 
 @Module
 object EditorModule {
@@ -12,5 +12,5 @@ object EditorModule {
   fun editorPresenter() = EditorPresenter.Factory { SharedEditorComponent.editorPresenter(it) }
 
   @Provides
-  fun moveToFolderPresenter() = MoveToFolderPresenter.Factory { SharedEditorComponent.moveToFolderPresenter(it) }
+  fun createFolderPresenter() = CreateFolderPresenter.Factory { SharedEditorComponent.createFolderPresenter(it) }
 }

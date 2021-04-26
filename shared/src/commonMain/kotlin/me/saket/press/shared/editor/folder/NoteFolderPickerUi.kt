@@ -5,14 +5,14 @@ import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.ui.ScreenKey
 
 @AndroidParcelize
-data class MoveToFolderScreenKey(val noteId: NoteId) : ScreenKey
+data class CreateFolderScreenKey(val noteId: NoteId) : ScreenKey
 
-data class MoveToFolderModel(
+data class CreateFolderModel(
   val folderPath: String,
   val errorMessage: String?,
 )
 
-sealed class MoveToFolderEvent {
-  data class NameTextChanged(val name: String) : MoveToFolderEvent()
-  object SubmitClicked : MoveToFolderEvent()
+sealed class CreateFolderEvent {
+  data class NameTextChanged(val name: String) : CreateFolderEvent()
+  object SubmitClicked : CreateFolderEvent()
 }

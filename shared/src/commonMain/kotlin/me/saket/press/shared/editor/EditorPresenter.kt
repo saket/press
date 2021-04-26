@@ -48,7 +48,7 @@ import me.saket.press.shared.editor.ToolbarIconKind.DeleteNote
 import me.saket.press.shared.editor.ToolbarIconKind.DuplicateNote
 import me.saket.press.shared.editor.ToolbarIconKind.OpenInSplitScreen
 import me.saket.press.shared.editor.ToolbarIconKind.ShareAs
-import me.saket.press.shared.editor.folder.MoveToFolderScreenKey
+import me.saket.press.shared.editor.folder.CreateFolderScreenKey
 import me.saket.press.shared.home.HomePresenter
 import me.saket.press.shared.localization.Strings
 import me.saket.press.shared.rx.Schedulers
@@ -305,7 +305,7 @@ class EditorPresenter(
     return events.ofType<ChangeFolderClicked>()
       .withLatestFrom(noteStream, ::Pair)
       .consumeOnNext { (_, note) ->
-        args.navigator.lfg(MoveToFolderScreenKey(noteId = note.id))
+        args.navigator.lfg(CreateFolderScreenKey(noteId = note.id))
       }
   }
 

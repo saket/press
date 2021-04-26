@@ -3,7 +3,7 @@ package me.saket.press.shared.localization
 import me.saket.press.shared.localization.Strings.Common
 import me.saket.press.shared.localization.Strings.Editor
 import me.saket.press.shared.localization.Strings.Home
-import me.saket.press.shared.localization.Strings.MoveToFolder
+import me.saket.press.shared.localization.Strings.CreateFolder
 import me.saket.press.shared.localization.Strings.Preferences
 import me.saket.press.shared.localization.Strings.Sync
 
@@ -11,7 +11,7 @@ class Strings(
   val common: Common,
   val home: Home,
   val editor: Editor,
-  val movetofolder: MoveToFolder,
+  val createfolder: CreateFolder,
   val sync: Sync,
   val prefs: Preferences,
 ) {
@@ -70,11 +70,11 @@ class Strings(
     val formattingtoolbar_inline_code: String,
   )
 
-  data class MoveToFolder(
-    val movetofolder_title: String,
-    val movetofolder_submit: String,
-    val movetofolder_cancel: String,
-    val movetofolder_folder_name_hint: String,
+  data class CreateFolder(
+    val createfolder_title: String,
+    val createfolder_submit: String,
+    val createfolder_cancel: String,
+    val createfolder_name_hint: String,
   )
 
   class Sync(
@@ -208,11 +208,11 @@ val ENGLISH_STRINGS = Strings(
     formattingtoolbar_blockquote = "Quote",
     formattingtoolbar_inline_code = "Code"
   ),
-  movetofolder = MoveToFolder(
-    movetofolder_title = "Move to folder",
-    movetofolder_submit = "Save",
-    movetofolder_cancel = "Cancel",
-    movetofolder_folder_name_hint = "path/to/folder"
+  createfolder = CreateFolder(
+    createfolder_title = "Move to folder",
+    createfolder_submit = "Save",
+    createfolder_cancel = "Cancel",
+    createfolder_name_hint = "path/to/folder"
   ),
   sync = Sync(
     title = "Sync",
