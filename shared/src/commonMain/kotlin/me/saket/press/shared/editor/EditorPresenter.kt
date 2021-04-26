@@ -42,10 +42,10 @@ import me.saket.press.shared.editor.EditorOpenMode.NewNote
 import me.saket.press.shared.editor.TextFormat.Html
 import me.saket.press.shared.editor.TextFormat.Markdown
 import me.saket.press.shared.editor.TextFormat.RichText
-import me.saket.press.shared.editor.ToolbarIconKind.MoveToFolder
 import me.saket.press.shared.editor.ToolbarIconKind.CopyAs
 import me.saket.press.shared.editor.ToolbarIconKind.DeleteNote
 import me.saket.press.shared.editor.ToolbarIconKind.DuplicateNote
+import me.saket.press.shared.editor.ToolbarIconKind.MoveToFolder
 import me.saket.press.shared.editor.ToolbarIconKind.OpenInSplitScreen
 import me.saket.press.shared.editor.ToolbarIconKind.ShareAs
 import me.saket.press.shared.editor.folder.CreateFolderScreenKey
@@ -305,7 +305,12 @@ class EditorPresenter(
     return events.ofType<ChangeFolderClicked>()
       .withLatestFrom(noteStream, ::Pair)
       .consumeOnNext { (_, note) ->
-        args.navigator.lfg(CreateFolderScreenKey(noteId = note.id))
+        args.navigator.lfg(
+          CreateFolderScreenKey(
+            preFilledFolderPath = folderPaths.createFlatPath(id = note.folderId),
+            includeNoteIds = listOf(note.id)
+          )
+        )
       }
   }
 

@@ -5,7 +5,10 @@ import me.saket.press.shared.db.NoteId
 import me.saket.press.shared.ui.ScreenKey
 
 @AndroidParcelize
-data class CreateFolderScreenKey(val noteId: NoteId) : ScreenKey
+data class CreateFolderScreenKey(
+  val preFilledFolderPath: String,
+  val includeNoteIds: List<NoteId>
+) : ScreenKey
 
 data class CreateFolderModel(
   val folderPath: String,
