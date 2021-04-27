@@ -28,7 +28,8 @@ class SharedEditorComponent {
       CreateFolderPresenter(
         args = args,
         database = get(),
-        schedulers = get()
+        schedulers = get(),
+        strings = get()
       )
     }
   }

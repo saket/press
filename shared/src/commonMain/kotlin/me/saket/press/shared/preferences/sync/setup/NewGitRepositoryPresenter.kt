@@ -113,7 +113,7 @@ class NewGitRepositoryPresenter(
       .mergeWith(repoNames.map { Idle })
   }
 
-  sealed class SubmitResult {
+  private sealed class SubmitResult {
     object Idle : SubmitResult()
     object Ongoing : SubmitResult()
     data class Failure(val message: String) : SubmitResult()

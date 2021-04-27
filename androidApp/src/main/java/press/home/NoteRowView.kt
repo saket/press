@@ -41,8 +41,7 @@ class NoteRowView(context: Context) : ContourLayout(context) {
 
   fun render(model: HomeModel.NoteModel) {
     this.model = model
-    val highlightSpan = ForegroundColorSpan(themePalette().accentColor)
-    titleView.text = model.title.withSpan(highlightSpan)
-    bodyView.text = model.body.withSpan(highlightSpan)
+    titleView.text = model.title.withSpan(ForegroundColorSpan(themePalette().accentColor))
+    bodyView.text = model.body.withSpan(ForegroundColorSpan(themePalette().accentColor))
   }
 }

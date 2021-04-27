@@ -101,6 +101,8 @@ class PressDialogView(context: Context) : ContourLayout(context) {
 
     contourWidthOf { available -> minOf(300.xdip, available - 60.xdip) }
     contourHeightOf { positiveButtonView.bottom() }
+
+    setOnClickListener { /* Don't leak through clicks.*/ }
   }
 
   fun render(

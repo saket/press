@@ -6,17 +6,20 @@ import android.util.AttributeSet
 import android.view.Gravity.CENTER
 import android.view.inputmethod.EditorInfo.IME_ACTION_DONE
 import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.LinearLayout.VERTICAL
 import androidx.core.view.updateLayoutParams
 import com.jakewharton.rxbinding3.view.detaches
 import com.squareup.contour.ContourLayout
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.inflation.InflationInject
-import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.saket.press.R
-import me.saket.press.shared.editor.folder.CreateFolderEvent.NameTextChanged
+import me.saket.press.shared.editor.folder.CreateFolderEvent.FolderPathTextChanged
 import me.saket.press.shared.editor.folder.CreateFolderEvent.SubmitClicked
 import me.saket.press.shared.editor.folder.CreateFolderModel
 import me.saket.press.shared.editor.folder.CreateFolderPresenter
+import me.saket.press.shared.editor.folder.CreateFolderScreenKey
 import me.saket.press.shared.localization.strings
 import me.saket.press.shared.theme.TextStyles.smallBody
 import me.saket.press.shared.theme.applyStyle
@@ -24,6 +27,7 @@ import me.saket.press.shared.ui.models
 import me.saket.wysiwyg.style.withOpacity
 import press.extensions.doOnEditorAction
 import press.extensions.doOnTextChange
+import press.extensions.resizeAndBind
 import press.extensions.setTextAndCursor
 import press.extensions.showKeyboard
 import press.extensions.textColor
@@ -63,6 +67,7 @@ class CreateFolderView @InflationInject constructor(
     dialogView.replaceMessageWith(contentView)
 
     contentView.textField.editText.run {
+      setTextAndCursor(screenKey<CreateFolderScreenKey>().preFilledFolderPath)
       doOnEditorAction(IME_ACTION_DONE) {
         dialogView.positiveButtonView.performClick()
       }
@@ -76,29 +81,46 @@ class CreateFolderView @InflationInject constructor(
     super.onAttachedToWindow()
 
     val presenter = presenterFactory.create(
-      args = CreateFolderPresenter.Args(screenKey = screenKey())
+      args = CreateFolderPresenter.Args(
+        screenKey = screenKey(),
+        navigator = navigator()
+      )
     )
     dialogView.positiveButtonView.setOnClickListener {
       presenter.dispatch(SubmitClicked)
     }
     contentView.textField.editText.doOnTextChange {
-      presenter.dispatch(NameTextChanged(it.toString()))
+      presenter.dispatch(FolderPathTextChanged(it.toString()))
     }
 
     presenter.models()
-      .observeOn(AndroidSchedulers.mainThread())
+      .observeOn(mainThread())
       .takeUntil(detaches())
       .subscribe(::render)
   }
 
   private fun render(model: CreateFolderModel) {
-    contentView.textField.let {
-      it.editText.setTextAndCursor(model.folderPath)
-      it.error = model.errorMessage
+    contentView.run {
+      textField.error = model.errorMessage
+      textField.isErrorEnabled = model.errorMessage != null
+
+      suggestionsContainer.resizeAndBind(
+        size = 3,
+        viewCreator = { FolderSuggestionRowView(context) },
+        viewBinder = { index, view ->
+          view.render(
+            model = model.suggestions.getOrNull(index),
+            showDivider = index < 2,
+            onClick = {
+              textField.editText.setTextAndCursor(model.suggestions[index].name.text)
+            }
+          )
+        }
+      )
 
       // Not sure why the text field loses focus when an error is shown.
-      if (!it.hasFocus()) {
-        it.requestFocus()
+      if (!textField.hasFocus()) {
+        textField.requestFocus()
       }
     }
   }
@@ -110,9 +132,12 @@ private class ContentView(context: Context) : ContourLayout(context) {
     editText.id = R.id.createfolder_folder_name
     editText.isSingleLine = true
     editText.imeOptions = editText.imeOptions or IME_ACTION_DONE
-    hint = context.strings().createfolder.createfolder_name_hint
-    isHelperTextEnabled = true
     editText.textColor = themePalette().textColorPrimary
+    hint = context.strings().createfolder.createfolder_name_hint
+  }
+
+  val suggestionsContainer = LinearLayout(context).apply {
+    orientation = VERTICAL
   }
 
   init {
@@ -120,6 +145,17 @@ private class ContentView(context: Context) : ContourLayout(context) {
       x = matchParentX(marginLeft = 20.dip, marginRight = 20.dip),
       y = topTo { parent.top() }
     )
-    contourHeightWrapContent()
+    suggestionsContainer.layoutBy(
+      x = matchParentX(),
+      y = topTo { textField.bottom() }
+    )
+    contourHeightOf { suggestionsContainer.bottom() }
+
+    // Seed views.
+    suggestionsContainer.let {
+      it.addView(FolderSuggestionRowView(context))
+      it.addView(FolderSuggestionRowView(context))
+      it.addView(FolderSuggestionRowView(context))
+    }
   }
 }

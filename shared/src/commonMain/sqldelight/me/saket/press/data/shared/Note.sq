@@ -113,10 +113,16 @@ UPDATE note
 SET content = :content, updatedAt = ?
 WHERE id = ? AND TRIM(content) != TRIM(:content);
 
+-- todo: migrate to updateFolder.
 updateFolder:
 UPDATE note
 SET folderId = ?
 WHERE id = ?;
+
+updateFolders:
+UPDATE note
+SET folderId = ?
+WHERE id IN :ids;
 
 updateSyncState:
 UPDATE note

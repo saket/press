@@ -36,6 +36,11 @@ allFolders:
 SELECT * FROM folder
 ORDER BY name ASC;
 
+allNonEmptyFolders:
+SELECT * FROM folder
+WHERE id IN (SELECT folderId FROM visibleNonEmptyNotes WHERE folderId IS NOT NULL)
+ORDER BY name ASC;
+
 foldersUnder:
 SELECT * FROM folder
 WHERE parent = ?
@@ -43,11 +48,11 @@ ORDER BY name ASC;
 
 nonEmptyFoldersUnder:
 SELECT id, name FROM folder
-WHERE parent = ? AND id IN (
-  SELECT folderId
-  FROM visibleNonEmptyNotes
-  WHERE folderId IS NOT NULL
-)
+WHERE parent = ?
+  AND (
+    id IN (SELECT folderId FROM visibleNonEmptyNotes WHERE folderId IS NOT NULL)
+    OR id IN (SELECT parent FROM folder)
+  )
 ORDER BY name ASC;
 
 -- Test functions.

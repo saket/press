@@ -26,7 +26,8 @@ fun View.SpacingItemDecoration(spacing: Int, orientation: Int): RecyclerView.Ite
   }
 }
 
-open class DividerDrawable(@ColorInt color: Int) : PaintDrawable(color) {
+// todo: use 1dp instead of 1px.
+open class DividerDrawable(@ColorInt color: Int = themePalette().divider) : PaintDrawable(color) {
   override fun getIntrinsicWidth() = 1
   override fun getIntrinsicHeight() = 1
 }

@@ -14,6 +14,7 @@ import android.view.ViewGroup.MarginLayoutParams
 import android.view.ViewGroup.OnHierarchyChangeListener
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.ViewFlipper
 import androidx.annotation.DrawableRes
@@ -169,5 +170,23 @@ inline fun TextView.setDrawableLeft(@DrawableRes drawableRes: Int) {
 inline fun View.doOnEveryLayout(crossinline action: () -> Unit) {
   addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
     action()
+  }
+}
+
+/** Makes it easy to create or resize a dynamic list of views and bind them. */
+@Suppress("UNCHECKED_CAST")
+fun <T : View> LinearLayout.resizeAndBind(
+  size: Int,
+  viewCreator: () -> T,
+  viewBinder: (index: Int, view: T) -> Unit
+) {
+  while (childCount < size) {
+    addView(viewCreator(), 0)
+  }
+  while (childCount > size) {
+    removeViewAt(0)
+  }
+  children.take(size).forEachIndexed { index, view ->
+    viewBinder(index, view as T)
   }
 }

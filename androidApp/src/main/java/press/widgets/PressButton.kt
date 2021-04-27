@@ -40,7 +40,7 @@ open class PressButton(context: Context, style: UiStyles.Text) : AppCompatButton
   }
 }
 
-class PressBorderlessButton(context: Context, style: UiStyles.Text) : PressButton(context, style) {
+open class PressBorderlessButton(context: Context, style: UiStyles.Text) : PressButton(context, style) {
   init {
     elevation = 0f
     stateListAnimator = null

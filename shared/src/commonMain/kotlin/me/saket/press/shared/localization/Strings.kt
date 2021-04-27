@@ -212,7 +212,7 @@ val ENGLISH_STRINGS = Strings(
     createfolder_title = "Move to folder",
     createfolder_submit = "Save",
     createfolder_cancel = "Cancel",
-    createfolder_name_hint = "path/to/folder"
+    createfolder_name_hint = "path/to/folder",
   ),
   sync = Sync(
     title = "Sync",
