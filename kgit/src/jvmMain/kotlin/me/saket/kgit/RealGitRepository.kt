@@ -359,6 +359,9 @@ internal actual class RealGitRepository actual constructor(
       if (e.message?.contains("unknown host", ignoreCase = true) == true) {
         return NetworkError
       }
+      if (e.message?.contains("You're using an RSA key with SHA-1", ignoreCase = true) == true) {
+        return AuthFailed
+      }
       if (e.cause is IOException) {
         return NetworkError
       }
