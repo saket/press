@@ -191,7 +191,7 @@ class GitHostIntegrationPresenter(
         val token = authToken.get()!!
         val deployKey = GitHostService.DeployKey(
           title = "Press (${deviceInfo.deviceName()})",
-          key = sshKeygen.generateRsa(comment = "(Created by Press)")
+          key = sshKeygen.generateEcdsa(comment = "(Created by Press)")
         )
         gitHostService.addDeployKey(token, repo, deployKey)
           .andThen(completeSetup(repo, deployKey, userSetting.get()!!))

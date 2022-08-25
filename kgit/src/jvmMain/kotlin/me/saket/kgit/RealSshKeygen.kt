@@ -5,8 +5,8 @@ import com.jcraft.jsch.KeyPair
 import java.io.ByteArrayOutputStream
 
 actual class RealSshKeygen : SshKeygen {
-  override fun generateRsa(comment: String): SshKeyPair {
-    val keyPair: KeyPair = KeyPair.genKeyPair(JSch(), KeyPair.RSA)
+  override fun generateEcdsa(comment: String): SshKeyPair {
+    val keyPair: KeyPair = KeyPair.genKeyPair(JSch(), KeyPair.ECDSA, 521)
 
     var publicKey: String
     ByteArrayOutputStream().use { stream ->
